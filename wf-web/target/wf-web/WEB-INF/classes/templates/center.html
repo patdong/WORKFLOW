@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"  xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout" layout:decorator="layout">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+</head>
+<body>
+    <div layout:fragment="content">      
+      	<div id="content">
+		  	<div id="left" style="padding:0em;margin:0px">
+		    	<div >
+		    		<h1 class="mt-5">流程配置中心</h1>
+		    		<p class="lead">
+				      	<code>随意所欲 配置流程 定义表单 是我们的目标</code>      	
+				    </p>
+		    	</div>
+		  	</div>
+		
+		  	<div id="right" style="padding:0em;text-align:right;">
+		     	<div ><h1 class="mt-5"><img th:src="@{/img/wf_btn.PNG}"></img></h1></div>	     	
+		  	</div>
+		</div>
+      	
+
+      
+      <p>
+      	<div id="content">
+		  	<div id="left">
+		    	<div ><img th:src="@{/img/wf.PNG}" style="vertical-align: top;"></img></div>
+		     	<div ><img th:src="@{/img/wf2.PNG}" style="vertical-align: top;"></img></div>
+		  	</div>
+		
+		  	<div id="right">
+		     	<div ><img th:src="@{/img/wf1.PNG}"></img></div>	     	
+		  	</div>
+		</div>
+      </p>
+    </div>
+</body>
+</html>
+

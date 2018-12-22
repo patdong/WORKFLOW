@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.ideal.wf.dao.WorkflowBriefMapper">
+	<resultMap id="workflowbrief" type="cn.ideal.wf.model.WorkflowBrief" />			
+	
+	<select id="findAll" resultMap="workflowbrief">
+		select * from workflow_brief 
+	</select>
+		
+	<select id="find" resultMap="workflowbrief" parameterType="java.lang.Long">
+		select * from workflow_brief where bizId=#{bizId}
+	</select>
+	
+	<select id="findDoingFlow" resultMap="workflowbrief" parameterType="java.lang.Long">
+		select * from workflow_brief where bizId=#{bizId} and finishedDate is null
+	</select>
+	
+	<insert id="addFlowBrief" parameterType="cn.ideal.wf.model.WorkflowBrief">
+		insert into workflow_brief(
+			bizId,flowId,stepId,nodeName,dispatchUserId,unitId,createdDate,modifiedDate,finishedDate,moduleId,status
+		)
+		values(
+			#{bizId},
+			#{flowId},
+			#{stepId},
+			#{nodeName},
+			#{dispatchUserId},
+			#{unitId},
+			#{createdDate},
+			#{modifiedDate},
+			#{finishedDate},
+			#{moduleId},
+			#{status}
+		)
+	</insert>
+	
+	<update id="updateFlowBrief" parameterType="cn.ideal.wf.model.WorkflowBrief">
+		update workflow_brief set 
+			modifiedDate=#{modifiedDate},
+			flowId=#{flowId},
+			stepId=#{stepId},
+			nodeName=#{nodeName},
+			dispatchUserId=#{dispatchUserId},
+			unitId=#{unitId},
+			actionName=#{actionName},
+			finishedDate=#{finishedDate}
+		<where>		
+			bizId=#{bizId}			
+		</where>				
+	</update>
+	
+	<update id="endFlowBrief" parameterType="cn.ideal.wf.model.WorkflowBrief">
+		update workflow_brief set 			
+			finishedDate=#{finishedDate}
+			<if test="actionName != null">
+			,actionName=#{actionName}
+			</if>
+			<if test="status != null">
+			,status=#{status}
+			</if>			
+		<where>		
+			bizId=#{bizId}			
+		</where>				
+	</update>
+		
+	<update id="updateStatusFlowBrief" parameterType="cn.ideal.wf.model.WorkflowBrief">
+		update workflow_brief set 			
+			status=#{status}
+		<where>		
+			bizId=#{bizId}			
+		</where>				
+	</update>
+</mapper>

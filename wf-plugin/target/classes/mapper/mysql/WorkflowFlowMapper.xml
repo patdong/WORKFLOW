@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.ideal.wf.dao.WorkflowFlowMapper">
+	<resultMap id="workflow" type="cn.ideal.wf.model.WorkflowFlow" />
+	<resultMap id="workflowwithstep" type="cn.ideal.wf.model.WorkflowFlow" >
+		<id column="workflowId" property="workflowId" jdbcType="NUMERIC" />
+		<association property="workflowSteps" column="workflowId" select="cn.ideal.wf.dao.WorkflowStepMapper.findAllByFlowId" />
+	</resultMap>			
+	
+	<select id="findAll" resultMap="workflow">
+		select * from workflow 
+	</select>
+		
+	<select id="find" resultMap="workflow" parameterType="java.lang.Long">
+		select * from workflow where flowId=#{flowId}
+	</select>
+		
+	<select id="findDoingFlow" resultMap="workflowwithstep" parameterType="java.lang.Long">
+		select * from workflow where bizId=#{bizId} and finishedDate is null
+	</select>
+	
+	<insert id="addFlow" useGeneratedKeys="true" keyProperty="flowId" parameterType="cn.ideal.wf.model.WorkflowFlow">
+		insert into workflow(
+			flowParentId,nodeName,actionName,status,createdDate,finishedDate,timeDiffer,bizId,wfId
+		)
+		values(
+			#{flowParentId},
+			#{nodeName},
+			#{actionName},
+			#{status},
+			#{createdDate},
+			#{finishedDate},
+			#{timeDiffer},
+			#{bizId},
+			#{wfId}
+		)
+	</insert>
+	
+	<update id="endFlow" parameterType="cn.ideal.wf.model.WorkflowFlow">
+		update workflow set 
+			finishedDate=#{finishedDate},
+			actionName=#{actionName},
+			status=#{status}
+		<where>
+			<if test="flowId != null">
+				and flowId=#{flowId}
+			</if>
+			<if test="bizId != null">
+				and bizId=#{bizId}
+			</if>
+		</where>				
+	</update>
+	
+	<select id="findWorkflowUsers" resultType="cn.ideal.wf.model.WorkflowUser" parameterType="java.lang.Long">
+		select distinct wfs.dispatchUserId as userId,wfs.dispatchUserName as userName,wfs.unitId,wfs.unitName 
+		  from workflow_step wfs 
+		inner join workflow wf on wfs.flowId = wf.flowId
+		where bizId=#{bizId}
+	</select>
+	
+	<select id="findWorkflowWithSteps" resultMap="workflowwithstep" parameterType="java.lang.Long">
+		select * from workflow where bizId=#{bizId}
+	</select>
+</mapper>
