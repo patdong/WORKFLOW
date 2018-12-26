@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.ideal.wf.dao.ElementMapper">
+	<resultMap id="element" type="cn.ideal.wf.model.Element" />	
+	
+	<select id="find" resultType="cn.ideal.wf.model.Element" parameterType="java.lang.Long">
+		select * from element_library
+		 where emId = #{emId}
+	</select>	
+	
+	<insert id="save" useGeneratedKeys="true" keyProperty="emId" parameterType="cn.ideal.wf.model.Element">
+		insert into element_library(
+			labelName,fieldName,hiddenFieldName,functionName,status,createdDate
+		)
+		values(
+			#{labelName},
+			#{fieldName},
+			#{hiddenFieldName},
+			#{functionName},			
+			#{status},
+			#{createdDate}
+		)
+	</insert>
+	
+	<update id="update" parameterType="cn.ideal.wf.model.Element">
+		update element_library set
+			labelName = #{labelName},
+			fieldName = #{fieldName},
+			hiddenFieldName = #{hiddenFieldName},
+			functionName = #{functionName},
+			status = #{status}
+		where emId = #{emId}
+	</update>
+	
+	<update id="updateStatus" parameterType="cn.ideal.wf.model.Element">
+		update element_library set			
+			status = #{status}
+		where emId = #{emId}
+	</update>
+		
+	<select id="findAll" resultMap="element" parameterType="java.lang.Long">
+		select * from element_library
+	</select>
+		
+	<select id="findValidAll" resultMap="element">
+		select * from element_library
+		 where status = '有效'
+	</select>
+	
+	<select id="findValidAllWithTable" resultMap="element" parameterType="java.util.Map">
+		select a.*,b.tbId from element_library a
+		inner join table_element b on a.emId = b.emId 
+		                         and b.tbId = #{tbId}
+		                         <if test="scope != null">
+		                         and b.scope = #{scope}
+		                         </if>
+		 where a.status = '有效'
+		 union all
+		 select a.*,null as tbId from element_library a
+		 where a.status = '有效'
+		   and a.emId not in (select emId from table_element b where b.tbId = #{tbId})
+	</select>
+	
+	<select id="findAPage" resultMap="element" parameterType="java.util.Map">
+		select * from element_library order by emId 
+		<if test="recordNumber != null ">
+			LIMIT #{recordNumber},#{pageSize}
+		</if>	
+	</select>
+</mapper>

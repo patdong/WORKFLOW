@@ -9,10 +9,11 @@
 		    	</p>
 		  	</div>
 		</div>
-	
+		<!-- 
 		<div id="right" style="padding:0em;text-align:right;">
 	     	<div ><h1 class="mt-5" style="cursor:pointer;" onclick="location.href='/login'"><img src="/img/wf_btn.PNG"></img></h1></div>	     	
 	  	</div>
+	  	 -->
 	</div>
     	
    	<div id="content">

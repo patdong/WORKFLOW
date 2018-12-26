@@ -64,7 +64,7 @@ public class WfConfigurationController {
 	 * 创建一个新的工作流
 	 * */
 	@GetMapping("/newworkflow")
-    public ModelAndView newWorkflow(ModelMap map, HttpServletRequest request) {		
+    public ModelAndView newWorkflow(HttpServletRequest request) {		
         Workflow wf = workflowService.save(new Workflow());
         
         return  new ModelAndView("redirect:/wf/workflowdefination/"+wf.getWfId());
@@ -113,22 +113,6 @@ public class WfConfigurationController {
         return mav;
     }
 	
-	/**
-	 * 表单管理中心
-	 * */
-	@GetMapping("/tablecenter")
-    public ModelAndView enterTableCenter(ModelMap map, HttpServletRequest request) {		
-        return new ModelAndView("tableCenter");
-    }
-	
-	/**
-	 * 管理表单
-	 * */
-	@GetMapping("/tabledefination")
-    public ModelAndView defineTable(ModelMap map, HttpServletRequest request) {		
-        return new ModelAndView("tableDefination");
-    }
-		
 	/**
 	 * 选择指定用户信息
 	 * */

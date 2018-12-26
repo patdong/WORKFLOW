@@ -8,7 +8,6 @@ package cn.ideal.wf.web;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -26,7 +25,7 @@ public class HomeController {
 	/**
 	 * 首页
 	 * */
-	@GetMapping("/")
+	@GetMapping("/center")
     public ModelAndView homePage(HttpServletRequest request) {
         return new ModelAndView("center");
     }
@@ -41,6 +40,15 @@ public class HomeController {
 	
 	/**
 	 * 进入登陆页面
+	 * 采用spring授权认证时，此方法生效。
+	 * */
+	@GetMapping("/")
+    public ModelAndView getLoginPage0(HttpServletRequest request) {		
+        return new ModelAndView("redirect:/center");
+    }
+	
+	/**
+	 * 进入登陆页面
 	 * */
 	@GetMapping("/login")
     public ModelAndView getLoginPage(HttpServletRequest request) {
@@ -51,10 +59,12 @@ public class HomeController {
 	
 	/**
 	 * 登陆页面选择登陆按钮操作
+	 * 不采用spring的授权认证时，可以采用此方法实现
+	 * 采用spring的授权认证时，此方法将作废。 页面会跳转到getLoginPage0方法进行授权处理。
 	 * */
 	@PostMapping("/login")
     public ModelAndView postLogin(@ModelAttribute("userForm") User userForm,HttpServletRequest request) {		
 		securityService.autoLogin(userForm.getUsername(), userForm.getPassword());
-        return new ModelAndView("redirect:/wf/workflowcenter");
+        return new ModelAndView("redirect:/center");
     }
 }

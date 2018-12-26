@@ -24,28 +24,43 @@
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 -->
 </head>
+<script type="text/javascript">
+$( function() {
+	var currentLocation = window.location;
+	//设置选中菜单高亮
+	var url=currentLocation.toString();
+	if(url.indexOf("wf") > 0 ){
+		$("#wf").css("color","white");
+	}
+	if(url.indexOf("tb") > 0 ){
+		$("#tb").css("color","white");
+	}
+	if(url.indexOf("em") > 0 ){
+		$("#em").css("color","white");
+	}
+})
 
+</script>
 <body>
     <header id="header">
     <nav class="navbar navbar-expand-md navbar-dark fixed-top" style="background:#fd7e14;">
-        <a class="navbar-brand" href="/" >流程中心</a>
+        <a class="navbar-brand" href="/center" >流程中心</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
-        </button>        
-		
+        </button>        		
         <div class="collapse navbar-collapse" id="navbarCollapse">
           <sec:authorize access="hasRole('ROLE_ADMIN')">
-          <ul class="navbar-nav mr-auto">
-            <li class="nav-item"> <!-- active(选中变色） -->
-              <a class="nav-link" href="/wf/workflowcenter" style="font-weight:bold;">流程定义<span class="sr-only">(current)</span></a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="/wf/tablecenter" style="font-weight:bold;">表单管理</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="/wf/tablecenter" style="font-weight:bold;">元素库</a>
-            </li>                        
-          </ul>
+	          <ul class="navbar-nav mr-auto">
+	            <li class="nav-item" > <!-- active(选中变色） -->	            	
+	              <a class="nav-link" href="/wf/workflowcenter" style="font-weight:bold;" id="wf">流程定义<span class="sr-only">(current)</span></a>
+	            </li>
+	            <li class="nav-item" >
+	              <a class="nav-link" href="/tb/tablecenter" style="font-weight:bold;" id="tb">表单管理</a>
+	            </li>
+	            <li class="nav-item" >
+	              <a class="nav-link" href="/em/elementcenter" style="font-weight:bold;" id="em">元素库</a>
+	            </li>                        
+	          </ul>
           </sec:authorize>
           <ul class="nav navbar-nav navbar-right">
             <li><a href="/logout" style="color:#a92525;font-weight:bold">登出</a></li>	            

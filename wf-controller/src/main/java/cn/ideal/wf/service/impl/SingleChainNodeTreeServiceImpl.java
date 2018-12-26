@@ -1,4 +1,4 @@
-package cn.ideal.wf.service;
+package cn.ideal.wf.service.impl;
 
 /**
  * 生成单向链节点树
@@ -17,6 +17,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import cn.ideal.wf.model.Node;
+import cn.ideal.wf.service.NodeTreeService;
 
 @Service
 public class SingleChainNodeTreeServiceImpl implements NodeTreeService {

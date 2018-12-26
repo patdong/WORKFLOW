@@ -1,4 +1,4 @@
-package cn.ideal.wf.service;
+package cn.ideal.wf.service.impl;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,6 +9,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
+
+import cn.ideal.wf.service.SecurityService;
 
 @Service
 public class SecurityServiceImpl implements SecurityService{

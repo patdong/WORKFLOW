@@ -1,4 +1,4 @@
-package cn.ideal.wf.service;
+package cn.ideal.wf.service.impl;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import cn.ideal.wf.model.Role;
 import cn.ideal.wf.model.User;
+import cn.ideal.wf.service.CertificationService;
 
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {

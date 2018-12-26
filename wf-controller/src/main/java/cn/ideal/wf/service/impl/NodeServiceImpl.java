@@ -1,4 +1,4 @@
-package cn.ideal.wf.service;
+package cn.ideal.wf.service.impl;
 
 import java.util.Date;
 import java.util.List;
@@ -10,6 +10,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import cn.ideal.wf.dao.NodeMapper;
 import cn.ideal.wf.model.Node;
+import cn.ideal.wf.service.NodeService;
+import cn.ideal.wf.service.NodeTreeService;
 
 @Service
 public class NodeServiceImpl implements NodeService {

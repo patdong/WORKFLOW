@@ -1,4 +1,4 @@
-package cn.ideal.wf.service;
+package cn.ideal.wf.service.impl;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -20,6 +20,7 @@ import cn.ideal.wf.model.CertificationRole;
 import cn.ideal.wf.model.CertificationUser;
 import cn.ideal.wf.model.Role;
 import cn.ideal.wf.model.User;
+import cn.ideal.wf.service.CertificationService;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;

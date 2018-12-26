@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.ideal.wf.dao.TableMapper">
+	<resultMap id="tablebrief" type="cn.ideal.wf.model.TableBrief" />
+	<resultMap id="tableelement" type="cn.ideal.wf.model.TableElement" />			
+	
+	<select id="findAll" resultMap="tablebrief">
+		select * from table_brief 
+	</select>
+	
+	<select id="findAPage" resultMap="tablebrief" parameterType="java.util.Map">
+		select * from table_brief	order by tbId 
+		<if test="recordNumber != null ">
+			LIMIT #{recordNumber},#{pageSize}
+		</if>	
+	</select>
+		
+	<select id="find" resultMap="tablebrief" parameterType="java.lang.Long">
+		select * from table_brief where tbId=#{tbId}
+	</select>
+	
+	<insert id="saveTableBrief" useGeneratedKeys="true" keyProperty="tbId" parameterType="cn.ideal.wf.model.TableBrief">
+		insert into table_brief(
+			name,tableName,cols,status,createdDate
+		)
+		values(
+			#{name},
+			#{tableName},
+			#{cols},
+			#{status},
+			#{createdDate}
+		)
+	</insert>
+	
+	<update id="updateTableBrief" parameterType="cn.ideal.wf.model.TableBrief">
+		update table_brief set 
+			<if test="name != null">
+				name=#{name}
+			</if>
+			<if test="tableName != null">
+				tableName=#{tableName}
+			</if>
+			<if test="cols != null">
+				cols=#{cols}
+			</if>			
+		<where>		
+			tbId=#{tbId}			
+		</where>				
+	</update>	
+		
+	<update id="updateStatusTableBrief" parameterType="cn.ideal.wf.model.TableBrief">
+		update table_brief set 			
+			   status=#{status}
+		<where>		
+		  tbId=#{tbId}			
+		</where>				
+	</update>
+	
+	
+	<insert id="saveBatchTableElement" parameterType="java.util.List">
+		insert into table_element(
+			tbId,emId,labelNewName,functionNewName,scope,seq,createdDate
+		)
+		values
+		<foreach collection="list" item="item" index="index" separator=",">				
+		(
+			#{item.tbId},
+			#{item.emId},
+			#{item.labelNewName},
+			#{item.functionNewName},			
+			#{item.scope},
+			#{item.seq},
+			#{item.createdDate}
+		)
+		</foreach>
+	</insert>
+		
+	<update id="updateTableElementSeq" parameterType="cn.ideal.wf.model.TableElement">
+		update table_element set 			
+			   seq=#{seq}
+		<where>		
+		      tbId=#{tbId}
+		  and emId = #{emId}			
+		</where>				
+	</update>
+	
+	<delete id="deleteTableElement" parameterType="java.util.Map">
+		delete from table_element 
+		<where>		
+		      tbId=#{tbId}
+		  and emId = #{emId}			
+		</where>				
+	</delete>
+	
+	<select id="findAllTableElements" resultMap="tableelement" parameterType="java.util.Map">
+		select a.*,b.labelName,b.fieldType,b.dataContent from table_element a
+		 inner join element_library b on a.emId = b.emId 
+		 where a.tbId = #{tbId}
+		 <if test="scope != null">
+		   and a.scope = #{scope}
+		 </if> 
+		 order by a.seq
+	</select>	
+	
+	<select id="findTableElement" resultMap="tableelement" parameterType="java.util.Map">
+		select a.* from table_element a
+		 where a.tbId = #{tbId} 
+		   and a.emId = #{emId}
+	</select>
+</mapper>
