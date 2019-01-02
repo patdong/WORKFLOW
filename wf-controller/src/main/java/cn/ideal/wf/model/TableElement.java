@@ -12,20 +12,24 @@ public class TableElement {
 
 	private Long tbId;
 	private Long emId;
-	private String labelNewName;
-	private String functionNewName;
+	private String newLabelName;
+	private String NewFunctionName;
+	private String NewHiddenFieldName;
+	private String NewFieldDataType;
+	private String newFieldType;
+	private String newDataContent;
 	private Long rowes = 1l;
 	private Long cols = 1l;
 	private String scope;
 	private Long width;
 	private Long seq;
+	private String formula;
+	private String list;
 	private String status;
 	private Date createdDate;
 	
 	private String labelName;
-	private String fieldType;
-	private String dataContent;
-	
+	private String fieldName;
 	public Long getTbId() {
 		return tbId;
 	}
@@ -37,6 +41,42 @@ public class TableElement {
 	}
 	public void setEmId(Long emId) {
 		this.emId = emId;
+	}
+	public String getNewLabelName() {
+		return newLabelName;
+	}
+	public void setNewLabelName(String newLabelName) {
+		this.newLabelName = newLabelName;
+	}
+	public String getNewFunctionName() {
+		return NewFunctionName;
+	}
+	public void setNewFunctionName(String newFunctionName) {
+		NewFunctionName = newFunctionName;
+	}
+	public String getNewHiddenFieldName() {
+		return NewHiddenFieldName;
+	}
+	public void setNewHiddenFieldName(String newHiddenFieldName) {
+		NewHiddenFieldName = newHiddenFieldName;
+	}
+	public String getNewFieldDataType() {
+		return NewFieldDataType;
+	}
+	public void setNewFieldDataType(String newFieldDataType) {
+		NewFieldDataType = newFieldDataType;
+	}
+	public String getNewFieldType() {
+		return newFieldType;
+	}
+	public void setNewFieldType(String newFieldType) {
+		this.newFieldType = newFieldType;
+	}
+	public String getNewDataContent() {
+		return newDataContent;
+	}
+	public void setNewDataContent(String newDataContent) {
+		this.newDataContent = newDataContent;
 	}
 	public Long getRowes() {
 		return rowes;
@@ -68,6 +108,12 @@ public class TableElement {
 	public void setSeq(Long seq) {
 		this.seq = seq;
 	}
+	public String getFormula() {
+		return formula;
+	}
+	public void setFormula(String formula) {
+		this.formula = formula;
+	}
 	public String getStatus() {
 		return status;
 	}
@@ -86,30 +132,17 @@ public class TableElement {
 	public void setLabelName(String labelName) {
 		this.labelName = labelName;
 	}
-	public String getLabelNewName() {
-		return labelNewName;
+	public String getFieldName() {
+		return fieldName;
 	}
-	public void setLabelNewName(String labelNewName) {
-		this.labelNewName = labelNewName;
+	public void setFieldName(String fieldName) {
+		this.fieldName = fieldName;
 	}
-	public String getFunctionNewName() {
-		return functionNewName;
+	public String getList() {
+		return list;
 	}
-	public void setFunctionNewName(String functionNewName) {
-		this.functionNewName = functionNewName;
+	public void setList(String list) {
+		this.list = list;
 	}
-	public String getFieldType() {
-		return fieldType;
-	}
-	public void setFieldType(String fieldType) {
-		this.fieldType = fieldType;
-	}
-	public String getDataContent() {
-		return dataContent;
-	}
-	public void setDataContent(String dataContent) {
-		this.dataContent = dataContent;
-	}
-	
 	
 }

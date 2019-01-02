@@ -10,7 +10,7 @@ import java.util.Date;
 public class Workflow {
 	private Long wfId;
 	private String wfName;
-	private Long wfTableId;
+	private Long tableId;
 	private String status;
 	private Date createdDate;	
 	
@@ -27,11 +27,12 @@ public class Workflow {
 	public void setWfName(String wfName) {
 		this.wfName = wfName;
 	}
-	public Long getWfTableId() {
-		return wfTableId;
+	
+	public Long getTableId() {
+		return tableId;
 	}
-	public void setWfTableId(Long wfTableId) {
-		this.wfTableId = wfTableId;
+	public void setTableId(Long tableId) {
+		this.tableId = tableId;
 	}
 	public String getStatus() {
 		return status;

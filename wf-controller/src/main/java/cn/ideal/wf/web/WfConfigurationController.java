@@ -15,11 +15,9 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import cn.ideal.wf.model.CertificationOrg;
 import cn.ideal.wf.model.CertificationRole;
@@ -29,7 +27,11 @@ import cn.ideal.wf.model.Page;
 import cn.ideal.wf.model.Workflow;
 import cn.ideal.wf.service.CertificationService;
 import cn.ideal.wf.service.NodeService;
+import cn.ideal.wf.service.TableService;
 import cn.ideal.wf.service.WorkflowService;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Controller
 @RequestMapping("/wf")
@@ -40,7 +42,8 @@ public class WfConfigurationController {
 	private NodeService nodeService;
 	@Autowired
 	private WorkflowService workflowService;
-	
+	@Autowired
+	private TableService tableService;
 	/**
 	 * 工作流定义中心
 	 * */
@@ -52,11 +55,12 @@ public class WfConfigurationController {
 	
 	@GetMapping("/workflowcenter/{pageNumber}")
     public ModelAndView enterWorkflowCenterWithPage( @PathVariable Long pageNumber,HttpServletRequest request) {		
-        ModelAndView mav = new ModelAndView("workflowCenter");
+        ModelAndView mav = new ModelAndView("config/workflowCenter");
         List<Workflow> wfLst = workflowService.findAll();
-        Page page = new Page(new Long(wfLst.size()),pageNumber);
+        Page<Workflow> page = new Page<Workflow>(new Long(wfLst.size()),pageNumber);
+        page.setPageList(workflowService.findAll(page));
         mav.addObject("page",page);
-        mav.addObject("wfList", workflowService.findAll(pageNumber,Page.pageSize));
+        mav.addObject("tbLst", tableService.findAll());
         return mav;
     }
 	
@@ -89,7 +93,7 @@ public class WfConfigurationController {
 	 * */
 	@GetMapping("/workflowdefination/{wfId}")
     public ModelAndView defineWorkflow(ModelMap map,@PathVariable Long wfId, HttpServletRequest request) {
-		ModelAndView mav = new ModelAndView("workflowDefination");
+		ModelAndView mav = new ModelAndView("config/workflowDefination");
 		try {
 			List<CertificationRole> roles = certificationService.findRoles();
 			mav.addObject("roles", roles);
@@ -143,5 +147,32 @@ public class WfConfigurationController {
 		}
 		
 		return orgs;		
+    }
+	
+	/**
+	 * 设置表单绑定
+	 * */
+	@GetMapping("/setbinding/{wfId}")
+    public @ResponseBody boolean setBinding(@PathVariable Long wfId, @RequestParam("tbId") Long tbId, HttpServletRequest request) {	
+		Workflow wf = new Workflow();
+		wf.setWfId(wfId);
+		wf.setTableId(tbId);
+        wf = workflowService.update(wf);
+        
+        if(wf != null) return true;
+        return false;
+    }
+	
+	/**
+	 * 取消表单绑定
+	 * */
+	@GetMapping("/removebinding/{wfId}")
+    public @ResponseBody boolean removeBinding(@PathVariable Long wfId, HttpServletRequest request) {	
+		Workflow wf = new Workflow();
+		wf.setWfId(wfId);
+        wf = workflowService.removeBinding(wf);
+        
+        if(wf != null) return true;
+        return false;
     }
 }

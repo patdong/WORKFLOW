@@ -15,6 +15,10 @@
 </head>
 
 <body>
+	<div style="position: absolute;width: 30%;margin-left: 35%;top: 15%;font-size: 1.95rem;">
+		<span style="color:#13ca3d;font-weight: bold;">W</span><span style="color:#e60e23;font-weight: bold;">F</span>
+		<span style="color:#17dcfb;font-weight: bold;">2.0</span>
+	</div>	
     <div class="container" style="width:30%; text-align:center;border:1px solid #ff3b00;margin-top:10%;box-shadow: 0 0 0 0.2rem rgba(241,9,9,.93);" >
 	<form:form class="login-centered" modelAttribute="userForm" method="post" action="/login">
         <h2 class="form-signin-heading">登陆</h2>

@@ -13,6 +13,7 @@
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>1.5.10.RELEASE</version>
+		<relativePath/>         
   </parent>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -98,7 +99,7 @@
 		</dependency>
 		<dependency>
             <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
+            <artifactId>mysql-connector-java</artifactId>         
         </dependency>
 	        
     <dependency>

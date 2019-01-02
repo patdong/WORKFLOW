@@ -13,6 +13,7 @@ public class TableBrief {
 	private Long tbId;
 	private String name;
 	private String tableName;
+	private String template;
 	private Long cols;
 	private String status;
 	private Date createdDate;
@@ -52,6 +53,12 @@ public class TableBrief {
 	}
 	public void setCreatedDate(Date createdDate) {
 		this.createdDate = createdDate;
+	}
+	public String getTemplate() {
+		return template;
+	}
+	public void setTemplate(String template) {
+		this.template = template;
 	}
 	
 }

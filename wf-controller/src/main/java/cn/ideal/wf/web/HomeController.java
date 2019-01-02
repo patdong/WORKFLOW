@@ -25,9 +25,9 @@ public class HomeController {
 	/**
 	 * 首页
 	 * */
-	@GetMapping("/center")
+	@GetMapping("/cf/center")
     public ModelAndView homePage(HttpServletRequest request) {
-        return new ModelAndView("center");
+        return new ModelAndView("config/center");
     }
 	
 	/**
@@ -44,7 +44,7 @@ public class HomeController {
 	 * */
 	@GetMapping("/")
     public ModelAndView getLoginPage0(HttpServletRequest request) {		
-        return new ModelAndView("redirect:/center");
+        return new ModelAndView("redirect:/cf/center");
     }
 	
 	/**

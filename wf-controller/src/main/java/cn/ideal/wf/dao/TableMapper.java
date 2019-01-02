@@ -33,4 +33,10 @@ public interface TableMapper {
 	
 	void deleteTableElement(@Param("tbId") Long tbId, @Param("emId") Long emId);
 	
+	int updateTableElementList(@Param("tbId") Long tbId,@Param("emIds") Long[]  emIds);
+	
+	int resetTableElementList(Long tbId);
+	
+	List<TableElement> findTableList(Long tbId);
+	
 }

@@ -13,6 +13,7 @@
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath }/css/bootstrap.min.css" />
 <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath }/css/sys.css" />
+<link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath }/css/plugin.css" />
 <!-- jquery 弹出dialog -->
 <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 
@@ -44,7 +45,7 @@ $( function() {
 <body>
     <header id="header">
     <nav class="navbar navbar-expand-md navbar-dark fixed-top" style="background:#fd7e14;">
-        <a class="navbar-brand" href="/center" >流程中心</a>
+        <a class="navbar-brand" href="/cf/center" >流程中心</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>        		
@@ -59,7 +60,10 @@ $( function() {
 	            </li>
 	            <li class="nav-item" >
 	              <a class="nav-link" href="/em/elementcenter" style="font-weight:bold;" id="em">元素库</a>
-	            </li>                        
+	            </li>
+	            <li class="nav-item" >
+	              <a class="nav-link" href="/app/actualcenter" style="font-weight:bold;" id="em">流程实战</a>
+	            </li>                         
 	          </ul>
           </sec:authorize>
           <ul class="nav navbar-nav navbar-right">
@@ -70,10 +74,8 @@ $( function() {
 	</header>
     <hr />
     <sitemesh:write property="body" />
-    <footer class="footer">
-	   <div class="container">
-        <span class="text-muted">@copyright 2.0</span>
-       </div>
+    <footer class="footer">	   
+        <span style="color:#b77c0cb3">@WF2.0</span>
 	</footer>
 </body>
 </html>

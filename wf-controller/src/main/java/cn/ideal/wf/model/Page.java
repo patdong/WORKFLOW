@@ -1,16 +1,21 @@
 package cn.ideal.wf.model;
+
+import java.util.List;
+
 /**
  * 页面翻页器
  * @author 郭佟燕
  * @version 2.0
  *
  */
-public class Page {
+public class Page<E> {
 	public final static Long pageSize = 10l; 
 	private Long curPage;
 	private Long prePage;
 	private Long nextPage;
 	private Long[] bodyPages;
+	private List<E> pageList;              //页面记录集
+	private Long curFirstRecord;           //当前页的首记录
 	
 	public Page(Long recordNumber, Long pageNumber){
 		if(pageSize.intValue() == 0l) return;
@@ -57,6 +62,19 @@ public class Page {
 	}
 	public void setCurPage(Long curPage) {
 		this.curPage = curPage;
+	}
+	public List<E> getPageList() {
+		return pageList;
+	}
+	public void setPageList(List<E> pageList) {
+		this.pageList = pageList;
+	}
+	public Long getCurFirstRecord() {
+		this.curFirstRecord = (this.curPage-1) * pageSize;
+		return this.curFirstRecord;
+	}
+	public void setCurFirstRecord(Long curFirstRecord) {
+		this.curFirstRecord = curFirstRecord;
 	}
 	
 	

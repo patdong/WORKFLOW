@@ -8,6 +8,7 @@ import org.springframework.util.StringUtils;
 
 import cn.ideal.wf.dao.ElementMapper;
 import cn.ideal.wf.model.Element;
+import cn.ideal.wf.model.Page;
 import cn.ideal.wf.service.ElementService;
 
 @Service
@@ -46,8 +47,8 @@ public class ElementServiceImpl implements ElementService{
 	}
 
 	@Override
-	public List<Element> findAll(Long pageNumber,Long pageSize) {
-		return elementMapper.findAPage((pageNumber-1)*pageSize, pageSize);
+	public List<Element> findAll(Page<Element> page) {
+		return elementMapper.findAPage(page.getCurFirstRecord(),Page.pageSize);
 	}
 
 	@Override

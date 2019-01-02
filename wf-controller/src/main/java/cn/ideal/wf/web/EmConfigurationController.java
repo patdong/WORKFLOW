@@ -32,11 +32,11 @@ public class EmConfigurationController {
 		
 	@GetMapping("/elementcenter/{pageNumber}")
     public ModelAndView enterElementCenterWithPage( @PathVariable Long pageNumber,HttpServletRequest request) {		
-        ModelAndView mav = new ModelAndView("elementCenter");
+        ModelAndView mav = new ModelAndView("config/elementCenter");
         List<Element> emLst = elementService.findAll();
-        Page page = new Page(new Long(emLst.size()),pageNumber);
-        mav.addObject("page",page);
-        mav.addObject("emList", elementService.findAll(pageNumber,Page.pageSize));
+        Page<Element> page = new Page<Element>(new Long(emLst.size()),pageNumber);
+        page.setPageList(elementService.findAll(page));
+        mav.addObject("page",page);        
         return mav;
     }
 }

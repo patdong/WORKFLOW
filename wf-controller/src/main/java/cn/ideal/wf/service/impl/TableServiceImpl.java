@@ -13,6 +13,7 @@ import org.springframework.util.StringUtils;
 import cn.ideal.wf.dao.ElementMapper;
 import cn.ideal.wf.dao.TableMapper;
 import cn.ideal.wf.model.Element;
+import cn.ideal.wf.model.Page;
 import cn.ideal.wf.model.TableBrief;
 import cn.ideal.wf.model.TableElement;
 import cn.ideal.wf.service.TableService;
@@ -41,8 +42,8 @@ public class TableServiceImpl implements TableService {
 	}
 
 	@Override
-	public List<TableBrief> findAll(Long pageNumber, Long pageSize) {
-		return tableMapper.findAPage((pageNumber-1)*pageSize,pageSize);
+	public List<TableBrief> findAll(Page<TableBrief> page) {
+		return tableMapper.findAPage(page.getCurFirstRecord(),Page.pageSize);
 	}
 
 	@Override
@@ -65,8 +66,12 @@ public class TableServiceImpl implements TableService {
 			TableElement item = this.findTableElement(te.getTbId(),te.getEmId());
 			if(item == null) {
 				Element em = elementMapper.find(te.getEmId());
-				te.setLabelNewName(em.getLabelName());
-				te.setFunctionNewName(em.getFunctionName());
+				te.setNewLabelName(em.getLabelName());
+				te.setNewFunctionName(em.getFunctionName());
+				te.setNewHiddenFieldName(em.getHiddenFieldName());
+				te.setNewDataContent(em.getDataContent());
+				te.setNewFieldType(em.getFieldType());
+				te.setNewFieldDataType(em.getFieldDataType());
 				teLst.add(te);
 			}
 		}
@@ -159,6 +164,27 @@ public class TableServiceImpl implements TableService {
 		int idx = tableMapper.updateTableBrief(tb);
 		if(idx > 0) return true;
 		return false;
+	}
+
+	@Override
+	public TableBrief updateTableBrief(TableBrief obj) {		
+		int idx = tableMapper.updateTableBrief(obj);
+		if(idx > 0) return this.find(obj.getTbId());
+		return null;
+	}
+	
+	@Override
+	@Transactional(propagation=Propagation.REQUIRED)
+	public boolean updateTableElementList(Long tbId, Long[] emIds) {
+		tableMapper.resetTableElementList(tbId);
+		int idx = tableMapper.updateTableElementList(tbId,emIds);
+		if(idx > 0) return true;
+		return false;
+	}
+
+	@Override
+	public List<TableElement> findTableList(Long tbId) {
+		return tableMapper.findTableList(tbId);
 	}
 
 }

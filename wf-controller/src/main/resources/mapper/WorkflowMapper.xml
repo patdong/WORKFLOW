@@ -15,7 +15,20 @@
 	</insert>
 		
 	<update id="update" parameterType="cn.ideal.wf.model.Workflow">
-		update workflow set wfName = #{wfName} where wfId = #{wfId}
+		update workflow set 
+			<if test="wfName != null">
+				wfName = #{wfName} 
+			</if>
+			<if test="tableId != null">
+				tableId = #{tableId} 
+			</if>
+			where wfId = #{wfId}
+	</update>
+	
+	<update id="removeBinding" parameterType="cn.ideal.wf.model.Workflow">
+		update workflow set 			
+			tableId = null 
+			where wfId = #{wfId}
 	</update>
 	
 	<select id="findAPage" resultMap="workflow" parameterType="java.util.Map">
@@ -25,7 +38,15 @@
 		</if>	
 	</select>
 	
+	<select id="find" resultMap="workflow" parameterType="java.lang.Long">
+		select * from workflow where wfId = #{wfId}			
+	</select>
+	
 	<select id="findAll" resultMap="workflow">
 		select * from workflow			
+	</select>
+		
+	<select id="findAllBlindTable" resultMap="workflow">
+		select * from workflow	where tableId is not null;		
 	</select>
 </mapper>

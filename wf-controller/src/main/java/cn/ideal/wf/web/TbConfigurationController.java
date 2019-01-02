@@ -45,11 +45,11 @@ public class TbConfigurationController {
 	 */
 	@GetMapping("/tablecenter/{pageNumber}")
     public ModelAndView enterTableCenterWithPage( @PathVariable Long pageNumber,HttpServletRequest request) {		
-        ModelAndView mav = new ModelAndView("tableCenter");
+        ModelAndView mav = new ModelAndView("config/tableCenter");
         List<TableBrief> emLst = tableService.findAll();
-        Page page = new Page(new Long(emLst.size()),pageNumber);
+        Page<TableBrief> page = new Page<TableBrief>(new Long(emLst.size()),pageNumber);
+        page.setPageList(tableService.findAll(page));
         mav.addObject("page",page);
-        mav.addObject("tbList", tableService.findAll(pageNumber,Page.pageSize));
         return mav;
     }
 	
@@ -62,23 +62,33 @@ public class TbConfigurationController {
     		@RequestParam(value = "style", defaultValue = "2") String style,
     		@RequestParam(value = "fieldsetting", defaultValue = "no") String fieldsetting,
     		HttpServletRequest request) {
-		ModelAndView mav = new ModelAndView("tableDefination");
+		ModelAndView mav = new ModelAndView("config/tableDefination");
 		scope = (scope.equals(""))?"body":scope;
 		mav.addObject("emList",elementService.findValidAllWithTable(tbId,scope));
 		mav.addObject("tbemList",tableService.findAllTableElements(tbId,scope));
-		mav.addObject("headList",tableService.findAllTableElements(tbId,"head"));
-		mav.addObject("bodyList",tableService.findAllTableElements(tbId,"body"));
-		mav.addObject("footList",tableService.findAllTableElements(tbId,"foot"));
+		List<TableElement> headLst = tableService.findAllTableElements(tbId,"head");
+		List<TableElement> bodyLst = tableService.findAllTableElements(tbId,"body");		
+		List<TableElement> footLst = tableService.findAllTableElements(tbId,"foot");
+		
+		if(bodyLst.size() % Long.parseLong(style) != 0){
+			for(int i=0; i< bodyLst.size() % Long.parseLong(style) ; i++){
+				bodyLst.add(new TableElement());
+			}
+		}
+		mav.addObject("headList",headLst);
+		mav.addObject("bodyList",bodyLst);
+		mav.addObject("footList",footLst);
 		mav.addObject("brief",tableService.find(tbId));
 		mav.addObject("tbId",tbId);
 		mav.addObject("scope",scope);
 		mav.addObject("style",style);
 		mav.addObject("fieldsetting",fieldsetting);
+		mav.addObject("tbList", tableService.findAllTableElements(tbId));
 		try {
 			ObjectMapper mapper = new ObjectMapper();
-			mav.addObject("heads",mapper.writeValueAsString(tableService.findAllTableElements(tbId,"head")));
-			mav.addObject("bodys",mapper.writeValueAsString(tableService.findAllTableElements(tbId,"body")));
-			mav.addObject("foots",mapper.writeValueAsString(tableService.findAllTableElements(tbId,"foot")));
+			mav.addObject("heads",mapper.writeValueAsString(headLst));
+			mav.addObject("bodys",mapper.writeValueAsString(bodyLst));
+			mav.addObject("foots",mapper.writeValueAsString(footLst));
 		} catch (JsonProcessingException e) {			
 			e.printStackTrace();
 		}
@@ -146,8 +156,39 @@ public class TbConfigurationController {
 		return true;
     }
 	
+	/**
+	 * 
+	 * 保存表单名称
+	 */
 	@GetMapping("/setTableName/{tbId}")
     public @ResponseBody boolean setTableName(@PathVariable Long tbId,@RequestParam("tableName") String tableName,HttpServletRequest request) {	
 		return tableService.setTableName(tbId,tableName);			
+    }
+		
+	/**
+	 * 保存表单概述信息
+	 */
+	@GetMapping("/savetbrief/{tbId}")
+    public @ResponseBody boolean savetbrief(@PathVariable Long tbId,HttpServletRequest request) {
+		String template = request.getParameter("template");
+		String style = request.getParameter("style");
+		TableBrief tb = new TableBrief();
+		tb.setTbId(tbId);
+		tb.setTemplate(template);
+		tb.setCols(Long.parseLong(style));
+		tb = tableService.updateTableBrief(tb);
+		if(tb == null) return false;
+		return true;
+    }
+	
+	/**
+	 * 设置列表展现的字段
+	 * @param request
+	 * @return
+	 */
+	@GetMapping("/setlist/{tbId}")
+    public @ResponseBody boolean setList(@PathVariable Long tbId,
+    		@RequestParam("checkedIds[]") Long[] emIds,HttpServletRequest request) {			
+		return tableService.updateTableElementList(tbId,emIds);        
     }
 }

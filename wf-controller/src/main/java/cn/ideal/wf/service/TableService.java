@@ -5,15 +5,11 @@ import java.util.List;
 import cn.ideal.wf.model.TableBrief;
 import cn.ideal.wf.model.TableElement;
 
-public interface TableService {
+public interface TableService extends PageService<TableBrief> {
 
 	TableBrief saveTableBrief(TableBrief obj);
 	
 	TableBrief find(Long tbId);
-	
-	List<TableBrief> findAll();
-	
-	List<TableBrief> findAll(Long pageNumber, Long  pageSize);
 	
 	TableElement saveTableElement(TableElement obj);
 	
@@ -34,4 +30,11 @@ public interface TableService {
 	void delete(Long tbId, Long emId);
 	
 	boolean setTableName(Long tbId,String tableName);
+	
+	TableBrief updateTableBrief(TableBrief obj);
+	
+	boolean updateTableElementList(Long tbId, Long[] emIds);
+	
+	List<TableElement> findTableList(Long tbId);
+		
 }
