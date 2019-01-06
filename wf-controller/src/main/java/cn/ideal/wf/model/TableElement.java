@@ -25,6 +25,8 @@ public class TableElement {
 	private Long seq;
 	private String formula;
 	private String list;
+	private String constraint;
+	private Long length;
 	private String status;
 	private Date createdDate;
 	
@@ -143,6 +145,18 @@ public class TableElement {
 	}
 	public void setList(String list) {
 		this.list = list;
+	}
+	public String getConstraint() {
+		return constraint;
+	}
+	public void setConstraint(String constraint) {
+		this.constraint = constraint;
+	}
+	public Long getLength() {
+		return length;
+	}
+	public void setLength(Long length) {
+		this.length = length;
 	}
 	
 }

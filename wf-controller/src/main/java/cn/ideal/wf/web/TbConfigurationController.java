@@ -15,14 +15,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import cn.ideal.wf.model.Page;
 import cn.ideal.wf.model.TableBrief;
 import cn.ideal.wf.model.TableElement;
 import cn.ideal.wf.service.ElementService;
 import cn.ideal.wf.service.TableService;
+import cn.ideal.wf.sqlengine.impl.MySQLExecutor;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Controller
 @RequestMapping("/tb")
@@ -32,6 +33,9 @@ public class TbConfigurationController {
 	private TableService tableService;
 	@Autowired
 	private ElementService elementService;
+	@Autowired
+	private MySQLExecutor mySQLExecutor;
+	
 	/**
 	 * 表单管理中心
 	 * */
@@ -190,5 +194,28 @@ public class TbConfigurationController {
     public @ResponseBody boolean setList(@PathVariable Long tbId,
     		@RequestParam("checkedIds[]") Long[] emIds,HttpServletRequest request) {			
 		return tableService.updateTableElementList(tbId,emIds);        
+    }	
+	
+	/**
+	 * 设置列表展现的字段
+	 * @param request
+	 * @return
+	 */
+	@GetMapping("/createtable/{tbId}")
+    public @ResponseBody boolean createTable(@PathVariable Long tbId,
+    		@RequestParam("tbName") String tbName , HttpServletRequest request) {
+		TableBrief tb = new TableBrief();
+		tb.setTbId(tbId);
+		tb.setName(tbName);
+		tb = tableService.updateTableBrief(tb);
+		if(tb != null) {
+			try{
+				mySQLExecutor.jointSql(tbId);
+			}catch(Exception e){
+				return false;
+			}
+			return true;
+		}
+		return false;
     }
 }

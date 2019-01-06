@@ -42,7 +42,7 @@ $( function() {
 })
 
 </script>
-<body>
+<body >
     <header id="header">
     <nav class="navbar navbar-expand-md navbar-dark fixed-top" style="background:#fd7e14;">
         <a class="navbar-brand" href="/cf/center" >流程中心</a>
@@ -61,6 +61,9 @@ $( function() {
 	            <li class="nav-item" >
 	              <a class="nav-link" href="/em/elementcenter" style="font-weight:bold;" id="em">元素库</a>
 	            </li>
+	            <li class="nav-item" >
+	              <a class="nav-link" href="/sys/configuration" style="font-weight:bold;" id="em"><span style="font-size:15px;color:blue;">✋</span>环境配置</a>
+	            </li>  
 	            <li class="nav-item" >
 	              <a class="nav-link" href="/app/actualcenter" style="font-weight:bold;" id="em">流程实战</a>
 	            </li>                         

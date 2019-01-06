@@ -270,7 +270,7 @@
 	});
   }
 </script>
-<div class="container" style="padding-top:25px">
+<div class="container" style="padding-top:5%">
 	<div id="content">
 		<div style="padding:0em;margin:0px">
 		  	<div >

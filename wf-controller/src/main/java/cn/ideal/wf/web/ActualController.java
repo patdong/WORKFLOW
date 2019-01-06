@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
+import cn.ideal.wf.model.TableBrief;
 import cn.ideal.wf.model.TableElement;
 import cn.ideal.wf.model.Workflow;
 import cn.ideal.wf.service.TableService;
@@ -64,11 +65,18 @@ public class ActualController {
 		List<TableElement> headLst = tableService.findAllTableElements(wf.getTableId(),"head");
 		List<TableElement> bodyLst = tableService.findAllTableElements(wf.getTableId(),"body");		
 		List<TableElement> footLst = tableService.findAllTableElements(wf.getTableId(),"foot");
+		TableBrief tb = tableService.find(wf.getTableId());		
+		
+		if(bodyLst.size() % tb.getCols() != 0){
+			for(int i=0; i< bodyLst.size() % tb.getCols(); i++){
+				bodyLst.add(new TableElement());
+			}
+		}
 		
 		mav.addObject("headList",headLst);
 		mav.addObject("bodyList",bodyLst);
 		mav.addObject("footList",footLst);
-		mav.addObject("brief",tableService.find(wf.getTableId()));
+		mav.addObject("brief",tb);
 		mav.addObject("wfs", workflowService.findAllBlindTable());
 		mav.addObject("wf",wf);
         return mav;

@@ -1,6 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"  pageEncoding="UTF-8"  trimDirectiveWhitespaces="true" %>
 <%@ include file="/WEB-INF/view/include.jsp"%>
-<div id="page" style="position:absolute;bottom:100px">
+<div id="page" style="position:absolute;bottom:3%">
 <nav aria-label="Page navigation example">
   <ul class="pagination">  	
     	<c:if test="${! empty page.prePage}">

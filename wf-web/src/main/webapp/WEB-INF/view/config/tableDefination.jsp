@@ -40,6 +40,9 @@
     	$('#newFieldType').text($(this).text()); 
     	$('#newFieldTypeName').text($(this).text());   	    	
       });
+	  
+	  $("#tbname-dialog" ).dialog();
+	  $('#tbname-dialog').dialog('close');
   });
   
   //保存元素设置
@@ -262,11 +265,33 @@
 		  dataType: 'json',
 		  success: function(data){
 			  $("#lst-div").hide();
+			  location.href="/tb/tabledefination/${tbId}?scope="+gscope+"&style="+gstyle+"&fieldsetting="+gfieldsetting;
 		  },
 		  error: function(XMLHttpRequest, textStatus, errorThrown){
 			  console.warn(XMLHttpRequest.responseText);		  
 		  }
 	});
+  }
+  
+  //生成库表数据
+  function createTable(){
+	  var tbName = $("#tbName").val();
+	  if("${brief.name}" == "" && tbName == ""){
+		  $('#tbname-dialog').dialog('open');
+	  }else{		 
+		  $.ajax({
+			  type: 'GET',
+			  url: "/tb/createtable/${tbId}",
+			  data:{tbName:tbName},
+			  dataType: 'json',
+			  success: function(data){
+				  $('#tbname-dialog').dialog('close');				  
+			  },
+			  error: function(XMLHttpRequest, textStatus, errorThrown){
+				  console.warn(XMLHttpRequest.responseText);		  
+			  }
+		});
+	  }
   }
 </script>
 <c:set var="cols" value="${style}"/>
@@ -279,18 +304,24 @@
   		<span style="margin-left:0.3%;">风格&nbsp;<select style="font-size:.78rem;" id="style" onchange="changeStyle();"><option value="2">双列</option><option value="3">三列</option></select></span>
   		<span style="margin-left:0.3%;">|</span>
   		<span style="margin-left:0.3%;cursor:pointer;" onclick="showFieldSetting();" id="fieldsetting">字段设置</span>
-  		<span style="margin-left:0.3%;">|</span>
-  		<div style="float: right; margin-right: 24%;margin-top: 1%;" >
+  		<span style="margin-left:0.3%;">|</span> 
+  		<c:if test="${empty brief.name }" > 		
+			<span style="cursor:pointer;" title="生成库表数据" onclick="createTable();"><img src="/img/wf_btn12.PNG"></span>
+		</c:if>
+		<c:if test="${!empty brief.name }" > 		
+			<span style="cursor:pointer;" title="重构库表数据" onclick="saveTable();"><img src="/img/wf_btn13.PNG"></span>
+		</c:if> 		
+  		<div style="float: right; margin-right: 24%;margin-top: 1%;" >  			
 	  		<span style="cursor:pointer;" onclick="save();"><span style="font-weight:bold;color:#152505;">✍</span>保存</span>	
 	  		<span style="cursor:pointer;" onclick="review();"><span style="font-weight:bold;color:#152505;">⇱</span>预览 |</span>		  		
-	  		<span style="cursor:pointer;" onclick="$('#lst-div').show();"><span style="font-weight:bold;color:#152505;">✋</span>列表设置</span>
+	  		<span style="cursor:pointer;" onclick="$('#lst-div').show();"><span style="font-weight:bold;color:#152505;">✋</span>列表设置</span>	  		
   		</div>  		  		   		   
   	</div>
   	<div class="line-bottom" ></div>
 </div>	
 <div style="padding-top:0px;">	
 	<div class="line-table" ></div>
-	<div id="table-div" class="draw" style="padding-left:1%;bottom:5%;height:80%;top:14%;background-image: url('/img/wf-btn11.PNG'); background-repeat: repeat;">		
+	<div id="table-div" class="draw" style="padding-left:1%;bottom:5%;height:80%;top:14%;background-image: url('/img/wf_btn11.PNG'); background-repeat: repeat;">		
 		<!-- 表单标题 -->	
 		<div style="text-align:center;margin-left:10%;margin-right:10%">
 			<label for="tableName" class="sr-only">表单名称</label>				
@@ -607,4 +638,20 @@
 		   </div> 			   
 	   </form>
 	</div>    
+</div>
+<!-- 表单库表名称录入窗口 -->
+<div id="tbname-dialog"  title="表单名称录入" >
+  <input type="text" id="tbName" name="tbName" class="form-control-one-line" placeholder="表单名称录入"> 
+  <br><br>
+  <nav aria-label="Page navigation example">
+  	<ul class="pagination">  	    
+   		<li class="page-item">
+   		  <div class="btn-confirm-dialog">
+		      <a style="color: #e9eef3;" href="javascript:void();"  onclick="createTable();">
+		        <span aria-hidden="true">确认</span>		        
+		      </a>
+	      </div>
+	    </li>	    
+	</ul>
+  </nav>    
 </div>
