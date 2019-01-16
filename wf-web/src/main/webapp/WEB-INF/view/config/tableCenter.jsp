@@ -16,8 +16,9 @@
               <th>#序列</th>
               <th>表单名称</th>
               <th>流程绑定</th>
+              <th>库表名称</th>
               <th>有效性</th>
-              <th>流程操作</th>
+              <th>表单操作</th>
             </tr>
           </thead>
           <tbody>
@@ -26,6 +27,7 @@
           			<td><a href="/tb/tabledefination/${table.tbId}">#${table.tbId }</a></td>
           			<td><span class="small-btn" style="background-color:#42a288;" onclick="showPos(event,${table.tbId })" >&nbsp;✒&nbsp;</span><span id="${table.tbId }">${table.tableName }</span></td>
           			<td><span class="small-btn" style="background-color:#ce6634" onclick="location.href='/tb/tablecenter'">&nbsp;✓&nbsp;</span></td>
+          			<td>${table.name}</td>
           			<td>${table.status }</td>
           			<td>删除</td>
           		</tr>

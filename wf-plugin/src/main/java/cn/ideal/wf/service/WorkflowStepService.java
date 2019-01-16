@@ -1,5 +1,11 @@
 package cn.ideal.wf.service;
 
+/**
+ * 工作流办理人服务接口
+ * @author 郭佟燕
+ * @version 2.0
+ */
+
 import java.util.List;
 
 import cn.ideal.wf.model.WorkflowStep;

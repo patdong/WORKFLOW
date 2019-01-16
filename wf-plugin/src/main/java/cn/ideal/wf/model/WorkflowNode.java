@@ -1,5 +1,9 @@
 package cn.ideal.wf.model;
-
+/**
+ * 工作流节点pojo
+ * @author 郭佟燕
+ * @version 2.0
+ */
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Date;
@@ -13,7 +17,7 @@ public class WorkflowNode implements Serializable{
 	private Long timeLimit;
 	private String uType;
 	private String nType;
-	private Collection<WorkflowRole> role;
+	private WorkflowRole role;
 	private Collection<WorkflowUser> user;	
 	private String status;
 	private Date createdDate;
@@ -56,10 +60,10 @@ public class WorkflowNode implements Serializable{
 	public void setnType(String nType) {
 		this.nType = nType;
 	}
-	public Collection<WorkflowRole> getRole() {
+	public WorkflowRole getRole() {
 		return role;
 	}
-	public void setRole(Collection<WorkflowRole> role) {
+	public void setRole(WorkflowRole role) {
 		this.role = role;
 	}
 	public Collection<WorkflowUser> getUser() {

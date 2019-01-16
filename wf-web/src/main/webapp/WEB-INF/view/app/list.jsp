@@ -4,7 +4,7 @@
   <h1 class="h2">${wf.wfName }</h1>
   <div class="btn-toolbar mb-2 mb-md-0">
     <div class="btn-group mr-2">
-      <button type="button" class="btn btn-sm btn-outline-secondary" onclick="location.href='/app/table/${wf.wfId}'">新建</button>
+      <button type="button" class="btn btn-sm btn-outline-secondary" onclick="location.href='/app/showtable/${wf.wfId}/div'">新建</button>
       <button type="button" class="btn btn-sm btn-outline-secondary">生成Excel</button>
     </div>
     <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle">
@@ -19,29 +19,25 @@
   <table class="table table-striped table-sm">
     <thead>
       <tr>
-        <th>#ID</th>
+        <th>#ID</th>        
         <c:forEach items="${tableList}" varStatus="i" var="tableElement" >
         	<th>${tableElement.newLabelName }</th>
         </c:forEach>
       </tr>
     </thead>
-    <tbody>
-      <c:forEach items="${page.pageList}" varStatus="i" var="workflow" >
-     		<tr>
-     			<td><a href="/wf/workflowdefination/${workflow.wfId}">#${workflow.wfId }</a></td>
-     			<td><span class="small-btn" style="background-color:#42a288;" onclick="showPos(event,${workflow.wfId },'workflow-name')" >&nbsp;✒&nbsp;</span><span id="${workflow.wfId }">${workflow.wfName }</span></td>
-     			<td><span class="small-btn" style="background-color:#16e81d;" onclick="showPos(event,${workflow.wfId },'workflow-binding')">&nbsp;✓&nbsp;</span>
-     				<span id="tb-${workflow.wfId }">
-      				<c:if test="${!empty workflow.tableId }">
-      				已绑定
-      				<span class="small-btn" style="background-color:#ce6634;" onclick="removeBinding(${workflow.wfId })">&nbsp;✘&nbsp;</span>
-      				</c:if>
-     				</span>
-     			</td>
-     			<td>${workflow.status }</td>
-     			<td>删除</td>
-     		</tr>
-      	</c:forEach> 
+    <tbody>   
+      <c:forEach items="${page.pageList}"  var="item" >
+      	<tr>
+      		<td><a href="/app/showtable/${wf.wfId}/${item['Id']}/div">#${item['Id']}</a></td>
+      	<c:forEach items="${item}" var="map" >      		     		
+   			<c:forEach items="${tableList}"  var="tableElement" >     				
+       		<c:if test="${tableElement.fieldName eq map.key }">	        		
+       			<td>${map.value }</td>
+       		</c:if>
+        	</c:forEach>     		
+     	</c:forEach>
+     	</tr>
+       </c:forEach> 
     </tbody>
   </table>
 </div>

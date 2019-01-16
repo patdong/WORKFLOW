@@ -19,6 +19,7 @@
 	  $("#element-div").draggable();
 	  $("#ems-div").draggable();
 	  $("#lst-div").draggable();
+	  $("#scheme-div").draggable();
 	  //设置表单位置的radiobox值
 	  var $scope = $('input:radio[name=scope]');	 
 	  $scope.filter('[value=${scope}]').prop('checked', true);
@@ -35,14 +36,10 @@
 	  if(gstyle == '2') $(".cols").removeClass("body-col-6").removeClass("body-col-8").addClass("body-col-4");
 	  if(gstyle == '3') $(".cols").removeClass("body-col-8").removeClass("body-col-4").addClass("body-col-6");
 	  
-	  //字段下拉框操作
-	  $('#newFieldType-ul li').on('click', function(){
-    	$('#newFieldType').text($(this).text()); 
-    	$('#newFieldTypeName').text($(this).text());   	    	
-      });
-	  
 	  $("#tbname-dialog" ).dialog();
-	  $('#tbname-dialog').dialog('close');
+	  $('#tbname-dialog').dialog('close');	  
+	  $("#alert-dialog" ).dialog();
+	  $('#alert-dialog').dialog('close');
   });
   
   //保存元素设置
@@ -189,11 +186,14 @@
   function setElement(element){
 	  $("#element-name").text(element.newLabelName);
 	  $("#newLabelName").val(element.newLabelName);
+	  $("#fieldName").val(element.fieldName);	  
+	  $("#newFieldDataType").val(element.newFieldDataType);
 	  $("#rowes").val(element.rowes);
 	  $("#cols").val(element.cols);
 	  $("#width").val(element.width);
 	  $("#newFunctionName").val(element.newFunctionName);
 	  $("#newHiddenFieldName").val(element.newHiddenFieldName);
+	  $("#length").val(element.length);
 	  $("#formula").val(element.formula);
 	  $("#element-name").text(element.name);
 	  
@@ -285,13 +285,73 @@
 			  data:{tbName:tbName},
 			  dataType: 'json',
 			  success: function(data){
-				  $('#tbname-dialog').dialog('close');				  
+				  if(data.code == '1'){
+					  $('#tbname-dialog').dialog('close');	
+					  location.href="/tb/tabledefination/${tbId}?scope="+gscope+"&style="+gstyle+"&fieldsetting="+gfieldsetting;
+				  }
+				  if(data.code == '0'){
+					  $('#alert-dialog').dialog('open');
+					  $("#alert-msg").text(data.message+"通过库表检测表单信息的健康情况.");
+					  $("#tbName").val("");
+				  }
 			  },
 			  error: function(XMLHttpRequest, textStatus, errorThrown){
 				  console.warn(XMLHttpRequest.responseText);		  
 			  }
 		});
 	  }
+  }
+  
+  //库表检测
+  function checkTableScheme(){	  
+	  $.ajax({
+		  type: 'GET',
+		  url: "/tb/getTableScheme/${tbId}",		  			 
+		  dataType: 'json',
+		  success: function(data){
+			  var li;
+			  var alarm = false;
+			  $.each(data,function (index, element) {
+			      li = "<tr>";
+			      if(element.fieldName==null){
+			      	li += "<td><span style='color:red;font-weight:bold;'>❗<span></td>"; 	
+			      	alarm = true;
+			      }else{
+			    	  li += "<td>"+element.fieldName+"</td>"
+			      }
+			      if(element.newLabelName==null){
+			      	li += "<td><span style='color:red;'>❗<span></td>"; 
+			      	alarm = true;
+			      }else{
+			    	  li += "<td>"+element.newLabelName+"</td>"
+			      }
+			      if(element.newFieldDataType==null){
+			      	li += "<td><span style='color:red;'>❗<span></td>";
+			      	alarm = true;
+			      }else{
+			    	  li += "<td>"+element.newFieldDataType+"</td>"
+			      }
+			      if(element.newLength==null ){
+			    	  if(element.newFieldDataType == "String"){
+				      	li += "<td><span style='color:red;'>❗<span></td>";
+				      	alarm = true;
+			      	  }
+			      }else{
+			    	  li += "<td>"+element.newLength+"</td>"
+			      }
+			       
+			      li += "</tr>";
+				        
+				  $("#scheme-lst").append(li);				 
+			  });
+			  if(!alarm) $("#scheme-msg").text("库表检测 - 检测成功.");
+			  else $("#scheme-msg").text("库表检测 - 检测失败,请关注标红列!");
+			  $("#scheme-div").show();
+		  },
+		  error: function(XMLHttpRequest, textStatus, errorThrown){
+			  console.warn(XMLHttpRequest.responseText);		  
+		  }
+	});
   }
 </script>
 <c:set var="cols" value="${style}"/>
@@ -310,9 +370,13 @@
 		</c:if>
 		<c:if test="${!empty brief.name }" > 		
 			<span style="cursor:pointer;" title="重构库表数据" onclick="saveTable();"><img src="/img/wf_btn13.PNG"></span>
-		</c:if> 		
+		</c:if> 
+		<span style="cursor:pointer;" title="库表检测" onclick="checkTableScheme();"><img src="/img/wf_btn15.PNG"></span>		
+  		<span style="margin-left:0.3%;">|</span> 
   		<div style="float: right; margin-right: 24%;margin-top: 1%;" >  			
-	  		<span style="cursor:pointer;" onclick="save();"><span style="font-weight:bold;color:#152505;">✍</span>保存</span>	
+	  		<span style="cursor:pointer;" onclick="save();"><span style="font-weight:bold;color:#152505;">✍</span>保存
+	  			<span style="color:#dc3545;box-shadow: 1px 4px 4px #826a22;background-color:black;"><c:if test="${empty brief.name }">❗</c:if></span>	  		
+	  		</span>	
 	  		<span style="cursor:pointer;" onclick="review();"><span style="font-weight:bold;color:#152505;">⇱</span>预览 |</span>		  		
 	  		<span style="cursor:pointer;" onclick="$('#lst-div').show();"><span style="font-weight:bold;color:#152505;">✋</span>列表设置</span>	  		
   		</div>  		  		   		   
@@ -556,7 +620,7 @@
 
 
 <!-- 节点定义窗口 -->
-<div id="element-div" class="node-mask opacity" style="display:none;height:86%">
+<div id="element-div" class="node-mask opacity" style="display:none;height:80%;width:30%">
 	<header>	      
          <div class="form-inline mt-2 mt-md-0" style="padding: 6px 10px 0px;" >
           	<label>元素-[<span id="element-name" style="font-weight:bold;"></span>]设置</label>
@@ -565,79 +629,92 @@
          	<span class="badge badge-secondary badge-pill" style="background-color:#46a70a;cursor:pointer;" onclick="$('#element-div').hide();">×</span>
          </div>	      	     
     </header>
-    <hr style="margin-top: .5rem; margin-bottom: .5rem;"></hr>
+    <hr ></hr>
     <div style="padding: 0px 13px 0px;">
-		<form id="myForm" class="navbar-form navbar-left" method="post" modelAttribute="element" action="/tb/saveElement">
+		<form id="myForm" class="" method="post" modelAttribute="element" action="/tb/saveElement">
 			
 			<!-- hidden项是本页面两个form公用项  不可轻易做变更！ -->
 			
 			<input type="hidden" id="emId" name="emId" value="${element.emId}">			
-	  		<div class="popup-form-group">		        
+	  		<div class="form-group">	  			  			       
 		        <label >元素名称：</label>
-		        <input name="newLabelName" id="newLabelName" class="form-control-one-line" required autofocus placeholder="元素名称"  style="width:63%"/>			        		       
+		        <input name="newLabelName" id="newLabelName" class="form-control-one-line mx-sm-2" required autofocus   style="width:22%"/>		        	        
+		        <label >字段名称：</label>
+		        <input name="fieldName" id="fieldName" class="form-control-one-line" required autofocus  readOnly style="width:22%"/>
 		    </div>
-		    <div class="popup-form-group">		        		        
-		        <div class="navbar" style=" padding: 0rem 0rem;">
-			        <div class="navbar-inner">
-			            <div class="container" style="padding-left: 0px;">	
-			            <label >操作方式：</label>	        		        			        
-		                <ul class="nav" style="float:right;width:61%">			                    
-		                    <li class="dropdown" style="width:80%">
-		                        <button type="button" id="newFieldTypeName" class="btn btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="position:overflow;font-size: 1rem;width: 148px;">
-							    	&nbsp;操作方式
-							  	</button>
-							  	<input type="hidden" name="newFieldType" id="newFieldType"/>
-		                        <ul class="dropdown-menu" id="fieldType-ul" style="min-width:7rem;">
-		                        	<li value="input"><a class="dropdown-item" href="#">输入框</a></li>
-		                        	<li value="select"><a class="dropdown-item" href="#">下拉框</a></li>
-		                        	<li value="radio"><a class="dropdown-item" href="#">单选框</a></li>
-		                        	<li value="checkbox"><a class="dropdown-item" href="#">多选框</a></li>
-		                        	<li value="textarea"><a class="dropdown-item" href="#">文本框</a></li>						  					                            
-		                        </ul>
-		                    </li>
-		                </ul>
-		               	</div>
-		            </div>
-		        </div>		        		        		      
-		    </div>
-		    <div class="popup-form-group">		        
+		  	<div class="form-group">	    		       
 		        <label>字段类型：</label>
-		        <input name="newFieldDataType" id="newFieldDataType" class="form-control-one-line" required autofocus placeholder="字段类型" style="width:63%" />			        		       
-		    </div>	 
-		    <div class="popup-form-group">		        
-		        <label >元素跨行：</label>
-		        <input name="rowes" id="rowes" class="form-control-one-line" required autofocus placeholder="元素跨行" style="width:40%" />&nbsp;(行)	        		       
-		    </div>
-		    <div class="popup-form-group">		        
-		        <label >元素跨列：</label>
-		        <input name="cols" id="cols" class="form-control-one-line" required autofocus placeholder="元素跨列"  style="width:40%"/>&nbsp;(列)			        		       
-		    </div>
-		    <div class="popup-form-group">		        
-		        <label >元素宽度：</label>
-		        <input name="width" id="width" class="form-control-one-line" required autofocus placeholder="元素宽度" style="width:40%" />&nbsp;(PX)			        		       
-		    </div>
-		    <div class="popup-form-group">		        
-		        <label >事件名称：</label>
-		        <input name="newFunctionName" id="newFunctionName" class="form-control-one-line" required autofocus placeholder="事件名称"  style="width:63%"/>			        		       
-		    </div>
-		    <div class="popup-form-group">		        
-		        <label >级联信息：</label>
-		        <input name="newDataContent" id="newDataContent" class="form-control-one-line" required autofocus placeholder="级联内容"  style="width:63%"/>			        		       
-		    </div>
-		    <div class="popup-form-group">		        
-		        <label >计算公式：</label>
-		        <input name="formula" id="formula" class="form-control-one-line" required autofocus placeholder="计算公式"  style="width:63%"/>			        		       
-		    </div>
-		    <div class="popup-form-group">		        
+		        <input name="newFieldDataType" id="newFieldDataType" class="form-control-one-line mx-sm-2" required autofocus style="width:22%" />		        
 		        <label >隐式字段：</label>
-		        <input name="newHiddenFieldName" id="newHiddenFieldName" class="form-control-one-line" required autofocus placeholder="隐式字段" style="width:63%" />			        		       
+		        <input name="newHiddenFieldName" id="newHiddenFieldName" class="form-control-one-line" required autofocus  style="width:22%" />			        		       	        		       
 		    </div>
-	        <hr></hr>		        		      
-	        <div style="margin-bottom:10px;margin-top:10px">
-		    	<button class="btn btn-lg btn-primary-dialog " style="margin-right:20px;" type="submit" >保存</button>
-		   </div> 			   
+		 
+			<div class="form-group">
+				<label >操作方式：</label>
+			    <select id="newFieldType" class="form-control-one-line  mx-sm-2" style="width:22%">
+			        <option>输入框</option>
+			        <option>下拉框</option>
+			        <option>单选框</option>
+			        <option>多选框</option>
+			        <option>文本框</option>
+			    </select>
+			    <label >元素长度： </label>
+		        <input name="length" id="length" class="form-control-one-line" required autofocus  style="width:22%" />			    
+			</div>
+		    <div class="form-group">		        
+		        <label >元素跨行：</label>
+		        <input name="rowes" id="rowes" class="form-control-one-line mx-sm-2" required autofocus  style="width:22%" />		    		        
+		        <label >元素跨列：</label>
+		        <input name="cols" id="cols" class="form-control-one-line" required autofocus  style="width:22%"/>			        		       
+		    </div>
+		    <div class="form-group">		        
+		        <label >元素宽度：</label>
+		        <input name="width" id="width" class="form-control-one-line  mx-sm-2" required autofocus  style="width:22%" />		        			        		       
+		    </div>
+		    <div class="form-group">	        
+		        <label >事件名称：</label>
+		        <input name="newFunctionName" id="newFunctionName" class="form-control-one-line  mx-sm-2" required autofocus   style="width:60%"/>			        		       
+		    </div>
+		    <div class="form-group">		        
+		        <label >级联信息：</label>
+		        <input name="newDataContent" id="newDataContent" class="form-control-one-line  mx-sm-2" required autofocus   style="width:60%"/>			        		       
+		    </div>
+		    <div class="form-group">		        
+		        <label >计算公式：</label>
+		        <input name="formula" id="formula" class="form-control-one-line  mx-sm-2" required autofocus   style="width:60%"/>			        		       
+		    </div>		   
 	   </form>
+	   <hr></hr>		        		      
+       <div style="margin-bottom:10px;margin-top:10px;">
+	   	   <button class="btn btn-lg btn-primary-dialog " style="margin-right:20px;" type="submit" >保存</button>
+	   </div> 
 	</div>    
+</div>
+<!-- talbe scheme检测 -->
+<div id="scheme-div" class="mask opacity" style="display:none;height:66%;left:20%;top:15%">
+	<header>	      
+         <div class="form-inline mt-2 mt-md-0" style="padding: 6px 10px 0px;" >
+           <span id="scheme-msg">库表检测</span>
+         </div>
+         <div style="position: absolute;top: 1px;right: 15px;">
+         	<span class="badge badge-secondary badge-pill" style="background-color:#46a70a;cursor:pointer;" onclick="$('#scheme-div').hide();">×</span>
+         </div>	      	     
+    </header>
+    <hr style="margin-top: .5rem; margin-bottom: .5rem;"></hr>
+    <div style="padding: 0px 13px 0px;overflow:auto; height:80%" >
+    <table class="table table-striped table-sm">
+    <thead>
+      <tr>
+        <th>字段名称</th> 
+        <th>字段描述</th>
+        <th>字段类型</th>
+        <th>字段长度</th>
+      </tr>
+    </thead>
+    <tbody id="scheme-lst">
+    </tbody>
+    </table>
+    </div>
 </div>
 <!-- 表单库表名称录入窗口 -->
 <div id="tbname-dialog"  title="表单名称录入" >
@@ -648,6 +725,23 @@
    		<li class="page-item">
    		  <div class="btn-confirm-dialog">
 		      <a style="color: #e9eef3;" href="javascript:void();"  onclick="createTable();">
+		        <span aria-hidden="true">确认</span>		        
+		      </a>
+	      </div>
+	    </li>	    
+	</ul>
+  </nav>    
+</div>
+
+<!-- 消息互动窗口 -->
+<div id="alert-dialog"  title="消息弹出框" >
+  <span id="alert-msg"></span>
+  <br><br>
+  <nav aria-label="Page navigation example">
+  	<ul class="pagination">  	    
+   		<li class="page-item">
+   		  <div class="btn-confirm-dialog">
+		      <a style="color: #e9eef3;" href="javascript:void();"  onclick="$('#alert-dialog').dialog('close');">
 		        <span aria-hidden="true">确认</span>		        
 		      </a>
 	      </div>

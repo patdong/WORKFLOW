@@ -46,7 +46,12 @@
             <groupId>org.mybatis.spring.boot</groupId>
             <artifactId>mybatis-spring-boot-starter</artifactId>
             <version>1.2.0</version>
-        </dependency>        	
+        </dependency>  
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+            <optional>true</optional>
+        </dependency>      	
         <!-- 支持前台thymeleaf -->
         <!--
   		<dependency>
@@ -113,6 +118,12 @@
 	      <artifactId>junit</artifactId>
 	      <scope>test</scope>
 	    </dependency>
+	    <!-- Redis 配置 start-->
+	    <dependency>
+		    <groupId>org.springframework.boot</groupId>
+		    <artifactId>spring-boot-starter-data-redis</artifactId>
+		</dependency>		
+	    <!-- Redis end-->
   </dependencies>
   <modules>
   	<module>wf-plugin</module>

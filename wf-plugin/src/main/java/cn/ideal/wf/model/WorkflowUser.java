@@ -1,5 +1,11 @@
 package cn.ideal.wf.model;
 
+/**
+ * 工作流用户pojo
+ * @author 郭佟燕
+ * @version 2.0
+ */
+
 import java.io.Serializable;
 
 public class WorkflowUser  implements Serializable{

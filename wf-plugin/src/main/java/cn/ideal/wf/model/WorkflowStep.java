@@ -1,5 +1,9 @@
 package cn.ideal.wf.model;
-
+/**
+ * 工作流操作pojo
+ * @author 郭佟燕
+ * @version 2.0
+ */
 import java.io.Serializable;
 import java.util.Date;
 

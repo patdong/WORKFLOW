@@ -1,5 +1,9 @@
 package cn.ideal.wf.common;
-
+/**
+ * 常量表
+ * @author 郭佟燕
+ * @version 2.0
+ */
 public class WFConstants {
 
 	/*
@@ -35,4 +39,11 @@ public class WFConstants {
 	public final static String WF_NODE_TYPE_USER = "用户";
 	public final static String WF_NODE_TYPE_ROLE = "角色";
 	public final static String WF_NODE_TYPE_ORG = "单位";
+	
+	/**
+	 * 流程中的固定节点定义
+	 */
+	public final static String WF_NODE_START = "创建";
+	public final static String WF_NODE_END = "结束";
+	
 }

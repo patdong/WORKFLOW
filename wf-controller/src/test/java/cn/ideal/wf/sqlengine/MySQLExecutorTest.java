@@ -9,7 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import cn.ideal.wf.App;
-import cn.ideal.wf.sqlengine.SQLExecutor;
+import cn.ideal.wfpf.sqlengine.SQLExecutor;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = App.class)
@@ -19,7 +19,7 @@ public class MySQLExecutorTest extends TestCase{
 	private SQLExecutor repositoryService;
 	
 	@Test
-	public void test01CreateTable() {
+	public void test01CreateTable() throws Exception {
 		StringBuffer sql =  new StringBuffer();
 		sql.append("DROP TABLE IF EXISTS tb_test;");
 		repositoryService.executeSql(sql.toString());
@@ -37,7 +37,7 @@ public class MySQLExecutorTest extends TestCase{
 	}
 	
 	@Test
-	public void test02AlterTable() {
+	public void test02AlterTable() throws Exception {
 		StringBuffer sql =  new StringBuffer();
 		sql.append("alter table tb_test add address varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '地址'");
 		repositoryService.executeSql(sql.toString());		

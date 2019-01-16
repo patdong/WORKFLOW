@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="cn.ideal.wf.dao.NodeMapper">
-	<resultMap id="node" type="cn.ideal.wf.model.Node" >
+<mapper namespace="cn.ideal.wfpf.dao.NodeMapper">
+	<resultMap id="node" type="cn.ideal.wfpf.model.Node" >
 		<id column="nodeId" property="nodeId" jdbcType="NUMERIC" />
 		<association property="role" column="nodeId" select="findRole" />
 		<association property="users" column="nodeId" select="findUsers" />
@@ -9,7 +9,7 @@
 		<association property="preNodes" column="nodeId" select="findPreNode" />
 	</resultMap>	
 	
-	<select id="find" resultType="cn.ideal.wf.model.Node" parameterType="java.lang.Long">
+	<select id="find" resultType="cn.ideal.wfpf.model.Node" parameterType="java.lang.Long">
 		select * from workflow_node
 		 where nodeId = #{nodeId}
 	</select>
@@ -20,7 +20,7 @@
 		   and wfId = #{wfId}
 	</select>
 	
-	<insert id="save" useGeneratedKeys="true" keyProperty="nodeId" parameterType="cn.ideal.wf.model.Node">
+	<insert id="save" useGeneratedKeys="true" keyProperty="nodeId" parameterType="cn.ideal.wfpf.model.Node">
 		insert into workflow_node(
 			nodeName,timeLimit,uType,nType,action,status,createdDate,modifiedDate,wfId
 		)
@@ -37,7 +37,7 @@
 		)
 	</insert>
 	
-	<update id="update" parameterType="cn.ideal.wf.model.Node">
+	<update id="update" parameterType="cn.ideal.wfpf.model.Node">
 		update workflow_node set
 			nodeName = #{nodename},
 			timeLimit = #{timeLimit},
@@ -48,13 +48,13 @@
 		where nodeId = #{nodeId}
 	</update>
 	
-	<update id="updateStatus" parameterType="cn.ideal.wf.model.Node">
+	<update id="updateStatus" parameterType="cn.ideal.wfpf.model.Node">
 		update workflow_node set			
 			status = #{status}
 		where nodeId = #{nodeId}
 	</update>
 	
-	<insert id="saveNodeNodes" parameterType="cn.ideal.wf.model.Node">
+	<insert id="saveNodeNodes" parameterType="cn.ideal.wfpf.model.Node">
 		insert into workflow_node_nodes(
 			nodeId,suf_nodeId,createdDate
 		)
@@ -69,7 +69,7 @@
 	
 	</insert>
 	
-	<insert id="saveUser" parameterType="cn.ideal.wf.model.Node">
+	<insert id="saveUser" parameterType="cn.ideal.wfpf.model.Node">
 		insert into workflow_node_user(
 			nodeId,userId,userName,unitId,unitName,createdDate
 		)
@@ -87,7 +87,7 @@
 	
 	</insert>
 	
-	<insert id="saveRole" parameterType="cn.ideal.wf.model.Node">
+	<insert id="saveRole" parameterType="cn.ideal.wfpf.model.Node">
 		insert into workflow_node_role(
 			nodeId,roleId,roleName,unitId,unitName,createdDate
 		)
@@ -109,17 +109,17 @@
 		delete from workflow_node_role where nodeId = #{nodeId}
 	</delete>
 	
-	<select id="findRole" resultType="cn.ideal.wf.model.CertificationRole" parameterType="java.lang.Long">
+	<select id="findRole" resultType="cn.ideal.wfpf.model.CertificationRole" parameterType="java.lang.Long">
 		select * from workflow_node_role
 		 where nodeId = #{nodeId}
 	</select>
 	
-	<select id="findUsers" resultType="cn.ideal.wf.model.CertificationUser" parameterType="java.lang.Long">
+	<select id="findUsers" resultType="cn.ideal.wfpf.model.CertificationUser" parameterType="java.lang.Long">
 		select * from workflow_node_user
 		 where nodeId = #{nodeId}
 	</select>
 	
-	<select id="findOrg" resultType="cn.ideal.wf.model.CertificationOrg" parameterType="java.lang.Long">
+	<select id="findOrg" resultType="cn.ideal.wfpf.model.CertificationOrg" parameterType="java.lang.Long">
 		select distinct * from (
 			select unitId as orgId, unitName as orgName from workflow_node_user
 			 where nodeId = #{nodeId}
@@ -129,7 +129,7 @@
 		 ) org
 	</select>
 	
-	<resultMap id="leaf" type="cn.ideal.wf.model.Node" >
+	<resultMap id="leaf" type="cn.ideal.wfpf.model.Node" >
 		<id column="nodeId" property="nodeId" jdbcType="NUMERIC" />
 		<association property="preNodes" column="nodeId" select="findPreNode" />
 		<association property="sufNodes" column="nodeId" select="findSufNode" />		

@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="cn.ideal.wf.dao.WorkflowMapper">
-	<resultMap id="workflow" type="cn.ideal.wf.model.Workflow" />			
+<mapper namespace="cn.ideal.wfpf.dao.WorkflowMapper">
+	<resultMap id="workflow" type="cn.ideal.wf.model.Workflow" >
+		<id column="tableId" property="tableId" jdbcType="NUMERIC" />	
+		<association property="wftableBrief" column="tableId" select="cn.ideal.wf.dao.WorkflowTableMapper.find" />
+	</resultMap>			
 	
 	<insert id="save" useGeneratedKeys="true" keyProperty="wfId" parameterType="cn.ideal.wf.model.Workflow">
 		insert into workflow(

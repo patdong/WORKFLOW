@@ -14,7 +14,7 @@ function showPos(event,wfId,item) {
 	  }
 	  x -= 2; 
 	  y -= 2;
-	  y = y-20
+	  if(y>400) y = y-300
 	  x = x+22
 	  el.style.left = x + "px";
 	  el.style.top = y + "px";
@@ -115,8 +115,8 @@ function removeBinding(wfId){
           			<td><span class="small-btn" style="background-color:#16e81d;" onclick="showPos(event,${workflow.wfId },'workflow-binding')">&nbsp;✓&nbsp;</span>
           				<span id="tb-${workflow.wfId }">
 	          				<c:if test="${!empty workflow.tableId }">
-	          				已绑定
-	          				<span class="small-btn" style="background-color:#ce6634;" onclick="removeBinding(${workflow.wfId })">&nbsp;✘&nbsp;</span>
+	          				${workflow.wftableBrief.tableName }
+	          				<span class="small-btn" style="background-color:#ce6634;margin-left:3px;" onclick="removeBinding(${workflow.wfId })">&nbsp;✘&nbsp;</span>
 	          				</c:if>
           				</span>
           			</td>
@@ -136,7 +136,7 @@ function removeBinding(wfId){
 	<input type="hidden" name="wfId" id="wfId"> 
 </DIV>
 <!-- 工作流表单绑定 -->
-<div id="workflow-binding" class="popup-width" style="display:none;height:50%;width:20%">
+<div id="workflow-binding" class="popup-width" style="display:none;width:20%">
 	<header>	      
          <div class="form-inline mt-2 mt-md-0" style="padding: 6px 10px 0px;" >
           	<label>表单绑定设置</label>
@@ -146,7 +146,7 @@ function removeBinding(wfId){
          </div>	      	     
     </header>
     <hr style="margin-top: .5rem; margin-bottom: .5rem;"></hr>
-    <div style="padding: 0px 13px 0px;">		
+    <div style="padding: 0px 13px 0px; height: 200px;overflow-y: auto;">		
 		<c:forEach items="${tbLst }" var="tbrief">
 			<p style="margin-bottom: 0rem;">
 				<input type="radio" id="tbId" name="tbId" value="${tbrief.tbId}" class="form-element" onclick="setBinging();">${tbrief.tableName}

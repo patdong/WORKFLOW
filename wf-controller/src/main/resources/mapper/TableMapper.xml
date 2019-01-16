@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="cn.ideal.wf.dao.TableMapper">
-	<resultMap id="tablebrief" type="cn.ideal.wf.model.TableBrief" />
-	<resultMap id="tableelement" type="cn.ideal.wf.model.TableElement" />			
+<mapper namespace="cn.ideal.wfpf.dao.TableMapper">
+	<resultMap id="tablebrief" type="cn.ideal.wfpf.model.TableBrief" />
+	<resultMap id="tableelement" type="cn.ideal.wfpf.model.TableElement" />			
 	
 	<select id="findAll" resultMap="tablebrief">
 		select * from table_brief 
@@ -19,7 +19,7 @@
 		select * from table_brief where tbId=#{tbId}
 	</select>
 	
-	<insert id="saveTableBrief" useGeneratedKeys="true" keyProperty="tbId" parameterType="cn.ideal.wf.model.TableBrief">
+	<insert id="saveTableBrief" useGeneratedKeys="true" keyProperty="tbId" parameterType="cn.ideal.wfpf.model.TableBrief">
 		insert into table_brief(
 			name,tableName,cols,status,createdDate
 		)
@@ -32,7 +32,7 @@
 		)
 	</insert>
 	
-	<update id="updateTableBrief" parameterType="cn.ideal.wf.model.TableBrief">
+	<update id="updateTableBrief" parameterType="cn.ideal.wfpf.model.TableBrief">
 		update table_brief set 
 			<if test="name != null">
 				name=#{name}
@@ -51,7 +51,7 @@
 		</where>				
 	</update>	
 		
-	<update id="updateStatusTableBrief" parameterType="cn.ideal.wf.model.TableBrief">
+	<update id="updateStatusTableBrief" parameterType="cn.ideal.wfpf.model.TableBrief">
 		update table_brief set 			
 			   status=#{status}
 		<where>		
@@ -63,7 +63,7 @@
 	<insert id="saveBatchTableElement" parameterType="java.util.List">
 		insert into table_element(
 			tbId,emId,newLabelName,newFunctionName,scope,seq,newHiddenFieldName,
-			newDataContent,newFieldType,newFieldDataType,createdDate
+			newDataContent,newFieldType,newFieldDataType,newLength,createdDate
 		)
 		values
 		<foreach collection="list" item="item" index="index" separator=",">				
@@ -78,12 +78,13 @@
 			#{item.newDataContent},
 			#{item.newFieldType},
 			#{item.newFieldDataType},
+			#{item.newLength},
 			#{item.createdDate}
 		)
 		</foreach>
 	</insert>
 		
-	<update id="updateTableElementSeq" parameterType="cn.ideal.wf.model.TableElement">
+	<update id="updateTableElementSeq" parameterType="cn.ideal.wfpf.model.TableElement">
 		update table_element set 			
 			   seq=#{seq}
 		<where>		
@@ -136,11 +137,14 @@
 		</where>				
 	</update>
 	
-	<select id="findTableList" resultMap="tableelement" parameterType="java.lang.Long">
+	<select id="findElementsOnList" resultMap="tableelement" parameterType="java.lang.Long">
 		select a.* from table_element a
 		 where a.tbId = #{tbId} 
 		   and a.list = '有效'
 	  order by seq
 	</select>
-	
+		
+	<select id="findAllWithTableName" resultMap="tablebrief">
+		select * from table_brief where tableName is not null
+	</select>
 </mapper>

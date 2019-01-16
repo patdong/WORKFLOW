@@ -9,7 +9,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import cn.ideal.wf.App;
-import cn.ideal.wf.model.Node;
+import cn.ideal.wfpf.model.Node;
+import cn.ideal.wfpf.service.NodeService;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = App.class)
