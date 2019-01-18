@@ -2,7 +2,8 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="cn.ideal.wf.dao.WorkflowTableMapper">			
 	<resultMap id="wftablebrief" type="cn.ideal.wf.model.WorkflowTableBrief" />
-	<resultMap id="wftableelement" type="cn.ideal.wf.model.WorkflowTableElement" />			
+	<resultMap id="wftableelement" type="cn.ideal.wf.model.WorkflowTableElement" />
+	<resultMap id="wftablesummary" type="cn.ideal.wf.model.WorkflowTableSummary" />				
 	
 	<select id="find" resultMap="wftablebrief" parameterType="java.lang.Long">
 		select * from table_brief where tbId=#{tbId}
@@ -30,4 +31,21 @@
 	  order by seq
 	</select>	
 	
+	<update id="synchTableSummary" parameterType="cn.ideal.wf.model.WorkflowTableSummary">
+		update table_summary set 			
+			modifiedDate=#{modifiedDate},
+			actionName=#{actionName}
+		<where>
+			bizId=#{bizId}
+		</where>				
+	</update>
+	<update id="endTableSummary" parameterType="cn.ideal.wf.model.WorkflowTableSummary">
+		update table_summary set 
+			modifiedDate=#{modifiedDate},			
+			finishedDate=#{finishedDate},
+			actionName=#{actionName}
+		<where>
+			bizId=#{bizId}
+		</where>				
+	</update>
 </mapper>

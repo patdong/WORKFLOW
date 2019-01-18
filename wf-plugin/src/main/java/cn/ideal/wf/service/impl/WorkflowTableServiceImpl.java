@@ -11,6 +11,7 @@ import cn.ideal.wf.data.analyzer.Storage;
 import cn.ideal.wf.jdbc.dao.SQLExecutor;
 import cn.ideal.wf.model.WorkflowTableBrief;
 import cn.ideal.wf.model.WorkflowTableElement;
+import cn.ideal.wf.model.WorkflowTableSummary;
 import cn.ideal.wf.service.WorkflowTableService;
 import cn.ideal.wf.service.WorkflowWFService;
 
@@ -56,6 +57,16 @@ public class WorkflowTableServiceImpl implements WorkflowTableService {
 	@Override
 	public Map<String, Object> updateDataValueForTable(Storage storage) throws Exception {		
 		return mysqlExecutor.update(storage);
+	}
+
+	@Override
+	public void synchTableSummary(WorkflowTableSummary wfts) {
+		wfTableMapper.synchTableSummary(wfts);
+	}
+
+	@Override
+	public void endTableSummary(WorkflowTableSummary wfts) {
+		wfTableMapper.endTableSummary(wfts);
 	}
 
 

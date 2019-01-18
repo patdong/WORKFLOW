@@ -9,7 +9,7 @@ import org.springframework.security.core.userdetails.User;
 import cn.ideal.wf.model.WorkflowUser;
 import cn.ideal.wfpf.service.CertificationService;
 
-public class ActualFundation {
+public class PlatformFundation {
 	@Autowired
 	private CertificationService certificationService;
 	

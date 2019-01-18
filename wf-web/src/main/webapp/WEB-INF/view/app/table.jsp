@@ -3,20 +3,20 @@
 <script> 
     $(function(){
     	//根据不同的表单风格做处理
-    	if("${bizTable.Id}" == "") $("#includedContent").load("/app/showcontent/${wf.wfId}/div");
-    	else $("#includedContent").load("/app/showcontent/${wf.wfId }/${bizTable.Id}/div"); 
+    	if("${bizId}" == "") $("#includedContent").load("/app/showcontent/${wf.wfId}/div");
+    	else $("#includedContent").load("/app/showcontent/${wf.wfId }/${bizId}/div"); 
     });
     
     //表单保存提交
     function doStorage(){
-    	if("${bizTable.Id}" == "") $("#myForm").attr("action","/app/save/${wf.wfId}");
-    	else $("#myForm").attr("action","/app/save/${wf.wfId}/${bizTable.Id}");
+    	if("${bizId}" == "") $("#myForm").attr("action","/app/save/${wf.wfId}");
+    	else $("#myForm").attr("action","/app/save/${wf.wfId}/${bizId}");
     	$("#myForm").submit();
     }
     
     //流程办理完毕提交
     function passWorkflow(){
-    	$("#myForm").attr("action","/app/passworkflow/${wf.wfId}/${bizTable.Id}");
+    	$("#myForm").attr("action","/app/passworkflow/${wf.wfId}/${bizId}");
     	$("#myForm").submit();
     }
     

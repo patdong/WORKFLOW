@@ -8,19 +8,11 @@ package cn.ideal.wf.service;
 import java.util.List;
 
 import cn.ideal.wf.model.WorkflowFlow;
+import cn.ideal.wf.model.WorkflowNode;
 import cn.ideal.wf.model.WorkflowUser;
 
 public interface WorkflowFlowService {
-	
-	/**
-	 * 流程已启动，增加新的流程
-	 */
-	WorkflowFlow addFlow(WorkflowFlow workflow);
-	
-	/**
-	 * 流程已启动，增加新的流程同时创建操作人
-	 */
-	WorkflowFlow addFlow(WorkflowFlow workflow,WorkflowUser ... user) throws Exception;
+		
 	/**
 	 * 启动流程
 	 */
@@ -37,25 +29,22 @@ public interface WorkflowFlowService {
 	boolean endFlow(Long bizId);
 	
 	/**
+	 * 结束当前流程
+	 * @param bizId
+	 * @return
+	 */
+	WorkflowFlow endCurFlow(Long bizId);
+	
+	/**
 	 * 结束业务流程同时设置结束的动作
 	 */
 	boolean endFlow(Long bizId,String actionName,WorkflowUser wfu);
 	
 	/**
 	 * 结束业务流程并创建新的流程及流程操作人
-	 * 流程操作人默认来自流程的设定
-	 */
-	boolean endFlowNewFlow(Long bizId) throws Exception;
-	
-	/**
-	 * 结束业务流程并创建新的流程及流程操作人
 	 */	
-	boolean endFlowNewFlow(WorkflowFlow workflow, WorkflowUser...users) throws Exception;
+	boolean endAndAddFlow(Long bizId, WorkflowNode node, WorkflowUser...users) throws Exception;
 	
-	/**
-	 * 按指定的动作结束业务流程，同时创建新的流程及流程操作人
-	 */		
-	boolean endFlowNewFlow(WorkflowFlow workflow, String actionName, WorkflowUser...users) throws Exception;
 	/**
 	 * 获得未完成的流程
 	 */
@@ -77,8 +66,6 @@ public interface WorkflowFlowService {
 	WorkflowFlow findFlow(Long flowId);
 	
 	List<WorkflowUser> findWorkflowUsers(Long bizId);
-	
-	boolean assignWorkflowStepUser(Long bizId,WorkflowUser user);
 	
 	List<WorkflowFlow> findWorkflowWithSteps(Long bizId);
 	

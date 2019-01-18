@@ -15,7 +15,7 @@ public class WorkflowBrief implements Serializable{
 	private Long flowId;
 	private Long stepId;
 	private String nodeName;
-	private Long dispatchUserId;
+	private String dispatchUserId;
 	private Long unitId;
 	private Date createdDate;
 	private Date modifiedDate;
@@ -49,10 +49,10 @@ public class WorkflowBrief implements Serializable{
 		this.nodeName = nodeName;
 	}
 	
-	public Long getDispatchUserId() {
+	public String getDispatchUserId() {
 		return dispatchUserId;
 	}
-	public void setDispatchUserId(Long dispatchUserId) {
+	public void setDispatchUserId(String dispatchUserId) {
 		this.dispatchUserId = dispatchUserId;
 	}
 	public Long getUnitId() {

@@ -11,6 +11,7 @@ import java.util.Map;
 import cn.ideal.wf.data.analyzer.Storage;
 import cn.ideal.wf.model.WorkflowTableBrief;
 import cn.ideal.wf.model.WorkflowTableElement;
+import cn.ideal.wf.model.WorkflowTableSummary;
 
 
 public interface WorkflowTableService {
@@ -28,4 +29,18 @@ public interface WorkflowTableService {
 	Map<String,Object> saveDataValueForTable(Storage storage) throws Exception;
 	
 	Map<String,Object> updateDataValueForTable(Storage storage) throws Exception;
+	
+	/**
+	 * 更新业务附表信息
+	 * @param wfts
+	 * @return
+	 */
+	void synchTableSummary(WorkflowTableSummary wfts);
+	
+	/**
+	 * 结束业务附表
+	 * @param wfts
+	 * @return
+	 */
+	void endTableSummary(WorkflowTableSummary wfts);
 }

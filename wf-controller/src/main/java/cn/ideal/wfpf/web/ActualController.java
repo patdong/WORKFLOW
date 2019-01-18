@@ -29,7 +29,7 @@ import cn.ideal.wf.model.Workflow;
 import cn.ideal.wf.model.WorkflowBrief;
 import cn.ideal.wf.model.WorkflowTableBrief;
 import cn.ideal.wf.model.WorkflowTableElement;
-import cn.ideal.wf.service.ActualService;
+import cn.ideal.wf.processor.Processor;
 import cn.ideal.wf.service.WorkflowBriefService;
 import cn.ideal.wf.service.WorkflowFlowService;
 import cn.ideal.wf.service.WorkflowTableService;
@@ -39,7 +39,7 @@ import cn.ideal.wfpf.model.Page;
 
 @Controller
 @RequestMapping("/app")
-public class ActualController extends ActualFundation{
+public class ActualController extends PlatformFundation{
 	@Autowired
 	private WorkflowWFService wfService;	
 	@Autowired
@@ -55,7 +55,7 @@ public class ActualController extends ActualFundation{
 	@Autowired
 	private WorkflowBriefService wfBriefService;
 	@Autowired
-	private ActualService actualService;
+	private Processor actualService;
 	/**
 	 * 实战首页
 	 * */
