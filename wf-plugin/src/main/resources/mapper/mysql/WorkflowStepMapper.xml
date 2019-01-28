@@ -70,7 +70,7 @@
 	
 	<select id="findWrokflowStep" resultMap="workflowstep" parameterType="java.util.Map">
 		select wfs.* from workflow_step wfs
-		inner join workflow wf on wf.flowId = wfs.flowId
+		inner join workflow_flow wf on wf.flowId = wfs.flowId
 		where wf.bizId = #{bizId}
 		  <if test="nodeName != null">
 		  and wf.nodeName = #{nodeName}

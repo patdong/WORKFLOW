@@ -31,7 +31,7 @@ public class WFConstants {
 	/*
 	  流程默认节点
 	 */	
-	public final static String WF_NODE_STRAT = "启动";
+	public final static String WF_NODE_STRAT = "创建";
 	
 	/*
 	 流程节点类型

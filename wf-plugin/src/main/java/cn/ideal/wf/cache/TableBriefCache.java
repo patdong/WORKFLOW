@@ -1,5 +1,10 @@
 package cn.ideal.wf.cache;
 
+/**
+ * 工作流表单元素缓存
+ * @author 郭佟燕
+ * @version 2.0
+ */
 import java.util.List;
 import java.util.Map;
 
@@ -45,15 +50,15 @@ public class TableBriefCache implements CommandLineRunner {
 		return hashTableBrief.entries(TB_KEY);
 	}
 	
-	public void save(WorkflowTableBrief wftb) {
+	public static void save(WorkflowTableBrief wftb) {
 		hashTableBrief.put(TB_KEY, wftb.getTbId(), wftb);
 	}
 
-	public void update(WorkflowTableBrief wftb) {
+	public static void update(WorkflowTableBrief wftb) {
 		hashTableBrief.put(TB_KEY,wftb.getTbId(), wftb);
 	}
  
-	public void delete(Long wfId) {
+	public static void delete(Long wfId) {
 		hashTableBrief.delete(TB_KEY, wfId);
 	}
 }

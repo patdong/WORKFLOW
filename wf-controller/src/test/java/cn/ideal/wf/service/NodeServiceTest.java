@@ -20,8 +20,8 @@ public class NodeServiceTest extends TestCase{
 	private NodeService nodeService;
 	@Test
 	public void testTree() {
-		Long moduleId = 1l;
-		Node[][] nodes = nodeService.getTreeNodes(moduleId);
+		Long wfId = 1l;
+		Node[][] nodes = nodeService.getTreeNodes(wfId);
 		for(int i=0; i<nodes.length; i++){
 			for(int j=0; j<nodes[i].length; j++){
 				if(nodes[i][j] != null){

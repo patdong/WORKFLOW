@@ -26,7 +26,6 @@ import cn.ideal.wf.data.analyzer.Storage;
 import cn.ideal.wf.data.analyzer.StorageAnalyzer;
 import cn.ideal.wf.data.query.QueryPageExecutor;
 import cn.ideal.wf.model.Workflow;
-import cn.ideal.wf.model.WorkflowBrief;
 import cn.ideal.wf.model.WorkflowTableBrief;
 import cn.ideal.wf.model.WorkflowTableElement;
 import cn.ideal.wf.processor.Processor;
@@ -35,6 +34,7 @@ import cn.ideal.wf.service.WorkflowFlowService;
 import cn.ideal.wf.service.WorkflowTableService;
 import cn.ideal.wf.service.WorkflowWFService;
 import cn.ideal.wfpf.model.Page;
+import cn.ideal.wfpf.service.NodeService;
 
 
 @Controller
@@ -55,7 +55,9 @@ public class ActualController extends PlatformFundation{
 	@Autowired
 	private WorkflowBriefService wfBriefService;
 	@Autowired
-	private Processor actualService;
+	private Processor actualService;	
+	@Autowired
+	private NodeService nodeService;
 	/**
 	 * 实战首页
 	 * */
@@ -70,14 +72,18 @@ public class ActualController extends PlatformFundation{
 	 * 获取指定业务列表信息
 	 * 
 	 */
-	@GetMapping("/list/{wfId}/{pageNumber}")
-    public ModelAndView getList(@PathVariable Long wfId,@PathVariable Long pageNumber, HttpServletRequest request) {
+	@GetMapping(value={"/list/{wfId}/{scope}/{pageNumber}","/list/{wfId}/{pageNumber}"})
+    public ModelAndView getList(@PathVariable Long wfId,@PathVariable Long pageNumber,@PathVariable Optional<String> scope, HttpServletRequest request) {
 		ModelAndView mav = new ModelAndView("app/list");		
 		Workflow wf = WorkflowCache.getValue(wfId);
 		Storage storage = null;
 		try{
 			storage = parameterAnalyzer.dataAnalyze(request, wfId);
-			storage.setBeginNumberWithPageNumber(pageNumber);		
+			storage.setUser(this.getWorkflowUser(request));
+			storage.setBeginNumberWithPageNumber(pageNumber);
+			if(scope.isPresent()){
+				storage.getParameters().put("scope", scope.get());
+			}
 			Long count = queryPageExecutor.queryAll(storage);
 	        Page<Map<String,Object>> page = new Page<Map<String,Object>>(count,pageNumber);
 	        page.setPageList(queryPageExecutor.queryPage(storage));
@@ -109,8 +115,7 @@ public class ActualController extends PlatformFundation{
 		
 		Storage storage = storageAnalyzer.dataAnalyze(request, wfId);		
 		//获取运行系统的当前登录用户
-		storage.setUser(this.getWorkflowUser(request));
-		
+		storage.setUser(this.getWorkflowUser(request));			
 		if(bizId.isPresent()) {
 			storage.setBizId(bizId.get());
 			wftableService.updateDataValueForTable(storage);
@@ -135,16 +140,16 @@ public class ActualController extends PlatformFundation{
 		mav.addObject("brief",tb);
 		mav.addObject("wfs", wfService.findAllBlindTable());		
 		mav.addObject("wf",wf);
-		String nodeName = "创建";
+		mav.addObject("bizId",null);
 		if(bizId.isPresent()) {
 			mav.addObject("bizId",bizId.get());
-			//流程处理
-			WorkflowBrief wfb = wfBriefService.find(bizId.get());			
-			if(wfb == null) nodeName = "创建";
-			else nodeName = wfb.getNodeName();
+			//获取办理节点			
+			mav.addObject("nodename",actualService.findNodeName(wfId, bizId.get()));
+			mav.addObject("nodetree",nodeService.getTreeNodes(wfId,bizId.get()));
+		}else{
+			mav.addObject("nodetree",nodeService.getTreeNodes(wfId));
 		}
-
-		mav.addObject("nodename",nodeName);
+		
         return mav;
     }
 	
@@ -186,7 +191,7 @@ public class ActualController extends PlatformFundation{
         return mav;
     }
 	
-	@PostMapping(value={"/passworkflow{wfId}/{bizId}"})
+	@PostMapping(value={"/passworkflow/{wfId}/{bizId}"})
 	public ModelAndView passWorkflow(@PathVariable Long wfId, @PathVariable Long bizId,HttpServletRequest request) throws Exception{
 		ModelAndView mav = new ModelAndView("redirect:/app/list/"+wfId+"/1");						
 		actualService.flowPass(wfId, bizId, this.getWorkflowUser(request));

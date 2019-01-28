@@ -343,7 +343,7 @@
 	        <div class="popup-form-group" id="user-sel">
 	        	<label for="usersName" class="sr-only">办理人</label>
 		        <input id="usersName" name="usersName" class="form-control-one-line" placeholder="办理人" style="width:80%" />			        
-		        &nbsp;<span style="cursor:pointer" onclick="$('#user-div').show();">用户</span>
+		        <span style="cursor:pointer" onclick="$('#user-div').show();">用户</span>
 		        <div id="user-hidden"></div>
 		    </div>
 		    <div class="popup-form-group">
@@ -370,7 +370,7 @@
 		     </div>
 		     <div class="popup-form-group">
 		        <label for="org" class="sr-only">所在单位</label>
-		        <input id="org" name="org.orgName" class="form-control-one-line" placeholder="所在单位" style="width:80%" />&nbsp;
+		        <input id="org" name="org.orgName" class="form-control-one-line" placeholder="所在单位" style="width:80%" />
 				<input type="hidden" id="orgId" name="org.orgId" />
 				<span style="cursor:pointer" onclick="$('#org-div').show();">单位</span>				        
 	        </div>   		       

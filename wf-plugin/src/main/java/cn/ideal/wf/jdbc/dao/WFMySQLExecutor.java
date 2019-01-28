@@ -4,6 +4,7 @@ package cn.ideal.wf.jdbc.dao;
  * @author 郭佟燕
  * @version 2.0
  */
+import java.math.BigInteger;
 import java.util.List;
 import java.util.Map;
 
@@ -43,45 +44,49 @@ public class WFMySQLExecutor implements SQLExecutor {
 			prebuf.append(")");
 			sufbuf.append(")");
 
-			int bizId = jdbcTemplate.update(prebuf.toString() + sufbuf.toString());
-			if(bizId > 0){				
-				//保存业务关联主表
-				prebuf.setLength(0);
-				Workflow wf = WorkflowCache.getValue(storage.getWfId());
-				WorkflowTableBrief tb = TableBriefCache.getValue(wf.getTableId());
-				prebuf.append("insert into table_summary ( ");
-				prebuf.append("bizId,wfId,title,createdUserId,createdUserName,createdOrgId,createdOrgName,curUserId,curUserName,createdDate,modifiedDate,status,action ");
-				prebuf.append(" ) ");
-				prebuf.append(" values (");
-				prebuf.append(bizId);
-				prebuf.append(",");
-				prebuf.append(storage.getWfId());
-				prebuf.append(",'");
-				prebuf.append(tb.getTableName());
-				prebuf.append("',");
-				prebuf.append(storage.getUser().getUserId());
-				prebuf.append(",'");
-				prebuf.append(storage.getUser().getUserName());
-				prebuf.append("',");
-				prebuf.append(storage.getUser().getUnitId());
-				prebuf.append(",'");
-				prebuf.append(storage.getUser().getUnitName());
-				prebuf.append("',");
-				prebuf.append(storage.getUser().getUserId());
-				prebuf.append(",'");
-				prebuf.append(storage.getUser().getUserName());
-				prebuf.append("',");
-				prebuf.append("now()");
-				prebuf.append(",");
-				prebuf.append("now()");
-				prebuf.append(",'");
-				prebuf.append("有效");
-				prebuf.append("','");
-				prebuf.append("创建");
-				prebuf.append("')");
-				int id = jdbcTemplate.update(prebuf.toString());
-				if(id > 0){	
-					return jdbcTemplate.queryForMap("select * from " + storage.getTableName() + " where id = "+ bizId);
+			int idx = jdbcTemplate.update(prebuf.toString() + sufbuf.toString());
+			if(idx > 0){	
+				Map<String,Object> maxId = jdbcTemplate.queryForMap("select last_insert_id() as ID" );
+				if(maxId != null){
+					BigInteger bizId = (BigInteger)maxId.get("ID");
+					//保存业务关联主表
+					prebuf.setLength(0);
+					Workflow wf = WorkflowCache.getValue(storage.getWfId());
+					WorkflowTableBrief tb = TableBriefCache.getValue(wf.getTableId());
+					prebuf.append("insert into table_summary ( ");
+					prebuf.append("bizId,wfId,title,createdUserId,createdUserName,createdOrgId,createdOrgName,curUserId,curUserName,createdDate,modifiedDate,status,action ");
+					prebuf.append(" ) ");
+					prebuf.append(" values (");
+					prebuf.append(bizId);
+					prebuf.append(",");
+					prebuf.append(storage.getWfId());
+					prebuf.append(",'");
+					prebuf.append(tb.getTableName());
+					prebuf.append("',");
+					prebuf.append(storage.getUser().getUserId());
+					prebuf.append(",'");
+					prebuf.append(storage.getUser().getUserName());
+					prebuf.append("',");
+					prebuf.append(storage.getUser().getUnitId());
+					prebuf.append(",'");
+					prebuf.append(storage.getUser().getUnitName());
+					prebuf.append("',");
+					prebuf.append(storage.getUser().getUserId());
+					prebuf.append(",'");
+					prebuf.append(storage.getUser().getUserName());
+					prebuf.append("',");
+					prebuf.append("now()");
+					prebuf.append(",");
+					prebuf.append("now()");
+					prebuf.append(",'");
+					prebuf.append("有效");
+					prebuf.append("','");
+					prebuf.append("创建");
+					prebuf.append("')");
+					int id = jdbcTemplate.update(prebuf.toString());
+					if(id > 0){	
+						return jdbcTemplate.queryForMap("select * from " + storage.getTableName() + " where id = "+ bizId);
+					}
 				}
 			}
 			

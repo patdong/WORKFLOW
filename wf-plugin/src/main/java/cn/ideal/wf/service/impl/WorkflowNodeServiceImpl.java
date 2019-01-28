@@ -1,13 +1,13 @@
 package cn.ideal.wf.service.impl;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import cn.ideal.wf.cache.WorkflowNodeCache;
+import cn.ideal.wf.common.WFConstants;
 import cn.ideal.wf.dao.WorkflowNodeMapper;
 import cn.ideal.wf.model.WorkflowNode;
 import cn.ideal.wf.model.WorkflowUser;
@@ -24,32 +24,27 @@ public class WorkflowNodeServiceImpl implements WorkflowNodeService{
 		return null;
 	}
 
+	/**
+	 * 通过缓存获取节点信息
+	 */
 	@Override
-	public List<WorkflowNode> findNextNodes(String nodeName, Long moduleId) {
+	public List<WorkflowNode> findNextNodes(String nodeName, Long wfId) {
 		if(nodeName == null) return new ArrayList<WorkflowNode>();
-		if(moduleId == null) return new ArrayList<WorkflowNode>();
+		if(wfId == null) return new ArrayList<WorkflowNode>();
 		WorkflowNode wfn = new WorkflowNode();
 		wfn.setNodeName(nodeName);
-		wfn.setModuleId(moduleId);
-		return workflowNodeMapper.findNextNodes(wfn);
+		wfn.setWfId(wfId);
+		if(nodeName.equals(WFConstants.WF_NODE_STRAT)) {
+			List<WorkflowNode> wfns = new ArrayList<WorkflowNode>();
+			wfns.add(WorkflowNodeCache.getFirstNode(wfId));
+			return wfns;
+		}
+		else return WorkflowNodeCache.getNextNode(nodeName, wfId);
 	}
 
 	@Override
 	public List<WorkflowUser> findNodeUsers(Long nodeId) {
 		return workflowNodeMapper.findNodeUsers(nodeId);
-	}
-
-	@Override
-	public List<WorkflowNode> findSeqNodes(Long moduleId) {
-		return workflowNodeMapper.findSeqNodes(moduleId);
-	}
-
-	@Override
-	public List<WorkflowNode> findSeqNodes(Long moduleId, Long bizId) {
-		Map<String,Long> conds = new HashMap<String,Long>();
-		conds.put("moduleId", moduleId);
-		conds.put("bizId", bizId);
-		return workflowNodeMapper.findSeqNodesWithFlow(conds);
 	}
 
 	@Override
@@ -61,6 +56,11 @@ public class WorkflowNodeServiceImpl implements WorkflowNodeService{
 	public WorkflowNode save(WorkflowNode node) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public List<WorkflowNode> findAll(Long wfId) {
+		return workflowNodeMapper.findAll(wfId);
 	}
 
 }

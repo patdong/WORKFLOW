@@ -1,17 +1,24 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"  pageEncoding="UTF-8"  trimDirectiveWhitespaces="true" %>
 <%@ include file="/WEB-INF/view/include.jsp"%>
+<script>     
+  	//根据下拉框的选择获取列表信息
+    function findList(){
+    	var scope = $("#selOperation").val();
+    	location.href="/app/list/${wf.wfId}/"+scope+"/1";
+    }
+</script>
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-  <h1 class="h2">${wf.wfName }</h1>
-  <div class="btn-toolbar mb-2 mb-md-0">
-    <div class="btn-group mr-2">
-      <button type="button" class="btn btn-sm btn-outline-secondary" onclick="location.href='/app/showtable/${wf.wfId}/div'">新建</button>
-      <button type="button" class="btn btn-sm btn-outline-secondary">生成Excel</button>
-    </div>
-    <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle">
-      <span data-feather="calendar"></span>
-     办理列表
-    </button>
+  <h1 class="h2">${wf.wfName }</h1>  
+  <div class="btn-toolbar mb-2 mb-md-0">  	   
+    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="location.href='/app/showtable/${wf.wfId}/div'">新建</button>
+    <button type="button" class="btn btn-sm btn-outline-secondary">生成Excel</button>&nbsp;
+    <select id="selOperation" onchange="findList();">
+    	<option>办理列表</option>
+    	<option value="approve">申请列表</option>
+    	<option value="workflow">流转列表</option>
+    </select>       
   </div>
+   
 </div>     
 
 <h3>申请列表</h3>

@@ -17,7 +17,7 @@
 	
 	<insert id="addFlowBrief" parameterType="cn.ideal.wf.model.WorkflowBrief">
 		insert into workflow_brief(
-			bizId,flowId,stepId,nodeName,dispatchUserId,unitId,createdDate,modifiedDate,finishedDate,moduleId,status
+			bizId,flowId,stepId,nodeName,dispatchUserId,unitId,createdDate,modifiedDate,finishedDate,wfId,status
 		)
 		values(
 			#{bizId},
@@ -29,7 +29,7 @@
 			#{createdDate},
 			#{modifiedDate},
 			#{finishedDate},
-			#{moduleId},
+			#{wfId},
 			#{status}
 		)
 	</insert>

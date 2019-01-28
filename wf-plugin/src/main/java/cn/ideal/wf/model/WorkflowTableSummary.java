@@ -19,7 +19,7 @@ public class WorkflowTableSummary implements Serializable{
 	private Date finishedDate;
 	private Date modifiedDate;
 	private String status;
-	private String atcion;
+	private String action;
 	public Long getBizId() {
 		return bizId;
 	}
@@ -98,12 +98,13 @@ public class WorkflowTableSummary implements Serializable{
 	public void setStatus(String status) {
 		this.status = status;
 	}
-	public String getAtcion() {
-		return atcion;
+	public String getAction() {
+		return action;
 	}
-	public void setAtcion(String atcion) {
-		this.atcion = atcion;
+	public void setAction(String action) {
+		this.action = action;
 	}
+	
 	
 	
 }

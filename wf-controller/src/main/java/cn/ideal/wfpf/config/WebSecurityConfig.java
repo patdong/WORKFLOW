@@ -53,7 +53,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter{
     protected void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests()
             .anyRequest()
-            //.permitAll()
             .fullyAuthenticated()
             .and().formLogin().loginPage("/login").failureUrl("/loginFailure").permitAll()
             .successHandler(authenticationSuccessHandler)

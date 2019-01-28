@@ -29,6 +29,7 @@ public class Node {
 	private List<Node> preNodes;                         //前置节点
 	private List<Node> sufNodes;                         //后置节点
 	private String style = "^";                          //节点页面展示样式 ，不属于数据库字段。包括：user、node、pointer、lpointer、rpointer
+	private String passed;                               //节点是否已经流转到
 	public Long getNodeId() {
 		return nodeId;
 	}
@@ -146,6 +147,12 @@ public class Node {
 	}
 	public void setInnerHeight(Long innerHeight) {
 		this.innerHeight = innerHeight;
+	}
+	public String getPassed() {
+		return passed;
+	}
+	public void setPassed(String passed) {
+		this.passed = passed;
 	}
 
 }

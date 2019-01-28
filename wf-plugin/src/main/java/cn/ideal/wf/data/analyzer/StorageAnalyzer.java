@@ -7,8 +7,6 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.alibaba.druid.util.StringUtils;
-
 import cn.ideal.wf.cache.WorkflowCache;
 import cn.ideal.wf.model.Workflow;
 import cn.ideal.wf.model.WorkflowTableElement;
@@ -30,10 +28,7 @@ public class StorageAnalyzer implements Analyzer{
 		if(wf == null) throw new Exception("没有配置流程");
 		if(wf.getWftableBrief() == null) throw new Exception("没有配置表单");
 		Storage storage = new Storage();
-		storage.setTableName(wf.getWftableBrief().getName());
-		if(!StringUtils.isEmpty(request.getParameter("bizId"))){
-			storage.setBizId(Long.parseLong(request.getParameter("bizId")));
-		}
+		storage.setTableName(wf.getWftableBrief().getName());		
 		storage.setWfId(wfId);
 		//获得关联表单的字段并赋值
 		List<WorkflowTableElement> wftems = tableService.findAllTableElements(wf.getTableId());				

@@ -7,6 +7,7 @@ package cn.ideal.wf.model;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 
 public class WorkflowNode implements Serializable{
 
@@ -18,13 +19,16 @@ public class WorkflowNode implements Serializable{
 	private String uType;
 	private String nType;
 	private WorkflowRole role;
-	private Collection<WorkflowUser> user;	
+	private Collection<WorkflowUser> users;	
 	private String status;
 	private Date createdDate;
 	private Date modifiedDate;
-	private Long moduleId;
+	private Long wfId;
 	private Long seq;
 	private boolean highLight;
+	
+	private List<WorkflowNode> preNodes;                         //前置节点
+	private List<WorkflowNode> sufNodes;                         //后置节点
 	
 	public WorkflowNode(){}
 	public WorkflowNode(Long nodeId){
@@ -65,12 +69,12 @@ public class WorkflowNode implements Serializable{
 	}
 	public void setRole(WorkflowRole role) {
 		this.role = role;
+	}	
+	public Collection<WorkflowUser> getUsers() {
+		return users;
 	}
-	public Collection<WorkflowUser> getUser() {
-		return user;
-	}
-	public void setUser(Collection<WorkflowUser> user) {
-		this.user = user;
+	public void setUsers(Collection<WorkflowUser> users) {
+		this.users = users;
 	}
 	public String getStatus() {
 		return status;
@@ -90,11 +94,12 @@ public class WorkflowNode implements Serializable{
 	public void setModifiedDate(Date modifiedDate) {
 		this.modifiedDate = modifiedDate;
 	}
-	public Long getModuleId() {
-		return moduleId;
+	
+	public Long getWfId() {
+		return wfId;
 	}
-	public void setModuleId(Long moduleId) {
-		this.moduleId = moduleId;
+	public void setWfId(Long wfId) {
+		this.wfId = wfId;
 	}
 	public Long getSeq() {
 		return seq;
@@ -107,6 +112,18 @@ public class WorkflowNode implements Serializable{
 	}
 	public void setHighLight(boolean highLight) {
 		this.highLight = highLight;
+	}
+	public List<WorkflowNode> getPreNodes() {
+		return preNodes;
+	}
+	public void setPreNodes(List<WorkflowNode> preNodes) {
+		this.preNodes = preNodes;
+	}
+	public List<WorkflowNode> getSufNodes() {
+		return sufNodes;
+	}
+	public void setSufNodes(List<WorkflowNode> sufNodes) {
+		this.sufNodes = sufNodes;
 	}
 	
 	

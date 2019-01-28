@@ -34,7 +34,7 @@
 	<update id="synchTableSummary" parameterType="cn.ideal.wf.model.WorkflowTableSummary">
 		update table_summary set 			
 			modifiedDate=#{modifiedDate},
-			actionName=#{actionName}
+			action=#{action}
 		<where>
 			bizId=#{bizId}
 		</where>				
@@ -43,7 +43,7 @@
 		update table_summary set 
 			modifiedDate=#{modifiedDate},			
 			finishedDate=#{finishedDate},
-			actionName=#{actionName}
+			action=#{action}
 		<where>
 			bizId=#{bizId}
 		</where>				

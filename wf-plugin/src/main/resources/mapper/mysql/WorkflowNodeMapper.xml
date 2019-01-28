@@ -1,10 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="cn.ideal.wf.dao.WorkflowNodeMapper">
-	<resultMap id="workflownode" type="cn.ideal.wf.model.WorkflowNode" />			
+	<resultMap id="workflownode" type="cn.ideal.wf.model.WorkflowNode" >
+		<id column="nodeId" property="nodeId" jdbcType="NUMERIC" />
+		<association property="role" column="nodeId" select="findRole" />
+		<association property="users" column="nodeId" select="findUsers" />
+		<association property="preNodes" column="nodeId" select="findPreNode" />
+		<association property="sufNodes" column="nodeId" select="findSufNode" />
+	</resultMap>			
 	
-	<select id="findAll" resultMap="workflownode">
-		select * from workflow_node 
+	<select id="findAll" resultMap="workflownode" parameterType="java.lang.Long">
+		select * from workflow_node where wfId=#{wfId}
 	</select>
 		
 	<select id="find" resultMap="workflownode" parameterType="java.lang.Long">
@@ -28,10 +34,9 @@
 	</select>	
 	
 	<select id="findNextNodes" resultMap="workflownode" parameterType="cn.ideal.wf.model.WorkflowNode">
-		select wn.*,wnu.userId,wnu.roleId,wnu.unitId,wnu.userName,wnu.unitName,wnu.roleName from workflow_node wn
-		inner join workflow_node_user wnu on wn.nodeId = wnu.nodeId
+		select wn.* from workflow_node wn		
 		where wn.nodeId in (
-			select rel_nodeId from workflow_node_rels where nodeId in (
+			select suf_nodeId from workflow_node_nodes where nodeId in (
 				select nodeId from workflow_node 
 				<where>
 						<if test="nodeId != null">
@@ -41,39 +46,37 @@
 							AND nodeName = #{nodeName}				  
 						</if>
 						<if test="nodeName != null">
-				  			AND moduleId = #{moduleId}
+				  			AND wfId = #{wfId}
 						</if>
 				</where> 
 					
 				)
 		)
 	</select>
-	
-	<select id="findSeqNodes" resultMap="workflownode" parameterType="java.util.Map">		
-		select wn.*,sa.authorityName as roleName,su.userName,wnu.unitName from workflow_node wn
-		inner join workflow_node_user wnu on wn.nodeId = wnu.nodeId
-		left join sys_user su on su.userId = wnu.userId
-		left join sys_authority sa on sa.authorityId = wnu.roleId
-		where wn.moduleId=#{moduleId}
-		order by wn.seq		
+		
+	<select id="findRole" resultType="cn.ideal.wf.model.WorkflowRole" parameterType="java.lang.Long">
+		select * from workflow_node_role
+		 where nodeId = #{nodeId}
 	</select>
 	
-	<select id="findSeqNodesWithFlow" resultMap="workflownode" parameterType="java.util.Map">		
-		select wn.nodeId,wn.nodeName,
-				 case 
-		        when wf.nodeName is null  then 0		        
-		        else 1 END highLight,
-		        case
-		        when wf.actionName = '暂缓' then wf.actionName
-		        else null end status
-          from workflow_node wn
-		left join (
-					select min(createdDate), nodeName ,actionName
-					  from workflow 
-					 where bizId = #{bizId} group by nodeName
-				   ) wf on wn.nodeName = wf.nodeName
-		where wn.moduleId=#{moduleId}				  	
-		order by wn.seq	
+	<select id="findUsers" resultType="cn.ideal.wf.model.WorkflowUser" parameterType="java.lang.Long">
+		select * from workflow_node_user
+		 where nodeId = #{nodeId}
 	</select>
 	
+	<!-- 获取前置节点 -->
+	<select id="findPreNode" resultMap="workflownode" parameterType="java.lang.Long">
+		select n.* from workflow_node n
+		inner join workflow_node_nodes a on n.nodeId = a.nodeId
+		 where a.suf_nodeId = #{nodeId}
+		   and n.status != "无效"
+	</select>
+	
+	<!-- 获取后置节点 -->
+	<select id="findSufNode" resultMap="workflownode" parameterType="java.lang.Long">
+		select n.* from workflow_node n
+		inner join workflow_node_nodes a on a.suf_nodeId = n.nodeId
+		 where a.nodeId = #{nodeId}
+		   and n.status != "无效"
+	</select>
 </mapper>

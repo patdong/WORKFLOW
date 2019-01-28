@@ -16,12 +16,12 @@ public interface WorkflowFlowService {
 	/**
 	 * 启动流程
 	 */
-	WorkflowFlow startFlow(Long bizId,Long moduleId, String nodeName) throws Exception;
+	WorkflowFlow startFlow(Long bizId,Long wfId, String nodeName) throws Exception;
 	
 	/**
 	 * 启动流程同时创建启动的操作人
 	 */
-	WorkflowFlow startFlow(Long bizId,Long moduleId,String nodeName,WorkflowUser user) throws Exception;
+	WorkflowFlow startFlow(Long bizId,Long wfId,String nodeName,WorkflowUser user) throws Exception;
 	
 	/**
 	 * 结束业务流程

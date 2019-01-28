@@ -1,5 +1,6 @@
 package cn.ideal.wf.data.analyzer;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -14,15 +15,15 @@ import cn.ideal.wf.model.WorkflowUser;
  */
 public class Storage {
 	
-	private Long bizId;                                 //业务编号
-	private String tableName;                          //查询主表名
-	private Long wfId;                                 //流程编号
-	private List<WorkflowTableElement> fields;         //入库的字段集合
-	private WorkflowUser user;                         //操作用户
+	private Long bizId;                                                               //业务编号
+	private String tableName;                                                         //查询主表名
+	private Long wfId;                                                                //流程编号
+	private List<WorkflowTableElement> fields;                                        //入库的字段集合
+	private WorkflowUser user;                                                        //操作用户
 	
-	private Long beginNumber;                          //查询的指定记录开始下标
-	private Long size = 10l;                           //查询的个数	
-	private Map<String,Object> parameters;             //查询条件集合
+	private Long beginNumber;                                                         //查询的指定记录开始下标
+	private Long size = 10l;                                                          //查询的个数	
+	private Map<String,Object> parameters = new HashMap<String,Object>();             //查询条件集合
 	
 	public Long getBizId() {
 		return bizId;

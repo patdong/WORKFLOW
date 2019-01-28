@@ -9,6 +9,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -59,6 +60,9 @@ public class WorkflowProcessor implements Processor {
     @Autowired
     @Qualifier("ReturnAction")
     private Action returnAction;
+    
+    @Value("${workflow.user.scope}")
+    private String userScope;
     /**
      * 流程推进
      * 1.当前节点无后续节点，流程结束
@@ -76,12 +80,22 @@ public class WorkflowProcessor implements Processor {
 			workflowFlowService.startFlow(bizId, wfId, WFConstants.WF_NODE_START,wfu);			
 		}		
 		
-		WorkflowNode nextNode = this.findNode(wfId,bizId);
+		WorkflowNode nextNode = this.findNextNode(wfId,bizId);
 		if(nextNode == null) {
 			res =this.endFlow(bizId);
 			if(!res) throw new Exception("流程办结失败");						
 		}else{
-			List<WorkflowUser> wfuLst =  this.findUsersForNode(nextNode);
+			List<WorkflowUser> wfuLst = null;
+			//支持平台演示和实际运用两种方式获得续办用户
+			if(("dev").equals(userScope)){
+				WorkflowUser user = new WorkflowUser(1l,1l);
+				user.setUserName("admin");
+				user.setUnitName("平台");
+				wfuLst = new ArrayList<WorkflowUser>();
+				wfuLst.add(user);
+			}else{
+				wfuLst =  this.findUsersForNode(nextNode);
+			}
 			res = this.pushFlow(bizId, nextNode, wfuLst.toArray(new WorkflowUser[wfuLst.size()]));	
 			if(!res) throw new Exception("没有办理人无法创建流程");					
 		}		
@@ -92,6 +106,7 @@ public class WorkflowProcessor implements Processor {
 	
 
 	@Override
+	@Transactional(propagation=Propagation.REQUIRED)
 	public boolean flowPass(Long wfId, Long bizId, WorkflowUser wfu,
 			WorkflowNode node) throws Exception {
 		boolean res = true;
@@ -114,6 +129,7 @@ public class WorkflowProcessor implements Processor {
 	}
 
 	@Override
+	@Transactional(propagation=Propagation.REQUIRED)
 	public boolean flowPass(Long wfId, Long bizId, WorkflowUser wfu,
 			WorkflowNode node, WorkflowUser... nextWfu) throws Exception {
 		boolean res = true;
@@ -141,8 +157,8 @@ public class WorkflowProcessor implements Processor {
 			
 		switch(node.getuType()){			
 			case WFConstants.WF_NODE_TYPE_USER:
-				if(node.getUser() == null)  throw new Exception("没有办理人无法创建流程");	
-				wfuLst = new ArrayList<WorkflowUser>(node.getUser());									
+				if(node.getUsers() == null)  throw new Exception("没有办理人无法创建流程");	
+				wfuLst = new ArrayList<WorkflowUser>(node.getUsers());									
 				break;
 			case WFConstants.WF_NODE_TYPE_ROLE:
 				if(node.getRole() == null) throw new Exception("没有设置角色无法创建流程");
@@ -154,7 +170,7 @@ public class WorkflowProcessor implements Processor {
 	}
 
 	@Override
-	public WorkflowNode findNode(Long wfId, Long bizId) {
+	public WorkflowNode findNextNode(Long wfId, Long bizId) {
 		WorkflowFlow wf = workflowFlowService.findDoingFlow(bizId);
 		List<WorkflowNode> wfns = workflowNodeService.findNextNodes(wf.getNodeName(), wf.getWfId());
 		if(wfns.size() > 0) return wfns.get(0);
@@ -167,7 +183,7 @@ public class WorkflowProcessor implements Processor {
 		if(res){
 			wfts.setModifiedDate(new Date());
 			wfts.setFinishedDate(new Date());
-			wfts.setAtcion(WFConstants.WF_ACTION_END);
+			wfts.setAction(WFConstants.WF_ACTION_END);
 			workflowTableService.endTableSummary(wfts);
 			return true;
 		}
@@ -180,7 +196,7 @@ public class WorkflowProcessor implements Processor {
 		boolean res = workflowFlowService.endAndAddFlow(bizId,node,nextWfu);
 		if(res){
 			wfts.setModifiedDate(new Date());
-			wfts.setAtcion(WFConstants.WF_ACTION_DOING);				
+			wfts.setAction(WFConstants.WF_ACTION_DOING);				
 			workflowTableService.synchTableSummary(wfts);
 			return true;
 		}
@@ -209,5 +225,15 @@ public class WorkflowProcessor implements Processor {
 		}
 		
 		return false;
+	}
+
+
+
+	@Override
+	public String findNodeName(Long wfId, Long bizId) {
+		WorkflowBrief wfb = workflowBriefService.find(bizId);			
+		if(wfb == null) return WFConstants.WF_NODE_STRAT;
+		else if(wfb.getFinishedDate() != null) return null;
+		return wfb.getNodeName();
 	}
 }

@@ -35,10 +35,10 @@ public class WorkflowFlowServiceImpl implements WorkflowFlowService{
 	 * 创建流程的节点可以传入也可以默认用系统节点。
 	 */
 	@Override
-	public WorkflowFlow startFlow(Long bizId, Long moduleId, String nodeName) throws Exception{
+	public WorkflowFlow startFlow(Long bizId, Long wfId, String nodeName) throws Exception{
 		WorkflowFlow wf = new WorkflowFlow();
 		wf.setBizId(bizId);
-		wf.setWfId(moduleId);
+		wf.setWfId(wfId);
 		if(nodeName == null) wf.setNodeName(WFConstants.WF_NODE_STRAT);
 		else wf.setNodeName(nodeName);
 		wf.setCreatedDate(new Date());
@@ -52,7 +52,7 @@ public class WorkflowFlowServiceImpl implements WorkflowFlowService{
 		wfb.setBizId(wf.getBizId());
 		wfb.setFlowId(wf.getFlowId());
 		wfb.setNodeName(wf.getNodeName());
-		wfb.setModuleId(wf.getWfId());
+		wfb.setWfId(wf.getWfId());
 		wfb.setStatus(WFConstants.WF_STATUS_PASSING);
 		workflowBriefService.addFlowBrief(wfb);
 		return this.findFlow(wf.getFlowId());
@@ -94,8 +94,8 @@ public class WorkflowFlowServiceImpl implements WorkflowFlowService{
 	}
 
 	@Override
-	public WorkflowFlow startFlow(Long bizId, Long moduleId, String nodeName,WorkflowUser user) throws Exception{
-		WorkflowFlow wf = this.startFlow(bizId, moduleId,nodeName);
+	public WorkflowFlow startFlow(Long bizId, Long wfId, String nodeName,WorkflowUser user) throws Exception{
+		WorkflowFlow wf = this.startFlow(bizId, wfId,nodeName);
 		WorkflowStep wfs = new WorkflowStep(wf.getFlowId(),null);
 		wfs.setDispatchUserId(user.getUserId());
 		wfs.setDispatchUserName(user.getUserName());
@@ -129,6 +129,8 @@ public class WorkflowFlowServiceImpl implements WorkflowFlowService{
 		WorkflowFlow wf = this.endCurFlow(bizId);
 		if(wf != null){			
 			WorkflowFlow newWf = new WorkflowFlow();
+			newWf.setBizId(bizId);
+			newWf.setWfId(wf.getWfId());
 			newWf.setNodeName(node.getNodeName());
 			newWf.setFlowParentId(wf.getFlowId());
 			newWf.setCreatedDate(new Date());
@@ -195,7 +197,7 @@ public class WorkflowFlowServiceImpl implements WorkflowFlowService{
 		wfb.setBizId(workflow.getBizId());
 		wfb.setFlowId(workflow.getFlowId());
 		wfb.setNodeName(workflow.getNodeName());
-		wfb.setModuleId(workflow.getWfId());
+		wfb.setWfId(workflow.getWfId());
 		workflowBriefService.updateFlowBrief(wfb);
 		return this.findFlow(workflow.getFlowId());
 	}

@@ -22,6 +22,8 @@ public interface NodeService {
 	
 	Node[][] getTreeNodes(Long wfId);
 	
+	Node[][] getTreeNodes(Long wfId,Long bizId);
+	
 	List<Node> findAllOnlyNode(Long wfId);
 	
 	Node setFrozeing(Long nodeId);

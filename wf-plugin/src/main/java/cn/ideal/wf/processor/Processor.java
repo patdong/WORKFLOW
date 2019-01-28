@@ -74,6 +74,8 @@ public interface Processor {
 	 */
 	List<WorkflowUser> findUsersForNode(WorkflowNode node) throws Exception;
 	
-	WorkflowNode findNode(Long wfId,Long bizId);
+	String findNodeName(Long wfId,Long bizId);
+	
+	WorkflowNode findNextNode(Long wfId,Long bizId);
 	
 }

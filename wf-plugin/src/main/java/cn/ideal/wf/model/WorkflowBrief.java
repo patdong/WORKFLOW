@@ -20,7 +20,7 @@ public class WorkflowBrief implements Serializable{
 	private Date createdDate;
 	private Date modifiedDate;
 	private Date finishedDate;
-	private Long moduleId;
+	private Long wfId;
 	private String actionName;
 	private String status;
 	
@@ -73,11 +73,12 @@ public class WorkflowBrief implements Serializable{
 	public void setFinishedDate(Date finishedDate) {
 		this.finishedDate = finishedDate;
 	}
-	public Long getModuleId() {
-		return moduleId;
+	
+	public Long getWfId() {
+		return wfId;
 	}
-	public void setModuleId(Long moduleId) {
-		this.moduleId = moduleId;
+	public void setWfId(Long wfId) {
+		this.wfId = wfId;
 	}
 	public Date getModifiedDate() {
 		return modifiedDate;

@@ -1,5 +1,10 @@
 package cn.ideal.wf.cache;
 
+/**
+ * 工作流缓存
+ * @author 郭佟燕
+ * @version 2.0
+ */
 import java.util.List;
 import java.util.Map;
 
@@ -46,15 +51,15 @@ public class WorkflowCache implements CommandLineRunner {
 		return hashWorkflow.entries(WF_KEY);
 	}
 	
-	public void save(Workflow wf) {
+	public static void save(Workflow wf) {
 		hashWorkflow.put(WF_KEY, wf.getWfId(), wf);
 	}
 
-	public void update(Workflow wf) {
+	public static void update(Workflow wf) {
 		hashWorkflow.put(WF_KEY, wf.getWfId(), wf);
 	}
  
-	public void delete(Long wfId) {
+	public static void delete(Long wfId) {
 		hashWorkflow.delete(WF_KEY, wfId);
 	}
 

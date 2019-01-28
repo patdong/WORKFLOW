@@ -38,11 +38,69 @@
       <button class="btn btn-sm btn-outline-secondary" type="reset">重置</button>     
     </div>    
     <c:if test="${!empty bizId}">
-    <button class="btn btn-sm btn-outline-secondary" type="button" onclick="passWorkflow();">${nodename}完毕</button>
+    	<c:if test="${!empty nodename}">
+    		<button class="btn btn-sm btn-outline-secondary" type="button" onclick="passWorkflow();">${nodename}完毕</button>
+    	</c:if>
     </c:if>
-    <button class="btn btn-sm btn-outline-secondary" type="button" onclick="showWorkflow();">流程查看</button>
+    <button class="btn btn-sm btn-outline-secondary" type="button" onclick="$('#workflow').show();">流程查看</button>
   </div>
 </div> 	
 <div id="includedContent"></div>	
 </form>
+<!-- 流程跟踪 -->
+<div id="workflow" class="draw" style="top: 23%;z-index: 999;background:white;display:none;">
+	<header>
+	 <div class="form-inline mt-2 mt-md-0" style="padding: 6px 10px 0px;" >流程跟踪 </div>	               
+        <div style="position: absolute;top: 1px;right: 15px;">
+        	<span class="badge badge-secondary badge-pill" style="background-color:#46a70a;cursor:pointer;" onclick="$('#workflow').hide();">×</span>
+        </div>	      	     
+   	</header>
+   	<hr style="margin-top: .5rem; margin-bottom: .5rem;"></hr>   	 	
+	<table style=" margin:1% 0 0 1%; border:px solid">
+		<c:forEach items="${nodetree}" varStatus="i" var="nodes" >
+			<tr style="height:75px">
+			<c:forEach items="${nodes}" varStatus="j" var="node" >					
+				<c:if test="${node.style eq 'user' }">
+					<td style="height:40px"><img src="/img/wf_btn4.PNG" style="vertical-align: middle;"></td>
+				</c:if>
+				<c:if test="${node.style eq 'pointer' }">
+					<td><img src="/img/wf_btn6.PNG" style="vertical-align: middle;"></td>
+				</c:if>
+				<c:if test="${node.style eq 'lpointer' }">
+					<td><img src="/img/wf_btn8.PNG" style="vertical-align: middle;"></td>
+				</c:if>
+				<c:if test="${node.style eq 'rpointer' }">
+					<td><img src="/img/wf_btn9.PNG" style="vertical-align: middle;"></td>
+				</c:if>
+				<c:if test="${node.style eq 'node' }">					
+					<td>
+						<c:choose>
+							<c:when test="${ node.status eq '冻结' }">
+								<div class="circle-dotted-text" >
+									<font style="font-size:15px">${node.nodename }</font>
+								</div>
+							</c:when>
+							<c:when test="${ node.status eq '有效' }">								
+								<c:if test="${ node.passed eq 'passed' }">
+									<div class="circle-green-text" >
+										<font style="font-size:15px">${node.nodename }</font>
+									</div>
+								</c:if>
+								<c:if test="${empty node.passed}">
+									<div class="circle-text" >
+										<font style="font-size:15px">${node.nodename }</font>
+									</div>
+								</c:if>
+							</c:when>
+						</c:choose>						
+					</td>	
+				</c:if>
+				<c:if test="${node.style eq '^' }">
+					<td></td>
+				</c:if>			    	
+		    </c:forEach>
+		    </tr>
+		</c:forEach>						
+	</table>
+</div>
   
