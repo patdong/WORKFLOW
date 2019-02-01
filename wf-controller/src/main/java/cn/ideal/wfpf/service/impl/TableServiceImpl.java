@@ -75,6 +75,7 @@ public class TableServiceImpl implements TableService {
 				te.setNewFieldType(em.getFieldType());
 				te.setNewFieldDataType(em.getFieldDataType());
 				te.setNewLength(em.getLength());
+				te.setList("无效");
 				teLst.add(te);
 			}
 		}
@@ -85,8 +86,8 @@ public class TableServiceImpl implements TableService {
 	}
 
 	@Override
-	public List<TableElement> findAllTableElements(Long tbId) {
-		return tableMapper.findAllTableElements(tbId,null);
+	public List<TableElement> findTableAllElements(Long tbId) {
+		return tableMapper.findTableAllElements(tbId,null);
 	}
 
 	@Override
@@ -96,7 +97,7 @@ public class TableServiceImpl implements TableService {
 
 	@Override
 	public boolean moveUp(Long tbId, Long emId) {
-		List<TableElement> teLst = tableMapper.findAllTableElements(tbId,null);
+		List<TableElement> teLst = tableMapper.findTableAllElements(tbId,null);
 		int i=0;
 		TableElement curTe = null;
 		for(TableElement te : teLst){
@@ -119,7 +120,7 @@ public class TableServiceImpl implements TableService {
 
 	@Override
 	public boolean moveDown(Long tbId, Long emId) {
-		List<TableElement> teLst = tableMapper.findAllTableElements(tbId,null);
+		List<TableElement> teLst = tableMapper.findTableAllElements(tbId,null);
 		int i=0;
 		TableElement curTe = null;
 		for(TableElement te : teLst){
@@ -148,9 +149,9 @@ public class TableServiceImpl implements TableService {
 	}
 
 	@Override
-	public List<TableElement> findAllTableElements(Long tbId, String scope) {
+	public List<TableElement> findTableAllElements(Long tbId, String scope) {
 		if(StringUtils.isEmpty(scope)) scope = "body";
-		return tableMapper.findAllTableElements(tbId, scope);
+		return tableMapper.findTableAllElements(tbId, scope);
 	}
 
 	@Override
@@ -178,10 +179,36 @@ public class TableServiceImpl implements TableService {
 	
 	@Override
 	@Transactional(propagation=Propagation.REQUIRED)
-	public boolean updateTableElementList(Long tbId, Long[] emIds) {
+	public boolean updateTableElementList(Long tbId, Long[] emIds,Long[] newEmIds) {
 		tableMapper.resetTableElementList(tbId);
 		int idx = tableMapper.updateTableElementList(tbId,emIds);
-		if(idx > 0) return true;
+		if(idx > 0 && newEmIds.length > 0) {			
+			List<TableElement> teLst = new ArrayList<TableElement>();
+			for(Long id : newEmIds){
+				Long seq = 99l;
+				Element em = elementMapper.find(id);
+				TableElement te = new TableElement();
+				te.setTbId(tbId);
+				te.setEmId(em.getEmId());
+				te.setNewLabelName(em.getLabelName());
+				te.setNewFunctionName(em.getFunctionName());
+				te.setNewHiddenFieldName(em.getHiddenFieldName());
+				te.setNewDataContent(em.getDataContent());
+				te.setNewFieldType(em.getFieldType());
+				te.setNewFieldDataType(em.getFieldDataType());
+				te.setNewLength(em.getLength());
+				te.setScope("/");
+				te.setSeq(seq);
+				te.setList("有效");
+				te.setStatus("有效");
+				te.setCreatedDate(new Date());
+				teLst.add(te);
+				seq++;
+				
+			}			
+			idx = tableMapper.saveBatchTableElement(teLst);			
+			return true;
+		}
 		return false;
 	}
 
@@ -213,6 +240,20 @@ public class TableServiceImpl implements TableService {
 	@Override
 	public List<TableBrief> findAllWithTableName() {
 		return tableMapper.findAllWithTableName();
+	}
+
+	@Override
+	public List<TableElement> findTableAllElementsWithSpecialElements(Long tbId) {
+		List<TableElement> tes = tableMapper.findTableAllElements(tbId,null);
+		tes.addAll(tableMapper.findTableSpecialElements(tbId));
+		return tes;
+	}
+
+	@Override
+	public boolean updateTableElement(TableElement obj) {
+		int idx = tableMapper.updateTableElement(obj);
+		if(idx > 0) return true;
+		return false;
 	}
 
 }

@@ -36,5 +36,8 @@ public interface WorkflowNodeService {
 	WorkflowNode save(WorkflowNode node);
 	
 	List<WorkflowNode> findAll(Long wfId);
+	
+	WorkflowNode[][] getTreeNodes(Long wfId,Long bizId);
 
+	WorkflowNode[][] getTreeNodes(Long wfId);
 }

@@ -10,12 +10,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import cn.ideal.wfpf.model.TableElement;
 import cn.ideal.wfpf.service.TableService;
 import cn.ideal.wfpf.sqlengine.SQLExecutor;
 
-import com.mysql.jdbc.StringUtils;
+
 
 @Service
 public class MySQLExecutor implements SQLExecutor {	
@@ -34,11 +35,11 @@ public class MySQLExecutor implements SQLExecutor {
 
 	@Override
 	public void createTable(Long tbId,String tableName) throws Exception {		
-		List<TableElement> tbemLst = tableService.findAllTableElements(tbId);
+		List<TableElement> tbemLst = tableService.findTableAllElements(tbId);
 		
 		StringBuilder strBuilder = new StringBuilder();
 		//判断表单是否已经配置了数据库对应的表名称
-		if(!StringUtils.isNullOrEmpty(tableName)){
+		if(!StringUtils.isEmpty(tableName)){
 			SqlRowSet rs = null;
 			try{
 				rs = jdbcTemplate.queryForRowSet("select * from "+tableName);
@@ -71,8 +72,12 @@ public class MySQLExecutor implements SQLExecutor {
 						}else if(te.getNewFieldDataType().equals("Int")){
 							strBuilder.append(mySQLCreator.createInt(te.getFieldName(), Boolean.parseBoolean(te.getConstraint()), te.getNewLabelName()));
 							strBuilder.append(",");
-						}
-					}					
+						}						
+					}
+					if(!StringUtils.isEmpty(te.getNewHiddenFieldName())){
+						strBuilder.append(mySQLCreator.createVarchar(te.getNewHiddenFieldName(), Boolean.FALSE, 100l,te.getNewLabelName()+"隐藏项"));
+						strBuilder.append(",");
+					}
 				}
 				strBuilder.append(mySQLCreator.createPrimaryKey(null));
 				strBuilder.append(") ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET="+MySQLCreator.CHARACTER+" COLLATE="+MySQLCreator.COLLATE+" ROW_FORMAT=DYNAMIC COMMENT='"+tableName+"'");

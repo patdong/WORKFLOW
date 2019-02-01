@@ -24,6 +24,7 @@ public class StorageAnalyzer implements Analyzer{
 		Workflow wf = WorkflowCache.getValue(wfId);
 		if(wf == null) {
 			wf = wfService.find(wfId);
+			WorkflowCache.put(wf);
 		}
 		if(wf == null) throw new Exception("没有配置流程");
 		if(wf.getWftableBrief() == null) throw new Exception("没有配置表单");

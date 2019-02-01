@@ -7,16 +7,16 @@
 		<association property="workflowSteps" column="workflowId" select="cn.ideal.wf.dao.WorkflowStepMapper.findAllByFlowId" />
 	</resultMap>			
 	
-	<select id="findAll" resultMap="workflow" parameterType="java.lang.Long">
-		select * from workflow_flow where bizId = #{bizId}
+	<select id="findAll" resultMap="workflow" parameterType="java.util.Map">
+		select * from workflow_flow where bizId = #{bizId} and wfId = #{wfId}
 	</select>
 		
 	<select id="find" resultMap="workflow" parameterType="java.lang.Long">
 		select * from workflow_flow where flowId=#{flowId}
 	</select>
 		
-	<select id="findDoingFlow" resultMap="workflowwithstep" parameterType="java.lang.Long">
-		select * from workflow_flow where bizId=#{bizId} and finishedDate is null
+	<select id="findDoingFlow" resultMap="workflowwithstep" parameterType="java.util.Map">
+		select * from workflow_flow where bizId=#{bizId} and wfId = #{wfId} and finishedDate is null
 	</select>
 	
 	<insert id="addFlow" useGeneratedKeys="true" keyProperty="flowId" parameterType="cn.ideal.wf.model.WorkflowFlow">
@@ -47,18 +47,20 @@
 			</if>
 			<if test="bizId != null">
 				and bizId=#{bizId}
+				and wfId = #{wfId}
 			</if>
 		</where>				
 	</update>
 	
-	<select id="findWorkflowUsers" resultType="cn.ideal.wf.model.WorkflowUser" parameterType="java.lang.Long">
+	<select id="findWorkflowUsers" resultType="cn.ideal.wf.model.WorkflowUser" parameterType="java.util.Map">
 		select distinct wfs.dispatchUserId as userId,wfs.dispatchUserName as userName,wfs.unitId,wfs.unitName 
 		  from workflow_step wfs 
 		inner join workflow_flow wf on wfs.flowId = wf.flowId
 		where bizId=#{bizId}
+		  and wfId = #{wfId}
 	</select>
 	
-	<select id="findWorkflowWithSteps" resultMap="workflowwithstep" parameterType="java.lang.Long">
-		select * from workflow_flow where bizId=#{bizId}
+	<select id="findWorkflowWithSteps" resultMap="workflowwithstep" parameterType="java.util.Map">
+		select * from workflow_flow where bizId=#{bizId} and wfId = #{wfId}
 	</select>
 </mapper>

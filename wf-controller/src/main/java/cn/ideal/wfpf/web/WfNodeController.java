@@ -53,7 +53,7 @@ public class WfNodeController {
 	
 	@GetMapping("/delNode/{nodeId}")
     public @ResponseBody boolean delNode(@PathVariable Long nodeId, HttpServletRequest request) {
-		nodeService.setInvalid(nodeId);		
+		nodeService.delete(nodeId);		
 		return true;
     }
 	

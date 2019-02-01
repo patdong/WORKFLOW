@@ -12,7 +12,7 @@ public class WorkflowTableSummary implements Serializable{
 	private Long createdUserId;
 	private String createdUserName;
 	private Long curUserId;
-	private Long curUserName;
+	private String curUserName;
 	private Long unitId;
 	private String unitName;
 	private Date createdDate;
@@ -56,10 +56,10 @@ public class WorkflowTableSummary implements Serializable{
 	public void setCurUserId(Long curUserId) {
 		this.curUserId = curUserId;
 	}
-	public Long getCurUserName() {
+	public String getCurUserName() {
 		return curUserName;
 	}
-	public void setCurUserName(Long curUserName) {
+	public void setCurUserName(String curUserName) {
 		this.curUserName = curUserName;
 	}
 	public Long getUnitId() {

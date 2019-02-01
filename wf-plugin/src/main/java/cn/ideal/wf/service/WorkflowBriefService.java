@@ -24,19 +24,19 @@ public interface WorkflowBriefService {
 	/**
 	 * 结束流程简介
 	 */
-	boolean endFlowBrief(Long bizId);
+	boolean endFlowBrief(Long bizId,Long wfId);
 	
-	boolean endFlowBrief(Long bizId,String actionName);
+	boolean endFlowBrief(Long bizId,Long wfId,String actionName);
 	
-	WorkflowBrief find(Long bizId);
+	WorkflowBrief find(Long bizId,Long wfId);
 	
 	/**
 	 * 
 	 * 冻结当前办理人的操作
 	 */
-	boolean frozenFlowBrief(Long bizId);
+	boolean frozenFlowBrief(Long bizId,Long wfId);
 	
-	boolean unFrozenFlowBrief(Long bizId);
+	boolean unFrozenFlowBrief(Long bizId,Long wfId);
 	
-	WorkflowBrief findDoingFlow(Long bizId);
+	WorkflowBrief findDoingFlow(Long bizId,Long wfId);
 }

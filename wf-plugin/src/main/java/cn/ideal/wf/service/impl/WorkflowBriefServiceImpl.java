@@ -33,9 +33,10 @@ public class WorkflowBriefServiceImpl implements WorkflowBriefService{
 	}
 
 	@Override
-	public boolean endFlowBrief(Long bizId) {
+	public boolean endFlowBrief(Long bizId,Long wfId) {
 		WorkflowBrief wfb = new WorkflowBrief();
 		wfb.setBizId(bizId);
+		wfb.setWfId(wfId);
 		wfb.setFinishedDate(new Date());
 		wfb.setActionName(WFConstants.WF_ACTION_PASS);
 		wfb.setStatus(WFConstants.WF_STATUS_END);
@@ -46,9 +47,10 @@ public class WorkflowBriefServiceImpl implements WorkflowBriefService{
 	}
 	
 	@Override
-	public boolean endFlowBrief(Long bizId,String actionName) {
+	public boolean endFlowBrief(Long bizId,Long wfId,String actionName) {
 		WorkflowBrief wfb = new WorkflowBrief();
 		wfb.setBizId(bizId);
+		wfb.setWfId(wfId);
 		wfb.setFinishedDate(new Date());
 		wfb.setActionName(actionName);
 		if(StringUtils.isEmpty(actionName)){
@@ -62,14 +64,15 @@ public class WorkflowBriefServiceImpl implements WorkflowBriefService{
 	}
 
 	@Override
-	public WorkflowBrief find(Long bizId) {
-		return workflowBriefMapper.find(bizId);
+	public WorkflowBrief find(Long bizId,Long wfId) {
+		return workflowBriefMapper.find(bizId,wfId);
 	}
 
 	@Override
-	public boolean frozenFlowBrief(Long bizId) {
+	public boolean frozenFlowBrief(Long bizId,Long wfId) {
 		WorkflowBrief wfb = new WorkflowBrief();
 		wfb.setBizId(bizId);
+		wfb.setWfId(wfId);
 		wfb.setStatus(WFConstants.WF_STATUS_SLEEP);
 		int idx = workflowBriefMapper.updateStatusFlowBrief(wfb);
 		if(idx <= 0) return false;
@@ -77,9 +80,10 @@ public class WorkflowBriefServiceImpl implements WorkflowBriefService{
 	}
 
 	@Override
-	public boolean unFrozenFlowBrief(Long bizId) {
+	public boolean unFrozenFlowBrief(Long bizId,Long wfId) {
 		WorkflowBrief wfb = new WorkflowBrief();
 		wfb.setBizId(bizId);
+		wfb.setWfId(wfId);
 		wfb.setStatus(WFConstants.WF_STATUS_PASSING);
 		int idx = workflowBriefMapper.updateStatusFlowBrief(wfb);
 		if(idx <= 0) return false;
@@ -87,8 +91,8 @@ public class WorkflowBriefServiceImpl implements WorkflowBriefService{
 	}
 
 	@Override
-	public WorkflowBrief findDoingFlow(Long bizId) {
-		return workflowBriefMapper.findDoingFlow(bizId);
+	public WorkflowBrief findDoingFlow(Long bizId,Long wfId) {
+		return workflowBriefMapper.findDoingFlow(bizId,wfId);
 	}
 	
 }

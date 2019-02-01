@@ -127,7 +127,7 @@ function removeBinding(wfId){
          </tbody>
      	</table>
 	</div>
-	<jsp:include page="../pagenation.jsp"  />	
+	<jsp:include page="pagenation.jsp"  />	
 </div>
 <!-- 工作流名称设置 -->
 <DIV id='workflow-name' class="popup" style="width:180px;border: 1px solid #d6e0e0;background-color: #eaeeef;">

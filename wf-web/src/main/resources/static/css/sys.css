@@ -215,6 +215,21 @@ code {
 	box-shadow: 1px 4px 4px #6f6c6a; 
 }
 
+.circle-blue-text {
+	display: table-cell;
+	height: 40px; /*change this and the width
+	for the size of your initial circle*/
+	width: 80px;
+	text-align: center;
+	vertical-align: middle;
+	border-radius: 50%;
+	/*make it pretty*/
+	background: #007bff;
+	color: #fff;
+	font: 18px "josefin sans", arial; /*change this
+	for font-size and font-family*/
+	box-shadow: 1px 4px 4px #6f6c6a; 
+} 
 .circle-dotted-text {
 	display: table-cell;
 	height: 40px; /*change this and the width
@@ -531,4 +546,6 @@ code {
     color: #000;
     float: left; 
 }
-
+.form-group-dialog{
+	margin-bottom: .5rem
+}

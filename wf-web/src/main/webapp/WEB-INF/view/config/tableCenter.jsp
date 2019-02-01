@@ -35,5 +35,5 @@
          </tbody>
      	</table>
 	</div>
-	<jsp:include page="../pagenation.jsp"  />
+	<jsp:include page="pagenation.jsp"  />
 </div>

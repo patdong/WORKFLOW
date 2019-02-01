@@ -83,7 +83,7 @@ function setEmLabelName(event){
          </tbody>
      	</table>
 	</div>
-	<jsp:include page="../pagenation.jsp"  />	
+	<jsp:include page="pagenation.jsp"  />	
 </div>
 <input type="hidden" name="emId" id="emId"> 
 <DIV id='em-labelname' class="popup" style="width:180px;border: 1px solid #d6e0e0;background-color: #eaeeef;">

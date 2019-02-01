@@ -35,12 +35,12 @@ public interface WorkflowTableService {
 	 * @param wfts
 	 * @return
 	 */
-	void synchTableSummary(WorkflowTableSummary wfts);
+	boolean synchTableSummary(WorkflowTableSummary wfts);
 	
 	/**
 	 * 结束业务附表
 	 * @param wfts
 	 * @return
 	 */
-	void endTableSummary(WorkflowTableSummary wfts);
+	boolean endTableSummary(WorkflowTableSummary wfts);
 }

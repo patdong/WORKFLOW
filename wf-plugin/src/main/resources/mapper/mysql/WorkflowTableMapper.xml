@@ -17,6 +17,7 @@
 		select a.*,b.labelName,b.fieldName from table_element a
 		 inner join element_library b on a.emId = b.emId 
 		 where a.tbId = #{tbId}
+		   and a.scope != '/'
 		 <if test="scope != null">
 		   and a.scope = #{scope}
 		 </if> 
@@ -34,9 +35,11 @@
 	<update id="synchTableSummary" parameterType="cn.ideal.wf.model.WorkflowTableSummary">
 		update table_summary set 			
 			modifiedDate=#{modifiedDate},
-			action=#{action}
+			action=#{action},
+			curUserName=#{curUserName}
 		<where>
 			bizId=#{bizId}
+		and wfId=#{wfId}
 		</where>				
 	</update>
 	<update id="endTableSummary" parameterType="cn.ideal.wf.model.WorkflowTableSummary">
@@ -46,6 +49,7 @@
 			action=#{action}
 		<where>
 			bizId=#{bizId}
+		and wfId=#{wfId}
 		</where>				
 	</update>
 </mapper>

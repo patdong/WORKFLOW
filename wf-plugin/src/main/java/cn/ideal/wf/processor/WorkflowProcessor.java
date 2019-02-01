@@ -74,7 +74,7 @@ public class WorkflowProcessor implements Processor {
 	@Transactional(propagation=Propagation.REQUIRED)
 	public boolean flowPass(Long wfId, Long bizId, WorkflowUser wfu) throws Exception {
 		boolean res = true;
-		WorkflowBrief wfb = workflowBriefService.findDoingFlow(bizId);
+		WorkflowBrief wfb = workflowBriefService.findDoingFlow(bizId,wfId);
 		//判断是否已经创建了流程，未创建则先创建再流转
 		if(wfb == null){
 			workflowFlowService.startFlow(bizId, wfId, WFConstants.WF_NODE_START,wfu);			
@@ -82,7 +82,7 @@ public class WorkflowProcessor implements Processor {
 		
 		WorkflowNode nextNode = this.findNextNode(wfId,bizId);
 		if(nextNode == null) {
-			res =this.endFlow(bizId);
+			res =this.endFlow(bizId,wfId);
 			if(!res) throw new Exception("流程办结失败");						
 		}else{
 			List<WorkflowUser> wfuLst = null;
@@ -96,8 +96,8 @@ public class WorkflowProcessor implements Processor {
 			}else{
 				wfuLst =  this.findUsersForNode(nextNode);
 			}
-			res = this.pushFlow(bizId, nextNode, wfuLst.toArray(new WorkflowUser[wfuLst.size()]));	
-			if(!res) throw new Exception("没有办理人无法创建流程");					
+			res = this.pushFlow(bizId, wfId,nextNode, wfuLst.toArray(new WorkflowUser[wfuLst.size()]));	
+			if(!res) throw new Exception("流程创建失败");					
 		}		
 				
 		return res;
@@ -110,18 +110,18 @@ public class WorkflowProcessor implements Processor {
 	public boolean flowPass(Long wfId, Long bizId, WorkflowUser wfu,
 			WorkflowNode node) throws Exception {
 		boolean res = true;
-		WorkflowBrief wfb = workflowBriefService.findDoingFlow(bizId);
+		WorkflowBrief wfb = workflowBriefService.findDoingFlow(bizId,wfId);
 		//判断是否已经创建了流程，未创建则先创建再流转
 		if(wfb == null){
 			workflowFlowService.startFlow(bizId, wfId, WFConstants.WF_NODE_START,wfu);			
 		}		
 					
 		if(node == null) {
-			res = this.endFlow(bizId);
+			res = this.endFlow(bizId,wfId);
 			if(!res) throw new Exception("流程办结失败");						
 		}else{
 			List<WorkflowUser> wfuLst =  this.findUsersForNode(node);
-			res = this.pushFlow(bizId, node, wfuLst.toArray(new WorkflowUser[wfuLst.size()]));	
+			res = this.pushFlow(bizId,wfId, node, wfuLst.toArray(new WorkflowUser[wfuLst.size()]));	
 			if(!res) throw new Exception("没有办理人无法创建流程");							
 		}		
 				
@@ -133,17 +133,17 @@ public class WorkflowProcessor implements Processor {
 	public boolean flowPass(Long wfId, Long bizId, WorkflowUser wfu,
 			WorkflowNode node, WorkflowUser... nextWfu) throws Exception {
 		boolean res = true;
-		WorkflowBrief wfb = workflowBriefService.findDoingFlow(bizId);
+		WorkflowBrief wfb = workflowBriefService.findDoingFlow(bizId,wfId);
 		//判断是否已经创建了流程，未创建则先创建再流转
 		if(wfb == null){
 			workflowFlowService.startFlow(bizId, wfId, WFConstants.WF_NODE_START,wfu);			
 		}		
 				
 		if(node == null) {
-			res = this.endFlow(bizId);
+			res = this.endFlow(bizId,wfId);
 			if(!res) throw new Exception("流程办结失败");	
 		}else{
-			res = this.pushFlow(bizId, node, nextWfu);	
+			res = this.pushFlow(bizId,wfId, node, nextWfu);	
 			if(!res) throw new Exception("没有办理人无法创建流程");						
 		}		
 				
@@ -171,19 +171,21 @@ public class WorkflowProcessor implements Processor {
 
 	@Override
 	public WorkflowNode findNextNode(Long wfId, Long bizId) {
-		WorkflowFlow wf = workflowFlowService.findDoingFlow(bizId);
+		WorkflowFlow wf = workflowFlowService.findDoingFlow(bizId,wfId);
 		List<WorkflowNode> wfns = workflowNodeService.findNextNodes(wf.getNodeName(), wf.getWfId());
 		if(wfns.size() > 0) return wfns.get(0);
 		return null;
 	}
 	
-	private boolean endFlow(Long bizId){
-		WorkflowTableSummary wfts = new WorkflowTableSummary();		
-		boolean res = workflowFlowService.endFlow(bizId);
+	private boolean endFlow(Long bizId,Long wfId){		
+		boolean res = workflowFlowService.endFlow(bizId,wfId);
 		if(res){
+			WorkflowTableSummary wfts = new WorkflowTableSummary();	
 			wfts.setModifiedDate(new Date());
 			wfts.setFinishedDate(new Date());
 			wfts.setAction(WFConstants.WF_ACTION_END);
+			wfts.setBizId(bizId);
+			wfts.setWfId(wfId);
 			workflowTableService.endTableSummary(wfts);
 			return true;
 		}
@@ -191,14 +193,20 @@ public class WorkflowProcessor implements Processor {
 		return false;
 	}
 	
-	private boolean pushFlow(Long bizId, WorkflowNode node, WorkflowUser ...nextWfu) throws Exception{
-		WorkflowTableSummary wfts = new WorkflowTableSummary();	
-		boolean res = workflowFlowService.endAndAddFlow(bizId,node,nextWfu);
+	private boolean pushFlow(Long bizId, Long wfId,WorkflowNode node, WorkflowUser ...nextWfu) throws Exception{
+		boolean res = workflowFlowService.endAndAddFlow(bizId,wfId,node,nextWfu);
 		if(res){
+			String curUserName = "";
+			for(WorkflowUser user : nextWfu) curUserName += user.getUserName() + ",";	
+			WorkflowTableSummary wfts = new WorkflowTableSummary();	
+			wfts.setCurUserName(curUserName);
 			wfts.setModifiedDate(new Date());
-			wfts.setAction(WFConstants.WF_ACTION_DOING);				
-			workflowTableService.synchTableSummary(wfts);
-			return true;
+			//任何动作都反应在action字段上
+			wfts.setAction(node.getNodeName());	
+			wfts.setBizId(bizId);
+			wfts.setWfId(wfId);
+			res = workflowTableService.synchTableSummary(wfts);
+			return res;
 		}
 		return false;
 	}
@@ -208,20 +216,18 @@ public class WorkflowProcessor implements Processor {
 			String action) throws Exception {
 		Object obj = appContext.getBean(action);
 		if(obj instanceof Action){
-			return ((Action)obj).action(bizId, wfu);
+			return ((Action)obj).action(bizId,wfId, wfu);
 		}
 		
 		return false;
 	}
-
-
 
 	@Override
 	public boolean actionPass(Long wfId, Long bizId, WorkflowUser wfu,
 			String action, WorkflowUser... users) throws Exception {
 		Object obj = appContext.getBean(action);
 		if(obj instanceof Action){
-			return ((Action)obj).action(bizId, wfu, users);
+			return ((Action)obj).action(bizId,wfId, wfu, users);
 		}
 		
 		return false;
@@ -231,7 +237,7 @@ public class WorkflowProcessor implements Processor {
 
 	@Override
 	public String findNodeName(Long wfId, Long bizId) {
-		WorkflowBrief wfb = workflowBriefService.find(bizId);			
+		WorkflowBrief wfb = workflowBriefService.find(bizId,wfId);
 		if(wfb == null) return WFConstants.WF_NODE_STRAT;
 		else if(wfb.getFinishedDate() != null) return null;
 		return wfb.getNodeName();

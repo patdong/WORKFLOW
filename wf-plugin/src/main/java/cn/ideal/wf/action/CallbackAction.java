@@ -14,13 +14,13 @@ import cn.ideal.wf.model.WorkflowUser;
 public class CallbackAction implements Action {
 
 	@Override
-	public boolean action(Long bizId, WorkflowUser user , WorkflowUser ...users) {
+	public boolean action(Long bizId, Long wfId,  WorkflowUser user , WorkflowUser ...users) {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
-	public boolean action(Long bizId, WorkflowUser user) {
+	public boolean action(Long bizId, Long wfId,  WorkflowUser user) {
 		// TODO Auto-generated method stub
 		return false;
 	}

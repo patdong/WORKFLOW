@@ -15,9 +15,10 @@ public class WorkflowTableElement implements Serializable{
 	private String labelName;
 	private String fieldName;
 	private String newLabelName;
-	private String NewFunctionName;
-	private String NewHiddenFieldName;
-	private String NewFieldDataType;
+	private String newFunctionName;
+	private String functionBelongTo;
+	private String newHiddenFieldName;
+	private String newFieldDataType;
 	private String newFieldType;
 	private String newDataContent;
 	private Long rowes = 1l;
@@ -64,23 +65,9 @@ public class WorkflowTableElement implements Serializable{
 		this.newLabelName = newLabelName;
 	}
 	public String getNewFunctionName() {
-		return NewFunctionName;
+		return newFunctionName;
 	}
-	public void setNewFunctionName(String newFunctionName) {
-		NewFunctionName = newFunctionName;
-	}
-	public String getNewHiddenFieldName() {
-		return NewHiddenFieldName;
-	}
-	public void setNewHiddenFieldName(String newHiddenFieldName) {
-		NewHiddenFieldName = newHiddenFieldName;
-	}
-	public String getNewFieldDataType() {
-		return NewFieldDataType;
-	}
-	public void setNewFieldDataType(String newFieldDataType) {
-		NewFieldDataType = newFieldDataType;
-	}
+	
 	public String getNewFieldType() {
 		return newFieldType;
 	}
@@ -164,5 +151,27 @@ public class WorkflowTableElement implements Serializable{
 	}
 	public void setDataValue(Object dataValue) {
 		this.dataValue = dataValue;
+	}
+	public String getFunctionBelongTo() {
+		return functionBelongTo;
+	}
+	public void setFunctionBelongTo(String functionBelongTo) {
+		this.functionBelongTo = functionBelongTo;
+	}
+	public String getNewHiddenFieldName() {
+		return newHiddenFieldName;
+	}
+	public void setNewHiddenFieldName(String newHiddenFieldName) {
+		this.newHiddenFieldName = newHiddenFieldName;
+	}
+	public String getNewFieldDataType() {
+		return newFieldDataType;
+	}
+	public void setNewFieldDataType(String newFieldDataType) {
+		this.newFieldDataType = newFieldDataType;
+	}
+	public void setNewFunctionName(String newFunctionName) {
+		this.newFunctionName = newFunctionName;
 	}	
+	
 }

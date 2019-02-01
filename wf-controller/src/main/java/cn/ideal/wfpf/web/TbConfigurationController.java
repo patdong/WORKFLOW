@@ -1,5 +1,6 @@
 package cn.ideal.wfpf.web;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -9,7 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -69,10 +72,10 @@ public class TbConfigurationController {
 		ModelAndView mav = new ModelAndView("config/tableDefination");
 		scope = (scope.equals(""))?"body":scope;
 		mav.addObject("emList",elementService.findValidAllWithTable(tbId,scope));
-		mav.addObject("tbemList",tableService.findAllTableElements(tbId,scope));
-		List<TableElement> headLst = tableService.findAllTableElements(tbId,"head");
-		List<TableElement> bodyLst = tableService.findAllTableElements(tbId,"body");		
-		List<TableElement> footLst = tableService.findAllTableElements(tbId,"foot");
+		mav.addObject("tbemList",tableService.findTableAllElements(tbId,scope));
+		List<TableElement> headLst = tableService.findTableAllElements(tbId,"head");
+		List<TableElement> bodyLst = tableService.findTableAllElements(tbId,"body");		
+		List<TableElement> footLst = tableService.findTableAllElements(tbId,"foot");
 		
 		if(bodyLst.size() % Long.parseLong(style) != 0){
 			for(int i=0; i< bodyLst.size() % Long.parseLong(style) ; i++){
@@ -87,7 +90,7 @@ public class TbConfigurationController {
 		mav.addObject("scope",scope);
 		mav.addObject("style",style);
 		mav.addObject("fieldsetting",fieldsetting);
-		mav.addObject("tbList", tableService.findAllTableElements(tbId));
+		mav.addObject("tbList", tableService.findTableAllElementsWithSpecialElements(tbId));
 		try {
 			ObjectMapper mapper = new ObjectMapper();
 			mav.addObject("heads",mapper.writeValueAsString(headLst));
@@ -192,8 +195,16 @@ public class TbConfigurationController {
 	 */
 	@GetMapping("/setlist/{tbId}")
     public @ResponseBody boolean setList(@PathVariable Long tbId,
-    		@RequestParam("checkedIds[]") Long[] emIds,HttpServletRequest request) {			
-		return tableService.updateTableElementList(tbId,emIds);        
+    		@RequestParam("checkedIds[]") String[] emtdIds,HttpServletRequest request) {
+		List<Long> emIds = new ArrayList<Long>();
+		List<Long> newEmIds = new ArrayList<Long>();
+		for(String id :emtdIds){
+			String[] key = id.split("-");
+			if(key.length == 2) emIds.add(Long.parseLong(key[0]));
+			else newEmIds.add(Long.parseLong(key[0]));
+		}
+		return tableService.updateTableElementList(tbId,emIds.toArray(new Long[emIds.size()]),newEmIds.toArray(new Long[newEmIds.size()]));
+		
     }	
 	
 	/**
@@ -222,6 +233,20 @@ public class TbConfigurationController {
 	 */
 	@GetMapping("/getTableScheme/{tbId}")
     public @ResponseBody List<TableElement> getTableElements(@PathVariable Long tbId, HttpServletRequest request) {	
-		return tableService.findAllTableElements(tbId);	
+		return tableService.findTableAllElements(tbId);	
+    }
+	
+	/**
+	 * 保存表单字段的设置
+	 * @param node
+	 * @param preNodeId
+	 * @param request
+	 * @return
+	 */
+	@PostMapping("/saveElement/{tbId}")
+    public ModelAndView saveElement(@ModelAttribute("element") TableElement element, @PathVariable Long tbId,
+    		HttpServletRequest request) {	
+		tableService.updateTableElement(element);
+        return new ModelAndView("redirect:/tb/tabledefination/"+tbId+"?scope=body&style=2&fieldsetting=yes");
     }
 }

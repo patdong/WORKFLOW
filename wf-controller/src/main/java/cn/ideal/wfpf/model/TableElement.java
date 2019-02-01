@@ -14,6 +14,7 @@ public class TableElement {
 	private Long emId;
 	private String newLabelName;
 	private String NewFunctionName;
+	private String functionBelongTo;
 	private String NewHiddenFieldName;
 	private String NewFieldDataType;
 	private String newFieldType;
@@ -157,6 +158,12 @@ public class TableElement {
 	}
 	public void setNewLength(Long newLength) {
 		this.newLength = newLength;
+	}
+	public String getFunctionBelongTo() {
+		return functionBelongTo;
+	}
+	public void setFunctionBelongTo(String functionBelongTo) {
+		this.functionBelongTo = functionBelongTo;
 	}
 	
 	

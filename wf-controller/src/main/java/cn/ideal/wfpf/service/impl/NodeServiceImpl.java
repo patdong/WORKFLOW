@@ -8,22 +8,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import cn.ideal.wf.model.WorkflowFlow;
-import cn.ideal.wf.service.WorkflowFlowService;
 import cn.ideal.wfpf.dao.NodeMapper;
 import cn.ideal.wfpf.model.Node;
 import cn.ideal.wfpf.service.NodeService;
-import cn.ideal.wfpf.service.NodeTreeService;
 
 @Service
 public class NodeServiceImpl implements NodeService {
 
 	@Autowired
 	private NodeMapper nodeMapper;
-	@Autowired
-	private NodeTreeService singleChainNodeTreeService;
-	@Autowired
-	private WorkflowFlowService workflowFlowService;
+
 	
 	@Override
 	@Transactional(propagation=Propagation.REQUIRED)
@@ -46,21 +40,19 @@ public class NodeServiceImpl implements NodeService {
 		return null;
 	}
 
+	/**
+	 * 删除节点，删除节点的所有关联关系
+	 */
 	@Override
+	@Transactional(propagation=Propagation.REQUIRED)
 	public void delete(Long nodeId) {
-		// TODO Auto-generated method stub
+		
 
 	}
 
 	@Override
 	public List<Node> findAll(Long wfId) {
 		return nodeMapper.findAll(wfId);
-	}
-
-	@Override
-	public Node[][] getTreeNodes(Long wfId) {
-		List<Node> nodes = this.findAll(wfId);
-		return singleChainNodeTreeService.decorateNodeTree(nodes);		
 	}
 
 	@Override
@@ -130,15 +122,5 @@ public class NodeServiceImpl implements NodeService {
 		return null;
 	}
 
-	@Override
-	public Node[][] getTreeNodes(Long wfId, Long bizId) {
-		List<Node> nodes = this.findAll(wfId);
-		List<WorkflowFlow> wfflows = workflowFlowService.findAll(bizId);
-		for(WorkflowFlow wf : wfflows){
-			for(Node node :nodes){
-				if(wf.getNodeName().equals(node.getNodename())) node.setPassed("passed");
-			}
-		}
-		return singleChainNodeTreeService.decorateNodeTree(nodes);
-	}
+	
 }

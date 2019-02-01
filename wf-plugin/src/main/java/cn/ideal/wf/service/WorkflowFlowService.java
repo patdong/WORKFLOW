@@ -26,47 +26,47 @@ public interface WorkflowFlowService {
 	/**
 	 * 结束业务流程
 	 */
-	boolean endFlow(Long bizId);
+	boolean endFlow(Long bizId,Long wfId);
 	
 	/**
 	 * 结束当前流程
 	 * @param bizId
 	 * @return
 	 */
-	WorkflowFlow endCurFlow(Long bizId);
+	WorkflowFlow endCurFlow(Long bizId,Long wfId);
 	
 	/**
 	 * 结束业务流程同时设置结束的动作
 	 */
-	boolean endFlow(Long bizId,String actionName,WorkflowUser wfu);
+	boolean endFlow(Long bizId,Long wfId,String actionName,WorkflowUser wfu);
 	
 	/**
 	 * 结束业务流程并创建新的流程及流程操作人
 	 */	
-	boolean endAndAddFlow(Long bizId, WorkflowNode node, WorkflowUser...users) throws Exception;
+	boolean endAndAddFlow(Long bizId,Long wfId, WorkflowNode node, WorkflowUser...users) throws Exception;
 	
 	/**
 	 * 获得未完成的流程
 	 */
-	WorkflowFlow findDoingFlow(Long bizId);
+	WorkflowFlow findDoingFlow(Long bizId,Long wfId);
 	
 	/**
 	 * 获得所有已完成的流程
 	 */
-	List<WorkflowFlow> findDongFlow(Long bizId);
+	List<WorkflowFlow> findDongFlow(Long bizId,Long wfId);
 	
 	/**
 	 * 获取指定业务的所有流程记录
 	 */
-	List<WorkflowFlow> findAll(Long bizId);
+	List<WorkflowFlow> findAll(Long bizId,Long wfId);
 	
 	/**
 	 * 获取指定的流程记录
 	 */
 	WorkflowFlow findFlow(Long flowId);
 	
-	List<WorkflowUser> findWorkflowUsers(Long bizId);
+	List<WorkflowUser> findWorkflowUsers(Long bizId,Long wfId);
 	
-	List<WorkflowFlow> findWorkflowWithSteps(Long bizId);
+	List<WorkflowFlow> findWorkflowWithSteps(Long bizId,Long wfId);
 	
 }

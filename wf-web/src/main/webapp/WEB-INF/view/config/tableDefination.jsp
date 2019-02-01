@@ -13,7 +13,7 @@
 	  $('#ems-body').hide();
 	  $('#ems-foot').hide();	  
 	  $('#ems-dialog').show();
-	  $('#ems-div').css('height','86%');
+	  $('#ems-div').css('height','84%');
 	  $('#btn-open').hide(); 
 	  $('#btn-close').show();
 	  $("#element-div").draggable();
@@ -47,30 +47,13 @@
 	  var checkedIds = [];
 	  if($("#ems-body").is(":visible")){
 	    	//统计选中的记录
-    	  $('input:checkbox[name=emId]:checked').each(function(k){ 
+    	  $('input:checkbox[name=orgemId]:checked').each(function(k){ 
     		  checkedIds.push($(this).val());	    		   	
     	  })
 		  $.ajax({
 			  type: 'GET',
 			  url: "/tb/savecheckedelements/${tbId}",
 			  data:{checkedIds:checkedIds,scope:gscope},
-			  dataType: 'json',
-			  success: function(data){
-				  location.href="/tb/tabledefination/${tbId}?scope="+gscope+"&style="+gstyle+"&fieldsetting="+gfieldsetting;
-			  },
-			  error: function(XMLHttpRequest, textStatus, errorThrown){
-				  console.warn(XMLHttpRequest.responseText);		  
-			  }
-		});
-	  }else if($("#tbems-body").is(":visible")){
-			//统计选中的记录
-	    	$('input:checkbox[name=tbemId]:checked').each(function(k){ 	    		
-	    		checkedIds += $(this).val()+",";	    		   	
-	    	})
-		  $.ajax({
-			  type: 'GET',
-			  url: "/tb/savetableelementsseq/${tbId}",
-			  data:{checkedIds:checkedIds},
 			  dataType: 'json',
 			  success: function(data){
 				  location.href="/tb/tabledefination/${tbId}?scope="+gscope+"&style="+gstyle+"&fieldsetting="+gfieldsetting;
@@ -184,19 +167,21 @@
   
    //内部方法，完成字段赋值功能
   function setElement(element){
+	  $("#emId").val(element.emId); 
 	  $("#element-name").text(element.newLabelName);
 	  $("#newLabelName").val(element.newLabelName);
 	  $("#fieldName").val(element.fieldName);	  
 	  $("#newFieldDataType").val(element.newFieldDataType);
+	  $("#newFieldType").val(element.newFieldType);
 	  $("#rowes").val(element.rowes);
 	  $("#cols").val(element.cols);
 	  $("#width").val(element.width);
 	  $("#newFunctionName").val(element.newFunctionName);
+	  $("input[name=functionBelongTo][value=" + element.functionBelongTo + "]").attr('checked', 'checked');
 	  $("#newHiddenFieldName").val(element.newHiddenFieldName);
-	  $("#length").val(element.length);
-	  $("#formula").val(element.formula);
-	  $("#element-name").text(element.name);
-	  
+	  $("#newLength").val(element.newLength);
+	  $("#newDataContent").val(element.newDataContent);
+	  $("#formula").val(element.formula);	 
    }
    
   //设置表单名称
@@ -353,12 +338,13 @@
 		  }
 	});
   }
+ 
 </script>
 <c:set var="cols" value="${style}"/>
 <div style="padding:0em;margin:0px;padding-top: 1.4%;">
   	<div style="background:#f8f9fa;">
   		<span class="mt-5" style="font-size: 1.75rem;margin-left:2%">表单定义 </span>
-  		<span class="small-btn" style="background:#42a288;font-weight:bold;color: yellow;" onclick="location.href='/tb/tablecenter'">&nbsp;↢&nbsp;</span>
+  		<span class="small-btn" style="background:#42a288;font-weight:bold;color: #ffc107;" onclick="location.href='/tb/tablecenter'">&nbsp;⬅&nbsp;</span>
   		<span style="margin-left:2%;">模板&nbsp;<select style="font-size:.78rem;" id="template"><option value="bootstrap">标准</option></select></span> 
   		<span style="margin-left:0.3%;">|</span> 
   		<span style="margin-left:0.3%;">风格&nbsp;<select style="font-size:.78rem;" id="style" onchange="changeStyle();"><option value="2">双列</option><option value="3">三列</option></select></span>
@@ -385,7 +371,7 @@
 </div>	
 <div style="padding-top:0px;">	
 	<div class="line-table" ></div>
-	<div id="table-div" class="draw" style="padding-left:1%;bottom:5%;height:80%;top:14%;background-image: url('/img/wf_btn11.PNG'); background-repeat: repeat;">		
+	<div id="table-div" class="draw" style="padding-left:1%;bottom:5%;height:78%;top:16%;background-image: url('/img/wf_btn11.PNG'); background-repeat: repeat;">		
 		<!-- 表单标题 -->	
 		<div style="text-align:center;margin-left:10%;margin-right:10%">
 			<label for="tableName" class="sr-only">表单名称</label>				
@@ -422,7 +408,7 @@
 								</c:forEach>
 							</c:when>
 						</c:choose>
-						<c:if test="${!empty element.labelName}">
+						<c:if test="${!empty element.newLabelName}">
 						<span id="btn-up" class="btn-edit-pointer" onclick="showPos(event,${element.emId},'head');" title="编辑">⤧</span>
 						</c:if>
 					</div>				
@@ -447,7 +433,7 @@
 					</c:if>		
 					<div class="cols body-col-4">																			  
 						<label style="width:25%">
-							${element.labelName }
+							${element.newLabelName }
 						</label>
 						<c:choose>
 							<c:when test="${element.newFieldType eq '输入框' }">
@@ -471,7 +457,7 @@
 								</c:forEach>
 							</c:when>
 						</c:choose>
-						<c:if test="${!empty element.labelName}">
+						<c:if test="${!empty element.newLabelName}">
 						<span id="btn-up" class="btn-edit-pointer" onclick="showPos(event,${element.emId},'body');" title="编辑">⤧</span>
 						</c:if>	
 					</div>						
@@ -500,7 +486,7 @@
 					<div class="row">
 					</c:if>		
 					<div class="col-6-left">																			  
-						${element.labelName }
+						${element.newLabelName }
 						<c:choose>
 							<c:when test="${element.newFieldType eq '输入框' }">
 								<input type="text" name="${element.fieldName }" class="form-control-head">
@@ -523,7 +509,7 @@
 								</c:forEach>
 							</c:when>
 						</c:choose>	
-						<c:if test="${!empty element.labelName}">
+						<c:if test="${!empty element.newLabelName}">
 						<span id="btn-up" class="btn-edit-pointer" onclick="showPos(event,${element.emId},'foot');" title="编辑">⤧</span>
 						</c:if>
 					</div>				
@@ -541,7 +527,7 @@
 	</div>
 </div>
 <input type="hidden" id="tbId" name="tbId" value="${tbId}"/>
-<div id="ems-div" class="ems-mask opacity" style="background-color: #f8f9fa;box-shadow: 1px 6px 4px #d6720f;top:8%;bottom: 1%" >
+<div id="ems-div" class="ems-mask opacity" style="background-color: #f8f9fa;box-shadow: 1px 6px 4px #d6720f;top:10%;bottom: 1%" >
 	<header>	      
          <div class="form-inline mt-2 mt-md-0" style="padding: 6px 10px 0px;" >           
            <span class="span-highlight-btn" onclick="$('#tb-span').removeClass('span-btn').addClass('span-highlight-btn');$('#ems-span').removeClass('span-highlight-btn').addClass('span-btn');$('#tbems-body').show();$('#ems-body').hide();;$('#ems-foot').hide();" id="tb-span">表单元素</span>           
@@ -564,7 +550,7 @@
 	    <div style="padding: 0px 13px 0px;height: 100%;overflow-y: auto;" id="ems-body">
 			<form id="emsForm" class="navbar-form navbar-left" method="get" action="">			
 				<c:forEach items="${emList}" varStatus="i" var="element" >
-					<p style="margin-bottom: 0.5rem;"><input type="checkbox" id="emId" name="emId" value="${element.emId}" <c:if test="${! empty element.tbId }">checked</c:if>>&nbsp;${element.labelName}</p>
+					<p style="margin-bottom: 0.5rem;"><input type="checkbox" id="orgemId" name="orgemId" value="${element.emId}" <c:if test="${! empty element.tbId }">checked</c:if>>&nbsp;${element.labelName}</p>
 				</c:forEach>			        			  
 		   </form>	  	
 		</div>			 
@@ -605,7 +591,7 @@
 	    <div style="padding: 0px 13px 0px;height: 100%;overflow-y: auto;" >
 			<form id="lstForm" class="navbar-form navbar-left" method="get" action="">			
 				<c:forEach items="${tbList}" varStatus="i" var="element" >
-					<p style="margin-bottom: 0.5rem;"><input type="checkbox" id="lstId" name="lstId" value="${element.emId}" <c:if test="${element.list eq '有效' }">checked</c:if>>&nbsp;${element.labelName}</p>
+					<p style="margin-bottom: 0.5rem;"><input type="checkbox" id="lstId" name="lstId" value="${element.emId}-${element.tbId}" <c:if test="${element.list eq '有效' }">checked</c:if>>&nbsp;${element.labelName}</p>
 				</c:forEach>			        			  
 		   </form>	  	
 		</div>			 			
@@ -620,7 +606,7 @@
 
 
 <!-- 节点定义窗口 -->
-<div id="element-div" class="node-mask opacity" style="display:none;height:80%;width:30%">
+<div id="element-div" class="node-mask opacity" style="display:none;height:83%;width:32%">
 	<header>	      
          <div class="form-inline mt-2 mt-md-0" style="padding: 6px 10px 0px;" >
           	<label>元素-[<span id="element-name" style="font-weight:bold;"></span>]设置</label>
@@ -631,63 +617,68 @@
     </header>
     <hr ></hr>
     <div style="padding: 0px 13px 0px;">
-		<form id="myForm" class="" method="post" modelAttribute="element" action="/tb/saveElement">
+		<form id="myForm" class="" method="post" modelAttribute="element" action="/tb/saveElement/${tbId}">
 			
 			<!-- hidden项是本页面两个form公用项  不可轻易做变更！ -->
 			
-			<input type="hidden" id="emId" name="emId" value="${element.emId}">			
-	  		<div class="form-group">	  			  			       
+			<input type="hidden" id="emId" name="emId" value="">			
+	  		<div class="form-group-dialog">	  			  			       
 		        <label >元素名称：</label>
-		        <input name="newLabelName" id="newLabelName" class="form-control-one-line mx-sm-2" required autofocus   style="width:22%"/>		        	        
+		        <input name="newLabelName" id="newLabelName" class="form-control-one-line mx-sm-2" required autofocus style="width:25%"/>
 		        <label >字段名称：</label>
-		        <input name="fieldName" id="fieldName" class="form-control-one-line" required autofocus  readOnly style="width:22%"/>
+		        <input name="fieldName" id="fieldName" class="form-control-one-line" required readOnly style="width:25%"/>
 		    </div>
-		  	<div class="form-group">	    		       
+		  	<div class="form-group-dialog">	    		       
 		        <label>字段类型：</label>
-		        <input name="newFieldDataType" id="newFieldDataType" class="form-control-one-line mx-sm-2" required autofocus style="width:22%" />		        
-		        <label >隐式字段：</label>
-		        <input name="newHiddenFieldName" id="newHiddenFieldName" class="form-control-one-line" required autofocus  style="width:22%" />			        		       	        		       
-		    </div>
-		 
-			<div class="form-group">
-				<label >操作方式：</label>
-			    <select id="newFieldType" class="form-control-one-line  mx-sm-2" style="width:22%">
+		        <select name="newFieldDataType" id="newFieldDataType" class="form-control-one-line mx-sm-2" required style="width:25%" > 
+		        	<option value="String">字符串</option>
+			        <option value="Date">日期</option>		       
+		        </select>       
+		        <label >操作方式：</label>
+			    <select name="newFieldType" id="newFieldType" class="form-control-one-line" style="width:25%">
 			        <option>输入框</option>
 			        <option>下拉框</option>
 			        <option>单选框</option>
 			        <option>多选框</option>
 			        <option>文本框</option>
-			    </select>
-			    <label >元素长度： </label>
-		        <input name="length" id="length" class="form-control-one-line" required autofocus  style="width:22%" />			    
-			</div>
-		    <div class="form-group">		        
-		        <label >元素跨行：</label>
-		        <input name="rowes" id="rowes" class="form-control-one-line mx-sm-2" required autofocus  style="width:22%" />		    		        
-		        <label >元素跨列：</label>
-		        <input name="cols" id="cols" class="form-control-one-line" required autofocus  style="width:22%"/>			        		       
+			    </select>			        		       	        		       
 		    </div>
-		    <div class="form-group">		        
+		 
+			<div class="form-group-dialog">				
+			    <label >数据长度： </label>
+		        <input name="newLength" id="newLength" class="form-control-one-line mx-sm-2" required style="width:25%" />	
 		        <label >元素宽度：</label>
-		        <input name="width" id="width" class="form-control-one-line  mx-sm-2" required autofocus  style="width:22%" />		        			        		       
+		        <input name="width" id="width" class="form-control-one-line" style="width:25%" />		    
+			</div>
+		    <div class="form-group-dialog">		        
+		        <label >元素跨行：</label>
+		        <input name="rowes" id="rowes" class="form-control-one-line mx-sm-2" value="1" style="width:25%" />		    		        
+		        <label >元素跨列：</label>
+		        <input name="cols" id="cols" class="form-control-one-line" value="1" style="width:25%"/>			        		       
 		    </div>
-		    <div class="form-group">	        
+		    <div class="form-group-dialog">
+		    	<label >隐式字段：</label>
+		        <input name="newHiddenFieldName" id="newHiddenFieldName" class="form-control-one-line mx-sm-2" style="width:25%" />		        		        	        			        		      
+		    </div>
+		    <div class="form-group-dialog">	        
 		        <label >事件名称：</label>
-		        <input name="newFunctionName" id="newFunctionName" class="form-control-one-line  mx-sm-2" required autofocus   style="width:60%"/>			        		       
+		        <input name="newFunctionName" id="newFunctionName" class="form-control-one-line  mx-sm-2" style="width:45%"/>	
+		        <input name="functionBelongTo" id="functionBelongTo" type="radio" value="标签">标签	
+		        <input name="functionBelongTo" id="functionBelongTo" type="radio" value="元素">元素        		       
 		    </div>
-		    <div class="form-group">		        
+		    <div class="form-group-dialog">		        
 		        <label >级联信息：</label>
-		        <input name="newDataContent" id="newDataContent" class="form-control-one-line  mx-sm-2" required autofocus   style="width:60%"/>			        		       
+		        <input name="newDataContent" id="newDataContent" class="form-control-one-line  mx-sm-2" style="width:60%"/>			        		       
 		    </div>
-		    <div class="form-group">		        
+		    <div class="form-group-dialog">		        
 		        <label >计算公式：</label>
-		        <input name="formula" id="formula" class="form-control-one-line  mx-sm-2" required autofocus   style="width:60%"/>			        		       
-		    </div>		   
-	   </form>
-	   <hr></hr>		        		      
-       <div style="margin-bottom:10px;margin-top:10px;">
-	   	   <button class="btn btn-lg btn-primary-dialog " style="margin-right:20px;" type="submit" >保存</button>
-	   </div> 
+		        <input name="formula" id="formula" class="form-control-one-line  mx-sm-2" style="width:60%"/>			        		       
+		    </div>	
+		    <hr></hr>		        		      
+	        <div style="margin-bottom:10px;margin-top:10px;">
+		   	   <button class="btn btn-lg btn-primary-dialog" style="margin-right:20px;" type="submit">保存</button>
+		    </div> 	   
+	   </form>	   
 	</div>    
 </div>
 <!-- talbe scheme检测 -->

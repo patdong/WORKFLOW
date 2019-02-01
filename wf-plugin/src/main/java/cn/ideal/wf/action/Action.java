@@ -10,7 +10,7 @@ import cn.ideal.wf.model.WorkflowUser;
  */
 public interface Action {
 
-	boolean action(Long bizId, WorkflowUser user , WorkflowUser ...users) throws Exception;
+	boolean action(Long bizId, Long wfId, WorkflowUser user , WorkflowUser ...users) throws Exception;
 	
-	boolean action(Long bizId, WorkflowUser user) throws Exception;
+	boolean action(Long bizId, Long wfId, WorkflowUser user) throws Exception;
 }

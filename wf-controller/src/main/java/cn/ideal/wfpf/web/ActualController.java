@@ -25,16 +25,17 @@ import cn.ideal.wf.data.analyzer.ParameterAnalyzer;
 import cn.ideal.wf.data.analyzer.Storage;
 import cn.ideal.wf.data.analyzer.StorageAnalyzer;
 import cn.ideal.wf.data.query.QueryPageExecutor;
-import cn.ideal.wf.model.Workflow;
 import cn.ideal.wf.model.WorkflowTableBrief;
 import cn.ideal.wf.model.WorkflowTableElement;
+import cn.ideal.wf.page.ListModel;
+import cn.ideal.wf.page.Page;
+import cn.ideal.wf.page.PageModel;
 import cn.ideal.wf.processor.Processor;
 import cn.ideal.wf.service.WorkflowBriefService;
 import cn.ideal.wf.service.WorkflowFlowService;
+import cn.ideal.wf.service.WorkflowNodeService;
 import cn.ideal.wf.service.WorkflowTableService;
 import cn.ideal.wf.service.WorkflowWFService;
-import cn.ideal.wfpf.model.Page;
-import cn.ideal.wfpf.service.NodeService;
 
 
 @Controller
@@ -55,16 +56,18 @@ public class ActualController extends PlatformFundation{
 	@Autowired
 	private WorkflowBriefService wfBriefService;
 	@Autowired
-	private Processor actualService;	
+	private Processor wfProcessor;	
 	@Autowired
-	private NodeService nodeService;
+	private WorkflowNodeService workflowNodeService;
 	/**
 	 * 实战首页
 	 * */
 	@GetMapping("/actualcenter")
     public ModelAndView homePage(HttpServletRequest request) {
 		ModelAndView mav = new ModelAndView("app/actualCenter");
-		mav.addObject("wfs", wfService.findAllBlindTable());
+		ListModel listModel = new ListModel();
+		mav.addObject("model", listModel);
+		listModel.setMenu(wfService.findAllBlindTable());
         return mav;
     }
 	
@@ -74,55 +77,35 @@ public class ActualController extends PlatformFundation{
 	 */
 	@GetMapping(value={"/list/{wfId}/{scope}/{pageNumber}","/list/{wfId}/{pageNumber}"})
     public ModelAndView getList(@PathVariable Long wfId,@PathVariable Long pageNumber,@PathVariable Optional<String> scope, HttpServletRequest request) {
-		ModelAndView mav = new ModelAndView("app/list");		
-		Workflow wf = WorkflowCache.getValue(wfId);
-		Storage storage = null;
+		ModelAndView mav = new ModelAndView("app/list");
+		ListModel listModel = new ListModel();
+		mav.addObject("model", listModel);
 		try{
+			Storage storage = null;
 			storage = parameterAnalyzer.dataAnalyze(request, wfId);
 			storage.setUser(this.getWorkflowUser(request));
 			storage.setBeginNumberWithPageNumber(pageNumber);
+			//下拉列表处理
+			listModel.setScope("approve");
 			if(scope.isPresent()){
 				storage.getParameters().put("scope", scope.get());
+				listModel.setScope(scope.get());
 			}
 			Long count = queryPageExecutor.queryAll(storage);
 	        Page<Map<String,Object>> page = new Page<Map<String,Object>>(count,pageNumber);
 	        page.setPageList(queryPageExecutor.queryPage(storage));
 	        page.setUrl("/app/list/"+wfId);
-	        mav.addObject("page",page);
+	        listModel.setPage(page);
 		}catch(Exception e){	
 			e.printStackTrace();
 		}
-		        
-		mav.addObject("wf",wf);
-		mav.addObject("wfs", wfService.findAllBlindTable());
-		mav.addObject("tableList", wftableService.findElementsOnList(wf.getTableId()));
-        return mav;
-    }
-	
-	
-	/**
-	 * 保存表单信息
-	 * 固定的变量的命名：$BIZID - 业务编号
-	 *                $TABLENAME - 操作的表名
-	 * @param wfId
-	 * @param request
-	 * @return
-	 * @throws Exception
-	 */
-	@PostMapping(value={"/save/{wfId}","/save/{wfId}/{bizId}"})
-	public ModelAndView saveTableData(@PathVariable Long wfId, @PathVariable Optional<Long> bizId,HttpServletRequest request) throws Exception{
-		ModelAndView mav = new ModelAndView("redirect:/app/list/"+wfId+"/1");
 		
-		Storage storage = storageAnalyzer.dataAnalyze(request, wfId);		
-		//获取运行系统的当前登录用户
-		storage.setUser(this.getWorkflowUser(request));			
-		if(bizId.isPresent()) {
-			storage.setBizId(bizId.get());
-			wftableService.updateDataValueForTable(storage);
-		}
-		else wftableService.saveDataValueForTable(storage);
-		return mav;
-	}
+		listModel.setWf(WorkflowCache.getValue(wfId));
+		listModel.setTableList(wftableService.findElementsOnList(listModel.getWf().getTableId()));
+		listModel.setMenu(wfService.findAllBlindTable());
+		
+        return mav;
+    }	
 	
 	/**
 	 * 通过列表选中某一条记录，包括新建业务功能
@@ -134,20 +117,18 @@ public class ActualController extends PlatformFundation{
 	@GetMapping(value={"/showtable/{wfId}/{bizId}/{style}","/showtable/{wfId}/{style}"})
     public ModelAndView showTable(@PathVariable Long wfId, @PathVariable Optional<Long> bizId,@PathVariable String style,HttpServletRequest request) {
 		ModelAndView mav = new ModelAndView("app/table");
-		Workflow wf = WorkflowCache.getValue(wfId);
-		WorkflowTableBrief tb = TableBriefCache.getValue(wf.getTableId());
+		PageModel pageModel = new PageModel();
+		mav.addObject("model",pageModel);
+		if(bizId.isPresent()) pageModel.setBizId(bizId.get());
+		pageModel.setWf(WorkflowCache.getValue(wfId));		
+		pageModel.setMenu(wfService.findAllBlindTable());
+		pageModel.setNodeName(wfProcessor.findNodeName(wfId,pageModel.getBizId()));
 		
-		mav.addObject("brief",tb);
-		mav.addObject("wfs", wfService.findAllBlindTable());		
-		mav.addObject("wf",wf);
-		mav.addObject("bizId",null);
-		if(bizId.isPresent()) {
-			mav.addObject("bizId",bizId.get());
-			//获取办理节点			
-			mav.addObject("nodename",actualService.findNodeName(wfId, bizId.get()));
-			mav.addObject("nodetree",nodeService.getTreeNodes(wfId,bizId.get()));
+		if(bizId.isPresent()) {			
+			pageModel.setNodeTree(workflowNodeService.getTreeNodes(wfId,bizId.get()));
+			pageModel.setWfBrief(wfBriefService.find(bizId.get(), wfId));
 		}else{
-			mav.addObject("nodetree",nodeService.getTreeNodes(wfId));
+			pageModel.setNodeTree(workflowNodeService.getTreeNodes(wfId));
 		}
 		
         return mav;
@@ -163,38 +144,66 @@ public class ActualController extends PlatformFundation{
 	 */
 	@GetMapping(value = {"/showcontent/{wfId}/{style}", "/showcontent/{wfId}/{bizId}/{style}"})
     public ModelAndView showContent(@PathVariable Long wfId, @PathVariable Optional<Long> bizId, @PathVariable String style, HttpServletRequest request) {
-		ModelAndView mav = new ModelAndView("app/content_div");
-		Workflow wf = WorkflowCache.getValue(wfId);
-		List<WorkflowTableElement> headLst = wftableService.findAllTableElementsWithScope(wf.getTableId(),"head");
-		List<WorkflowTableElement> bodyLst = wftableService.findAllTableElementsWithScope(wf.getTableId(),"body");		
-		List<WorkflowTableElement> footLst = wftableService.findAllTableElementsWithScope(wf.getTableId(),"foot");
-		WorkflowTableBrief tb = TableBriefCache.getValue(wf.getTableId());
+		ModelAndView mav = new ModelAndView("app/content_div"); 
+		PageModel pageModel = new PageModel();
+		mav.addObject("model",pageModel);
+		pageModel.setWf(WorkflowCache.getValue(wfId));
+		
+		Long tableId = pageModel.getWf().getTableId();
+		List<WorkflowTableElement> headLst = wftableService.findAllTableElementsWithScope(tableId,"head");
+		List<WorkflowTableElement> bodyLst = wftableService.findAllTableElementsWithScope(tableId,"body");		
+		List<WorkflowTableElement> footLst = wftableService.findAllTableElementsWithScope(tableId,"foot");
+		WorkflowTableBrief tb = TableBriefCache.getValue(tableId);
 		
 		if(bodyLst.size() % tb.getCols() != 0){
 			for(int i=0; i< bodyLst.size() % tb.getCols(); i++){
 				bodyLst.add(new WorkflowTableElement());
 			}
 		}
-		
-		mav.addObject("headList",headLst);
-		mav.addObject("bodyList",bodyLst);
-		mav.addObject("footList",footLst);
-		mav.addObject("brief",tb);
-		mav.addObject("wf",wf);		
+		pageModel.setTableBrief(tb);
+		pageModel.setHeadLst(headLst);
+		pageModel.setBodyLst(bodyLst);
+		pageModel.setFootLst(footLst);
+
 		if(bizId.isPresent()){
 			Storage storage = new Storage();
 			storage.setBizId(bizId.get());
 			storage.setTableName(tb.getName());
-			mav.addObject("bizTable",queryPageExecutor.query(storage));
-			mav.addObject("bizId",bizId.get());
+			pageModel.setBizTable(queryPageExecutor.query(storage));
+			pageModel.setBizId(bizId.get());
 		}
         return mav;
     }
 	
+	/**
+	 * 保存表单信息
+	 * 固定的变量的命名：$BIZID - 业务编号
+	 *                $TABLENAME - 操作的表名
+	 * @param wfId
+	 * @param request
+	 * @return
+	 * @throws Exception
+	 */
+	@PostMapping(value={"/save/{wfId}","/save/{wfId}/{bizId}"})
+	public ModelAndView saveTableData(@PathVariable Long wfId, @PathVariable Optional<Long> bizId,HttpServletRequest request) throws Exception{		
+		Storage storage = storageAnalyzer.dataAnalyze(request, wfId);		
+		//获取运行系统的当前登录用户
+		storage.setUser(this.getWorkflowUser(request));	
+		Map<String,Object> obj;
+		if(bizId.isPresent()) {
+			storage.setBizId(bizId.get());
+			obj = wftableService.updateDataValueForTable(storage);
+		}
+		else obj = wftableService.saveDataValueForTable(storage);
+		
+		ModelAndView mav = new ModelAndView("redirect:/app/showtable/"+wfId+"/"+obj.get("ID")+"/div");
+		return mav;
+	}
+	
 	@PostMapping(value={"/passworkflow/{wfId}/{bizId}"})
 	public ModelAndView passWorkflow(@PathVariable Long wfId, @PathVariable Long bizId,HttpServletRequest request) throws Exception{
 		ModelAndView mav = new ModelAndView("redirect:/app/list/"+wfId+"/1");						
-		actualService.flowPass(wfId, bizId, this.getWorkflowUser(request));
+		wfProcessor.flowPass(wfId, bizId, this.getWorkflowUser(request));
 		
 		return mav;
 	}

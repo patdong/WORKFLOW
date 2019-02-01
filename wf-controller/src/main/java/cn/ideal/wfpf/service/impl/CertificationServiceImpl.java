@@ -64,6 +64,7 @@ public class CertificationServiceImpl implements CertificationService {
 	        	user.setUserName((String)element.get("realName"));
 	        	user.setCurrentOrgName((String)element.get("currentOrgName"));
 	        	user.setOrgName((String)element.get("orgName"));
+	        	user.setCurrentOrgId(new Long((Integer)element.get("currentOrgId")));
 	        	users.add(user);
         	}
         	

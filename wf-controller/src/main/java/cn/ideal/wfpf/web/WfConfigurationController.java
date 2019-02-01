@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
 import cn.ideal.wf.model.Workflow;
+import cn.ideal.wf.service.WorkflowNodeService;
 import cn.ideal.wfpf.model.CertificationOrg;
 import cn.ideal.wfpf.model.CertificationRole;
 import cn.ideal.wfpf.model.CertificationUser;
@@ -44,6 +45,8 @@ public class WfConfigurationController {
 	private WorkflowService workflowService;
 	@Autowired
 	private TableService tableService;
+	@Autowired
+	private WorkflowNodeService workflowNodeService;
 	/**
 	 * 工作流定义中心
 	 * */
@@ -101,13 +104,10 @@ public class WfConfigurationController {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
-		Node node = new Node();
-		node.setWfId(wfId);
-		mav.addObject("node" , node);
+		mav.addObject("wf",workflowService.find(wfId));		
 		List<Node> nodes = nodeService.findAllOnlyNode(wfId);
 		mav.addObject("nodeset",nodes);
-		mav.addObject("nodetree",nodeService.getTreeNodes(wfId));
+		mav.addObject("nodetree",workflowNodeService.getTreeNodes(wfId));
 		
 		try {
 			ObjectMapper mapper = new ObjectMapper();

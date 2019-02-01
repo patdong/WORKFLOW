@@ -61,5 +61,9 @@ public class TableBriefCache implements CommandLineRunner {
 	public static void delete(Long wfId) {
 		hashTableBrief.delete(TB_KEY, wfId);
 	}
+	
+	public static void put(WorkflowTableBrief wftb){
+		hashTableBrief.put(TB_KEY,wftb.getTbId(), wftb);
+	}
 }
 

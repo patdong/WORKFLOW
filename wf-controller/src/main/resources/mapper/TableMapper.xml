@@ -59,19 +59,18 @@
 		</where>				
 	</update>
 	
-	
-	<insert id="saveBatchTableElement" parameterType="java.util.List">
+	<insert id="saveTableElement" parameterType="cn.ideal.wfpf.model.TableElement">
 		insert into table_element(
-			tbId,emId,newLabelName,newFunctionName,scope,seq,newHiddenFieldName,
-			newDataContent,newFieldType,newFieldDataType,newLength,createdDate
+			tbId,emId,newLabelName,newFunctionName,functionBelongTo,scope,seq,newHiddenFieldName,
+			newDataContent,newFieldType,newFieldDataType,newLength,list,createdDate
 		)
-		values
-		<foreach collection="list" item="item" index="index" separator=",">				
+		values		
 		(
 			#{item.tbId},
 			#{item.emId},
 			#{item.newLabelName},
-			#{item.newFunctionName},			
+			#{item.newFunctionName},
+			#{item.functionBelongTo},		
 			#{item.scope},
 			#{item.seq},
 			#{item.newHiddenFieldName},
@@ -79,10 +78,52 @@
 			#{item.newFieldType},
 			#{item.newFieldDataType},
 			#{item.newLength},
+			#{item.list},
+			#{item.createdDate}
+		)		
+	</insert>
+	
+	<insert id="saveBatchTableElement" parameterType="java.util.List">
+		insert into table_element(
+			tbId,emId,newLabelName,newFunctionName,functionBelongTo,scope,seq,newHiddenFieldName,
+			newDataContent,newFieldType,newFieldDataType,newLength,list,createdDate
+		)
+		values
+		<foreach collection="list" item="item" index="index" separator=",">				
+		(
+			#{item.tbId},
+			#{item.emId},
+			#{item.newLabelName},
+			#{item.newFunctionName},
+			#{item.functionBelongTo},			
+			#{item.scope},
+			#{item.seq},
+			#{item.newHiddenFieldName},
+			#{item.newDataContent},
+			#{item.newFieldType},
+			#{item.newFieldDataType},
+			#{item.newLength},
+			#{item.list},
 			#{item.createdDate}
 		)
 		</foreach>
 	</insert>
+	
+	<update id="updateTableElement" parameterType="cn.ideal.wfpf.model.TableElement">
+		update table_element set 			
+			   newLabelName=#{newLabelName},
+			   newFunctionName=#{newFunctionName},
+			   functionBelongTo=#{functionBelongTo},
+			   newHiddenFieldName=#{newHiddenFieldName},
+			   newDataContent=#{newDataContent},
+			   newFieldType=#{newFieldType},
+			   newFieldDataType=#{newFieldDataType},
+			   newLength=#{newLength}		   
+		<where>		
+		      tbId=#{tbId}
+		  and emId = #{emId}			
+		</where>				
+	</update>
 		
 	<update id="updateTableElementSeq" parameterType="cn.ideal.wfpf.model.TableElement">
 		update table_element set 			
@@ -101,7 +142,7 @@
 		</where>				
 	</delete>
 	
-	<select id="findAllTableElements" resultMap="tableelement" parameterType="java.util.Map">
+	<select id="findTableAllElements" resultMap="tableelement" parameterType="java.util.Map">
 		select a.*,b.labelName,b.fieldName from table_element a
 		 inner join element_library b on a.emId = b.emId 
 		 where a.tbId = #{tbId}
@@ -146,5 +187,11 @@
 		
 	<select id="findAllWithTableName" resultMap="tablebrief">
 		select * from table_brief where tableName is not null
+	</select>	
+	
+	<select id="findTableSpecialElements" resultMap="tableelement" parameterType="java.lang.Long">
+		select b.emId,b.labelName,b.fieldName from element_library b
+		 where b.level='列表级' 
+		   and b.emId not in (select emId from table_element where tbId = #{tbId})
 	</select>
 </mapper>

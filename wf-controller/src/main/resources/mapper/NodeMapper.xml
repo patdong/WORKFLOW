@@ -22,7 +22,7 @@
 	
 	<insert id="save" useGeneratedKeys="true" keyProperty="nodeId" parameterType="cn.ideal.wfpf.model.Node">
 		insert into workflow_node(
-			nodeName,timeLimit,uType,nType,action,status,createdDate,modifiedDate,wfId
+			nodename,timeLimit,uType,nType,action,status,createdDate,modifiedDate,wfId
 		)
 		values(
 			#{nodename},
@@ -39,7 +39,7 @@
 	
 	<update id="update" parameterType="cn.ideal.wfpf.model.Node">
 		update workflow_node set
-			nodeName = #{nodename},
+			nodename = #{nodename},
 			timeLimit = #{timeLimit},
 			uType = #{uType},
 			nType = #{nType},
@@ -79,8 +79,8 @@
 			#{nodeId},
 			#{item.userId},
 			#{item.userName},
-			#{org.orgId},
-			#{org.orgName},
+			#{item.currentOrgId},
+			#{item.currentOrgName},
 			#{createdDate}
 		)
 		</foreach>
@@ -155,4 +155,9 @@
 		 where a.nodeId = #{nodeId}
 		   and n.status != "无效"
 	</select>
+	
+	<!-- 删除节点的关联关系 -->
+	<delete id="deleteNodeNodes" parameterType="java.lang.Long">
+		delete from workflow_node_nodes where nodeId = #{nodeId}
+	</delete>
 </mapper>

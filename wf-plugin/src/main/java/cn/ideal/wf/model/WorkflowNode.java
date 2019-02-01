@@ -26,10 +26,14 @@ public class WorkflowNode implements Serializable{
 	private Long wfId;
 	private Long seq;
 	private boolean highLight;
-	
+	private String passed;                                       //节点是否已经流转到
 	private List<WorkflowNode> preNodes;                         //前置节点
 	private List<WorkflowNode> sufNodes;                         //后置节点
 	
+	private Long height;                                         //节点高度，从上至下，从0开始
+	private Long depth;                                          //节点深度，从左至右， 从0开始
+	private Long innerHeight;                                    //具有相同前置节点的子节点具有内置高度，从上至下，从0开始；
+	private String style = "^";                                  //节点页面展示样式 ，不属于数据库字段。包括：user、node、pointer、lpointer、rpointer
 	public WorkflowNode(){}
 	public WorkflowNode(Long nodeId){
 		this.setNodeId(nodeId);
@@ -124,6 +128,36 @@ public class WorkflowNode implements Serializable{
 	}
 	public void setSufNodes(List<WorkflowNode> sufNodes) {
 		this.sufNodes = sufNodes;
+	}
+	public String getPassed() {
+		return passed;
+	}
+	public void setPassed(String passed) {
+		this.passed = passed;
+	}
+	public Long getHeight() {
+		return height;
+	}
+	public void setHeight(Long height) {
+		this.height = height;
+	}
+	public Long getDepth() {
+		return depth;
+	}
+	public void setDepth(Long depth) {
+		this.depth = depth;
+	}
+	public Long getInnerHeight() {
+		return innerHeight;
+	}
+	public void setInnerHeight(Long innerHeight) {
+		this.innerHeight = innerHeight;
+	}
+	public String getStyle() {
+		return style;
+	}
+	public void setStyle(String style) {
+		this.style = style;
 	}
 	
 	

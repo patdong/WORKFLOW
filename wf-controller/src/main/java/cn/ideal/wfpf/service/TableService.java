@@ -17,9 +17,11 @@ public interface TableService extends PageService<TableBrief> {
 	
 	List<TableBrief> findAllWithTableName();
 	
-	List<TableElement> findAllTableElements(Long tbId);
+	List<TableElement> findTableAllElements(Long tbId);
 	
-	List<TableElement> findAllTableElements(Long tbId,String scope);
+	List<TableElement> findTableAllElements(Long tbId,String scope);
+	
+	List<TableElement> findTableAllElementsWithSpecialElements(Long tbId);
 	
 	TableElement findTableElement(Long tbId, Long emId);
 	
@@ -35,10 +37,12 @@ public interface TableService extends PageService<TableBrief> {
 	
 	TableBrief updateTableBrief(TableBrief obj);
 	
-	boolean updateTableElementList(Long tbId, Long[] emIds);
+	boolean updateTableElementList(Long tbId, Long[] emIds,Long[] newEmIds);
 	
 	List<TableElement> findElementsOnList(Long tbId);
 	
 	boolean createTable(Long tbId, String tableName) throws Exception;
+	
+	boolean updateTableElement(TableElement obj);
 		
 }

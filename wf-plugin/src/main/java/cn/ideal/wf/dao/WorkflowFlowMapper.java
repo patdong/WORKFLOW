@@ -3,6 +3,7 @@ package cn.ideal.wf.dao;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import cn.ideal.wf.model.WorkflowFlow;
 import cn.ideal.wf.model.WorkflowUser;
@@ -23,29 +24,29 @@ public interface WorkflowFlowMapper {
 	/**
 	 * 结束业务流程
 	 */
-	int endFlow(Long bizId);
+	int endFlow(@Param("bizId") Long bizId,@Param("wfId") Long wfId);
 	
 	/**
 	 * 获得未完成的流程
 	 */
-	WorkflowFlow findDoingFlow(Long bizId);
+	WorkflowFlow findDoingFlow(@Param("bizId") Long bizId,@Param("wfId") Long wfId);
 	
 	/**
 	 * 获得所有已完成的流程
 	 */
-	List<WorkflowFlow> findDongFlow(Long bizId);
+	List<WorkflowFlow> findDongFlow(@Param("bizId") Long bizId,@Param("wfId") Long wfId);
 	
 	/**
 	 * 获取指定业务的所有流程记录
 	 */
-	List<WorkflowFlow> findAll(Long bizId);
+	List<WorkflowFlow> findAll(@Param("bizId") Long bizId,@Param("wfId") Long wfId);
 	
 	/**
 	 * 获取指定的业务流程
 	 */
 	WorkflowFlow find(Long flowId);
 
-	List<WorkflowUser> findWorkflowUsers(Long bizId);
+	List<WorkflowUser> findWorkflowUsers(@Param("bizId") Long bizId,@Param("wfId") Long wfId);
 	
-	List<WorkflowFlow> findWorkflowWithSteps(Long bizId);
+	List<WorkflowFlow> findWorkflowWithSteps(@Param("bizId") Long bizId,@Param("wfId") Long wfId);
 }

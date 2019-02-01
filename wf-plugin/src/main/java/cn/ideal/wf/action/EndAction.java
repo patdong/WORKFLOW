@@ -18,14 +18,14 @@ public class EndAction implements Action {
 	private WorkflowFlowService wfService;
 	
 	@Override
-	public boolean action(Long bizId, WorkflowUser user , WorkflowUser ...users) throws Exception{
+	public boolean action(Long bizId, Long wfId,  WorkflowUser user , WorkflowUser ...users) throws Exception{
 		return false;
 	}
 
 	@Override
-	public boolean action(Long bizId, WorkflowUser user) throws Exception {
+	public boolean action(Long bizId, Long wfId,  WorkflowUser user) throws Exception {
 		if(bizId == null) throw new Exception("无效业务");		
-		wfService.endFlow(bizId);
+		wfService.endFlow(bizId,wfId);
 		
 		return false;
 	}

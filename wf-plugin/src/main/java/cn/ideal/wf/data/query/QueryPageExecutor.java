@@ -40,7 +40,8 @@ public class QueryPageExecutor {
 		if(scope != null && ((String)scope).equals("workflow")) return queryWorkflowAll(storage);
 		
 		List<Map<String,Object>> rs = sqlExecutor.query("select count(*) as total from " + storage.getTableName() +
-				" a inner join table_summary b on b.bizId = a.Id where b.createdUserId = "+storage.getUser().getUserId());
+				" a inner join table_summary b on b.bizId = a.Id where b.createdUserId = "+storage.getUser().getUserId() +
+				" and b.wfId="+storage.getWfId());
 		if(rs.size() > 0) {
 			return Long.parseLong(rs.get(0).get("TOTAL").toString());
 		}
@@ -77,7 +78,8 @@ public class QueryPageExecutor {
 		buf.append(storage.getTableName());
 		buf.append(" a ");
 		buf.append(" inner join table_summary b on a.Id = b.bizId ");
-		buf.append(" where b.createdUserId = " + storage.getUser().getUserId());
+		buf.append(" where b.wfId = "+ storage.getWfId() );
+		buf.append(" and b.createdUserId = " + storage.getUser().getUserId());
 		if(parameters!=null && parameters.size() > 0){
 			
 		}

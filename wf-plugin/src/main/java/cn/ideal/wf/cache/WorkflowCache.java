@@ -44,7 +44,7 @@ public class WorkflowCache implements CommandLineRunner {
 	}
 	
 	public static Workflow getValue(Long wfId){
-		return hashWorkflow.get(WF_KEY, wfId);
+		return hashWorkflow.get(WF_KEY, wfId);		
 	}
 	
 	public static Map<Long,Workflow> getAll(){
@@ -61,6 +61,10 @@ public class WorkflowCache implements CommandLineRunner {
  
 	public static void delete(Long wfId) {
 		hashWorkflow.delete(WF_KEY, wfId);
+	}
+	
+	public static void put(Workflow wf){
+		hashWorkflow.put(WF_KEY, wf.getWfId(), wf);
 	}
 
 }

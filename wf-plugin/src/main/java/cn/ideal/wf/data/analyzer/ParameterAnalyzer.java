@@ -25,10 +25,12 @@ public class ParameterAnalyzer implements Analyzer {
 		Workflow wf = WorkflowCache.getValue(wfId);
 		if(wf == null) {
 			wf = workflowWFService.find(wfId);
+			WorkflowCache.put(wf);
 		}
 		if(wf == null) return null;
 		
 		Storage storage = new Storage();
+		storage.setWfId(wfId);
 		storage.setTableName(wf.getWftableBrief().getName());
 		if(!StringUtils.isEmpty(request.getParameter("bizId"))){
 			storage.setBizId(Long.parseLong(request.getParameter("bizId")));

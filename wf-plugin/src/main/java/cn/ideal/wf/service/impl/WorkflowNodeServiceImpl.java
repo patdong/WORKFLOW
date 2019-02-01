@@ -9,15 +9,22 @@ import org.springframework.stereotype.Service;
 import cn.ideal.wf.cache.WorkflowNodeCache;
 import cn.ideal.wf.common.WFConstants;
 import cn.ideal.wf.dao.WorkflowNodeMapper;
+import cn.ideal.wf.model.WorkflowFlow;
 import cn.ideal.wf.model.WorkflowNode;
 import cn.ideal.wf.model.WorkflowUser;
+import cn.ideal.wf.service.WorkflowFlowService;
 import cn.ideal.wf.service.WorkflowNodeService;
+import cn.ideal.wf.tree.NodeTreeService;
 
 @Service
 public class WorkflowNodeServiceImpl implements WorkflowNodeService{
 
 	@Autowired
 	private WorkflowNodeMapper workflowNodeMapper;
+	@Autowired
+	private WorkflowFlowService workflowFlowService;
+	@Autowired
+	private NodeTreeService singleChainNodeTreeService;
 	
 	@Override
 	public List<WorkflowNode> findNextNodes(Long nodeId) {
@@ -63,4 +70,25 @@ public class WorkflowNodeServiceImpl implements WorkflowNodeService{
 		return workflowNodeMapper.findAll(wfId);
 	}
 
+	@Override
+	public WorkflowNode[][] getTreeNodes(Long wfId, Long bizId) {
+		List<WorkflowNode> nodes = this.findAll(wfId);
+		List<WorkflowFlow> wfflows = workflowFlowService.findAll(bizId,wfId);
+		for(WorkflowFlow wf : wfflows){
+			for(WorkflowNode node :nodes){
+				if(wf.getNodeName().equals(node.getNodeName())) {
+					//设置办理完毕的节点
+					if(wf.getFinishedDate() != null) node.setPassed("passed");
+					else node.setPassed("passing");
+				}
+			}
+		}
+		return singleChainNodeTreeService.decorateNodeTree(nodes);
+	}
+	
+	@Override
+	public WorkflowNode[][] getTreeNodes(Long wfId) {
+		List<WorkflowNode> nodes = this.findAll(wfId);
+		return singleChainNodeTreeService.decorateNodeTree(nodes);		
+	}
 }

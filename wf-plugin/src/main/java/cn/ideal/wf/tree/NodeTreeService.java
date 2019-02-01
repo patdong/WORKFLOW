@@ -1,4 +1,4 @@
-package cn.ideal.wfpf.service;
+package cn.ideal.wf.tree;
 
 /**
  * 将节点装饰城节点树
@@ -7,10 +7,10 @@ package cn.ideal.wfpf.service;
  */
 import java.util.List;
 
-import cn.ideal.wfpf.model.Node;
+import cn.ideal.wf.model.WorkflowNode;
 
 public interface NodeTreeService {
 	
-	Node[][] decorateNodeTree(List<Node> nodes);
+	WorkflowNode[][] decorateNodeTree(List<WorkflowNode> nodes);
 
 }

@@ -31,4 +31,6 @@ public interface NodeMapper {
 	
 	List<Node> findAllOnlyNode(Long wfId);
 	
+	void deleteNodeNodes(Long nodeId);
+	
 }

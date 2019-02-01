@@ -27,7 +27,7 @@ public interface TableMapper {
 	
 	int saveBatchTableElement(List<TableElement> objs);
 	
-	List<TableElement> findAllTableElements(@Param("tbId") Long tbId,@Param("scope") String scope);
+	List<TableElement> findTableAllElements(@Param("tbId") Long tbId,@Param("scope") String scope);
 	
 	TableElement findTableElement(@Param("tbId") Long tbId, @Param("emId") Long emId);
 	
@@ -41,4 +41,7 @@ public interface TableMapper {
 	
 	List<TableElement> findElementsOnList(Long tbId);
 	
+	List<TableElement> findTableSpecialElements(Long tbId);
+	
+	int updateTableElement(TableElement obj);
 }

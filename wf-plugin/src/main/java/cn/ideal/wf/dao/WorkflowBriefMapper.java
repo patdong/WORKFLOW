@@ -1,6 +1,7 @@
 package cn.ideal.wf.dao;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import cn.ideal.wf.model.WorkflowBrief;
 
@@ -13,9 +14,9 @@ public interface WorkflowBriefMapper {
 	
 	int endFlowBrief(WorkflowBrief wfb);
 	
-	WorkflowBrief find(Long bizId);
+	WorkflowBrief find(@Param("bizId") Long bizId,@Param("wfId") Long wfId);
 	
 	int updateStatusFlowBrief(WorkflowBrief wfb);
 	
-	WorkflowBrief findDoingFlow(Long bizId);
+	WorkflowBrief findDoingFlow(@Param("bizId") Long bizId,@Param("wfId") Long wfId);
 }

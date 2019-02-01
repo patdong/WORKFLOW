@@ -35,7 +35,7 @@ public class WorkflowFlowServiceImpl implements WorkflowFlowService{
 	 * 创建流程的节点可以传入也可以默认用系统节点。
 	 */
 	@Override
-	public WorkflowFlow startFlow(Long bizId, Long wfId, String nodeName) throws Exception{
+	public WorkflowFlow startFlow(Long bizId,Long wfId, String nodeName) throws Exception{
 		WorkflowFlow wf = new WorkflowFlow();
 		wf.setBizId(bizId);
 		wf.setWfId(wfId);
@@ -59,33 +59,34 @@ public class WorkflowFlowServiceImpl implements WorkflowFlowService{
 	}
 	
 	@Override
-	public boolean endFlow(Long bizId) {
-		WorkflowFlow workflow = this.findDoingFlow(bizId);
+	public boolean endFlow(Long bizId,Long wfId) {
+		WorkflowFlow workflow = this.findDoingFlow(bizId,wfId);
 		if(workflow == null) return false;
 		WorkflowFlow wf = new WorkflowFlow();
 		wf.setFlowId(workflow.getFlowId());
 		wf.setBizId(bizId);
+		wf.setWfId(wfId);
 		wf.setFinishedDate(new Date());
 		wf.setStatus(WFConstants.WF_STATUS_END);
 		wf.setActionName(WFConstants.WF_ACTION_PASS);
-		boolean res = this.endFlow(wf);		
-		if(res) res = workflowBriefService.endFlowBrief(bizId);
+		boolean res = this.endFlow(wf);
+		if(res) res = workflowBriefService.endFlowBrief(bizId,wfId);
 		return res;
 	}
 
 	@Override
-	public WorkflowFlow findDoingFlow(Long bizId) {
-		return workflowMapper.findDoingFlow(bizId);
+	public WorkflowFlow findDoingFlow(Long bizId,Long wfId) {
+		return workflowMapper.findDoingFlow(bizId,wfId);
 	}
 
 	@Override
-	public List<WorkflowFlow> findDongFlow(Long bizId) {
-		return workflowMapper.findDongFlow(bizId);
+	public List<WorkflowFlow> findDongFlow(Long bizId,Long wfId) {
+		return workflowMapper.findDongFlow(bizId,wfId);
 	}
 
 	@Override
-	public List<WorkflowFlow> findAll(Long bizId) {
-		return workflowMapper.findAll(bizId);
+	public List<WorkflowFlow> findAll(Long bizId,Long wfId) {
+		return workflowMapper.findAll(bizId,wfId);
 	}
 
 	@Override
@@ -112,6 +113,7 @@ public class WorkflowFlowServiceImpl implements WorkflowFlowService{
 		wfb.setUnitId(wfs.getUnitId());
 		wfb.setModifiedDate(new Date());
 		wfb.setBizId(bizId);
+		wfb.setWfId(wfId);
 		wfb.setFlowId(wf.getFlowId());
 		wfb.setNodeName(wf.getNodeName());
 		workflowBriefService.updateFlowBrief(wfb);
@@ -123,10 +125,10 @@ public class WorkflowFlowServiceImpl implements WorkflowFlowService{
 	 *
 	 */
 	@Override
-	public boolean endAndAddFlow(Long bizId,WorkflowNode node, WorkflowUser... users) throws Exception{
+	public boolean endAndAddFlow(Long bizId,Long wfId,WorkflowNode node, WorkflowUser... users) throws Exception{
 		if(bizId == null) throw new Exception("无效业务");
 		if(node == null) throw new Exception("无效节点");		
-		WorkflowFlow wf = this.endCurFlow(bizId);
+		WorkflowFlow wf = this.endCurFlow(bizId,wfId);
 		if(wf != null){			
 			WorkflowFlow newWf = new WorkflowFlow();
 			newWf.setBizId(bizId);
@@ -144,18 +146,18 @@ public class WorkflowFlowServiceImpl implements WorkflowFlowService{
 	}
 
 	@Override
-	public List<WorkflowUser> findWorkflowUsers(Long bizId) {
-		return this.workflowMapper.findWorkflowUsers(bizId);
+	public List<WorkflowUser> findWorkflowUsers(Long bizId,Long wfId) {
+		return this.workflowMapper.findWorkflowUsers(bizId,wfId);
 	}
 	
 	@Override
-	public List<WorkflowFlow> findWorkflowWithSteps(Long bizId) {
-		return workflowMapper.findWorkflowWithSteps(bizId);
+	public List<WorkflowFlow> findWorkflowWithSteps(Long bizId,Long wfId) {
+		return workflowMapper.findWorkflowWithSteps(bizId,wfId);
 	}
 
 	@Override
-	public boolean endFlow(Long bizId, String actionName,WorkflowUser wfu) {		
-		WorkflowFlow wf = this.findDoingFlow(bizId);
+	public boolean endFlow(Long bizId,Long wfId, String actionName,WorkflowUser wfu) {		
+		WorkflowFlow wf = this.findDoingFlow(bizId,wfId);
 		wf.setFinishedDate(new Date());
 		wf.setStatus(WFConstants.WF_STATUS_END);
 		wf.setActionName(actionName);
@@ -167,7 +169,7 @@ public class WorkflowFlowServiceImpl implements WorkflowFlowService{
 		if(res){
 			res = workflowStepService.endFlowSteps(wf.getFlowId(),actionName,wfu);
 		}
-		workflowBriefService.endFlowBrief(bizId,actionName);
+		workflowBriefService.endFlowBrief(bizId,wf.getWfId(),actionName);
 		return res;
 	}
 
@@ -175,13 +177,14 @@ public class WorkflowFlowServiceImpl implements WorkflowFlowService{
 	 * 结束当前流程
 	 */
 	@Override
-	public WorkflowFlow endCurFlow(Long bizId) {
+	public WorkflowFlow endCurFlow(Long bizId,Long wfId) {
 		if(bizId == null) return null;
-		WorkflowFlow workflow = this.findDoingFlow(bizId);
+		WorkflowFlow workflow = this.findDoingFlow(bizId,wfId);
 		if(workflow == null) return null;
 		WorkflowFlow wf = new WorkflowFlow();
 		wf.setFlowId(workflow.getFlowId());
 		wf.setBizId(bizId);
+		wf.setWfId(wfId);
 		wf.setFinishedDate(new Date());
 		wf.setStatus(WFConstants.WF_STATUS_END);
 		wf.setActionName(WFConstants.WF_ACTION_PASS);
@@ -253,6 +256,7 @@ public class WorkflowFlowServiceImpl implements WorkflowFlowService{
 		wfb.setNodeName(workflow.getNodeName());
 		wfb.setModifiedDate(new Date());
 		wfb.setBizId(workflow.getBizId());
+		wfb.setWfId(workflow.getWfId());
 		wfb.setFlowId(workflow.getFlowId());
 		wfb.setActionName(workflow.getActionName());
 		wfb.setFinishedDate(null);

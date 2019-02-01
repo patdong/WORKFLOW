@@ -124,9 +124,9 @@ public class WFMySQLExecutor implements SQLExecutor {
 			}
 			prebuf.setLength(prebuf.length()-1);
 			prebuf.append(" where Id = ");
-			prebuf.append(storage.getBizId());			
+			prebuf.append(storage.getBizId());
 
-			int id = jdbcTemplate.update(prebuf.toString() + prebuf.toString());
+			int id = jdbcTemplate.update(prebuf.toString());
 			if(id > 0){
 				return jdbcTemplate.queryForMap("select * from " + storage.getTableName() + "where id = "+ storage.getBizId());
 			}

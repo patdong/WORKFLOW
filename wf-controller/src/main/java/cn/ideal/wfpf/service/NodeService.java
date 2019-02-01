@@ -20,10 +20,6 @@ public interface NodeService {
 	
 	List<Node> findAll(Long wfId);
 	
-	Node[][] getTreeNodes(Long wfId);
-	
-	Node[][] getTreeNodes(Long wfId,Long bizId);
-	
 	List<Node> findAllOnlyNode(Long wfId);
 	
 	Node setFrozeing(Long nodeId);

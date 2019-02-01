@@ -7,12 +7,12 @@
 		select * from workflow_brief 
 	</select>
 		
-	<select id="find" resultMap="workflowbrief" parameterType="java.lang.Long">
-		select * from workflow_brief where bizId=#{bizId}
+	<select id="find" resultMap="workflowbrief" parameterType="java.util.Map">
+		select * from workflow_brief where bizId=#{bizId} and wfId = #{wfId}
 	</select>
 	
-	<select id="findDoingFlow" resultMap="workflowbrief" parameterType="java.lang.Long">
-		select * from workflow_brief where bizId=#{bizId} and finishedDate is null
+	<select id="findDoingFlow" resultMap="workflowbrief" parameterType="java.util.Map">
+		select * from workflow_brief where bizId=#{bizId} and wfId = #{wfId} and finishedDate is null
 	</select>
 	
 	<insert id="addFlowBrief" parameterType="cn.ideal.wf.model.WorkflowBrief">
@@ -45,7 +45,8 @@
 			actionName=#{actionName},
 			finishedDate=#{finishedDate}
 		<where>		
-			bizId=#{bizId}			
+			bizId=#{bizId}	
+		and wfId = #{wfId}
 		</where>				
 	</update>
 	
@@ -59,7 +60,8 @@
 			,status=#{status}
 			</if>			
 		<where>		
-			bizId=#{bizId}			
+			bizId=#{bizId}
+		and wfId = #{wfId}			
 		</where>				
 	</update>
 		
@@ -67,7 +69,8 @@
 		update workflow_brief set 			
 			status=#{status}
 		<where>		
-			bizId=#{bizId}			
+			bizId=#{bizId}
+		and wfId = #{wfId}			
 		</where>				
 	</update>
 </mapper>

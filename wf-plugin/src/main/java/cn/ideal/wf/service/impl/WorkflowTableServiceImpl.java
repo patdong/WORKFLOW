@@ -60,13 +60,17 @@ public class WorkflowTableServiceImpl implements WorkflowTableService {
 	}
 
 	@Override
-	public void synchTableSummary(WorkflowTableSummary wfts) {
-		wfTableMapper.synchTableSummary(wfts);
+	public boolean synchTableSummary(WorkflowTableSummary wfts) {
+		int idx = wfTableMapper.synchTableSummary(wfts);
+		if(idx > 0) return true;
+		return false;
 	}
 
 	@Override
-	public void endTableSummary(WorkflowTableSummary wfts) {
-		wfTableMapper.endTableSummary(wfts);
+	public boolean endTableSummary(WorkflowTableSummary wfts) {
+		int idx = wfTableMapper.endTableSummary(wfts);
+		if(idx > 0) return true;
+		return false;
 	}
 
 

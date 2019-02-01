@@ -9,7 +9,7 @@
     //$("#resizable").resizable();
     $("#node-div").draggable(); 
     $("#node-nodes-div").draggable();
-    $("#confirm-dialog" ).dialog();
+    $("#confirm-dialog").dialog();
     $('#confirm-dialog').dialog('close');
     
     //Form必输项控制
@@ -31,12 +31,9 @@
     $('#nType-ul li').on('click', function(){    	
     	$('#nTypeName').text($(this).text());
     	$('#nType').val($(this).text()); 
-    });
-       
+    });      
   });
   
-  
-
   //选择用户
   function selectUsers(){
 	  var userName = $("#userName").val();
@@ -53,6 +50,7 @@
 			        + "<h6 class=\"my-0\"><input type=\"checkbox\" name=\"userChecked\" value=\""+user.userId+"\">&nbsp;"+user.userName+"</h6>"
 			        + "</div>"
 			        + "<span class=\"text-muted\">"+user.currentOrgName+"</span>"
+			        + "<span style=\"display:none\">"+user.currentOrgId+"</span>"			        
 			        + "<span class=\"text-muted\">"+user.orgName+"</span>"
 			        + "</li>";
 				        
@@ -77,9 +75,11 @@
 	      el.removeChild(el.lastChild);
 	  }
 	  $('input:checkbox[name=userChecked]:checked').each(function(k){
-		  checkedUserNames += $(this).closest("h6").text()+",";			  
+		  checkedUserNames += $(this).closest("h6").text()+",";		
 		  $("#user-hidden").append("<input type='hidden' name='users["+idx+"].userId' value='"+$(this).val()+"'>");		
-		  $("#user-hidden").append("<input type='hidden' name='users["+idx+++"].userName' value='"+$(this).closest("h6").text()+"'>");		 		  
+		  $("#user-hidden").append("<input type='hidden' name='users["+idx+"].userName' value='"+$(this).closest("h6").text()+"'>");
+		  $("#user-hidden").append("<input type='hidden' name='users["+idx+"].currentOrgName' value='"+$(this).closest("h6").parent().parent().children("span").get(0).innerHTML+"'>");
+		  $("#user-hidden").append("<input type='hidden' name='users["+(idx++)+"].currentOrgId' value='"+$(this).closest("h6").parent().parent().children("span").get(1).innerHTML+"'>");
   	  })
 	  if(checkedUserNames.length > 0){		  
 		  checkedUserNames = checkedUserNames.substring(0,checkedUserNames.length-1);
@@ -222,14 +222,31 @@
   //节点删除确认
   function delConfirm(){
 	  $("#confirm-dialog").dialog("open");
+	  $("#delegationDiv").empty();
+	  var nodes = ${nodes};
+	  $.each(nodes,function(key,node){
+		  if(node.nodeId == clickedNodeId){			  
+			  var preNodes = node.preNodes;	
+			  if(preNodes.length > 0){
+				  var sel = "接管节点：<select id='delegationNodeId' name='delegationNodeId' class='form-control-one-line' style='width:150px'>";
+				  sel +="<option value=''>不设接管节点</option>";
+				  $.each(preNodes,function (index, data) {	
+				  	sel +="<option value='"+data.nodeId+"'>"+data.nodename+"</option>";
+				  })
+				  sel +="</select>";
+				  $("#delegationDiv").append(sel);
+				  $("#delegationDiv").show();
+			  }
+		  }
+	  });
   }
   
-  //删除节点 -- 设置节点为无效
+  //删除节点 -- 直接删除
   function delNode(){
 	  $("#confirm-dialog").dialog("close");
 	  $.ajax({
 		  type: 'GET',
-		  url: "/wfnode/delNode/"+clickedNodeId,		  	 
+		  url: "/wfnode/delNode/"+clickedNodeId,
 		  dataType: 'json',
 		  success: function(data){
 			  location.href="/wf/workflowdefination/"+$("#wfId").val();
@@ -269,12 +286,37 @@
 		  }
 	});
   }
+  
+  //设置流程名称
+  function setWfName(event){
+		 if (event.keyCode == 13) {	
+	        var wfName = $("#wfName").val();
+	        var wfId = $("#wfId").val();
+	        if($.trim(wfName) != ""){
+	        	$.ajax({
+	      		  type: 'GET',
+	      		  url: "/wf/setWfName/"+wfId,
+	      		  data: {wfName:wfName},			  
+	      		  dataType: 'json',
+	      		  success: function(data){	      			  		 
+	      		  },
+	      		  error: function(XMLHttpRequest, textStatus, errorThrown){
+	      			  console.warn(XMLHttpRequest.responseText);			  
+	      		  }
+	      	});
+	        }
+	    }
+	}
+  
 </script>
 <div class="container" style="padding-top:5%">
 	<div id="content">
 		<div style="padding:0em;margin:0px">
 		  	<div >
-		  		<h3 class="mt-5">流程定义  <span class="small-btn" style="background:#42a288;font-weight:bold;color: yellow;" onclick="location.href='/wf/workflowcenter'">&nbsp;↢&nbsp;</span></h3>		  		  		   		    
+		  		<h3 class="mt-5">流程定义 
+		  		 	<span class="small-btn" style="background:#42a288;font-weight:bold;color: #ffc107;" onclick="location.href='/wf/workflowcenter'">&nbsp;⬅&nbsp;</span>
+		  		 	<input type="text" name="wfName" id="wfName" placeholder="流程名称"  style="text-align:center;font-size:1.5rem;width:30%" value="${wf.wfName }" onkeypress="setWfName(event);" />		  		 	
+		  		</h3>		  		  		   		    
 		  	</div>
 		</div>			
 	</div>
@@ -298,8 +340,8 @@
 					</c:if>
 					<c:if test="${node.style eq 'node' }">					
 						<td>					
-							<div <c:if test="${ node.status eq '冻结' }" > class="circle-dotted-text" </c:if> <c:if test="${ node.status ne '冻结' }" > class="circle-text" </c:if> onclick="showPos(event,${node.nodeId},'${node.nodename }','${node.status}')" >
-								<font style="font-size:15px">${node.nodename }</font>
+							<div <c:if test="${ node.status eq '冻结' }" > class="circle-dotted-text" </c:if> <c:if test="${ node.status ne '冻结' }" > class="circle-text" </c:if> onclick="showPos(event,${node.nodeId},'${node.nodeName }','${node.status}')" >
+								<font style="font-size:15px">${node.nodeName }</font>
 							</div>
 						</td>	
 					</c:if>
@@ -313,7 +355,7 @@
 	</div>
 </div>	
 <!-- 节点定义窗口 -->
-<div id="node-div" class="node-mask opacity" style="display:none;">
+<div id="node-div" class="node-mask opacity" style="display:none;height:76%">
 	<header>	      
          <div class="form-inline mt-2 mt-md-0" style="padding: 6px 10px 0px;" >
           	<label>节点定义</label>
@@ -328,8 +370,8 @@
 			
 			<!-- hidden项是本页面两个form公用项  不可轻易做变更！ -->
 			
-			<input type="hidden" id="wfId" name="wfId" value="${node.wfId}">
-			<input type="hidden" id="nodeId" name="nodeId" value="${node.nodeId}">
+			<input type="hidden" id="wfId" name="wfId" value="${wf.wfId}">
+			<input type="hidden" id="nodeId" name="nodeId" value="">
 			<input type="hidden" id="preNodeId" name="preNodeId" value="">
 	  		<div class="popup-form-group">		        
 		        <label for="nodename" class="sr-only">节点名称</label>
@@ -346,7 +388,7 @@
 		        <span style="cursor:pointer" onclick="$('#user-div').show();">用户</span>
 		        <div id="user-hidden"></div>
 		    </div>
-		    <div class="popup-form-group">
+		    <div class="popup-form-group">		    	
 		    	<div class="navbar" style=" padding: 0rem 0rem;">
 			        <div class="navbar-inner">
 			            <div class="container" style="padding-left: 0px;">	        		        			        
@@ -513,7 +555,7 @@
               <div>
                 <h6 class="my-0">&nbsp;姓名</h6>                
               </div>
-              <span class="text-muted">直属组织</span>
+              <span class="text-muted">直属组织</span>              
               <span class="text-muted">所在机构</span>
             </li>                       
           </ul>
@@ -557,7 +599,7 @@
 </DIV>
 <DIV id='PopUp-1' class="popup-width" >
 	<div class="popup-close" style="cursor:pointer;" onclick="$('#PopUp-1').hide();">×</div>
-	<SPAN style="cursor:pointer;" onclick="$('#PopUp-1').hide();$('#node-div').show();$('#myForm')[0].reset();">插入</SPAN>
+	<SPAN style="cursor:pointer;" onclick="$('#PopUp-1').hide();$('#node-div').show();$('#myForm')[0].reset();">新增</SPAN>
 	<hr style="margin-top: 0.3rem;margin-bottom: 0.3rem;"></hr>
 	<SPAN style="cursor:pointer;" onclick="$('#PopUp-1').hide();$('#node-div').show();showNode();">修改</SPAN>
 	<p style="margin-top: 0.3rem;margin-bottom: 0.3rem;"></p>
@@ -573,20 +615,23 @@
 </DIV>
 <!-- 删除弹出窗口 -->
 <div id="confirm-dialog"  title="确认窗口" >
-  <p>确认要删除吗？</p>
+  <p>确认删除请选择本节点的接管节点</p>
+  <br>
+  <div style="display:none" id="delegationDiv">  	
+  </div>
   <br>
   <nav aria-label="Page navigation example">
   	<ul class="pagination">  	    
    		<li class="page-item">
    		  <div class="btn-confirm-dialog">
-		      <a style="color: #e9eef3;" href="javascript:void();"  onclick="delNode();">
+		      <a style="color: #e9eef3;" href="javascript:void(0);"  onclick="delNode();">
 		        <span aria-hidden="true">确认</span>		        
 		      </a>
 	      </div>
 	    </li>
 	    <li class="page-item">
    		  <div class="btn-confirm-dialog">
-		      <a style="color: #e9eef3;" href="javascript:void();" onclick="$('#confirm-dialog').dialog('close');">
+		      <a style="color: #e9eef3;" href="javascript:void(0);" onclick="$('#confirm-dialog').dialog('close');">
 		        <span aria-hidden="true">取消</span>		        
 		      </a>
 	      </div>
