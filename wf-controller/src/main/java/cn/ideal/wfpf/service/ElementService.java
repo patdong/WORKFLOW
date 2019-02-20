@@ -6,9 +6,9 @@ import cn.ideal.wfpf.model.Element;
 
 public interface ElementService extends PageService<Element> {
 
-	int save(Element element);
+	Element save(Element element);
 	
-	int update(Element element);
+	Element update(Element element);
 	
 	int updateStatus(Element element);
 	

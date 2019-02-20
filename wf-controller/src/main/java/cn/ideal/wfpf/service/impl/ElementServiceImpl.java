@@ -1,5 +1,6 @@
 package cn.ideal.wfpf.service.impl;
 
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,15 +19,20 @@ public class ElementServiceImpl implements ElementService{
 	private ElementMapper elementMapper;
 	
 	@Override
-	public int save(Element element) {
-		// TODO Auto-generated method stub
-		return 0;
+	public Element save(Element element) {
+		element.setStatus("有效");
+		element.setLevel("自定义");
+		element.setCreatedDate(new Date());
+		int idx = elementMapper.save(element);
+		if(idx > 0) return element;
+		return null;
 	}
 
 	@Override
-	public int update(Element element) {
-		// TODO Auto-generated method stub
-		return 0;
+	public Element update(Element element) {
+		int idx = elementMapper.update(element);
+		if(idx > 0) return element;
+		return null;
 	}
 
 	@Override
@@ -37,8 +43,7 @@ public class ElementServiceImpl implements ElementService{
 
 	@Override
 	public Element find(Long emId) {
-		// TODO Auto-generated method stub
-		return null;
+		return elementMapper.find(emId);
 	}
 
 	@Override

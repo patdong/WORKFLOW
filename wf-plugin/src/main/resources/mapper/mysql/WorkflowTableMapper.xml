@@ -35,8 +35,10 @@
 	<update id="synchTableSummary" parameterType="cn.ideal.wf.model.WorkflowTableSummary">
 		update table_summary set 			
 			modifiedDate=#{modifiedDate},
-			action=#{action},
-			curUserName=#{curUserName}
+			action=#{action}
+			<if test="curUserName != null">
+			,curUserName=#{curUserName}
+			</if>
 		<where>
 			bizId=#{bizId}
 		and wfId=#{wfId}

@@ -5,7 +5,7 @@
 		<span class="mt-5" style="font-size: 2.5rem;">表单管理</span>	  		   		    
 	  	<div style="padding:0em;float:right;padding-top:2%;">
 	     	<span class="big-btn" onclick="location.href='/tb/newtablebrief'">新建</span>	
-	     	<span class="big-btn" style="background-color:#5dca0a" onclick="location.href='/tb/newtablebrief'">导入</span>     	
+	     	<!-- <span class="big-btn" style="background-color:#5dca0a" onclick="location.href='/tb/newtablebrief'">导入</span> -->
 	  	</div>			
 	</div>
 	<div class="line"></div>

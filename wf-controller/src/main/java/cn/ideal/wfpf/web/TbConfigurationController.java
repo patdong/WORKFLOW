@@ -68,6 +68,7 @@ public class TbConfigurationController {
     		@RequestParam(value = "scope", defaultValue = "") String scope,
     		@RequestParam(value = "style", defaultValue = "2") String style,
     		@RequestParam(value = "fieldsetting", defaultValue = "no") String fieldsetting,
+    		@RequestParam(value = "template", defaultValue = "table") String template,
     		HttpServletRequest request) {
 		ModelAndView mav = new ModelAndView("config/tableDefination");
 		scope = (scope.equals(""))?"body":scope;
@@ -90,6 +91,7 @@ public class TbConfigurationController {
 		mav.addObject("scope",scope);
 		mav.addObject("style",style);
 		mav.addObject("fieldsetting",fieldsetting);
+		mav.addObject("template",template);
 		mav.addObject("tbList", tableService.findTableAllElementsWithSpecialElements(tbId));
 		try {
 			ObjectMapper mapper = new ObjectMapper();
@@ -248,5 +250,53 @@ public class TbConfigurationController {
     		HttpServletRequest request) {	
 		tableService.updateTableElement(element);
         return new ModelAndView("redirect:/tb/tabledefination/"+tbId+"?scope=body&style=2&fieldsetting=yes");
+    }
+	
+	/**
+	 * 页面div式的表体实现
+	 * @param tbId
+	 * @param style
+	 * @param request
+	 * @return
+	 */
+	@GetMapping("/tablebody/{tbId}")
+    public ModelAndView getTableBody(@PathVariable Long tbId,
+    		@RequestParam(value = "style", defaultValue = "2") String style,
+    		HttpServletRequest request) {
+		ModelAndView mav = new ModelAndView("config/tabledivbody");
+		List<TableElement> headLst = tableService.findTableAllElements(tbId,"head");
+		List<TableElement> bodyLst = tableService.findTableAllElements(tbId,"body");		
+		List<TableElement> footLst = tableService.findTableAllElements(tbId,"foot");
+		
+		if(bodyLst.size() % Long.parseLong(style) != 0){
+			for(int i=0; i< bodyLst.size() % Long.parseLong(style) ; i++){
+				bodyLst.add(new TableElement());
+			}
+		}
+		mav.addObject("headList",headLst);
+		mav.addObject("bodyList",bodyLst);
+		mav.addObject("footList",footLst);
+		mav.addObject("style",style);
+		return mav;
+    }
+	
+	/**
+	 * 页面标准的表体实现
+	 * @param tbId
+	 * @param style
+	 * @param request
+	 * @return
+	 */
+	@GetMapping("/standardtablebody/{tbId}")
+    public ModelAndView getTableBodyForStandard(@PathVariable Long tbId,
+    		@RequestParam(value = "style", defaultValue = "2") String style,
+    		HttpServletRequest request) {
+		ModelAndView mav = new ModelAndView("config/tableugrybody");
+		
+		mav.addObject("headList",tableService.findTableAllElements(tbId,"head",style));
+		mav.addObject("bodyList",tableService.findTableAllElements(tbId,"body",style));
+		mav.addObject("footList",tableService.findTableAllElements(tbId,"foot",style));
+		mav.addObject("style",style);
+		return mav;
     }
 }

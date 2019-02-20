@@ -52,15 +52,36 @@
 		</where>				
 	</update>
 	
-	<select id="findWorkflowUsers" resultType="cn.ideal.wf.model.WorkflowUser" parameterType="java.util.Map">
+	<select id="findWorkflowUsers" resultType="cn.ideal.wf.model.WorkflowUser" parameterType="java.lang.Long">
 		select distinct wfs.dispatchUserId as userId,wfs.dispatchUserName as userName,wfs.unitId,wfs.unitName 
 		  from workflow_step wfs 
-		inner join workflow_flow wf on wfs.flowId = wf.flowId
-		where bizId=#{bizId}
-		  and wfId = #{wfId}
+         where flowId = #{flowId}
 	</select>
 	
 	<select id="findWorkflowWithSteps" resultMap="workflowwithstep" parameterType="java.util.Map">
 		select * from workflow_flow where bizId=#{bizId} and wfId = #{wfId}
+	</select>
+	
+	<!-- 获取前一个流程 -->
+	<select id="findPrevFlow" resultMap="workflow" parameterType="java.util.Map">
+		select * from workflow_flow 
+		 where flowId in (
+			select flowParentId 
+			  from workflow_flow 
+			 where bizId = #{bizId} 
+			   and wfId = #{wfId} 
+			   and finishedDate is null
+		)
+	</select>
+	
+	<!-- 获取发起人流程 -->
+	<select id="findSenderFlow" resultMap="workflow" parameterType="java.util.Map">
+		select * from workflow_flow 
+		 where flowId in (
+			select min(flowId) 
+			  from workflow_flow 
+			 where bizId = #{bizId} 
+			   and wfId = #{wfId}
+		)
 	</select>
 </mapper>

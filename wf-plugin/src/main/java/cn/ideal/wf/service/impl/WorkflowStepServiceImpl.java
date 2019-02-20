@@ -62,20 +62,7 @@ public class WorkflowStepServiceImpl implements WorkflowStepService{
 	@Override
 	public WorkflowStep find(Long stepId) {
 		return workflowStepMapper.find(stepId);
-	}
-
-	@Override
-	public boolean endFlowSteps(Long flowId) {
-		WorkflowStep wfs = new WorkflowStep();
-		wfs.setFlowId(flowId);
-		wfs.setFinishedDate(new Date());
-		wfs.setStatus(WFConstants.WF_STATUS_END);
-		wfs.setActionName(WFConstants.WF_ACTION_PASS);
-		int idx = workflowStepMapper.endFlowStep(wfs);
-		
-		if(idx > 0) return true;
-		return false;
-	}
+	}	
 
 	@Override
 	public List<WorkflowStep> findAllByFlowId(Long flowId) {

@@ -5,6 +5,7 @@
   var gscope = "${scope}";
   var gstyle = "${style}";
   var gfieldsetting = "${fieldsetting}";
+  var gtemplate = "${template}";
   $( function() {
 	  //初始化元素窗口默认为隐藏
 	  $('#tb-span').removeClass('span-btn').addClass('span-highlight-btn');
@@ -20,6 +21,7 @@
 	  $("#ems-div").draggable();
 	  $("#lst-div").draggable();
 	  $("#scheme-div").draggable();
+	  $("#tbname-dialog").draggable();
 	  //设置表单位置的radiobox值
 	  var $scope = $('input:radio[name=scope]');	 
 	  $scope.filter('[value=${scope}]').prop('checked', true);
@@ -35,11 +37,11 @@
 	  //设置列表列风格
 	  if(gstyle == '2') $(".cols").removeClass("body-col-6").removeClass("body-col-8").addClass("body-col-4");
 	  if(gstyle == '3') $(".cols").removeClass("body-col-8").removeClass("body-col-4").addClass("body-col-6");
-	  
-	  $("#tbname-dialog" ).dialog();
-	  $('#tbname-dialog').dialog('close');	  
-	  $("#alert-dialog" ).dialog();
-	  $('#alert-dialog').dialog('close');
+	  //设置模板风格
+	  $("#template").val("${template}");
+	  //初始化body的风格
+	  if("${template}" == "table")$("#table-body").load("/tb/standardtablebody/${tbId}?style=${style}");
+	  if("${template}" == "div")$("#table-body").load("/tb/tablebody/${tbId}?style=${style}");
   });
   
   //保存元素设置
@@ -56,7 +58,7 @@
 			  data:{checkedIds:checkedIds,scope:gscope},
 			  dataType: 'json',
 			  success: function(data){
-				  location.href="/tb/tabledefination/${tbId}?scope="+gscope+"&style="+gstyle+"&fieldsetting="+gfieldsetting;
+				  location.href="/tb/tabledefination/${tbId}?scope="+gscope+"&style="+gstyle+"&fieldsetting="+gfieldsetting+"&template="+gtemplate;
 			  },
 			  error: function(XMLHttpRequest, textStatus, errorThrown){
 				  console.warn(XMLHttpRequest.responseText);		  
@@ -72,7 +74,7 @@
 		  url: "/tb/moveup/${tbId}/"+emId,		  
 		  dataType: 'json',
 		  success: function(data){
-			  location.href="/tb/tabledefination/${tbId}?scope="+gscope+"&style="+gstyle+"&fieldsetting="+gfieldsetting;
+			  location.href="/tb/tabledefination/${tbId}?scope="+gscope+"&style="+gstyle+"&fieldsetting="+gfieldsetting+"&template="+gtemplate;
 		  },
 		  error: function(XMLHttpRequest, textStatus, errorThrown){
 			  console.warn(XMLHttpRequest.responseText);		  
@@ -87,7 +89,7 @@
 		  url: "/tb/movedown/${tbId}/"+emId,		  
 		  dataType: 'json',
 		  success: function(data){
-			  location.href="/tb/tabledefination/${tbId}?scope="+gscope+"&style="+gstyle+"&fieldsetting="+gfieldsetting;
+			  location.href="/tb/tabledefination/${tbId}?scope="+gscope+"&style="+gstyle+"&fieldsetting="+gfieldsetting+"&template="+gtemplate;
 		  },
 		  error: function(XMLHttpRequest, textStatus, errorThrown){
 			  console.warn(XMLHttpRequest.responseText);		  
@@ -98,7 +100,7 @@
   //根据选中的不同位置刷新表单元素
   function fresh(scope){
 	  gscope = scope;
-	  location.href="/tb/tabledefination/${tbId}?scope="+gscope+"&style="+gstyle+"&fieldsetting="+gfieldsetting;
+	  location.href="/tb/tabledefination/${tbId}?scope="+gscope+"&style="+gstyle+"&fieldsetting="+gfieldsetting+"&template="+gtemplate;
   }
   
   //删除表单中的元素
@@ -108,7 +110,7 @@
 		  url: "/tb/remove/${tbId}/"+emId,		  
 		  dataType: 'json',
 		  success: function(data){
-			  location.href="/tb/tabledefination/${tbId}?scope="+gscope+"&style="+gstyle+"&fieldsetting="+gfieldsetting;
+			  location.href="/tb/tabledefination/${tbId}?scope="+gscope+"&style="+gstyle+"&fieldsetting="+gfieldsetting+"&template="+gtemplate;
 		  },
 		  error: function(XMLHttpRequest, textStatus, errorThrown){
 			  console.warn(XMLHttpRequest.responseText);		  
@@ -208,14 +210,14 @@
   //显示不同风格的表单
   function changeStyle(){
 	  var style=$("#style").val();
-	  location.href="/tb/tabledefination/${tbId}?scope="+gscope+"&style="+style+"&fieldsetting="+gfieldsetting;
+	  location.href="/tb/tabledefination/${tbId}?scope="+gscope+"&style="+style+"&fieldsetting="+gfieldsetting+"&template="+gtemplate;
   }
   
   //显示设置字段页面
   function showFieldSetting(){
 	  if(gfieldsetting.indexOf("yes")>=0) gfieldsetting = "no";
 	  else gfieldsetting = "yes";
-	  location.href="/tb/tabledefination/${tbId}?scope="+gscope+"&style="+gstyle+"&fieldsetting="+gfieldsetting;
+	  location.href="/tb/tabledefination/${tbId}?scope="+gscope+"&style="+gstyle+"&fieldsetting="+gfieldsetting+"&template="+gtemplate;
   }
   
   //保存表单概述信息
@@ -228,7 +230,7 @@
 		  data:{template:template,style:style},
 		  dataType: 'json',
 		  success: function(data){
-			  location.href="/tb/tabledefination/${tbId}?scope="+gscope+"&style="+gstyle+"&fieldsetting="+gfieldsetting;
+			  location.href="/tb/tabledefination/${tbId}?scope="+gscope+"&style="+gstyle+"&fieldsetting="+gfieldsetting+"&template="+gtemplate;
 		  },
 		  error: function(XMLHttpRequest, textStatus, errorThrown){
 			  console.warn(XMLHttpRequest.responseText);		  
@@ -250,7 +252,7 @@
 		  dataType: 'json',
 		  success: function(data){
 			  $("#lst-div").hide();
-			  location.href="/tb/tabledefination/${tbId}?scope="+gscope+"&style="+gstyle+"&fieldsetting="+gfieldsetting;
+			  location.href="/tb/tabledefination/${tbId}?scope="+gscope+"&style="+gstyle+"&fieldsetting="+gfieldsetting+"&template="+gtemplate;
 		  },
 		  error: function(XMLHttpRequest, textStatus, errorThrown){
 			  console.warn(XMLHttpRequest.responseText);		  
@@ -260,9 +262,9 @@
   
   //生成库表数据
   function createTable(){
-	  var tbName = $("#tbName").val();
-	  if("${brief.name}" == "" && tbName == ""){
-		  $('#tbname-dialog').dialog('open');
+	  var tbName = $("#tbName").val();	  
+	  if("${brief.name}" == "" && tbName == ""){		  
+		  $('#tbname-dialog').show();
 	  }else{		 
 		  $.ajax({
 			  type: 'GET',
@@ -270,12 +272,12 @@
 			  data:{tbName:tbName},
 			  dataType: 'json',
 			  success: function(data){
-				  if(data.code == '1'){
-					  $('#tbname-dialog').dialog('close');	
-					  location.href="/tb/tabledefination/${tbId}?scope="+gscope+"&style="+gstyle+"&fieldsetting="+gfieldsetting;
+				  if(data.code == '1'){					
+					  $('#tbname-dialog').hide();	
+					  location.href="/tb/tabledefination/${tbId}?scope="+gscope+"&style="+gstyle+"&fieldsetting="+gfieldsetting+"&template="+gtemplate;
 				  }
 				  if(data.code == '0'){
-					  $('#alert-dialog').dialog('open');
+					  $('#alert-dialog').show();
 					  $("#alert-msg").text(data.message+"通过库表检测表单信息的健康情况.");
 					  $("#tbName").val("");
 				  }
@@ -288,7 +290,7 @@
   }
   
   //库表检测
-  function checkTableScheme(){	  
+  function checkTableScheme(){		  
 	  $.ajax({
 		  type: 'GET',
 		  url: "/tb/getTableScheme/${tbId}",		  			 
@@ -296,6 +298,7 @@
 		  success: function(data){
 			  var li;
 			  var alarm = false;
+			  $("#scheme-lst").empty();
 			  $.each(data,function (index, element) {
 			      li = "<tr>";
 			      if(element.fieldName==null){
@@ -339,13 +342,18 @@
 	});
   }
  
+  //修改模板
+  function changeTemplate(){
+	  var template = $("#template").val();
+	  location.href="/tb/tabledefination/${tbId}?scope="+gscope+"&style="+gstyle+"&fieldsetting="+gfieldsetting+"&template="+template;
+  }
 </script>
 <c:set var="cols" value="${style}"/>
 <div style="padding:0em;margin:0px;padding-top: 1.4%;">
   	<div style="background:#f8f9fa;">
   		<span class="mt-5" style="font-size: 1.75rem;margin-left:2%">表单定义 </span>
   		<span class="small-btn" style="background:#42a288;font-weight:bold;color: #ffc107;" onclick="location.href='/tb/tablecenter'">&nbsp;⬅&nbsp;</span>
-  		<span style="margin-left:2%;">模板&nbsp;<select style="font-size:.78rem;" id="template"><option value="bootstrap">标准</option></select></span> 
+  		<span style="margin-left:2%;">模板&nbsp;<select style="font-size:.78rem;" id="template" onchange="changeTemplate();"><option value="table" >表格</option><option value="div">div</option></select></span> 
   		<span style="margin-left:0.3%;">|</span> 
   		<span style="margin-left:0.3%;">风格&nbsp;<select style="font-size:.78rem;" id="style" onchange="changeStyle();"><option value="2">双列</option><option value="3">三列</option></select></span>
   		<span style="margin-left:0.3%;">|</span>
@@ -369,162 +377,8 @@
   	</div>
   	<div class="line-bottom" ></div>
 </div>	
-<div style="padding-top:0px;">	
-	<div class="line-table" ></div>
-	<div id="table-div" class="draw" style="padding-left:1%;bottom:5%;height:78%;top:16%;background-image: url('/img/wf_btn11.PNG'); background-repeat: repeat;">		
-		<!-- 表单标题 -->	
-		<div style="text-align:center;margin-left:10%;margin-right:10%">
-			<label for="tableName" class="sr-only">表单名称</label>				
-        	<input type="text" name="tableName" id="tableName" class="form-control" placeholder="表单名称"  style="text-align:center;font-weight:bold;font-size:2.2rem;" value="${brief.tableName }" onkeypress="setTableName(event);" />
-		</div>
-		<!-- 表单头部 -->
-		<div style="text-align:center;margin-left:2%;margin-right:2%;top:25%">
-			<div class="table-container">					
-				<c:forEach items="${headList}" varStatus="i" step="1" var="element" >								
-					<c:if test="${i.count % 2 == 1}">
-					<div class="row">
-					</c:if>						
-					<div class="col-6-left">																			  
-						${element.newLabelName }
-						<c:choose>
-							<c:when test="${element.newFieldType eq '输入框' }">
-								<input type="text" name="${element.fieldName }" class="form-control-head">
-							</c:when>
-							<c:when test="${element.newFieldType eq '下拉框' }">
-								<select name="${element.fieldName }" class="form-control-head">
-									<c:forEach items="${element.newDataContent }" var="content">
-										<option>${content}</option>
-									</c:forEach>
-								</select>
-							</c:when>
-							<c:when test="${element.newFieldType eq '多选框' }">
-								<c:forEach items="${element.newDataContent }" var="content">
-									<input type="checkbox" name="${element.fieldName }" class="form-element">${content}&nbsp;
-								</c:forEach>
-							</c:when>
-							<c:when test="${element.newFieldType eq '单选框' }">
-								<c:forEach items="${element.newDataContent }" var="content">
-									<input type="radio" name="${element.fieldName }" class="form-element">${content}&nbsp;
-								</c:forEach>
-							</c:when>
-						</c:choose>
-						<c:if test="${!empty element.newLabelName}">
-						<span id="btn-up" class="btn-edit-pointer" onclick="showPos(event,${element.emId},'head');" title="编辑">⤧</span>
-						</c:if>
-					</div>				
-					<c:if test="${i.count % cols == 0}">
-					</div>
-					</c:if>
-				</c:forEach>	
-			</div>								
-		</div>
-		<div class="line-gap-table"></div>
-		<!-- 表单体 -->
-		<div style="text-align:center;margin-left:2%;margin-right:2%;margin-top: 7%;">
-			<div class="table-container">
-				<c:forEach items="${bodyList}" varStatus="i" step="1" var="element" >
-					<c:if test="${cols > 1 }">
-					<c:if test="${i.count % cols == 1}">
-					<div class="row">
-					</c:if>		
-					</c:if>	
-					<c:if test="${cols == '1' }">						
-					<div class="row">
-					</c:if>		
-					<div class="cols body-col-4">																			  
-						<label style="width:25%">
-							${element.newLabelName }
-						</label>
-						<c:choose>
-							<c:when test="${element.newFieldType eq '输入框' }">
-								<input type="text" name="${element.fieldName }" class="form-control-body">
-							</c:when>
-							<c:when test="${element.newFieldType eq '下拉框' }">
-								<select name="${element.fieldName }" class="form-control-body">
-									<c:forEach items="${element.newDataContent }" var="content">
-										<option>${content}</option>
-									</c:forEach>
-								</select>
-							</c:when>
-							<c:when test="${element.newFieldType eq '多选框' }">
-								<c:forEach items="${element.newDataContent }" var="content">
-									<input type="checkbox" name="${element.fieldName }" class="form-element">${content}&nbsp;
-								</c:forEach>
-							</c:when>
-							<c:when test="${element.newFieldType eq '单选框' }">
-								<c:forEach items="${element.newDataContent }" var="content">
-									<input type="radio" name="${element.fieldName }" class="form-element">${content}&nbsp;
-								</c:forEach>
-							</c:when>
-						</c:choose>
-						<c:if test="${!empty element.newLabelName}">
-						<span id="btn-up" class="btn-edit-pointer" onclick="showPos(event,${element.emId},'body');" title="编辑">⤧</span>
-						</c:if>	
-					</div>						
-					<c:if test="${cols > 1 }">				
-					<c:if test="${i.count % cols == 0}">
-					</div>
-					</c:if>
-					</c:if>
-					<c:if test="${cols == '1' }">	
-					</div>
-					</c:if>	
-				</c:forEach>				
-			</div>
-		</div>
-		<div class="line-gap-table"></div>
-		<!-- 表单尾部 -->
-		<div style="text-align:center;margin-left:2%;margin-right:2%;margin-top: 5%;">
-			<div class="table-container">
-				<c:forEach items="${footList}" varStatus="i" step="1" var="element" >
-					<c:if test="${cols > 1 }">
-					<c:if test="${i.count % 2 == 1}">
-					<div class="row">
-					</c:if>		
-					</c:if>	
-					<c:if test="${cols == 1 }">	
-					<div class="row">
-					</c:if>		
-					<div class="col-6-left">																			  
-						${element.newLabelName }
-						<c:choose>
-							<c:when test="${element.newFieldType eq '输入框' }">
-								<input type="text" name="${element.fieldName }" class="form-control-head">
-							</c:when>
-							<c:when test="${element.newFieldType eq '下拉框' }">
-								<select name="${element.fieldName }" class="form-control-head">
-									<c:forEach items="${element.newDataContent }" var="content">
-										<option>${content}</option>
-									</c:forEach>
-								</select>
-							</c:when>
-							<c:when test="${element.newFieldType eq '多选框' }">
-								<c:forEach items="${element.newDataContent }" var="content">
-									<input type="checkbox" name="${element.fieldName }" class="form-element">${content}&nbsp;
-								</c:forEach>
-							</c:when>
-							<c:when test="${element.newFieldType eq '单选框' }">
-								<c:forEach items="${element.newDataContent }" var="content">
-									<input type="radio" name="${element.fieldName }" class="form-element">${content}&nbsp;
-								</c:forEach>
-							</c:when>
-						</c:choose>	
-						<c:if test="${!empty element.newLabelName}">
-						<span id="btn-up" class="btn-edit-pointer" onclick="showPos(event,${element.emId},'foot');" title="编辑">⤧</span>
-						</c:if>
-					</div>				
-					<c:if test="${cols > 1 }">				
-					<c:if test="${i.count % cols == 0}">
-					</div>
-					</c:if>
-					</c:if>
-					<c:if test="${cols == 1 }">	
-					</div>
-					</c:if>	
-				</c:forEach>				
-			</div>
-		</div>		
-	</div>
+<div style="padding-top:0px;" id="table-body">	
+	
 </div>
 <input type="hidden" id="tbId" name="tbId" value="${tbId}"/>
 <div id="ems-div" class="ems-mask opacity" style="background-color: #f8f9fa;box-shadow: 1px 6px 4px #d6720f;top:10%;bottom: 1%" >
@@ -635,7 +489,7 @@
 			        <option value="Date">日期</option>		       
 		        </select>       
 		        <label >操作方式：</label>
-			    <select name="newFieldType" id="newFieldType" class="form-control-one-line" style="width:25%">
+			    <select name="newFieldType" id="newFieldType" class="form-control-one-line" required style="width:25%">
 			        <option>输入框</option>
 			        <option>下拉框</option>
 			        <option>单选框</option>
@@ -708,10 +562,20 @@
     </div>
 </div>
 <!-- 表单库表名称录入窗口 -->
-<div id="tbname-dialog"  title="表单名称录入" >
-  <input type="text" id="tbName" name="tbName" class="form-control-one-line" placeholder="表单名称录入"> 
-  <br><br>
-  <nav aria-label="Page navigation example">
+<div id="tbname-dialog" class="mask opacity" style="display:none;height:25%;width:20%;left:20%;top:15%">
+   <header>	      
+         <div class="form-inline mt-2 mt-md-0" style="padding: 6px 10px 0px;" >
+           <span id="scheme-msg">表单名称录入</span>
+         </div>
+         <div style="position: absolute;top: 1px;right: 15px;">
+         	<span class="badge badge-secondary badge-pill" style="background-color:#46a70a;cursor:pointer;" onclick="$('#tbname-dialog').hide();">×</span>
+         </div>	      	     
+    </header>
+    <hr style="margin-top: .5rem; margin-bottom: .5rem;"></hr>
+    <div style="padding: 0px 13px 0px;overflow:auto; height:80%" >
+    <input type="text" id="tbName" name="tbName" class="form-control-one-line" placeholder="表单名称录入" >     
+    <br><br>
+    <nav aria-label="Page navigation example">
   	<ul class="pagination">  	    
    		<li class="page-item">
    		  <div class="btn-confirm-dialog">
@@ -721,22 +585,34 @@
 	      </div>
 	    </li>	    
 	</ul>
-  </nav>    
+    </nav>
+    </div>    
 </div>
 
 <!-- 消息互动窗口 -->
-<div id="alert-dialog"  title="消息弹出框" >
-  <span id="alert-msg"></span>
-  <br><br>
-  <nav aria-label="Page navigation example">
+<div id="alert-dialog" class="mask opacity" style="display:none;height:25%;width:20%;left:20%;top:15%">
+   <header>	      
+         <div class="form-inline mt-2 mt-md-0" style="padding: 6px 10px 0px;" >
+           <span id="scheme-msg">消息窗口</span>
+         </div>
+         <div style="position: absolute;top: 1px;right: 15px;">
+         	<span class="badge badge-secondary badge-pill" style="background-color:#46a70a;cursor:pointer;" onclick="$('#alert-dialog').hide();">×</span>
+         </div>	      	     
+    </header>
+    <hr style="margin-top: .5rem; margin-bottom: .5rem;"></hr>
+    <div style="padding: 0px 13px 0px;overflow:auto; height:80%" >
+    <span id="alert-msg"></span>
+    <br><br>
+    <nav aria-label="Page navigation example">
   	<ul class="pagination">  	    
    		<li class="page-item">
    		  <div class="btn-confirm-dialog">
-		      <a style="color: #e9eef3;" href="javascript:void();"  onclick="$('#alert-dialog').dialog('close');">
+		      <a style="color: #e9eef3;" href="javascript:void();"  onclick="$('#alert-dialog').hide();">
 		        <span aria-hidden="true">确认</span>		        
 		      </a>
 	      </div>
 	    </li>	    
 	</ul>
-  </nav>    
+    </nav> 
+  	</div>   
 </div>

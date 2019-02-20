@@ -21,12 +21,7 @@ public interface WorkflowStepService {
 	/**
 	 * 结束流程操作
 	 */
-	boolean endFlowStep(Long stepId);	
-	
-	/**
-	 * 结束流程操作根据流程编号
-	 */
-	boolean endFlowSteps(Long flowId);
+	boolean endFlowStep(Long stepId);
 	
 	/**
 	 * 结束流程操作根据流程编号，并注入操作名称

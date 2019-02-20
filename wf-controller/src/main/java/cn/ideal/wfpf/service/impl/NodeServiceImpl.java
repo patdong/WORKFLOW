@@ -28,26 +28,33 @@ public class NodeServiceImpl implements NodeService {
 		if(node.getUsers() != null && node.getUsers().size() > 0 )node.setuType("用户");
 		if(node.getRole() != null && node.getRole().getRoleId() != null)node.setuType("角色");
 		if(node.getuType() == null) node.setuType("用户");
-		
 		int idx = nodeMapper.save(node);
 		if(idx > 0 ) {
 			if(node.getPreNodes() != null && node.getPreNodes().size() > 0) nodeMapper.saveNodeNodes(node);
 			if(node.getUsers() != null && node.getUsers().size() > 0 ) nodeMapper.saveUser(node);
 			if(node.getRole() != null && node.getRole().getRoleId() != null) nodeMapper.saveRole(node);
-			
+			if(node.getNodeAction() != null) nodeMapper.saveNodeAction(node);
+			if(node.getButtons() != null) nodeMapper.saveNodeButton(node);
 			return node;
 		}
 		return null;
 	}
 
 	/**
-	 * 删除节点，删除节点的所有关联关系
+	 * 删除节点及后续节点，删除节点的所有关联关系
 	 */
 	@Override
 	@Transactional(propagation=Propagation.REQUIRED)
 	public void delete(Long nodeId) {
+		List<Node> sufNodes = nodeMapper.findSufNode(nodeId);
+		nodeMapper.deleteNodeNodes(nodeId);
+		nodeMapper.deleteNode(nodeId);
+		if(sufNodes.size() > 0){			
+			for(Node node : sufNodes){
+				delete(node.getNodeId());
+			}
+		}
 		
-
 	}
 
 	@Override
@@ -77,6 +84,14 @@ public class NodeServiceImpl implements NodeService {
 				nodeMapper.deleteRole(node.getNodeId());
 				nodeMapper.saveRole(node);
 			}
+			
+			if(node.getButtons() != null && node.getButtons().size() > 0) {
+				nodeMapper.deleteNodeButton(node.getNodeId());
+				nodeMapper.saveNodeButton(node);
+			}
+			
+			nodeMapper.deleteNodeAction(node.getNodeId());
+			nodeMapper.saveNodeAction(node);
 			
 			return node;
 		}

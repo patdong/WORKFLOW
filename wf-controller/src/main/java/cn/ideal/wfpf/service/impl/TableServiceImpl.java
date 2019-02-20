@@ -256,5 +256,95 @@ public class TableServiceImpl implements TableService {
 		return false;
 	}
 
+	/**
+	 * 将表格生成多维数组，此方法仅限表格展示的时候使用
+	 * @param tbId
+	 * @param scope
+	 * @param style
+	 * @return
+	 */
+	@Override
+	public TableElement[][] findTableAllElements(Long tbId, String scope,String style) {
+		if(StringUtils.isEmpty(style)) return null;
+		Long column = 0l;
+		try{
+			column = Long.parseLong(style);
+		}catch(Exception e){
+			return null;
+		}
+		List<TableElement> ems = this.findTableAllElements(tbId, scope);
+		//修复配置和实际设值之间的差异
+		for(TableElement item : ems){
+			if(item.getCols() > Long.parseLong(style)) item.setCols(column);
+		}	
+				
+		TableElement[][] emary = new TableElement[ems.size()][column.intValue()];
+		int row = 1,col = 0;
+		for(TableElement item : ems){
+			if(col > (emary[0].length-1)){
+				row++;
+				col = 0;
+			}
+			if(emary[row-1][col] == null) {			
+				emary[row-1][col] = item;
+				//多行仅在同列的行上做扩展
+				if(item.getRowes() > 1) {			
+					for(int i=0;i<item.getRowes()-1;i++){
+						emary[row+i][col] = new TableElement();
+					}
+				}
+				//多列在同列多行上扩展
+				if(item.getCols() > 1) {
+					//修复配置和实际设值之间的差异，以style的设置为准
+					if(col+item.getCols() > column) item.setCols(column-col);
+					for(int j=-1;j<item.getRowes()-1;j++){
+						for(int i=col+1;i<col+item.getCols();i++){
+							emary[row+j][i] = new TableElement();
+						}
+					}
+				}
+				col+=item.getCols();
+			}else{
+				int l=0;
+				//判断当前行列是否有空位可以存放读到的数据
+				for(l=col;l<emary[row-1].length;l++){
+					if(emary[row-1][l] != null){
+						col++;
+					}else{
+						emary[row-1][l] = item;
+						col+=item.getCols();
+						break;
+					}
+				}
+				//将读到的数据放到下一行
+				if(l==emary[row-1].length){
+					emary[row][0] = item;
+				}
+			}
+		}
+		
+		TableElement[][] rst = new TableElement[row][column.intValue()];
+		for(int i=0; i<emary.length; i++){
+			for(int j=0;j<emary[i].length;j++){
+				if(emary[i][j] != null) rst[i][j] = emary[i][j];
+			}
+		}
+		//处理最后一行不满指定的列数时的处理
+		col=0;
+		TableElement em = null;
+		for(row=0;row<rst[rst.length-1].length;row++){
+			if(rst[rst.length-1][row] != null){
+				em = rst[rst.length-1][row];
+				col+=rst[rst.length-1][row].getCols();
+			}
+		}
+		if(em != null){
+			if(col<column) 
+				em.setCols(em.getCols()+column-col);
+		}
+		
+		return rst;
+	}
+
 }
  

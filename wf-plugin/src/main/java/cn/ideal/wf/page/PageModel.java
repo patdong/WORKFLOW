@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import cn.ideal.wf.model.Workflow;
+import cn.ideal.wf.model.WorkflowAction;
 import cn.ideal.wf.model.WorkflowBrief;
 import cn.ideal.wf.model.WorkflowNode;
 import cn.ideal.wf.model.WorkflowTableBrief;
@@ -22,7 +23,7 @@ public class PageModel extends Model{
 	private List<WorkflowTableElement> headLst;    //表单头
 	private List<WorkflowTableElement> bodyLst;    //表单体
 	private List<WorkflowTableElement> footLst;    //表单尾
-	
+	private List<WorkflowAction> buttons;          //节点按钮
 	private Map<String, Object> bizTable;          //表单数据
 	private WorkflowNode[][] nodeTree;             //流程节点树
 	public Long getBizId() {
@@ -103,6 +104,14 @@ public class PageModel extends Model{
 
 	public void setWfBrief(WorkflowBrief wfBrief) {
 		this.wfBrief = wfBrief;
+	}
+
+	public List<WorkflowAction> getButtons() {
+		return buttons;
+	}
+
+	public void setButtons(List<WorkflowAction> buttons) {
+		this.buttons = buttons;
 	}
 	
 }

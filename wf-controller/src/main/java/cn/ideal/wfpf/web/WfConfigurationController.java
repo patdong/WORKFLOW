@@ -26,6 +26,7 @@ import cn.ideal.wfpf.model.CertificationRole;
 import cn.ideal.wfpf.model.CertificationUser;
 import cn.ideal.wfpf.model.Node;
 import cn.ideal.wfpf.model.Page;
+import cn.ideal.wfpf.service.ActionService;
 import cn.ideal.wfpf.service.CertificationService;
 import cn.ideal.wfpf.service.NodeService;
 import cn.ideal.wfpf.service.TableService;
@@ -47,6 +48,8 @@ public class WfConfigurationController {
 	private TableService tableService;
 	@Autowired
 	private WorkflowNodeService workflowNodeService;
+	@Autowired
+	private ActionService actionService;
 	/**
 	 * 工作流定义中心
 	 * */
@@ -108,10 +111,12 @@ public class WfConfigurationController {
 		List<Node> nodes = nodeService.findAllOnlyNode(wfId);
 		mav.addObject("nodeset",nodes);
 		mav.addObject("nodetree",workflowNodeService.getTreeNodes(wfId));
+		mav.addObject("actions",actionService.findWfAll());
 		
 		try {
 			ObjectMapper mapper = new ObjectMapper();
 			mav.addObject("nodes",mapper.writeValueAsString(nodes));
+			mav.addObject("buttons",mapper.writeValueAsString(actionService.findBtnAll()));
 		} catch (JsonProcessingException e) {			
 			e.printStackTrace();
 		}

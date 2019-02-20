@@ -1,6 +1,6 @@
 package cn.ideal.wf.action;
 /**
- * 退回到上一节点发起人行为
+ * 退回到业务发起人行为
  * @author 郭佟燕
  * @version 2.0
  *
@@ -13,28 +13,33 @@ import org.springframework.stereotype.Service;
 
 import cn.ideal.wf.common.WFConstants;
 import cn.ideal.wf.model.WorkflowFlow;
+import cn.ideal.wf.model.WorkflowNode;
 import cn.ideal.wf.model.WorkflowTableSummary;
 import cn.ideal.wf.model.WorkflowUser;
 import cn.ideal.wf.service.WorkflowFlowService;
+import cn.ideal.wf.service.WorkflowNodeService;
 import cn.ideal.wf.service.WorkflowTableService;
 
-@Service("ReturnAction")
-public class ReturnAction implements Action {
+@Service("ReturnToCreatorAction")
+public class ReturnToCreatorAction extends Utils implements Action {
 	@Autowired
     private WorkflowFlowService workflowFlowService;
 	@Autowired
     private WorkflowTableService workflowTableService;
+	@Autowired
+    private WorkflowNodeService workflowNodeService;
 	
 	@Override
 	public boolean action(Long bizId, Long wfId,  WorkflowUser user, WorkflowUser ...users) throws Exception {
 		boolean res = true;
-		WorkflowFlow wff = workflowFlowService.findPrevFlow(bizId, wfId);
+		WorkflowFlow wff = workflowFlowService.findSenderFlow(bizId, wfId);
 		
 		if(users == null){
 			List<WorkflowUser> wfuLst = workflowFlowService.findWorkflowUsers(wff.getFlowId());
 			users = wfuLst.toArray(new WorkflowUser[wfuLst.size()]);
 		}
-		res = workflowFlowService.endAndAddFlow(bizId,wfId,wff.getNodeName(),WFConstants.WF_ACTION_RETURN,user,users);
+		WorkflowNode nextNode = workflowNodeService.findFirstNode(wfId);
+		res = workflowFlowService.endAndAddFlow(bizId,wfId,nextNode.getNodeName(),WFConstants.WF_ACTION_RETURN,user,users);
 		if(res){
 			String curUserName = "";
 			for(WorkflowUser item : users) curUserName += item.getUserName() + ",";	

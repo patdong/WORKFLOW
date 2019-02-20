@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import cn.ideal.wf.cache.WorkflowNodeCache;
 import cn.ideal.wf.common.WFConstants;
 import cn.ideal.wf.dao.WorkflowNodeMapper;
+import cn.ideal.wf.model.WorkflowAction;
 import cn.ideal.wf.model.WorkflowFlow;
 import cn.ideal.wf.model.WorkflowNode;
 import cn.ideal.wf.model.WorkflowUser;
@@ -90,5 +91,25 @@ public class WorkflowNodeServiceImpl implements WorkflowNodeService{
 	public WorkflowNode[][] getTreeNodes(Long wfId) {
 		List<WorkflowNode> nodes = this.findAll(wfId);
 		return singleChainNodeTreeService.decorateNodeTree(nodes);		
+	}
+
+	@Override
+	public WorkflowNode findNode(Long nodeId) {
+		return workflowNodeMapper.find(nodeId);
+	}
+
+	@Override
+	public WorkflowNode findNode(String nodeName, Long wfId) {
+		return workflowNodeMapper.findByNodeName(nodeName, wfId);
+	}
+
+	@Override
+	public List<WorkflowAction> findButtonsByNodeName(String nodeName, Long wfId) {
+		return workflowNodeMapper.findButtonsByNodeName(nodeName, wfId);
+	}
+
+	@Override
+	public WorkflowNode findFirstNode(Long wfId) {
+		return WorkflowNodeCache.getFirstNode(wfId);
 	}
 }

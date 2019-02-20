@@ -19,8 +19,8 @@
     }
     
     //流程办理完毕提交
-    function passWorkflow(){
-    	$("#myForm").attr("action","/app/passworkflow/${model.wf.wfId}/${model.bizId}");
+    function doAction(){
+    	$("#myForm").attr("action","/app/doaction/${model.wf.wfId}/${model.bizId}");
     	$("#myForm").submit();
     }
     
@@ -28,6 +28,12 @@
     function showWorkflow(){
     	
     }
+  	
+  	//流程按钮操作
+  	function doButton(buttonName){
+  		$("#myForm").attr("action","/app/dobutton/${model.wf.wfId}/${model.bizId}/"+buttonName);
+    	$("#myForm").submit();
+  	}
 </script> 	
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
   <h1 class="h2">
@@ -35,6 +41,10 @@
   	✍  	
   </h1>
   <div class="btn-toolbar mb-2 mb-md-0">
+  	<c:forEach items="${model.buttons}" varStatus="i" var="button" >
+  		<button class="btn btn-sm btn-outline-secondary" type="button" onclick="doButton('${button.actionCodeName}');">${button.actionName}</button> 
+  	</c:forEach>
+  	&nbsp;
   	<c:if test="${!empty model.wfBrief || empty model.wfBrief.finishedDate }">
 	    <div class="btn-group mr-2">
 	      <button class="btn btn-sm btn-outline-secondary" type="button" onclick="doStorage();">保存</button> 
@@ -43,7 +53,7 @@
     </c:if>  
     <c:if test="${!empty model.bizId}">
     	<c:if test="${!empty model.nodeName}">
-    		<button class="btn btn-sm btn-outline-secondary" type="button" onclick="passWorkflow();">${model.nodeName}完毕</button>
+    		<button class="btn btn-sm btn-outline-secondary" type="button" onclick="doAction();">${model.nodeName}完毕</button>
     	</c:if>
     </c:if>
     <button class="btn btn-sm btn-outline-secondary" type="button" onclick="$('#workflow').show();">流程查看</button>

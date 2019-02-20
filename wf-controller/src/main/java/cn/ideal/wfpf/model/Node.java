@@ -14,9 +14,10 @@ public class Node {
 	private List<CertificationUser> users;               //节点办理人
 	private CertificationRole role;                      //节点办理角色
 	private CertificationOrg org;                        //节点办理单位
+	private Action nodeAction;                           //节点行为
+	private List<Action> buttons;                        //节点按钮
 	private String nType;                                //节点属性
 	private String uType;                                //节点可操作人的属性
-	private String action;                               //节点行为
 	private Long timeLimit;                              //节点办理时效
 	private String status;                               //节点有效性
 	private Date createdDate;                            //节点创建时间
@@ -73,12 +74,6 @@ public class Node {
 	}
 	public void setuType(String uType) {
 		this.uType = uType;
-	}
-	public String getAction() {
-		return action;
-	}
-	public void setAction(String action) {
-		this.action = action;
 	}
 	
 	public Long getTimeLimit() {
@@ -148,5 +143,19 @@ public class Node {
 	public void setInnerHeight(Long innerHeight) {
 		this.innerHeight = innerHeight;
 	}
+	
+	public Action getNodeAction() {
+		return nodeAction;
+	}
+	public void setNodeAction(Action nodeAction) {
+		this.nodeAction = nodeAction;
+	}
+	public List<Action> getButtons() {
+		return buttons;
+	}
+	public void setButtons(List<Action> buttons) {
+		this.buttons = buttons;
+	}
+	
 	
 }

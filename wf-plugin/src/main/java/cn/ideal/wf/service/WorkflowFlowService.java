@@ -8,7 +8,6 @@ package cn.ideal.wf.service;
 import java.util.List;
 
 import cn.ideal.wf.model.WorkflowFlow;
-import cn.ideal.wf.model.WorkflowNode;
 import cn.ideal.wf.model.WorkflowUser;
 
 public interface WorkflowFlowService {
@@ -26,14 +25,7 @@ public interface WorkflowFlowService {
 	/**
 	 * 结束业务流程
 	 */
-	boolean endFlow(Long bizId,Long wfId);
-	
-	/**
-	 * 结束当前流程
-	 * @param bizId
-	 * @return
-	 */
-	WorkflowFlow endCurFlow(Long bizId,Long wfId);
+	boolean endFlow(Long bizId,Long wfId,WorkflowUser user);
 	
 	/**
 	 * 结束业务流程同时设置结束的动作
@@ -43,7 +35,7 @@ public interface WorkflowFlowService {
 	/**
 	 * 结束业务流程并创建新的流程及流程操作人
 	 */	
-	boolean endAndAddFlow(Long bizId,Long wfId, WorkflowNode node, WorkflowUser...users) throws Exception;
+	boolean endAndAddFlow(Long bizId,Long wfId, String nodeName,String actionName,WorkflowUser user, WorkflowUser...users) throws Exception;
 	
 	/**
 	 * 获得未完成的流程
@@ -65,8 +57,25 @@ public interface WorkflowFlowService {
 	 */
 	WorkflowFlow findFlow(Long flowId);
 	
-	List<WorkflowUser> findWorkflowUsers(Long bizId,Long wfId);
+	List<WorkflowUser> findWorkflowUsers(Long flowId);
 	
 	List<WorkflowFlow> findWorkflowWithSteps(Long bizId,Long wfId);
+	
+	/**
+	 * 获取前一个流程记录
+	 * @param bizId
+	 * @param wfId
+	 * @return
+	 */
+	WorkflowFlow findPrevFlow(Long bizId, Long wfId);
+	
+	/**
+	 * 获取发起人的流程记录
+	 * @param bizId
+	 * @param wfId
+	 * @return
+	 */
+	WorkflowFlow findSenderFlow(Long bizId, Long wfId);
+	
 	
 }

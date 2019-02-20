@@ -3,7 +3,9 @@ package cn.ideal.wf.dao;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
+import cn.ideal.wf.model.WorkflowAction;
 import cn.ideal.wf.model.WorkflowNode;
 import cn.ideal.wf.model.WorkflowUser;
 
@@ -17,5 +19,11 @@ public interface WorkflowNodeMapper {
 	List<WorkflowUser> findNodeUsersByNodeName(String nodeName);
 
 	List<WorkflowNode> findAll(Long wfId);
+	
+	WorkflowNode find(Long nodeId);
+	
+	WorkflowNode findByNodeName(@Param("nodeName") String nodeName, @Param("wfId") Long wfId);
+	
+	List<WorkflowAction> findButtonsByNodeName(@Param("nodeName") String nodeName, @Param("wfId") Long wfId);
 
 }

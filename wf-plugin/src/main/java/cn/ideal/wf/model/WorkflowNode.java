@@ -20,6 +20,7 @@ public class WorkflowNode implements Serializable{
 	private String nType;
 	private WorkflowRole role;
 	private Collection<WorkflowUser> users;	
+	private WorkflowAction action;                               //节点行为
 	private String status;
 	private Date createdDate;
 	private Date modifiedDate;
@@ -34,6 +35,7 @@ public class WorkflowNode implements Serializable{
 	private Long depth;                                          //节点深度，从左至右， 从0开始
 	private Long innerHeight;                                    //具有相同前置节点的子节点具有内置高度，从上至下，从0开始；
 	private String style = "^";                                  //节点页面展示样式 ，不属于数据库字段。包括：user、node、pointer、lpointer、rpointer
+	
 	public WorkflowNode(){}
 	public WorkflowNode(Long nodeId){
 		this.setNodeId(nodeId);
@@ -158,6 +160,12 @@ public class WorkflowNode implements Serializable{
 	}
 	public void setStyle(String style) {
 		this.style = style;
+	}
+	public WorkflowAction getAction() {
+		return action;
+	}
+	public void setAction(WorkflowAction action) {
+		this.action = action;
 	}
 	
 	

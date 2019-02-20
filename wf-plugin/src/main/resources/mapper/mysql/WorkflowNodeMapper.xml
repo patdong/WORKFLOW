@@ -7,6 +7,7 @@
 		<association property="users" column="nodeId" select="findUsers" />
 		<association property="preNodes" column="nodeId" select="findPreNode" />
 		<association property="sufNodes" column="nodeId" select="findSufNode" />
+		<association property="action" column="nodeId" select="findAction" />
 	</resultMap>			
 	
 	<select id="findAll" resultMap="workflownode" parameterType="java.lang.Long">
@@ -15,6 +16,10 @@
 		
 	<select id="find" resultMap="workflownode" parameterType="java.lang.Long">
 		select * from workflow_node where nodeId=#{nodeId}
+	</select>
+	
+	<select id="findByNodeName" resultMap="workflownode" parameterType="java.util.Map">
+		select * from workflow_node where nodeName=#{nodeName} and wfId = #{wfId}
 	</select>
 		
 	<select id="findNodeUsers" resultType="cn.ideal.wf.model.WorkflowUser" parameterType="java.lang.Long">
@@ -78,5 +83,29 @@
 		inner join workflow_node_nodes a on a.suf_nodeId = n.nodeId
 		 where a.nodeId = #{nodeId}
 		   and n.status != "无效"
+	</select>
+	
+	<!-- 获取节点的流程操作 -->
+	<select id="findAction" resultType="cn.ideal.wf.model.WorkflowAction" parameterType="java.lang.Long">
+		select a.* from workflow_action a
+		inner join workflow_node_action b on a.actionCodeName = b.actionCodeName
+		 where b.nodeId = #{nodeId}
+		   and b.type= "流程"
+	</select>
+	
+	<select id="findButtons" resultType="cn.ideal.wf.model.WorkflowAction" parameterType="java.lang.Long">
+		select a.* from workflow_action a
+		inner join workflow_node_action b on a.actionCodeName = b.actionCodeName
+		 where b.nodeId = #{nodeId}
+		   and b.type= "行为"
+	</select>
+	
+	<select id="findButtonsByNodeName" resultType="cn.ideal.wf.model.WorkflowAction" parameterType="java.util.Map">
+		select a.* from workflow_action a
+		inner join workflow_node_action b on a.actionCodeName = b.actionCodeName
+		inner join workflow_node c on c.nodeId = b.nodeId
+		 where c.nodeName = #{nodeName}
+		   and c.wfId = #{wfId}
+		   and b.type= "行为"
 	</select>
 </mapper>

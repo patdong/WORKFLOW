@@ -7,6 +7,7 @@ package cn.ideal.wf.service;
  */
 import java.util.List;
 
+import cn.ideal.wf.model.WorkflowAction;
 import cn.ideal.wf.model.WorkflowNode;
 import cn.ideal.wf.model.WorkflowUser;
 
@@ -40,4 +41,17 @@ public interface WorkflowNodeService {
 	WorkflowNode[][] getTreeNodes(Long wfId,Long bizId);
 
 	WorkflowNode[][] getTreeNodes(Long wfId);
+	
+	WorkflowNode findNode(Long nodeId);
+	
+	WorkflowNode findNode(String nodeName, Long wfId);
+	
+	List<WorkflowAction> findButtonsByNodeName(String nodeName, Long wfId);
+	
+	/**
+	 * 获取流程的第一个节点
+	 * @param wfId
+	 * @return
+	 */
+	WorkflowNode findFirstNode(Long wfId);
 }

@@ -22,6 +22,7 @@ public class Element {
 	private String fieldDataType;
 	private String dataContent;
 	private Long length;
+	private String functionBelongTo;
 	
 	private Long tbId;
 	
@@ -102,6 +103,12 @@ public class Element {
 	}
 	public void setLength(Long length) {
 		this.length = length;
+	}
+	public String getFunctionBelongTo() {
+		return functionBelongTo;
+	}
+	public void setFunctionBelongTo(String functionBelongTo) {
+		this.functionBelongTo = functionBelongTo;
 	}
 	
 	

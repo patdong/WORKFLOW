@@ -21,9 +21,17 @@ public interface NodeMapper {
 	
 	int saveRole(Node node);
 	
+	int saveNodeAction(Node node);
+	
+	int saveNodeButton(Node node);
+	
 	void deleteUser(Long nodeId);
 	
 	void deleteRole(Long nodeId);
+	
+	void deleteNodeAction(Long nodeId);
+	
+	void deleteNodeButton(Long nodeId);
 	
 	Node find(Long nodeId);
 	
@@ -33,4 +41,10 @@ public interface NodeMapper {
 	
 	void deleteNodeNodes(Long nodeId);
 	
+	List<Node> findSufNode(Long nodeId);
+	
+	List<Node> findPreNode(Long nodeId);
+	
+	void deleteNode(Long nodeId);
+		
 }

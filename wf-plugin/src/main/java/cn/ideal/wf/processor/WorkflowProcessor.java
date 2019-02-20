@@ -4,11 +4,9 @@ package cn.ideal.wf.processor;
  * 主动寻找预先配置的流程节
  */
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
@@ -16,11 +14,12 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import cn.ideal.wf.action.Action;
+import cn.ideal.wf.action.PassAction;
+import cn.ideal.wf.action.Utils;
 import cn.ideal.wf.common.WFConstants;
+import cn.ideal.wf.model.WorkflowAction;
 import cn.ideal.wf.model.WorkflowBrief;
-import cn.ideal.wf.model.WorkflowFlow;
 import cn.ideal.wf.model.WorkflowNode;
-import cn.ideal.wf.model.WorkflowTableSummary;
 import cn.ideal.wf.model.WorkflowUser;
 import cn.ideal.wf.service.PlatformService;
 import cn.ideal.wf.service.WorkflowBriefService;
@@ -29,7 +28,7 @@ import cn.ideal.wf.service.WorkflowNodeService;
 import cn.ideal.wf.service.WorkflowTableService;
 
 @Service
-public class WorkflowProcessor implements Processor {
+public class WorkflowProcessor extends Utils implements Processor {
 	@Autowired
     private WorkflowFlowService workflowFlowService;
 	@Autowired
@@ -42,24 +41,7 @@ public class WorkflowProcessor implements Processor {
     private PlatformService platformService;
     @Autowired
     private ApplicationContext appContext;
-    @Autowired
-    @Qualifier("TerminateAction")
-    private Action terminateAction;
-    @Autowired
-    @Qualifier("EndAction")
-    private Action endAction;
-    @Autowired
-    @Qualifier("CallbackAction")
-    private Action callbackAction;
-    @Autowired
-    @Qualifier("PostPhoneAction")
-    private Action postPhoneAction;
-    @Autowired
-    @Qualifier("DispatchAction")
-    private Action dispatchAction;
-    @Autowired
-    @Qualifier("ReturnAction")
-    private Action returnAction;
+   
     
     @Value("${workflow.user.scope}")
     private String userScope;
@@ -72,167 +54,109 @@ public class WorkflowProcessor implements Processor {
      */
 	@Override
 	@Transactional(propagation=Propagation.REQUIRED)
-	public boolean flowPass(Long wfId, Long bizId, WorkflowUser wfu) throws Exception {
+	public boolean doAction(Long wfId, Long bizId, WorkflowUser wfu) throws Exception {
 		boolean res = true;
 		WorkflowBrief wfb = workflowBriefService.findDoingFlow(bizId,wfId);
+		WorkflowAction action = new WorkflowAction();
 		//判断是否已经创建了流程，未创建则先创建再流转
 		if(wfb == null){
-			workflowFlowService.startFlow(bizId, wfId, WFConstants.WF_NODE_START,wfu);			
-		}		
+			workflowFlowService.startFlow(bizId, wfId, WFConstants.WF_NODE_START,wfu);	
+			action.setActionCodeName("PassAction");			
+		}else{
+			WorkflowNode curNode = workflowNodeService.findNode(wfb.getNodeName(), wfId);
+			action = curNode.getAction();
+		}
 		
-		WorkflowNode nextNode = this.findNextNode(wfId,bizId);
-		if(nextNode == null) {
-			res =this.endFlow(bizId,wfId);
-			if(!res) throw new Exception("流程办结失败");						
-		}else{
-			List<WorkflowUser> wfuLst = null;
-			//支持平台演示和实际运用两种方式获得续办用户
-			if(("dev").equals(userScope)){
-				WorkflowUser user = new WorkflowUser(1l,1l);
-				user.setUserName("admin");
-				user.setUnitName("平台");
-				wfuLst = new ArrayList<WorkflowUser>();
-				wfuLst.add(user);
-			}else{
-				wfuLst =  this.findUsersForNode(nextNode);
-			}
-			res = this.pushFlow(bizId, wfId,nextNode, wfuLst.toArray(new WorkflowUser[wfuLst.size()]));	
-			if(!res) throw new Exception("流程创建失败");					
-		}		
-				
-		return res;
-	}
-
-	
-
-	@Override
-	@Transactional(propagation=Propagation.REQUIRED)
-	public boolean flowPass(Long wfId, Long bizId, WorkflowUser wfu,
-			WorkflowNode node) throws Exception {
-		boolean res = true;
-		WorkflowBrief wfb = workflowBriefService.findDoingFlow(bizId,wfId);
-		//判断是否已经创建了流程，未创建则先创建再流转
-		if(wfb == null){
-			workflowFlowService.startFlow(bizId, wfId, WFConstants.WF_NODE_START,wfu);			
-		}		
-					
-		if(node == null) {
-			res = this.endFlow(bizId,wfId);
-			if(!res) throw new Exception("流程办结失败");						
-		}else{
-			List<WorkflowUser> wfuLst =  this.findUsersForNode(node);
-			res = this.pushFlow(bizId,wfId, node, wfuLst.toArray(new WorkflowUser[wfuLst.size()]));	
-			if(!res) throw new Exception("没有办理人无法创建流程");							
-		}		
-				
-		return res;
-	}
-
-	@Override
-	@Transactional(propagation=Propagation.REQUIRED)
-	public boolean flowPass(Long wfId, Long bizId, WorkflowUser wfu,
-			WorkflowNode node, WorkflowUser... nextWfu) throws Exception {
-		boolean res = true;
-		WorkflowBrief wfb = workflowBriefService.findDoingFlow(bizId,wfId);
-		//判断是否已经创建了流程，未创建则先创建再流转
-		if(wfb == null){
-			workflowFlowService.startFlow(bizId, wfId, WFConstants.WF_NODE_START,wfu);			
-		}		
-				
-		if(node == null) {
-			res = this.endFlow(bizId,wfId);
-			if(!res) throw new Exception("流程办结失败");	
-		}else{
-			res = this.pushFlow(bizId,wfId, node, nextWfu);	
-			if(!res) throw new Exception("没有办理人无法创建流程");						
-		}		
-				
-		return res;
-	}
-
-	@Override
-	public List<WorkflowUser> findUsersForNode(WorkflowNode node) throws Exception{
-		if(node == null) return null;
+		//支持平台演示和实际运用两种方式获得续办用户
 		List<WorkflowUser> wfuLst = null;
+		if(("dev").equals(userScope)){
+			WorkflowUser user = new WorkflowUser(1l,1l);
+			user.setUserName("admin");
+			user.setUnitName("平台");
+			wfuLst = new ArrayList<WorkflowUser>();
+			wfuLst.add(user);
+		}		
+		Object obj = appContext.getBean(action.getActionCodeName());
+		if(obj instanceof Action){
+			Action wfa = (Action)obj;
+			res = wfa.action(bizId, wfId, wfu, wfuLst.toArray(new WorkflowUser[wfuLst.size()]));
+			if(!res) throw new Exception("流程推进失败");
+		}	
 			
-		switch(node.getuType()){			
-			case WFConstants.WF_NODE_TYPE_USER:
-				if(node.getUsers() == null)  throw new Exception("没有办理人无法创建流程");	
-				wfuLst = new ArrayList<WorkflowUser>(node.getUsers());									
-				break;
-			case WFConstants.WF_NODE_TYPE_ROLE:
-				if(node.getRole() == null) throw new Exception("没有设置角色无法创建流程");
-				wfuLst = platformService.findUsersByRoleIdAndOrgId(node.getRole().getRoleId(), node.getRole().getUnitId());												
-				break;
-		}
-		
-		return wfuLst;
+		return res;
 	}
 
-	@Override
-	public WorkflowNode findNextNode(Long wfId, Long bizId) {
-		WorkflowFlow wf = workflowFlowService.findDoingFlow(bizId,wfId);
-		List<WorkflowNode> wfns = workflowNodeService.findNextNodes(wf.getNodeName(), wf.getWfId());
-		if(wfns.size() > 0) return wfns.get(0);
-		return null;
-	}
 	
-	private boolean endFlow(Long bizId,Long wfId){		
-		boolean res = workflowFlowService.endFlow(bizId,wfId);
-		if(res){
-			WorkflowTableSummary wfts = new WorkflowTableSummary();	
-			wfts.setModifiedDate(new Date());
-			wfts.setFinishedDate(new Date());
-			wfts.setAction(WFConstants.WF_ACTION_END);
-			wfts.setBizId(bizId);
-			wfts.setWfId(wfId);
-			workflowTableService.endTableSummary(wfts);
-			return true;
-		}
-		
-		return false;
-	}
-	
-	private boolean pushFlow(Long bizId, Long wfId,WorkflowNode node, WorkflowUser ...nextWfu) throws Exception{
-		boolean res = workflowFlowService.endAndAddFlow(bizId,wfId,node,nextWfu);
-		if(res){
-			String curUserName = "";
-			for(WorkflowUser user : nextWfu) curUserName += user.getUserName() + ",";	
-			WorkflowTableSummary wfts = new WorkflowTableSummary();	
-			wfts.setCurUserName(curUserName);
-			wfts.setModifiedDate(new Date());
-			//任何动作都反应在action字段上
-			wfts.setAction(node.getNodeName());	
-			wfts.setBizId(bizId);
-			wfts.setWfId(wfId);
-			res = workflowTableService.synchTableSummary(wfts);
-			return res;
-		}
-		return false;
-	}
-
+	/**
+	 * 由外部传入续办节点
+	 */
 	@Override
-	public boolean actionPass(Long wfId, Long bizId, WorkflowUser wfu,
-			String action) throws Exception {
-		Object obj = appContext.getBean(action);
-		if(obj instanceof Action){
-			return ((Action)obj).action(bizId,wfId, wfu);
+	@Transactional(propagation=Propagation.REQUIRED)
+	public boolean doAction(Long wfId, Long bizId, WorkflowUser wfu,WorkflowNode node) throws Exception {
+		boolean res = true;
+		WorkflowBrief wfb = workflowBriefService.findDoingFlow(bizId,wfId);
+		WorkflowAction action = null;
+		//判断是否已经创建了流程，未创建则先创建再流转
+		if(wfb == null){
+			workflowFlowService.startFlow(bizId, wfId, WFConstants.WF_NODE_START,wfu);				
 		}
 		
-		return false;
+		action = new WorkflowAction();
+		action.setActionCodeName("PassAction");
+		//支持平台演示和实际运用两种方式获得续办用户
+		List<WorkflowUser> wfuLst = null;
+		if(("dev").equals(userScope)){
+			WorkflowUser user = new WorkflowUser(1l,1l);
+			user.setUserName("admin");
+			user.setUnitName("平台");
+			wfuLst = new ArrayList<WorkflowUser>();
+			wfuLst.add(user);
+		}		
+		Object obj = appContext.getBean(action.getActionCodeName());
+		if(obj instanceof PassAction){
+			PassAction wfa = (PassAction)obj;
+			res = wfa.action(bizId, wfId, wfu,node, wfuLst.toArray(new WorkflowUser[wfuLst.size()]));
+			if(!res) throw new Exception("流程推进失败");
+		}	
+			
+		return res;
 	}
 
+	/**
+	 * 由外部传入续办节点和节点办理人
+	 */
 	@Override
-	public boolean actionPass(Long wfId, Long bizId, WorkflowUser wfu,
-			String action, WorkflowUser... users) throws Exception {
-		Object obj = appContext.getBean(action);
-		if(obj instanceof Action){
-			return ((Action)obj).action(bizId,wfId, wfu, users);
+	@Transactional(propagation=Propagation.REQUIRED)
+	public boolean doAction(Long wfId, Long bizId, WorkflowUser wfu,WorkflowNode node, WorkflowUser... nextWfu) throws Exception {
+		boolean res = true;
+		WorkflowBrief wfb = workflowBriefService.findDoingFlow(bizId,wfId);
+		WorkflowAction action = null;
+		//判断是否已经创建了流程，未创建则先创建再流转
+		if(wfb == null){
+			workflowFlowService.startFlow(bizId, wfId, WFConstants.WF_NODE_START,wfu);				
 		}
 		
-		return false;
+		action = new WorkflowAction();
+		action.setActionCodeName("PassAction");
+		//支持平台演示和实际运用两种方式获得续办用户
+		List<WorkflowUser> wfuLst = null;
+		if(("dev").equals(userScope)){
+			WorkflowUser user = new WorkflowUser(1l,1l);
+			user.setUserName("admin");
+			user.setUnitName("平台");
+			wfuLst = new ArrayList<WorkflowUser>();
+			wfuLst.add(user);
+			nextWfu = wfuLst.toArray(new WorkflowUser[wfuLst.size()]);
+		}
+		Object obj = appContext.getBean(action.getActionCodeName());
+		if(obj instanceof PassAction){
+			PassAction wfa = (PassAction)obj;
+			res = wfa.action(bizId, wfId, wfu,node, nextWfu);
+			if(!res) throw new Exception("流程推进失败");
+		}	
+			
+		return res;
 	}
-
 
 
 	@Override
@@ -242,4 +166,35 @@ public class WorkflowProcessor implements Processor {
 		else if(wfb.getFinishedDate() != null) return null;
 		return wfb.getNodeName();
 	}
+
+
+	@Override
+	public boolean doButton(Long wfId, Long bizId, WorkflowUser wfu,String buttonName) throws Exception {
+		boolean res = true;
+		WorkflowBrief wfb = workflowBriefService.findDoingFlow(bizId,wfId);
+		//判断是否已经创建了流程，未创建则先创建再流转
+		if(wfb == null){
+			throw new Exception("流程操作失败");
+		}
+		
+		//支持平台演示和实际运用两种方式获得续办用户
+		List<WorkflowUser> wfuLst = null;
+		if(("dev").equals(userScope)){
+			WorkflowUser user = new WorkflowUser(1l,1l);
+			user.setUserName("admin");
+			user.setUnitName("平台");
+			wfuLst = new ArrayList<WorkflowUser>();
+			wfuLst.add(user);
+		}		
+		Object obj = appContext.getBean(buttonName);
+		if(obj instanceof Action){
+			Action wfa = (Action)obj;
+			res = wfa.action(bizId, wfId, wfu, wfuLst.toArray(new WorkflowUser[wfuLst.size()]));
+			if(!res) throw new Exception("流程推进失败");
+		}	
+			
+		return res;
+	}
+	
+	
 }

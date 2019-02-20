@@ -131,6 +131,9 @@ public class ActualController extends PlatformFundation{
 			pageModel.setNodeTree(workflowNodeService.getTreeNodes(wfId));
 		}
 		
+		if(pageModel.getWfBrief() != null){
+			pageModel.setButtons(workflowNodeService.findButtonsByNodeName(pageModel.getWfBrief().getNodeName(), wfId));
+		}
         return mav;
     }
 	
@@ -200,10 +203,34 @@ public class ActualController extends PlatformFundation{
 		return mav;
 	}
 	
-	@PostMapping(value={"/passworkflow/{wfId}/{bizId}"})
-	public ModelAndView passWorkflow(@PathVariable Long wfId, @PathVariable Long bizId,HttpServletRequest request) throws Exception{
+	/**
+	 * 流程操作
+	 * @param wfId
+	 * @param bizId
+	 * @param request
+	 * @return
+	 * @throws Exception
+	 */
+	@PostMapping(value={"/doaction/{wfId}/{bizId}"})
+	public ModelAndView doaction(@PathVariable Long wfId, @PathVariable Long bizId,HttpServletRequest request) throws Exception{
 		ModelAndView mav = new ModelAndView("redirect:/app/list/"+wfId+"/1");						
-		wfProcessor.flowPass(wfId, bizId, this.getWorkflowUser(request));
+		wfProcessor.doAction(wfId, bizId, this.getWorkflowUser(request));
+		
+		return mav;
+	}
+	
+	/**
+	 * 流程按钮操作
+	 * @param wfId
+	 * @param bizId
+	 * @param request
+	 * @return
+	 * @throws Exception
+	 */
+	@PostMapping(value={"/dobutton/{wfId}/{bizId}/{buttonName}"})
+	public ModelAndView dobutton(@PathVariable Long wfId, @PathVariable Long bizId,@PathVariable String buttonName,HttpServletRequest request) throws Exception{
+		ModelAndView mav = new ModelAndView("redirect:/app/list/"+wfId+"/1");						
+		wfProcessor.doButton(wfId, bizId, this.getWorkflowUser(request),buttonName);
 		
 		return mav;
 	}

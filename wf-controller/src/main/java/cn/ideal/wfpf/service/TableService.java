@@ -44,5 +44,7 @@ public interface TableService extends PageService<TableBrief> {
 	boolean createTable(Long tbId, String tableName) throws Exception;
 	
 	boolean updateTableElement(TableElement obj);
+	
+	TableElement[][] findTableAllElements(Long tbId,String scope,String style);
 		
 }

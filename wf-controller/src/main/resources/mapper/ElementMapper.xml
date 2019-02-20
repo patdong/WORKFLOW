@@ -10,7 +10,7 @@
 	
 	<insert id="save" useGeneratedKeys="true" keyProperty="emId" parameterType="cn.ideal.wfpf.model.Element">
 		insert into element_library(
-			labelName,fieldName,hiddenFieldName,functionName,status,createdDate
+			labelName,fieldName,hiddenFieldName,functionName,status,createdDate,level,fieldType,fieldDataType,dataContent,length
 		)
 		values(
 			#{labelName},
@@ -18,7 +18,13 @@
 			#{hiddenFieldName},
 			#{functionName},			
 			#{status},
-			#{createdDate}
+			#{createdDate},
+			#{level},
+			#{fieldType},
+			#{fieldDataType},
+			#{dataContent},
+			#{length}
+			
 		)
 	</insert>
 	
@@ -28,7 +34,10 @@
 			fieldName = #{fieldName},
 			hiddenFieldName = #{hiddenFieldName},
 			functionName = #{functionName},
-			status = #{status}
+			fieldType = #{fieldType},
+			fieldDataType = #{fieldDataType},
+			dataContent = #{dataContent},
+			length = #{length}		
 		where emId = #{emId}
 	</update>
 	

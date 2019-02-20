@@ -1,6 +1,4 @@
 package cn.ideal.wf.processor;
-import java.util.List;
-
 import cn.ideal.wf.model.WorkflowNode;
 /**
  * 业务平台处理
@@ -19,7 +17,7 @@ public interface Processor {
 	 * @return
 	 * @throws Exception
 	 */
-	boolean flowPass(Long wfId, Long bizId, WorkflowUser wfu) throws Exception;
+	boolean doAction(Long wfId, Long bizId, WorkflowUser wfu) throws Exception;
 	
 	/**
 	 * 推进流程，根据传入的节点。
@@ -30,7 +28,7 @@ public interface Processor {
 	 * @return
 	 * @throws Exception
 	 */
-	boolean flowPass(Long wfId, Long bizId, WorkflowUser wfu, WorkflowNode node) throws Exception;
+	boolean doAction(Long wfId, Long bizId, WorkflowUser wfu, WorkflowNode node) throws Exception;
 	
 	/**
 	 * 推进流程，根据传入的节点和办理人
@@ -42,40 +40,21 @@ public interface Processor {
 	 * @return
 	 * @throws Exception
 	 */
-	boolean flowPass(Long wfId, Long bizId, WorkflowUser wfu, WorkflowNode node,WorkflowUser ...nextWfu) throws Exception;
+	boolean doAction(Long wfId, Long bizId, WorkflowUser wfu, WorkflowNode node,WorkflowUser ...nextWfu) throws Exception;
+
 	
 	/**
-	 * 人工干预流程办理
+	 * 流程按钮操作
 	 * @param wfId
 	 * @param bizId
 	 * @param wfu
-	 * @param action
+	 * @param buttonName
 	 * @return
 	 * @throws Exception
 	 */
-	boolean actionPass(Long wfId, Long bizId, WorkflowUser wfu, String action) throws Exception;
-	
-	/**
-	 * 人工干预流程到指定的人
-	 * @param wfId
-	 * @param bizId
-	 * @param wfu
-	 * @param action
-	 * @param users
-	 * @return
-	 * @throws Exception
-	 */
-	boolean actionPass(Long wfId, Long bizId, WorkflowUser wfu, String action, WorkflowUser ...users) throws Exception;
-	/**
-	 * 获取指定节点的办理人
-	 * @param node
-	 * @return
-	 * @throws Exception
-	 */
-	List<WorkflowUser> findUsersForNode(WorkflowNode node) throws Exception;
+	boolean doButton(Long wfId, Long bizId, WorkflowUser wfu,String buttonName) throws Exception;
 	
 	String findNodeName(Long wfId,Long bizId);
 	
-	WorkflowNode findNextNode(Long wfId,Long bizId);
 	
 }

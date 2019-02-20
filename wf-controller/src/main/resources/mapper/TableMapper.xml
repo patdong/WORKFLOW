@@ -61,7 +61,7 @@
 	
 	<insert id="saveTableElement" parameterType="cn.ideal.wfpf.model.TableElement">
 		insert into table_element(
-			tbId,emId,newLabelName,newFunctionName,functionBelongTo,scope,seq,newHiddenFieldName,
+			tbId,emId,newLabelName,newFunctionName,functionBelongTo,rowes,cols,width,scope,seq,newHiddenFieldName,
 			newDataContent,newFieldType,newFieldDataType,newLength,list,createdDate
 		)
 		values		
@@ -70,7 +70,10 @@
 			#{item.emId},
 			#{item.newLabelName},
 			#{item.newFunctionName},
-			#{item.functionBelongTo},		
+			#{item.functionBelongTo},
+			#{item.rowes},
+			#{item.cols},
+			#{item.width},		
 			#{item.scope},
 			#{item.seq},
 			#{item.newHiddenFieldName},
@@ -85,7 +88,7 @@
 	
 	<insert id="saveBatchTableElement" parameterType="java.util.List">
 		insert into table_element(
-			tbId,emId,newLabelName,newFunctionName,functionBelongTo,scope,seq,newHiddenFieldName,
+			tbId,emId,newLabelName,newFunctionName,functionBelongTo,rowes,cols,width,scope,seq,newHiddenFieldName,
 			newDataContent,newFieldType,newFieldDataType,newLength,list,createdDate
 		)
 		values
@@ -95,7 +98,10 @@
 			#{item.emId},
 			#{item.newLabelName},
 			#{item.newFunctionName},
-			#{item.functionBelongTo},			
+			#{item.functionBelongTo},
+			#{item.rowes},
+			#{item.cols},
+			#{item.width},			
 			#{item.scope},
 			#{item.seq},
 			#{item.newHiddenFieldName},
@@ -118,7 +124,10 @@
 			   newDataContent=#{newDataContent},
 			   newFieldType=#{newFieldType},
 			   newFieldDataType=#{newFieldDataType},
-			   newLength=#{newLength}		   
+			   newLength=#{newLength},
+			   rowes=#{rowes},
+			   cols=#{cols},
+			   width=#{width}
 		<where>		
 		      tbId=#{tbId}
 		  and emId = #{emId}			

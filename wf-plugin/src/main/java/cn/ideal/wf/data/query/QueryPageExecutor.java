@@ -55,7 +55,12 @@ public class QueryPageExecutor {
 	 */
 	public Long queryWorkflowAll(Storage storage){
 		if(storage == null) return null;		
-		List<Map<String,Object>> rs = sqlExecutor.query("select count(*) as total from workflow_brief where dispatchUserId like concat(concat('%,',"+storage.getUser().getUserId()+",',%'))");
+		List<Map<String,Object>> rs = sqlExecutor.query(
+				"select count(*) as total from workflow_brief "
+				+ " where dispatchUserId like concat(concat('%,',"+storage.getUser().getUserId()+",',%')) "
+				+ " and wfId="+storage.getWfId()
+				+ " and finishedDate is null "
+				);
 		if(rs.size() > 0) {
 			return Long.parseLong(rs.get(0).get("TOTAL").toString());
 		}
@@ -98,13 +103,14 @@ public class QueryPageExecutor {
 	public List<Map<String,Object>> queryWorkflowPage(Storage storage){
 		
 		StringBuilder buf = new StringBuilder();
-		buf.append("select * from " );
+		buf.append("select a.*,c.* from " );
 		buf.append(storage.getTableName());
 		buf.append(" a ");
-		buf.append("inner join workflow_brief b on b.bizId = a.Id ");
+		buf.append(" inner join workflow_brief b on b.bizId = a.Id and b.wfId="+storage.getWfId());
+		buf.append(" inner join table_summary c on a.Id = c.bizId and c.wfId="+storage.getWfId());
 		buf.append(" where ");
-		buf.append("b.dispatchUserId like concat(concat('%,',"+storage.getUser().getUserId()+",',%'))" );
-		
+		buf.append(" b.dispatchUserId like concat(concat('%,',"+storage.getUser().getUserId()+",',%')) " );
+		buf.append(" and b.finishedDate is null ");
 		buf.append(" limit ");
 		buf.append(storage.getBeginNumber());
 		buf.append(" , ");

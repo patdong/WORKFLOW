@@ -1,5 +1,10 @@
 package cn.ideal.wf.action;
-
+/**
+ * 调度行为
+ * @author 郭佟燕
+ * @version 2.0
+ *
+ */
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,12 +18,6 @@ import cn.ideal.wf.service.WorkflowBriefService;
 import cn.ideal.wf.service.WorkflowFlowService;
 import cn.ideal.wf.service.WorkflowStepService;
 
-/**
- * 调度行为
- * @author 郭佟燕
- * @version 2.0
- *
- */
 @Service("DispatchAction")
 public class DispatchAction implements Action {
 	@Autowired
@@ -32,7 +31,7 @@ public class DispatchAction implements Action {
 	 * TO-DO 逻辑有问题待优化
 	 */
 	@Override
-	public boolean action(Long bizId, Long wfId,  WorkflowUser user , WorkflowUser ...users) {
+	public boolean action(Long bizId, Long wfId,  WorkflowUser user,WorkflowUser ...users) {
 		WorkflowFlow wf = wfService.findDoingFlow(bizId,wfId);
 		List<WorkflowStep> wfs = wfStepService.findAllByFlowId(wf.getFlowId());
 		boolean res = true;
