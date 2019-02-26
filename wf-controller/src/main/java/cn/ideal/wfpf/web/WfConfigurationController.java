@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
 import cn.ideal.wf.model.Workflow;
+import cn.ideal.wf.model.WorkflowNode;
 import cn.ideal.wf.service.WorkflowNodeService;
 import cn.ideal.wfpf.model.CertificationOrg;
 import cn.ideal.wfpf.model.CertificationRole;
@@ -109,7 +110,6 @@ public class WfConfigurationController {
 		}
 		mav.addObject("wf",workflowService.find(wfId));		
 		List<Node> nodes = nodeService.findAllOnlyNode(wfId);
-		mav.addObject("nodeset",nodes);
 		mav.addObject("nodetree",workflowNodeService.getTreeNodes(wfId));
 		mav.addObject("actions",actionService.findWfAll());
 		
@@ -181,4 +181,16 @@ public class WfConfigurationController {
         if(wf != null) return true;
         return false;
     }
+	
+	/**
+	 * 获得当前节点可建立关联的后续节点集
+	 * @param request
+	 * @return
+	 */
+	@GetMapping("/getsufnodes/{nodeId}/{wfId}")
+    public @ResponseBody List<WorkflowNode> getRelSufNodes(@PathVariable Long nodeId,@PathVariable Long wfId, HttpServletRequest request) {	
+		List<WorkflowNode> wfns = workflowNodeService.findRelSufNodes(nodeId, wfId);
+		return wfns;
+    }
+
 }

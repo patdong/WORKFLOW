@@ -20,8 +20,14 @@
     
     //流程办理完毕提交
     function doAction(){
-    	$("#myForm").attr("action","/app/doaction/${model.wf.wfId}/${model.bizId}");
-    	$("#myForm").submit();
+    	var nextNodeSize = "${model.nextNodeSize}";
+    	if(nextNodeSize <= 1){
+	    	$("#myForm").attr("action","/app/doaction/${model.wf.wfId}/${model.bizId}");
+	    	$("#myForm").submit();
+    	}else{
+    		//弹出节点选择框
+    		$("#nextNodes-dialog").show();
+    	}
     }
     
   	//展示流程信息
@@ -29,6 +35,13 @@
     	
     }
   	
+  	//指定流程节点提交
+    function doFixedAction(nodeId){
+    	$("#myForm").attr("action","/app/doaction/${model.wf.wfId}/${model.bizId}/"+nodeId);
+    	$("#myForm").submit();
+    	
+    }
+  
   	//流程按钮操作
   	function doButton(buttonName){
   		$("#myForm").attr("action","/app/dobutton/${model.wf.wfId}/${model.bizId}/"+buttonName);
@@ -127,5 +140,20 @@
 		    </tr>
 		</c:forEach>						
 	</table>
+</div>
+<!-- 续办节点选择窗口 -->
+<div id="nextNodes-dialog" style="box-shadow: 0px 2px 2px #2ef90a;position: absolute;top:12%;z-index: 999;background:white;right:20px;display:none;">
+	<header>
+	 <div class="form-inline mt-2 mt-md-0" style="padding: 1px 8px 0px;font-size:12px" >
+	 	续办节点&nbsp;
+	 	<span class="badge badge-secondary badge-pill" style="background-color:#46a70a;cursor:pointer;padding: 0.15em .2em;" onclick="$('#nextNodes-dialog').hide();">×</span>
+	 </div>       	      	    
+   	</header>
+   	<hr style="margin-top: .5rem; margin-bottom: .5rem;"></hr>   	 	
+	<div>		
+		<c:forEach items="${model.nextNodes}" varStatus="j" var="node" >		
+			<label style="padding: 1px 8px 0px"><button class="btn btn-sm btn-outline-secondary" type="button" onclick="doFixedAction(${node.nodeId});">${node.nodeName}</button></label><br>	
+		</c:forEach>
+	</div>
 </div>
   

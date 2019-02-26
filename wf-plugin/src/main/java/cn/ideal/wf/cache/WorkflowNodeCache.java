@@ -5,6 +5,7 @@ package cn.ideal.wf.cache;
  * @author 郭佟燕
  * @version 2.0
  */
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -79,12 +80,25 @@ public class WorkflowNodeCache implements CommandLineRunner {
 	
 	public static List<WorkflowNode> getNextNode(String curNodeName,Long wfId){
 		List<WorkflowNode> wfns = hashWorkflowNode.get(WF_KEY, wfId);
+		List<WorkflowNode> res = new ArrayList<WorkflowNode>();
+		
 		if(wfns != null){
 			for(WorkflowNode wfn : wfns){
-				if(wfn.getNodeName().equals(curNodeName)) return wfn.getSufNodes();
+				if(wfn.getNodeName().equals(curNodeName)) {
+					res = wfn.getSufNodes();
+					break;
+				}
 			}
 		}
-		return null;
+		
+		for(int i=0;i<res.size();i++){
+			for(WorkflowNode wfn : wfns){
+				if(res.get(i).getNodeId().compareTo(wfn.getNodeId()) == 0) res.set(i, wfn);
+			}
+			
+		}
+		
+		return res.size() > 0 ? res : null;
 	}
 }
 

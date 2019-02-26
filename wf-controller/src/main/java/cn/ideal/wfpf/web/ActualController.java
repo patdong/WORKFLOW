@@ -123,7 +123,7 @@ public class ActualController extends PlatformFundation{
 		pageModel.setWf(WorkflowCache.getValue(wfId));		
 		pageModel.setMenu(wfService.findAllBlindTable());
 		pageModel.setNodeName(wfProcessor.findNodeName(wfId,pageModel.getBizId()));
-		
+		pageModel.setNextNodes(workflowNodeService.findNextNodes(pageModel.getNodeName(), wfId));
 		if(bizId.isPresent()) {			
 			pageModel.setNodeTree(workflowNodeService.getTreeNodes(wfId,bizId.get()));
 			pageModel.setWfBrief(wfBriefService.find(bizId.get(), wfId));
@@ -211,10 +211,12 @@ public class ActualController extends PlatformFundation{
 	 * @return
 	 * @throws Exception
 	 */
-	@PostMapping(value={"/doaction/{wfId}/{bizId}"})
-	public ModelAndView doaction(@PathVariable Long wfId, @PathVariable Long bizId,HttpServletRequest request) throws Exception{
-		ModelAndView mav = new ModelAndView("redirect:/app/list/"+wfId+"/1");						
-		wfProcessor.doAction(wfId, bizId, this.getWorkflowUser(request));
+	@PostMapping(value={"/doaction/{wfId}/{bizId}","/doaction/{wfId}/{bizId}/{nodeId}"})
+	public ModelAndView doaction(@PathVariable Long wfId, @PathVariable Long bizId,@PathVariable Optional<Long> nodeId, HttpServletRequest request) throws Exception{
+		ModelAndView mav = new ModelAndView("redirect:/app/list/"+wfId+"/1");	
+		if(nodeId.isPresent()){			
+			wfProcessor.doAction(wfId, bizId, this.getWorkflowUser(request), workflowNodeService.findNode(nodeId.get()));
+		}else wfProcessor.doAction(wfId, bizId, this.getWorkflowUser(request));
 		
 		return mav;
 	}

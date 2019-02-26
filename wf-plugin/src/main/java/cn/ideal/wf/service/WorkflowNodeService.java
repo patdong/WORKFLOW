@@ -54,4 +54,12 @@ public interface WorkflowNodeService {
 	 * @return
 	 */
 	WorkflowNode findFirstNode(Long wfId);
+	
+	/**
+	 * 获得流程的指定节点的可建立关联的后续节点
+	 * @param nodeId
+	 * @param wfId
+	 * @return
+	 */
+	List<WorkflowNode> findRelSufNodes(Long nodeId,Long wfId);
 }

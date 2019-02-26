@@ -18,6 +18,8 @@ public class PageModel extends Model{
 	private Long bizId;                            //当前业务编号，初始为空
 	private Workflow wf;                           //流程概述
 	private String nodeName;                       //当前办理节点
+	private List<WorkflowNode> nextNodes;          //当前办理节点的续办节点
+	private int nextNodeSize;                      //当前办理节点的续办节点个数
 	private WorkflowTableBrief tableBrief;         //表单概述
 	private WorkflowBrief wfBrief;                 //流程
 	private List<WorkflowTableElement> headLst;    //表单头
@@ -113,5 +115,19 @@ public class PageModel extends Model{
 	public void setButtons(List<WorkflowAction> buttons) {
 		this.buttons = buttons;
 	}
+
+	public List<WorkflowNode> getNextNodes() {
+		return nextNodes;
+	}
+
+	public void setNextNodes(List<WorkflowNode> nextNodes) {
+		this.nextNodes = nextNodes;
+		if(nextNodes != null) this.nextNodeSize = nextNodes.size();
+	}
+
+	public int getNextNodeSize() {
+		return nextNodeSize;
+	}
+	
 	
 }

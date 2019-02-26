@@ -167,6 +167,16 @@ public class WorkflowNode implements Serializable{
 	public void setAction(WorkflowAction action) {
 		this.action = action;
 	}
+	public int hashCode() {
+		return nodeId.hashCode();
+	}
+	public boolean equals(Object obj) {
+		if(obj instanceof WorkflowNode){
+			WorkflowNode wfn = (WorkflowNode)obj;
+			return wfn.getNodeId().equals(obj);
+		}
+		return false;
+	}
 	
 	
 }

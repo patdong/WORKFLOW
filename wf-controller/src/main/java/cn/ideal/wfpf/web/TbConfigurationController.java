@@ -277,6 +277,7 @@ public class TbConfigurationController {
 		mav.addObject("bodyList",bodyLst);
 		mav.addObject("footList",footLst);
 		mav.addObject("style",style);
+		mav.addObject("brief",tableService.find(tbId));
 		return mav;
     }
 	
@@ -297,6 +298,7 @@ public class TbConfigurationController {
 		mav.addObject("bodyList",tableService.findTableAllElements(tbId,"body",style));
 		mav.addObject("footList",tableService.findTableAllElements(tbId,"foot",style));
 		mav.addObject("style",style);
+		mav.addObject("brief",tableService.find(tbId));
 		return mav;
     }
 }

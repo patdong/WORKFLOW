@@ -3,6 +3,7 @@ package cn.ideal.wfpf.dao;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import cn.ideal.wfpf.model.Node;
 
@@ -46,5 +47,7 @@ public interface NodeMapper {
 	List<Node> findPreNode(Long nodeId);
 	
 	void deleteNode(Long nodeId);
+	
+	void deleteNodeNode(@Param("nodeId") Long nodeId, @Param("sufNodeId") Long sufNodeId);
 		
 }

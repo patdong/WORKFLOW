@@ -6,6 +6,7 @@ package cn.ideal.wfpf.web;
  * @version 2.0
  */
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -67,5 +68,20 @@ public class WfNodeController {
     public @ResponseBody boolean unfrozenNode(@PathVariable Long nodeId, HttpServletRequest request) {
 		nodeService.setValid(nodeId);		
 		return true;
+    }
+	
+	@PostMapping("/savesufnode")
+    public ModelAndView saveSufNode(HttpServletRequest request) {	
+		Node node = new Node();
+		node.setNodeId(Long.parseLong(request.getParameter("sufNodeId")));
+		node.setCreatedDate(new Date());
+		List<Node> preNodes = new ArrayList<Node>();
+		Node preNode = new Node();
+		preNode.setNodeId(Long.parseLong(request.getParameter("nodeNodeId")));
+		preNodes.add(preNode);
+		node.setPreNodes(preNodes);
+		
+		node = nodeService.saveNodeNode(node);		
+        return new ModelAndView("redirect:/wf/workflowdefination/"+node.getWfId());
     }
 }

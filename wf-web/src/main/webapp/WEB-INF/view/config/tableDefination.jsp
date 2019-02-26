@@ -353,7 +353,7 @@
   	<div style="background:#f8f9fa;">
   		<span class="mt-5" style="font-size: 1.75rem;margin-left:2%">表单定义 </span>
   		<span class="small-btn" style="background:#42a288;font-weight:bold;color: #ffc107;" onclick="location.href='/tb/tablecenter'">&nbsp;⬅&nbsp;</span>
-  		<span style="margin-left:2%;">模板&nbsp;<select style="font-size:.78rem;" id="template" onchange="changeTemplate();"><option value="table" >表格</option><option value="div">div</option></select></span> 
+  		<span style="margin-left:2%;">模板&nbsp;<select style="font-size:.78rem;" id="template" onchange="changeTemplate();"><option value="table">表格</option><option value="div">均分</option></select></span> 
   		<span style="margin-left:0.3%;">|</span> 
   		<span style="margin-left:0.3%;">风格&nbsp;<select style="font-size:.78rem;" id="style" onchange="changeStyle();"><option value="2">双列</option><option value="3">三列</option></select></span>
   		<span style="margin-left:0.3%;">|</span>

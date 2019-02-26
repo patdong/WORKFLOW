@@ -17,7 +17,6 @@ public class NodeServiceImpl implements NodeService {
 
 	@Autowired
 	private NodeMapper nodeMapper;
-
 	
 	@Override
 	@Transactional(propagation=Propagation.REQUIRED)
@@ -46,13 +45,37 @@ public class NodeServiceImpl implements NodeService {
 	@Override
 	@Transactional(propagation=Propagation.REQUIRED)
 	public void delete(Long nodeId) {
-		List<Node> sufNodes = nodeMapper.findSufNode(nodeId);
-		nodeMapper.deleteNodeNodes(nodeId);
-		nodeMapper.deleteNode(nodeId);
-		if(sufNodes.size() > 0){			
+		List<Node> sufNodes = nodeMapper.findSufNode(nodeId);			
+		//如果删除节点的直接后续节点对应一个父节点，则递归删除
+		if(sufNodes.size() > 1){			
 			for(Node node : sufNodes){
 				delete(node.getNodeId());
+				nodeMapper.deleteNodeNodes(nodeId);
+				nodeMapper.deleteNode(nodeId);
 			}
+		}else if(sufNodes.size() == 1){
+			//否则只删除当前最近的关系，循环其实至多只有一条记录			
+			for(Node node : sufNodes){
+				List<Node> preNodes = nodeMapper.findPreNode(node.getNodeId());
+				if(preNodes.size() == 0 || preNodes.size() == 1) {
+					delete(node.getNodeId());
+					nodeMapper.deleteNodeNodes(nodeId);
+					nodeMapper.deleteNode(nodeId);
+				}
+				else{
+					for(Node preNode : preNodes){				
+						if(preNode.getNodeId().compareTo(nodeId) == 0){
+							nodeMapper.deleteNodeNode(nodeId,node.getNodeId());	
+							nodeMapper.deleteNodeNodes(nodeId);
+							nodeMapper.deleteNode(nodeId);
+						}
+					}
+				}
+				
+			}
+		}else if(sufNodes.size() == 0){
+			nodeMapper.deleteNodeNodes(nodeId);
+			nodeMapper.deleteNode(nodeId);
 		}
 		
 	}
@@ -137,5 +160,13 @@ public class NodeServiceImpl implements NodeService {
 		return null;
 	}
 
-	
+	@Override
+	public Node saveNodeNode(Node node) {
+		int idx = nodeMapper.saveNodeNodes(node);
+		if(idx > 0){
+			return nodeMapper.find(node.getNodeId());
+		}
+		
+		return null;
+	}
 }

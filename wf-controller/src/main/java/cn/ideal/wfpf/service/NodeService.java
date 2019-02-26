@@ -23,4 +23,7 @@ public interface NodeService {
 	List<Node> findAllOnlyNode(Long wfId);
 	
 	Node setFrozeing(Long nodeId);
+	
+	Node saveNodeNode(Node node);
+	
 }

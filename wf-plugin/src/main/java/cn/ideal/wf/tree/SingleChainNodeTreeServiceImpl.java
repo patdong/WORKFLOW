@@ -158,62 +158,60 @@ public class SingleChainNodeTreeServiceImpl implements NodeTreeService {
 				tree[i][j] = new WorkflowNode();
 			}
 		}
-		//设置流程节点位置，设置流程节点前一个方向位
-		for(int i=0;i<tree.length;i++){
-			for(int j=0;j<tree[i].length;j++){
-				for(WorkflowNode node: nodes){
-					if(node.getHeight().intValue() == i && node.getDepth().intValue() == j){
-						tree[i][j] = node;
-						node.setStyle("node");						
-						if(node.getInnerHeight().intValue() == 0){
-							//设置流程节点
-							WorkflowNode pointer = new WorkflowNode();								
-							pointer.setStyle("pointer");
-							tree[i][j-1] = pointer;
-						}else{
-							//设置流程节点的前一个方向位
-							WorkflowNode pointer = new WorkflowNode();								
-							pointer.setStyle("lpointer");
-							tree[i][j-1] = pointer;								
-						}
-						
-					}
-				}
-			}
+		
+		//对树矩阵填值
+		for(WorkflowNode node: nodes){
+			tree[node.getHeight().intValue()][node.getDepth().intValue()] = node;
+			node.setStyle("node");
 		}
 		
-		//设置流程节点后一个方向位
-		for(int i=0;i<tree.length;i++){
-			for(int j=0;j<tree[i].length;j++){
-				for(WorkflowNode node: nodes){
-					if(node.getHeight().intValue() == i && node.getDepth().intValue() == j){
-						if(j+1 < tree[i].length){
-							WorkflowNode rNode = tree[i][j+1];
-							if(rNode.getStyle().equals("^")){
-								if(node.getSufNodes() != null ){
-									for(WorkflowNode snode : node.getSufNodes()){
-										for(WorkflowNode tnode : nodes){
-											if(snode.getNodeId().equals(tnode.getNodeId())){
-												//设置流程节点的最后一个方向位
-												if(tnode.getDepth() - node.getDepth() == 2){
-													tree[i][j+1].setStyle("rpointer");
-												}				
-											}
-										}
-									}								
-								}
+		//对树矩阵标方向
+		int h=0;
+		for(WorkflowNode tnode : nodes){
+			for(WorkflowNode snode : tnode.getSufNodes()){			
+				for(WorkflowNode node : nodes){
+					if(snode.getNodeId().equals(node.getNodeId())){						
+						h=node.getHeight().intValue()-tnode.getHeight().intValue();
+						
+						//深度处理
+						if(h==0){
+							for(int i=tnode.getDepth().intValue()+1;i<node.getDepth().intValue()-1;i++){
+								tree[tnode.getHeight().intValue()][i].setStyle("line");
 							}
-						}
+							tree[tnode.getHeight().intValue()][node.getDepth().intValue()-1].setStyle("pointer");
+						}else{
+							//高度处理
+							//节点下面
+							for(int i=tnode.getDepth().intValue()+1;i<node.getDepth().intValue();i++){
+								if(tree[tnode.getHeight().intValue()][i].getStyle().equals("^"))
+								tree[tnode.getHeight().intValue()][i].setStyle("line");
+							}
+							if(h>0){
+								for(int i=tnode.getHeight().intValue()+1;i<node.getHeight().intValue();i++){
+									if(tree[i][tnode.getDepth().intValue()+1].getStyle().equals("^"))
+									tree[i][tnode.getDepth().intValue()+1].setStyle("lline");
+								}
+								tree[node.getHeight().intValue()][tnode.getDepth().intValue()+1].setStyle("lpointer");
+							}
+							if(h<0){
+								for(int i=tnode.getHeight().intValue()-1;i>node.getHeight().intValue();i--){
+									if(tree[i][node.getDepth().intValue()].getStyle().equals("^"))
+									tree[i][node.getDepth().intValue()].setStyle("rline");
+								}
+								tree[tnode.getHeight().intValue()][node.getDepth().intValue()].setStyle("rpointer");
+							}	
+						}					
 					}
-					
 				}
 			}
-		}
+		}	
+		
 		
 		//流程根节点的前置节点
 		WorkflowNode userNode = tree[0][0];
 		userNode.setStyle("user");
-		
+		userNode = tree[0][1];
+		userNode.setStyle("pointer");
 		
 		return tree;
 	}

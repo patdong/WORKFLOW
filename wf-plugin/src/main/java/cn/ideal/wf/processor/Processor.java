@@ -56,5 +56,4 @@ public interface Processor {
 	
 	String findNodeName(Long wfId,Long bizId);
 	
-	
 }

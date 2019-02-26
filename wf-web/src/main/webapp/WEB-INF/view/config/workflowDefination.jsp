@@ -24,14 +24,6 @@
     	$('#roleName').text($(this).text());    	
     	$('#roleId').val($(this).attr("value"));    	    	
     });
-    $('#action-ul li').on('click', function(){ 
-    	$('#actionName').text($(this).text());
-    	$('#action').val($(this).attr("value")); 
-    });
-    $('#nType-ul li').on('click', function(){    	
-    	$('#nTypeName').text($(this).text());
-    	$('#nType').val($(this).text()); 
-    }); 
     
     showButtons(null);
   });
@@ -183,10 +175,8 @@
 			  $("#wfId").val(node.wfId);
 			  $("#nodeId").val(node.nodeId);
 			  $("#nodename").val(node.nodename);
-			  $('#nTypeName').text(node.nType);
 		      $('#nType').val(node.nType);
-		      if(node.nodeAction != null){
-			      $('#actionName').text(node.nodeAction.actionName);		     
+		      if(node.nodeAction != null){			      	    
 			      $('#action').val(node.nodeAction.actionCodeName); 
 		      }
 		      $("input[name=status][value="  + node.status + "]").prop('checked', true);
@@ -413,9 +403,7 @@
 	  $("#warn4").hide();
 	  $("#warn5").hide();
 	  $("#warn6").hide();
-	  $("#nTypeName").text("节点属性");
-	  $("#nType").val("");	  
-	  $("#actionName").text("节点行为");
+	  $("#nType").val("");	  	  
 	  $("#action").val("");
 	  showButtons(null);
 	  
@@ -447,6 +435,30 @@
 	  $("#button-div").hide();
 	  $("#button").val(buttonActions);
   }
+  
+  //设置节点关联
+  function showNodeNodes(){
+	  var wfId = $("#wfId").val();
+	  $("#nodeNodeId").val(clickedNodeId);
+	  $.ajax({
+  		  type: 'GET',
+  		  url: "/wf/getsufnodes/"+clickedNodeId+"/"+wfId, 
+  		  dataType: 'json',
+  		  success: function(data){ 
+  			$("#sufNodeId").empty();
+  			$("#sufNodeId").append("<option>后置节点</option>");
+  			$.each(data,function (index,node) {
+  				$("#sufNodeId").append("<option value='"+node.nodeId+"'>"+node.nodeName+"</option");
+  			});
+  			$('#node-nodes-div').show();
+  		    $('#nodesForm')[0].reset();
+  		  },
+  		  error: function(XMLHttpRequest, textStatus, errorThrown){
+  			  console.warn(XMLHttpRequest.responseText);			  
+  		  }
+  	});
+	  
+  }
 </script>
 <div class="container" style="padding-top:5%">
 	<div id="content">
@@ -460,11 +472,11 @@
 		</div>			
 	</div>
 	<div class="line"></div>
-	<div id="workflow" class="draw" style="margin-top: 12px;">
-		<table style=" margin:1% 0 0 1%; border:px solid">
+	<div id="workflow" class="draw" style="margin-top: 12px;width:82%">
+		<table style=" margin:1% 0 0 1%;" border=0>
 			<c:forEach items="${nodetree}" varStatus="i" var="nodes" >
-				<tr style="height:75px">
-				<c:forEach items="${nodes}" varStatus="j" var="node" >					
+				<tr >
+				<c:forEach items="${nodes}" varStatus="j" var="node" >
 					<c:if test="${node.style eq 'user' }">
 						<td style="height:40px"><img src="/img/wf_btn4.PNG" style="vertical-align: middle;"></td>
 					</c:if>
@@ -476,6 +488,15 @@
 					</c:if>
 					<c:if test="${node.style eq 'rpointer' }">
 						<td><img src="/img/wf_btn9.PNG" style="vertical-align: middle;"></td>
+					</c:if>
+					<c:if test="${node.style eq 'lline' }">
+						<td><img src="/img/wf_btn16.PNG" style="vertical-align: middle;"></td>
+					</c:if>
+					<c:if test="${node.style eq 'rline' }">
+						<td><img src="/img/wf_btn17.PNG" style="vertical-align: middle;"></td>
+					</c:if>
+					<c:if test="${node.style eq 'line' }">
+						<td><img src="/img/wf_btn7.PNG" style="vertical-align: middle;"></td>
 					</c:if>
 					<c:if test="${node.style eq 'node' }">					
 						<td>					
@@ -518,49 +539,19 @@
 		        <label style="display:none;color:red;font-weight:bold;" id="warn1">!</label>		        		       
 		    </div>
 		    <div class="popup-form-group">
-		        <div class="navbar" style=" padding: 0rem 0rem;">
-			        <div class="navbar-inner">
-			            <div class="container" style="padding-left: 0px;">		        		        			        
-		                <ul class="nav">			                    
-		                    <li class="dropdown" id="accountmenu">
-		                        <button type="button" id="nTypeName" class="btn btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="position:overflow;font-size: 1rem">
-							    	&nbsp;节点属性
-							  	</button>
-							  	<label style="display:none;color:red;font-weight:bold;" id="warn2">!</label>
-							  	<input type="hidden" name="nType" id="nType"/>
-		                        <ul class="dropdown-menu" id="nType-ul">
-		                        	<li><a class="dropdown-item" href="#" onclick="nodeKeydown('warn2');">串行</a></li>
-							  		<!-- <li><a class="dropdown-item" href="#" onclick="nodeKeydown('warn2');">并行</a></li>	-->					  					                            
-		                        </ul>
-		                    </li>		                    
-		                </ul>
-		                
-		               	</div>
-		            </div>
-		            
-		        </div>	
+		    	<select name="nType" id="nType" class="form-control-one-line" onclick="nodeKeydown('warn2');" style="width:75%">
+		    		<option>节点属性</option>
+		    		<option value="串行">串行</option>
+		    	</select>
+		        
 		    </div>		    
 	        <div class="popup-form-group">
-	        	<div class="navbar" style=" padding: 0rem 0rem;">
-			        <div class="navbar-inner">
-			            <div class="container" style="padding-left: 0px;">		        		        			        
-		                <ul class="nav">			                    
-		                    <li class="dropdown" id="accountmenu">
-		                        <button type="button" id="actionName" class="btn btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="position:overflow;font-size: 1rem">
-							    	&nbsp;节点行为
-							  	</button>
-							  	<label style="display:none;color:red;font-weight:bold;" id="warn3">!</label>
-							  	<input type="hidden" name="nodeAction.actionCodeName" id="action"/>
-		                        <ul class="dropdown-menu" id="action-ul">
-		                        	<c:forEach var="item" items="${actions}" varStatus="status">
-							  			<li value="${item.actionCodeName}" onclick="nodeKeydown('warn3');"><a class="dropdown-item" href="#">${item.actionName}</a></li>
-							  		</c:forEach>		                        		                           
-		                        </ul>
-		                    </li>
-		                </ul>
-		               	</div>
-		            </div>		            
-		        </div>		        		          			        			      
+	        	<select name="nodeAction.actionCodeName" id="action" class="form-control-one-line" onclick="nodeKeydown('warn3');" style="width:75%">
+		    		<option>节点行为</option>
+		    		<c:forEach var="item" items="${actions}" varStatus="status">
+			  			<option value="${item.actionCodeName}" >${item.actionName}</option>
+			  		</c:forEach>	
+		    	</select>	        			        		          			        			     
 	        </div>	
 	        <div class="popup-form-group">
 	        	<label for="button" class="sr-only">操作协助</label>
@@ -642,48 +633,12 @@
     </header>
     <hr style="margin-top: .5rem; margin-bottom: .5rem;"></hr>
     <div style="padding: 0px 13px 0px;">
-		<form id="nodesForm" class="navbar-form navbar-left" method="post" modelAttribute="node" action="/wfnode/savenode">	  			      
-		    <div class="popup-form-group">
-		        <div class="navbar" style=" padding: 0rem 0rem;">
-			        <div class="navbar-inner">
-			            <div class="container" style="padding-left: 0px;">		        		        			        
-		                <ul class="nav">			                    
-		                    <li class="dropdown" id="accountmenu">
-		                        <button type="button" id="preNodeName" class="btn btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="position:overflow;font-size: 1rem">
-							    	&nbsp;前置节点
-							  	</button>
-							  	<input type="hidden" name="preNodeId" id="preNodeId"/>
-		                        <ul class="dropdown-menu" id="preNodeId-ul">
-		                        	<c:forEach var="item" items="${nodeset}" varStatus="status">
-							  			<li value="${item.nodeId}"><a class="dropdown-item" href="#">${item.nodename}</a></li>
-							  		</c:forEach>						  					                            
-		                        </ul>
-		                    </li>
-		                </ul>
-		               	</div>
-		            </div>
-		        </div>	
-		    </div>		    
+		<form id="nodesForm" class="navbar-form navbar-left" method="post" action="/wfnode/savesufnode">
+			<input type="hidden" id="nodeNodeId" name="nodeNodeId" value="">	        
 	        <div class="popup-form-group">
-	        	<div class="navbar" style=" padding: 0rem 0rem;">
-			        <div class="navbar-inner">
-			            <div class="container" style="padding-left: 0px;">		        		        			        
-		                <ul class="nav">			                    
-		                    <li class="dropdown" id="accountmenu">
-		                        <button type="button" id="sufNodeName" class="btn btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="position:overflow;font-size: 1rem">
-							    	&nbsp;后置节点
-							  	</button>
-							  	<input type="hidden" name="sufNodeId" id="sufNodeId"/>
-		                        <ul class="dropdown-menu" id="sufNode-ul">
-		                        	<c:forEach var="item" items="${nodeset}" varStatus="status">
-							  			<li value="${item.nodeId}"><a class="dropdown-item" href="#">${item.nodename}</a></li>
-							  		</c:forEach>	                            
-		                        </ul>
-		                    </li>
-		                </ul>
-		               	</div>
-		            </div>
-		        </div>		          			        			       
+	            <select name="sufNodeId" id="sufNodeId" class="form-control-one-line" required >
+			        <option>后置节点</option>			       
+			    </select>	        		          			        			      
 	        </div>		        
 	        <hr></hr>		        		      
 	        <div style="margin-bottom:10px;margin-top:10px">
@@ -763,11 +718,11 @@
 	<div class="popup-close" style="cursor:pointer;" onclick="$('#PopUp-1').hide();">×</div>
 	<SPAN style="cursor:pointer;" onclick="$('#PopUp-1').hide();$('#node-div').show();$('#myForm')[0].reset();">新增</SPAN>
 	<hr style="margin-top: 0.3rem;margin-bottom: 0.3rem;"></hr>
-	<SPAN style="cursor:pointer;" onclick="$('#PopUp-1').hide();$('#node-div').show();showNode();">修改</SPAN>
-	<!-- 以下功能暂缓，业务还没想清楚
+	<SPAN style="cursor:pointer;" onclick="$('#PopUp-1').hide();$('#node-div').show();showNode();">修改</SPAN>	
 	<p style="margin-top: 0.3rem;margin-bottom: 0.3rem;"></p>
-	<SPAN style="cursor:pointer;" onclick="$('#PopUp-1').hide();$('#node-nodes-div').show();$('#nodesForm')[0].reset();">关联</SPAN>	
+	<SPAN style="cursor:pointer;" onclick="$('#PopUp-1').hide();showNodeNodes();">关联</SPAN>	
 	<hr style="margin-top: 0.3rem;margin-bottom: 0.3rem;"></hr>	
+	<!-- 以下功能暂缓，业务还没想清楚
 	<SPAN style="cursor:pointer;" onclick="$('#PopUp-1').hide();frozenNode();" id="frozen">冻结</SPAN>
 	<SPAN style="cursor:pointer;" onclick="$('#PopUp-1').hide();unfrozenNode();" id="unfrozen">解冻</SPAN>
 	<p style="margin-top: 0.3rem;margin-bottom: 0.3rem;"></p>

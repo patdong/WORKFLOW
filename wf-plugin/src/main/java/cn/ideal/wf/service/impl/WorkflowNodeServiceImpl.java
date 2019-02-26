@@ -112,4 +112,34 @@ public class WorkflowNodeServiceImpl implements WorkflowNodeService{
 	public WorkflowNode findFirstNode(Long wfId) {
 		return WorkflowNodeCache.getFirstNode(wfId);
 	}
+
+	@Override
+	public List<WorkflowNode> findRelSufNodes(Long nodeId, Long wfId) {
+		WorkflowNode[][] wfNodes = this.getTreeNodes(wfId);
+		List<WorkflowNode> wfns = new ArrayList<WorkflowNode>();
+		WorkflowNode node = null;
+		boolean outer = false;
+		for(int i=0;i<wfNodes.length;i++){
+			for(int j=0;j<wfNodes[i].length;j++){
+				if(wfNodes[i][j].getStyle() != null && wfNodes[i][j].getStyle().equals("node")){
+					if(wfNodes[i][j].getNodeId().compareTo(nodeId) == 0){
+						node = wfNodes[i][j];
+						outer = true;
+						break;
+					}
+				}
+			}
+			if(outer) break;
+		}
+		
+		for(int j=node.getDepth().intValue()+1;j<wfNodes[0].length;j++){
+			for(int i=node.getHeight().intValue();i>=0;i--){			
+				if(wfNodes[i][j].getStyle().equals("node")){
+					wfns.add(wfNodes[i][j]);
+					break;
+				}
+			}
+		}
+		return wfns;
+	}
 }

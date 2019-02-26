@@ -129,7 +129,7 @@ code {
 
 .line-gap-table{
 	overflow:auto;
-	width: 93%;
+	width: 95%;
 	height: 12px;
 	margin-right:2%;
 	margin-left:2%;
@@ -139,7 +139,7 @@ code {
 }
 .draw{
 	overflow:auto;	
-	width: 76%;
+	width: 76%;	
 	height: 70%;	
 	box-shadow: 0px 2px 2px #2ef90a;
 	position: absolute;

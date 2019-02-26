@@ -70,7 +70,7 @@
 	</select>
 	
 	<!-- 获取前置节点 -->
-	<select id="findPreNode" resultMap="workflownode" parameterType="java.lang.Long">
+	<select id="findPreNode" resultType="cn.ideal.wf.model.WorkflowNode" parameterType="java.lang.Long">
 		select n.* from workflow_node n
 		inner join workflow_node_nodes a on n.nodeId = a.nodeId
 		 where a.suf_nodeId = #{nodeId}
@@ -78,7 +78,7 @@
 	</select>
 	
 	<!-- 获取后置节点 -->
-	<select id="findSufNode" resultMap="workflownode" parameterType="java.lang.Long">
+	<select id="findSufNode" resultType="cn.ideal.wf.model.WorkflowNode" parameterType="java.lang.Long">
 		select n.* from workflow_node n
 		inner join workflow_node_nodes a on a.suf_nodeId = n.nodeId
 		 where a.nodeId = #{nodeId}

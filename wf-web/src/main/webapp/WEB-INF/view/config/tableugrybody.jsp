@@ -9,9 +9,9 @@
        	<input type="text" name="tableName" id="tableName" class="form-control" placeholder="表单名称"  style="text-align:center;font-weight:bold;font-size:2.2rem;" value="${brief.tableName }" onkeypress="setTableName(event);" />
 	</div>
 	<!-- 表单头 -->
-	<div style="text-align:center;margin-left:2%;margin-right:2%;margin-top: 7%;">
-		<div class="table-container">
-			<table border="1" >
+	<div style="text-align:center;margin-top:7%;margin-left:2%;margin-right:2%">
+		<div class="table-container" style="margin-left:0px">
+			<table border="1" style="width:100%">
 			<c:forEach items="${headList}" varStatus="i" var="elements" >
 				<tr style="height:75px">
 				<c:forEach items="${elements}" varStatus="j" var="element" >
@@ -53,10 +53,10 @@
 	</div>
 	<div class="line-gap-table"></div>
 	<!-- 表单体 -->
-	<div style="text-align:center;margin-left:2%;margin-right:2%;margin-top: 7%;">
-		<div class="table-container">
-			<table border="1" >
-			<c:forEach items="${bodyList}" varStatus="i" var="elements" >
+	<div style="text-align:center;margin-top:7%;margin-left:2%;margin-right:2%">
+		<div class="table-container" style="margin-left:0px">
+			<table border="1" style="width:100%">
+			<c:forEach items="${bodyList}" varStatus="i" var="elements" >				
 				<tr style="height:75px">
 				<c:forEach items="${elements}" varStatus="j" var="element" >
 					<c:if test="${!empty element.newLabelName }">					
@@ -90,16 +90,16 @@
 					</td>
 					</c:if>					
 				</c:forEach>
-				</tr>
+				</tr>				
 			</c:forEach>
 			</table>				
 		</div>
 	</div>
 	<div class="line-gap-table"></div>
 	<!-- 表单尾 -->
-	<div style="text-align:center;margin-left:2%;margin-right:2%;margin-top: 7%;">
-		<div class="table-container">
-			<table border="1" >
+	<div style="text-align:center;margin-top:7%;margin-left:2%;margin-right:2%">
+		<div class="table-container" style="margin-left:0px">
+			<table border="1" style="width:100%">
 			<c:forEach items="${footList}" varStatus="i" var="elements" >
 				<tr style="height:75px">
 				<c:forEach items="${elements}" varStatus="j" var="element" >
