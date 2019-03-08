@@ -10,6 +10,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,6 +23,7 @@ import org.springframework.web.servlet.ModelAndView;
 import cn.ideal.wf.model.Workflow;
 import cn.ideal.wf.model.WorkflowNode;
 import cn.ideal.wf.service.WorkflowNodeService;
+import cn.ideal.wf.tree.FlowChatService;
 import cn.ideal.wfpf.model.CertificationOrg;
 import cn.ideal.wfpf.model.CertificationRole;
 import cn.ideal.wfpf.model.CertificationUser;
@@ -51,6 +53,9 @@ public class WfConfigurationController {
 	private WorkflowNodeService workflowNodeService;
 	@Autowired
 	private ActionService actionService;
+	@Autowired
+	@Qualifier("richFlowChatService")
+	private FlowChatService flowChatService;
 	/**
 	 * 工作流定义中心
 	 * */
@@ -108,13 +113,13 @@ public class WfConfigurationController {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		mav.addObject("wf",workflowService.find(wfId));		
-		List<Node> nodes = nodeService.findAllOnlyNode(wfId);
-		mav.addObject("nodetree",workflowNodeService.getTreeNodes(wfId));
+		mav.addObject("wf",workflowService.find(wfId));					
+		mav.addObject("flowchat",flowChatService.draw(wfId).toString());
 		mav.addObject("actions",actionService.findWfAll());
 		
 		try {
 			ObjectMapper mapper = new ObjectMapper();
+			List<Node> nodes = nodeService.findAllOnlyNode(wfId);
 			mav.addObject("nodes",mapper.writeValueAsString(nodes));
 			mav.addObject("buttons",mapper.writeValueAsString(actionService.findBtnAll()));
 		} catch (JsonProcessingException e) {			

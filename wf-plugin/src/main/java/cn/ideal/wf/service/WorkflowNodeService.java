@@ -7,6 +7,7 @@ package cn.ideal.wf.service;
  */
 import java.util.List;
 
+import cn.ideal.wf.model.FlowChatNode;
 import cn.ideal.wf.model.WorkflowAction;
 import cn.ideal.wf.model.WorkflowNode;
 import cn.ideal.wf.model.WorkflowUser;
@@ -36,11 +37,7 @@ public interface WorkflowNodeService {
 	
 	WorkflowNode save(WorkflowNode node);
 	
-	List<WorkflowNode> findAll(Long wfId);
-	
-	WorkflowNode[][] getTreeNodes(Long wfId,Long bizId);
-
-	WorkflowNode[][] getTreeNodes(Long wfId);
+	List<WorkflowNode> findAll(Long wfId);	
 	
 	WorkflowNode findNode(Long nodeId);
 	
@@ -62,4 +59,11 @@ public interface WorkflowNodeService {
 	 * @return
 	 */
 	List<WorkflowNode> findRelSufNodes(Long nodeId,Long wfId);
+	
+	/**
+	 * 图形化节点信息
+	 * @param wfId
+	 * @return
+	 */
+	List<FlowChatNode> findAllForFlowChat(long wfId);
 }

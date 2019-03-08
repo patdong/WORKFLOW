@@ -187,7 +187,7 @@ code {
 	display: table-cell;
 	height: 40px; /*change this and the width
 	for the size of your initial circle*/
-	width: 80px;
+	width: 90px;
 	text-align: center;
 	vertical-align: middle;
 	border-radius: 50%;
@@ -548,4 +548,51 @@ code {
 }
 .form-group-dialog{
 	margin-bottom: .5rem
+}
+
+.draw-arrow {
+    width:120px;
+}
+
+.draw-line {
+    margin-top:14px;
+    width:90px;
+    background:blue;
+    height:10px;
+    float:left;
+}
+.draw-point {    
+    width: 0;
+    height: 0; 
+    border-top: 20px solid transparent;
+    border-bottom: 20px solid transparent;
+    border-left: 30px solid blue;
+    float:right;
+}
+.draw-down-line {
+    width:70%;
+}
+.draw-down-line:after {
+    content:'';
+    position: absolute;
+    border-style: solid;
+    border-width: 7px 7px 0;
+    border-color: #FFFFFF transparent;
+    display: block;
+    width: 0;
+    z-index: 1;
+    top: 8px;
+    left: 45%;
+}
+.draw-down-line:before {
+    content:'';
+    position: absolute;
+    border-style: solid;
+    border-width: 7px 7px 0;
+    border-color: #7F7F7F transparent;
+    display: block;
+    width: 0;
+    z-index: 1;
+    top: 9px;
+    left: 45%;
 }

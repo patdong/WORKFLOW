@@ -86,60 +86,11 @@
         	<span class="badge badge-secondary badge-pill" style="background-color:#46a70a;cursor:pointer;" onclick="$('#workflow').hide();">×</span>
         </div>	      	     
    	</header>
-   	<hr style="margin-top: .5rem; margin-bottom: .5rem;"></hr>   	 	
-	<table style=" margin:1% 0 0 1%; border:px solid">
-		<c:forEach items="${model.nodeTree}" varStatus="i" var="nodes" >
-			<tr style="height:75px">
-			<c:forEach items="${nodes}" varStatus="j" var="node" >					
-				<c:if test="${node.style eq 'user' }">
-					<td style="height:40px"><img src="/img/wf_btn4.PNG" style="vertical-align: middle;"></td>
-				</c:if>
-				<c:if test="${node.style eq 'pointer' }">
-					<td><img src="/img/wf_btn6.PNG" style="vertical-align: middle;"></td>
-				</c:if>
-				<c:if test="${node.style eq 'lpointer' }">
-					<td><img src="/img/wf_btn8.PNG" style="vertical-align: middle;"></td>
-				</c:if>
-				<c:if test="${node.style eq 'rpointer' }">
-					<td><img src="/img/wf_btn9.PNG" style="vertical-align: middle;"></td>
-				</c:if>
-				<c:if test="${node.style eq 'node' }">					
-					<td>
-						<c:choose>
-							<c:when test="${ node.status eq '冻结' }">
-								<div class="circle-dotted-text" >
-									<font style="font-size:15px">${node.nodeName }</font>
-								</div>
-							</c:when>
-							<c:when test="${ node.status eq '有效' }">								
-								<c:choose>
-									<c:when test="${ node.passed eq 'passed' }">
-										<div class="circle-green-text" >
-											<font style="font-size:15px">${node.nodeName }</font>
-										</div>
-									</c:when>
-									<c:when test="${ node.passed eq 'passing' }">
-										<div class="circle-blue-text" >
-											<font style="font-size:15px">${node.nodeName }</font>
-										</div>
-									</c:when>
-									<c:when test="${empty node.passed}">
-										<div class="circle-text" >
-											<font style="font-size:15px">${node.nodeName }</font>
-										</div>
-									</c:when>	
-								</c:choose>														
-							</c:when>
-						</c:choose>						
-					</td>	
-				</c:if>
-				<c:if test="${node.style eq '^' }">
-					<td></td>
-				</c:if>			    	
-		    </c:forEach>
-		    </tr>
-		</c:forEach>						
-	</table>
+   	<hr style="margin-top: .5rem; margin-bottom: .5rem;"></hr>  
+   	<!--  	 	
+	
+	-->
+	${model.flowChat}
 </div>
 <!-- 续办节点选择窗口 -->
 <div id="nextNodes-dialog" style="box-shadow: 0px 2px 2px #2ef90a;position: absolute;top:12%;z-index: 999;background:white;right:20px;display:none;">

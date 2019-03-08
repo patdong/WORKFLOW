@@ -4,18 +4,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import cn.ideal.wf.cache.WorkflowNodeCache;
 import cn.ideal.wf.common.WFConstants;
 import cn.ideal.wf.dao.WorkflowNodeMapper;
+import cn.ideal.wf.model.FlowChatNode;
 import cn.ideal.wf.model.WorkflowAction;
-import cn.ideal.wf.model.WorkflowFlow;
 import cn.ideal.wf.model.WorkflowNode;
 import cn.ideal.wf.model.WorkflowUser;
 import cn.ideal.wf.service.WorkflowFlowService;
 import cn.ideal.wf.service.WorkflowNodeService;
-import cn.ideal.wf.tree.NodeTreeService;
+import cn.ideal.wf.tree.FlowChatService;
 
 @Service
 public class WorkflowNodeServiceImpl implements WorkflowNodeService{
@@ -25,7 +26,8 @@ public class WorkflowNodeServiceImpl implements WorkflowNodeService{
 	@Autowired
 	private WorkflowFlowService workflowFlowService;
 	@Autowired
-	private NodeTreeService singleChainNodeTreeService;
+	@Qualifier("richFlowChatService")
+	private FlowChatService flowChatService;
 	
 	@Override
 	public List<WorkflowNode> findNextNodes(Long nodeId) {
@@ -70,29 +72,7 @@ public class WorkflowNodeServiceImpl implements WorkflowNodeService{
 	public List<WorkflowNode> findAll(Long wfId) {
 		return workflowNodeMapper.findAll(wfId);
 	}
-
-	@Override
-	public WorkflowNode[][] getTreeNodes(Long wfId, Long bizId) {
-		List<WorkflowNode> nodes = this.findAll(wfId);
-		List<WorkflowFlow> wfflows = workflowFlowService.findAll(bizId,wfId);
-		for(WorkflowFlow wf : wfflows){
-			for(WorkflowNode node :nodes){
-				if(wf.getNodeName().equals(node.getNodeName())) {
-					//设置办理完毕的节点
-					if(wf.getFinishedDate() != null) node.setPassed("passed");
-					else node.setPassed("passing");
-				}
-			}
-		}
-		return singleChainNodeTreeService.decorateNodeTree(nodes);
-	}
 	
-	@Override
-	public WorkflowNode[][] getTreeNodes(Long wfId) {
-		List<WorkflowNode> nodes = this.findAll(wfId);
-		return singleChainNodeTreeService.decorateNodeTree(nodes);		
-	}
-
 	@Override
 	public WorkflowNode findNode(Long nodeId) {
 		return workflowNodeMapper.find(nodeId);
@@ -115,31 +95,20 @@ public class WorkflowNodeServiceImpl implements WorkflowNodeService{
 
 	@Override
 	public List<WorkflowNode> findRelSufNodes(Long nodeId, Long wfId) {
-		WorkflowNode[][] wfNodes = this.getTreeNodes(wfId);
-		List<WorkflowNode> wfns = new ArrayList<WorkflowNode>();
-		WorkflowNode node = null;
-		boolean outer = false;
-		for(int i=0;i<wfNodes.length;i++){
-			for(int j=0;j<wfNodes[i].length;j++){
-				if(wfNodes[i][j].getStyle() != null && wfNodes[i][j].getStyle().equals("node")){
-					if(wfNodes[i][j].getNodeId().compareTo(nodeId) == 0){
-						node = wfNodes[i][j];
-						outer = true;
-						break;
-					}
-				}
+		List<WorkflowNode> nodes = this.findAll(wfId);
+		for(WorkflowNode node : nodes){
+			if(node.getNodeId().compareTo(nodeId) == 0){
+				//List<WorkflowNode> preNodes = node.getPreNodes();
+				nodes.remove(node);
+				break;
 			}
-			if(outer) break;
 		}
 		
-		for(int j=node.getDepth().intValue()+1;j<wfNodes[0].length;j++){
-			for(int i=node.getHeight().intValue();i>=0;i--){			
-				if(wfNodes[i][j].getStyle().equals("node")){
-					wfns.add(wfNodes[i][j]);
-					break;
-				}
-			}
-		}
-		return wfns;
+		return nodes;
+	}
+	
+	@Override
+	public List<FlowChatNode> findAllForFlowChat(long wfId){
+		return workflowNodeMapper.findAllForFlowChat(wfId);
 	}
 }

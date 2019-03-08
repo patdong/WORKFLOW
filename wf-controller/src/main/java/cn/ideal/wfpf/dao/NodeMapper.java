@@ -49,5 +49,11 @@ public interface NodeMapper {
 	void deleteNode(Long nodeId);
 	
 	void deleteNodeNode(@Param("nodeId") Long nodeId, @Param("sufNodeId") Long sufNodeId);
+	
+	void delegation(@Param("nodeId") Long nodeId, @Param("delegationNodeId") Long delegationNodeId);
+	
+	void deleteNodeLinks(@Param("nodeId") Long nodeId, @Param("linkNodeIds") Long[] linkNodeIds);
+	
+	Node findOneSufNode(@Param("nodeId") Long nodeId, @Param("sufNodeId") Long sufNodeId);
 		
 }

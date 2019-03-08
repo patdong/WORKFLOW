@@ -160,13 +160,36 @@ public class NodeServiceImpl implements NodeService {
 		return null;
 	}
 
+	//建立节点间的关联
 	@Override
 	public Node saveNodeNode(Node node) {
-		int idx = nodeMapper.saveNodeNodes(node);
-		if(idx > 0){
-			return nodeMapper.find(node.getNodeId());
+		//判断要连接的节点是否已经存在，如果存在则不用再加入
+		List<Node> preNodes = node.getPreNodes();
+		if(preNodes.size() == 1) {
+			Node oldNode = nodeMapper.findOneSufNode(preNodes.get(0).getNodeId(),node.getNodeId());
+			if(oldNode == null){
+				int idx = nodeMapper.saveNodeNodes(node);
+				if(idx > 0){
+					return nodeMapper.find(node.getNodeId());
+				}
+			}
 		}
-		
 		return null;
+	}
+
+	//为删除节点设置委托节点
+	@Override
+	@Transactional(propagation=Propagation.REQUIRED)
+	public void setDelegationNode(Long nodeId, Long delegationNodeId) {		
+		nodeMapper.delegation(nodeId, delegationNodeId);
+		nodeMapper.deleteNodeNodes(nodeId);
+		nodeMapper.deleteNode(nodeId);
+	}
+
+	//删除连接
+	@Override
+	public void deleteLink(Long nodeId, Long[] linkNodeIds) {
+		//如果存在的连接个数只有一个，那么不做删除操作
+		nodeMapper.deleteNodeLinks(nodeId, linkNodeIds);
 	}
 }

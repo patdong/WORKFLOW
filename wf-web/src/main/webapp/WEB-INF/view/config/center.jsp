@@ -47,7 +47,7 @@
 	<div style="position: absolute;right: 160px;bottom:395px;"><span class="small-btn" style="background-color:#bbb8b6;">&nbsp;❒&nbsp;</span></div>
 	<div style="position: absolute;right: 155px;bottom:405px;"><span class="small-btn" style="background-color:#bace15;">&nbsp;❒&nbsp;</span></div>
 	
-	<div style="position: absolute;right: 90px;bottom:335px;"><img src="/img/wf_btn5.PNG" style="vertical-align: middle;"></div>
+	<div style="position: absolute;right: 90px;bottom:335px;z-index: 1;"><img src="/img/wf_btn5.PNG" style="vertical-align: middle;"></div>
 	<div style="position: absolute;right: 105px;bottom:300px;"><img src="/img/wf_btn9.PNG" style="vertical-align: middle;"></div>
 	<div style="position: absolute;right: 155px;bottom:290px;"><img src="/img/wf_btn5.PNG" style="vertical-align: middle;"></div>
 	

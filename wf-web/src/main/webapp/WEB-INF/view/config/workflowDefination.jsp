@@ -154,8 +154,8 @@
 		  y = event.clientY + window.scrollY;
 	  }
 	  x -= 2; 
-	  y -= 2;
 	  y = y+15
+	  if(y>500) y=410;
 	  el.style.left = x + "px";
 	  el.style.top = y + "px";
 	  el.style.display = "block";
@@ -249,7 +249,7 @@
           +"<span class=\"text-muted\">操作按钮</span>"
           +"<span class=\"text-muted\">选择</span>"
           +"</li>";
-      $("#button-lst").append(li);
+      $("#button-lst").append(li);      
       $.each(buttons,function (index, action) {
     	  var checked = "";
     	  if(node != null){
@@ -269,9 +269,65 @@
 	  })
   }
   
-  //节点删除确认
+  //删除指定节点的连接
+  function delLinkConfirm(){
+	  $("#link-div").show();
+	  $("#link-lst").empty();
+	  var li = "<li class=\"list-group-item d-flex justify-content-between lh-condensed\" style=\"height: 40px;background-color: #adcabc;\">"             
+  		  +"<div>"
+    	  +"<h6 class=\"my-0\">&nbsp;连接节点名称</h6>"               
+          +"</div>"         
+          +"<span class=\"text-muted\">选择</span>"
+          +"</li>";
+      $("#link-lst").append(li);
+      var nodes = ${nodes};
+	  $.each(nodes,function(key,node){
+		  if(node.nodeId == clickedNodeId){			  
+			  var sufNodes = node.sufNodes;					
+			  if(sufNodes.length > 0){				  
+				  $.each(sufNodes,function (index, data) {	
+					  li = "<li class='list-group-item d-flex justify-content-between lh-condensed' style='height: 40px;'> "
+		            	  +"<span class=\"text-muted\">"+data.nodename+"</span> "
+		            	  +"<span class=\"text-muted\"><input type=\"checkbox\" name=\"linkChecked\" checked value=\""+data.nodeId+"\"></span> "
+		          		  +"</li> ";
+					  $("#link-lst").append(li);
+				  })				 			 
+			  }
+		  }
+	  });
+  }
+  
+  //取消节点连接
+  function delNodeLink(){
+	  var linkNodeIds = "";
+	  $('input:checkbox[name=linkChecked]:checked').each(function(k){
+		  linkNodeIds += $(this).val()+",";
+  	  })
+	  if(linkNodeIds.length > 0){		 
+		  linkNodeIds = linkNodeIds.substring(0,linkNodeIds.length-1);
+	  }	
+	  var url = "";
+	  if(linkNodeIds == "") {
+		  url = '/wfnode/delNodeLink/'+clickedNodeId;
+	  }else{
+		  url = '/wfnode/delNodeLink/'+clickedNodeId+'/'+linkNodeIds;
+	  }
+	  $("#link-div").hide();
+	  $.ajax({
+		  type: 'GET',
+		  url: url,
+		  dataType: 'json',
+		  success: function(data){
+			  location.href="/wf/workflowdefination/"+$("#wfId").val();
+		  },
+		  error: function(XMLHttpRequest, textStatus, errorThrown){
+			  console.warn(XMLHttpRequest.responseText);		  
+		  }
+	});
+  }
+  //保留节点，删除节点后续链删除确认
   function delConfirm(){
-	  $("#confirm-dialog").dialog("open");
+	  $("#confirm-dialog").dialog("open");	  
 	  $("#delegationDiv").empty();
 	  var nodes = ${nodes};
 	  $.each(nodes,function(key,node){
@@ -289,14 +345,18 @@
 			  }
 		  }
 	  });
+	  
   }
-  
   //删除节点 -- 直接删除
   function delNode(){
 	  $("#confirm-dialog").dialog("close");
+	  var delegationNodeId = $("#delegationNodeId").val();
+	  var url = "";
+	  if(delegationNodeId == "") url="/wfnode/delNode/"+clickedNodeId;
+	  else url="/wfnode/delNode/"+clickedNodeId+"/"+delegationNodeId;
 	  $.ajax({
 		  type: 'GET',
-		  url: "/wfnode/delNode/"+clickedNodeId,
+		  url: url,
 		  dataType: 'json',
 		  success: function(data){
 			  location.href="/wf/workflowdefination/"+$("#wfId").val();
@@ -472,46 +532,8 @@
 		</div>			
 	</div>
 	<div class="line"></div>
-	<div id="workflow" class="draw" style="margin-top: 12px;width:82%">
-		<table style=" margin:1% 0 0 1%;" border=0>
-			<c:forEach items="${nodetree}" varStatus="i" var="nodes" >
-				<tr >
-				<c:forEach items="${nodes}" varStatus="j" var="node" >
-					<c:if test="${node.style eq 'user' }">
-						<td style="height:40px"><img src="/img/wf_btn4.PNG" style="vertical-align: middle;"></td>
-					</c:if>
-					<c:if test="${node.style eq 'pointer' }">
-						<td><img src="/img/wf_btn6.PNG" style="vertical-align: middle;"></td>
-					</c:if>
-					<c:if test="${node.style eq 'lpointer' }">
-						<td><img src="/img/wf_btn8.PNG" style="vertical-align: middle;"></td>
-					</c:if>
-					<c:if test="${node.style eq 'rpointer' }">
-						<td><img src="/img/wf_btn9.PNG" style="vertical-align: middle;"></td>
-					</c:if>
-					<c:if test="${node.style eq 'lline' }">
-						<td><img src="/img/wf_btn16.PNG" style="vertical-align: middle;"></td>
-					</c:if>
-					<c:if test="${node.style eq 'rline' }">
-						<td><img src="/img/wf_btn17.PNG" style="vertical-align: middle;"></td>
-					</c:if>
-					<c:if test="${node.style eq 'line' }">
-						<td><img src="/img/wf_btn7.PNG" style="vertical-align: middle;"></td>
-					</c:if>
-					<c:if test="${node.style eq 'node' }">					
-						<td>					
-							<div <c:if test="${ node.status eq '冻结' }" > class="circle-dotted-text" </c:if> <c:if test="${ node.status ne '冻结' }" > class="circle-text" </c:if> onclick="showPos(event,${node.nodeId},'${node.nodeName }','${node.status}')" >
-								<font style="font-size:15px">${node.nodeName }</font>
-							</div>
-						</td>	
-					</c:if>
-					<c:if test="${node.style eq '^' }">
-						<td></td>
-					</c:if>			    	
-			    </c:forEach>
-			    </tr>
-			</c:forEach>						
-		</table>
+	<div id="workflow" class="draw" style="margin-top: 12px;width:82%">		
+		 ${flowchat}		
 	</div>
 </div>	
 <!-- 节点定义窗口 -->
@@ -625,7 +647,7 @@
 <div id="node-nodes-div" class="node-mask opacity" style="display:none;height:40%;top: 30%;">
 	<header>	      
          <div class="form-inline mt-2 mt-md-0" style="padding: 6px 10px 0px;" >
-          	<label>节点-[<span id="node-nodes-nodename" style="font-weight:bold;"></span>]&nbsp;关系定义</label>
+          	<label>为节点-[<span id="node-nodes-nodename" style="font-weight:bold;"></span>]&nbsp;建立关联关系</label>
          </div>
          <div style="position: absolute;top: 1px;right: 15px;">
          	<span class="badge badge-secondary badge-pill" style="background-color:#46a70a;cursor:pointer;" onclick="$('#node-nodes-div').hide();">×</span>
@@ -633,7 +655,7 @@
     </header>
     <hr style="margin-top: .5rem; margin-bottom: .5rem;"></hr>
     <div style="padding: 0px 13px 0px;">
-		<form id="nodesForm" class="navbar-form navbar-left" method="post" action="/wfnode/savesufnode">
+		<form id="nodesForm" class="navbar-form navbar-left" method="post" action="/wfnode/savesufnode/${wf.wfId}">
 			<input type="hidden" id="nodeNodeId" name="nodeNodeId" value="">	        
 	        <div class="popup-form-group">
 	            <select name="sufNodeId" id="sufNodeId" class="form-control-one-line" required >
@@ -714,27 +736,27 @@
     <div class="popup-close" style="cursor:pointer;" onclick="$('#PopUp').hide();">×</div>
 	<SPAN style="cursor:pointer;" onclick="$('#PopUp').hide();$('#node-div').show();$('#myForm')[0].reset();">新增</SPAN>
 </DIV>
-<DIV id='PopUp-1' class="popup-width" >
+<DIV id='PopUp-1' class="popup-width" style="z-index:99">
 	<div class="popup-close" style="cursor:pointer;" onclick="$('#PopUp-1').hide();">×</div>
 	<SPAN style="cursor:pointer;" onclick="$('#PopUp-1').hide();$('#node-div').show();$('#myForm')[0].reset();">新增</SPAN>
 	<hr style="margin-top: 0.3rem;margin-bottom: 0.3rem;"></hr>
 	<SPAN style="cursor:pointer;" onclick="$('#PopUp-1').hide();$('#node-div').show();showNode();">修改</SPAN>	
 	<p style="margin-top: 0.3rem;margin-bottom: 0.3rem;"></p>
-	<SPAN style="cursor:pointer;" onclick="$('#PopUp-1').hide();showNodeNodes();">关联</SPAN>	
+	<SPAN style="cursor:pointer;" onclick="$('#PopUp-1').hide();showNodeNodes();">关联</SPAN>
 	<hr style="margin-top: 0.3rem;margin-bottom: 0.3rem;"></hr>	
 	<!-- 以下功能暂缓，业务还没想清楚
 	<SPAN style="cursor:pointer;" onclick="$('#PopUp-1').hide();frozenNode();" id="frozen">冻结</SPAN>
 	<SPAN style="cursor:pointer;" onclick="$('#PopUp-1').hide();unfrozenNode();" id="unfrozen">解冻</SPAN>
-	<p style="margin-top: 0.3rem;margin-bottom: 0.3rem;"></p>
-	<SPAN style="cursor:pointer;" onclick="$('#PopUp-1').hide();delConfirm();">删除节点</SPAN>
 	-->
 	<p style="margin-top: 0.3rem;margin-bottom: 0.3rem;"></p>
-	<SPAN style="cursor:pointer;" onclick="$('#PopUp-1').hide();delConfirm();">删除节点链</SPAN>
+	<SPAN style="cursor:pointer;" onclick="$('#PopUp-1').hide();delLinkConfirm();">取消关联</SPAN>	
+	<p style="margin-top: 0.3rem;margin-bottom: 0.3rem;"></p>
+	<SPAN style="cursor:pointer;" onclick="$('#PopUp-1').hide();delConfirm();">删除节点</SPAN>
 	
 </DIV>
 <!-- 删除弹出窗口 -->
 <div id="confirm-dialog"  title="确认窗口" >
-  <p>确认删除请选择本节点的接管节点</p>
+  <p>确认删除节点吗？</p>
   <br>
   <div style="display:none" id="delegationDiv">  	
   </div>
@@ -776,6 +798,28 @@
          </h5>
          <div style="height: 300px;overflow-y: auto;">
           <ul class="list-group mb-3" id="button-lst"></ul>          	
+         </div>
+       </div>
+</div>
+
+<!-- 取消连接窗口 -->
+<div id="link-div" class="mask opacity" style="display:none">
+	<header>	      
+         <div class="form-inline mt-2 mt-md-0" style="padding: 6px 10px 0px;" >
+           <label>选择需要取消的连接</label>
+         </div>
+         <div style="position: absolute;top: 1px;right: 15px;">
+         	<span class="badge badge-secondary badge-pill" style="background-color:#46a70a;cursor:pointer;" onclick="$('#link-div').hide();">×</span>
+         </div>	      	     
+    </header>
+    <hr style="margin-top: .5rem; margin-bottom: .5rem;"></hr>
+    <div style="padding: 0px 13px 0px;" >
+         <h5 class="d-flex justify-content-between align-items-center mb-2">
+           <span class="text-muted">返回结果</span>            
+           <span class="badge badge-secondary badge-pill" style="cursor:pointer;" onclick="delNodeLink();">确定</span>
+         </h5>
+         <div style="height: 300px;overflow-y: auto;">
+          <ul class="list-group mb-3" id="link-lst"></ul>          	
          </div>
        </div>
 </div>

@@ -8,6 +8,7 @@ package cn.ideal.wfpf.web;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -47,14 +48,16 @@ public class WfNodeController {
 			preNodes.add(preNode);
 			node.setPreNodes(preNodes);
 		}
+		node.setType("直接连接");
 		if(node.getNodeId() == null) node = nodeService.save(node);
 		else node = nodeService.update(node);
         return new ModelAndView("redirect:/wf/workflowdefination/"+node.getWfId());
     }
 	
-	@GetMapping("/delNode/{nodeId}")
-    public @ResponseBody boolean delNode(@PathVariable Long nodeId, HttpServletRequest request) {
-		nodeService.delete(nodeId);		
+	@GetMapping(value={"/delNode/{nodeId}","/delNode/{nodeId}/{delegationNodeId}"})
+    public @ResponseBody boolean delNode(@PathVariable Long nodeId, @PathVariable Optional<Long> delegationNodeId, HttpServletRequest request) {
+		if(delegationNodeId.isPresent()) nodeService.setDelegationNode(nodeId, delegationNodeId.get());
+		else nodeService.delete(nodeId);		
 		return true;
     }
 	
@@ -70,8 +73,13 @@ public class WfNodeController {
 		return true;
     }
 	
-	@PostMapping("/savesufnode")
-    public ModelAndView saveSufNode(HttpServletRequest request) {	
+	/**
+	 * 节点关系配置
+	 * @param request
+	 * @return
+	 */
+	@PostMapping("/savesufnode/{wfId}")
+    public ModelAndView saveSufNode(@PathVariable Long wfId,HttpServletRequest request) {		
 		Node node = new Node();
 		node.setNodeId(Long.parseLong(request.getParameter("sufNodeId")));
 		node.setCreatedDate(new Date());
@@ -80,8 +88,30 @@ public class WfNodeController {
 		preNode.setNodeId(Long.parseLong(request.getParameter("nodeNodeId")));
 		preNodes.add(preNode);
 		node.setPreNodes(preNodes);
-		
-		node = nodeService.saveNodeNode(node);		
-        return new ModelAndView("redirect:/wf/workflowdefination/"+node.getWfId());
+		node.setType("直接连接");
+		node = nodeService.saveNodeNode(node);
+        return new ModelAndView("redirect:/wf/workflowdefination/"+wfId);
+    }
+	
+	/**
+	 * 删除节点连接
+	 * @param nodeId
+	 * @param delegationNodeId
+	 * @param request
+	 * @return
+	 */
+	@GetMapping(value={"/delNodeLink/{nodeId}/{lineNodeIds}","/delNodeLink/{nodeId}"})
+    public @ResponseBody boolean delNodeLink(@PathVariable Long nodeId, @PathVariable Optional<String> lineNodeIds, HttpServletRequest request) {
+		if(!lineNodeIds.isPresent()) nodeService.deleteLink(nodeId, new Long[]{0l});
+		else{
+			String[] ary = lineNodeIds.get().split(",");
+			Long[] lary = new Long[ary.length];
+			for(int i=0;i<lary.length;i++){
+				lary[i] = Long.parseLong(ary[i]);
+			}
+			
+			nodeService.deleteLink(nodeId, lary);
+		}
+		return true;
     }
 }

@@ -12,6 +12,7 @@ import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -36,6 +37,7 @@ import cn.ideal.wf.service.WorkflowFlowService;
 import cn.ideal.wf.service.WorkflowNodeService;
 import cn.ideal.wf.service.WorkflowTableService;
 import cn.ideal.wf.service.WorkflowWFService;
+import cn.ideal.wf.tree.FlowChatService;
 
 
 @Controller
@@ -59,6 +61,9 @@ public class ActualController extends PlatformFundation{
 	private Processor wfProcessor;	
 	@Autowired
 	private WorkflowNodeService workflowNodeService;
+	@Autowired
+	@Qualifier("richFlowChatService")
+	private FlowChatService flowChatService;
 	/**
 	 * 实战首页
 	 * */
@@ -125,10 +130,10 @@ public class ActualController extends PlatformFundation{
 		pageModel.setNodeName(wfProcessor.findNodeName(wfId,pageModel.getBizId()));
 		pageModel.setNextNodes(workflowNodeService.findNextNodes(pageModel.getNodeName(), wfId));
 		if(bizId.isPresent()) {			
-			pageModel.setNodeTree(workflowNodeService.getTreeNodes(wfId,bizId.get()));
+			pageModel.setFlowChat(flowChatService.draw(wfId,bizId.get()).toString());
 			pageModel.setWfBrief(wfBriefService.find(bizId.get(), wfId));
 		}else{
-			pageModel.setNodeTree(workflowNodeService.getTreeNodes(wfId));
+			pageModel.setFlowChat(flowChatService.draw(wfId).toString());
 		}
 		
 		if(pageModel.getWfBrief() != null){

@@ -27,7 +27,7 @@ public class PageModel extends Model{
 	private List<WorkflowTableElement> footLst;    //表单尾
 	private List<WorkflowAction> buttons;          //节点按钮
 	private Map<String, Object> bizTable;          //表单数据
-	private WorkflowNode[][] nodeTree;             //流程节点树
+	private String flowChat;                       //流程图
 	public Long getBizId() {
 		return bizId;
 	}
@@ -92,12 +92,12 @@ public class PageModel extends Model{
 		this.bizTable = bizTable;
 	}
 
-	public WorkflowNode[][] getNodeTree() {
-		return nodeTree;
+	public String getFlowChat() {
+		return flowChat;
 	}
 
-	public void setNodeTree(WorkflowNode[][] nodeTree) {
-		this.nodeTree = nodeTree;
+	public void setFlowChat(String flowChat) {
+		this.flowChat = flowChat;
 	}
 
 	public WorkflowBrief getWfBrief() {

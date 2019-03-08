@@ -24,13 +24,9 @@ public class Node {
 	private Date modifiedDate;                           //节点修改时间
 	private Long wfId;                                   //模块编号
 	
-	private Long height;                                 //节点高度，从上至下，从0开始
-	private Long depth;                                  //节点深度，从左至右， 从0开始
-	private Long innerHeight;                            //具有相同前置节点的子节点具有内置高度，从上至下，从0开始；
 	private List<Node> preNodes;                         //前置节点
 	private List<Node> sufNodes;                         //后置节点
-	private String style = "^";                          //节点页面展示样式 ，不属于数据库字段。包括：user、node、pointer、lpointer、rpointer
-	
+	private String type;                                 //节点是否是可被流程可见（此字段只适用于节点关系表中）
 	public Long getNodeId() {
 		return nodeId;
 	}
@@ -107,18 +103,7 @@ public class Node {
 	public void setWfId(Long wfId) {
 		this.wfId = wfId;
 	}	
-	public Long getHeight() {
-		return height;
-	}
-	public void setHeight(Long height) {
-		this.height = height;
-	}
-	public Long getDepth() {
-		return depth;
-	}
-	public void setDepth(Long depth) {
-		this.depth = depth;
-	}
+	
 	public List<Node> getPreNodes() {
 		return preNodes;
 	}
@@ -130,18 +115,6 @@ public class Node {
 	}
 	public void setSufNodes(List<Node> sufNodes) {
 		this.sufNodes = sufNodes;
-	}
-	public String getStyle() {
-		return style;
-	}
-	public void setStyle(String style) {
-		this.style = style;
-	}
-	public Long getInnerHeight() {
-		return innerHeight;
-	}
-	public void setInnerHeight(Long innerHeight) {
-		this.innerHeight = innerHeight;
 	}
 	
 	public Action getNodeAction() {
@@ -155,6 +128,12 @@ public class Node {
 	}
 	public void setButtons(List<Action> buttons) {
 		this.buttons = buttons;
+	}
+	public String getType() {
+		return type;
+	}
+	public void setType(String type) {
+		this.type = type;
 	}
 	
 	

@@ -26,4 +26,9 @@ public interface NodeService {
 	
 	Node saveNodeNode(Node node);
 	
+	void setDelegationNode(Long nodeId, Long delegationNodeId);
+	
+	void deleteLink(Long nodeId, Long[] linkNodeIds);
+		
+	
 }
