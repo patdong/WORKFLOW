@@ -1,6 +1,6 @@
 -- MySQL dump 10.13  Distrib 8.0.11, for Win64 (x86_64)
 --
--- Host: localhost    Database: lawsuit
+-- Host: localhost    Database: workflow
 -- ------------------------------------------------------
 -- Server version	8.0.11
 
@@ -16,22 +16,18 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `workflow_node_user`
+-- Table structure for table `workflow_node_nodes`
 --
 
-DROP TABLE IF EXISTS `workflow_node_user`;
+DROP TABLE IF EXISTS `workflow_node_nodes`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
  SET character_set_client = utf8mb4 ;
-CREATE TABLE `workflow_node_user` (
+CREATE TABLE `workflow_node_nodes` (
   `nodeId` int(11) NOT NULL COMMENT '节点编号',
-  `userId` int(11) DEFAULT NULL COMMENT '操作用户（包括角色、用户、单位）',
-  `userName` varchar(20) DEFAULT NULL COMMENT '用户名称',
-  `unitId` int(11) DEFAULT NULL COMMENT '单位编号',
-  `unitName` varchar(45) DEFAULT NULL COMMENT '单位名称',
-  `roleId` int(11) DEFAULT NULL COMMENT '角色编号',
-  `roleName` varchar(20) DEFAULT NULL COMMENT '角色名称',
+  `suf_nodeId` int(11) NOT NULL COMMENT '后续节点编号',
+  `type` varchar(10) NOT NULL DEFAULT '直接连接' COMMENT '节点间连接的方式：直接连接、间接连接',
   `createdDate` datetime NOT NULL COMMENT '创建时间'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='节点操作用户（包括角色、用户、单位）';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='流程节点关联';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -43,4 +39,4 @@ CREATE TABLE `workflow_node_user` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-11-27 14:23:20
+-- Dump completed on 2019-03-18  8:53:39

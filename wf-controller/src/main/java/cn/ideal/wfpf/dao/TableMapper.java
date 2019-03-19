@@ -21,7 +21,7 @@ public interface TableMapper {
 	
 	List<TableBrief> findAllWithTableName();
 	
-	List<TableBrief> findAPage(@Param("recordNumber") Long recordNumber,@Param("pageSize") Long  pageSize);
+	List<TableBrief> findAPage(@Param("recordNumber") Long recordNumber,@Param("recordLastNumber") Long recordLastNumber,@Param("pageSize") Long  pageSize);
 	
     int saveTableElement(TableElement obj);
 	
@@ -44,4 +44,12 @@ public interface TableMapper {
 	List<TableElement> findTableSpecialElements(Long tbId);
 	
 	int updateTableElement(TableElement obj);
+	
+	List<TableElement> findTableAllElementsOnNode(@Param("wfId") Long wfId, @Param("nodeId") Long nodeId,@Param("tbId") Long tbId);
+	
+	int saveTableElementOnNode(@Param("wfId") Long wfId, @Param("nodeId") Long nodeId,@Param("emIds") Long[] emIds);
+	
+	List<TableBrief> findAllWithTableNameNoRelated();
+	
+	void deleteTableBrief(Long tbId);
 }

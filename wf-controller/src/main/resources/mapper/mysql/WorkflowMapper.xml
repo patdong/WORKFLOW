@@ -2,8 +2,8 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="cn.ideal.wfpf.dao.WorkflowMapper">
 	<resultMap id="workflow" type="cn.ideal.wf.model.Workflow" >
-		<id column="tableId" property="tableId" jdbcType="NUMERIC" />	
-		<association property="wftableBrief" column="tableId" select="cn.ideal.wf.dao.WorkflowTableMapper.find" />
+		<id column="tbId" property="tbId" jdbcType="NUMERIC" />	
+		<association property="wftableBrief" column="tbId" select="cn.ideal.wf.dao.WorkflowTableMapper.find" />
 	</resultMap>			
 	
 	<insert id="save" useGeneratedKeys="true" keyProperty="wfId" parameterType="cn.ideal.wf.model.Workflow">
@@ -22,15 +22,18 @@
 			<if test="wfName != null">
 				wfName = #{wfName} 
 			</if>
-			<if test="tableId != null">
-				tableId = #{tableId} 
+			<if test="tbId != null">
+				tbId = #{tbId} 
+			</if>
+			<if test="status != null">
+				status = #{status} 
 			</if>
 			where wfId = #{wfId}
 	</update>
 	
 	<update id="removeBinding" parameterType="cn.ideal.wf.model.Workflow">
 		update workflow set 			
-			tableId = null 
+			tbId = null 
 			where wfId = #{wfId}
 	</update>
 	
@@ -50,6 +53,17 @@
 	</select>
 		
 	<select id="findAllBlindTable" resultMap="workflow">
-		select * from workflow	where tableId is not null;		
+		select * from workflow	where tbId is not null;		
+	</select>
+	
+	<delete id="delete" parameterType="java.lang.Long">
+		delete from workflow 
+		<where>		
+		      wfId=#{wfId}		  	
+		</where>
+	</delete>
+	
+	<select id="findAllWorkflowsByTbId" resultType="cn.ideal.wf.model.Workflow" parameterType="java.lang.Long">
+		select * from workflow where tbId = #{tbId}
 	</select>
 </mapper>

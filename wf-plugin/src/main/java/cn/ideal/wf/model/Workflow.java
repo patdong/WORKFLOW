@@ -13,7 +13,7 @@ public class Workflow implements Serializable {
 	private static final long serialVersionUID = -2546295384449824310L;
 	private Long wfId;
 	private String wfName;
-	private Long tableId;
+	private Long tbId;
 	private String status;
 	private Date createdDate;	
 	
@@ -31,12 +31,11 @@ public class Workflow implements Serializable {
 	public void setWfName(String wfName) {
 		this.wfName = wfName;
 	}
-	
-	public Long getTableId() {
-		return tableId;
+	public Long getTbId() {
+		return tbId;
 	}
-	public void setTableId(Long tableId) {
-		this.tableId = tableId;
+	public void setTbId(Long tbId) {
+		this.tbId = tbId;
 	}
 	public String getStatus() {
 		return status;

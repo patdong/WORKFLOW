@@ -14,12 +14,16 @@ public interface SQLCreator {
 	
 	String createDateTime(String fieldName,Boolean immutable,String comment);
 	
-	String createPrimaryKey(String fieldName);
+	String setPrimaryKey(String tableName,String fieldName);
+	
+	String setSequence(String tableName, String fieldName);
 	
 	String setCharacter(String characterSet);
 	
 	String createTable(String tableName);
 	
 	String dropTable(String tableName);
+	
+	String getComment(String tableName,String fieldName,String comment);
 	
 }

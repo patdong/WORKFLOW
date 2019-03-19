@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.ideal.wfpf.dao.TableMapper">
+	<resultMap id="tablebrief" type="cn.ideal.wfpf.model.TableBrief" >
+		<id column="tbId" property="tbId" jdbcType="NUMERIC" />
+		<association property="wf" column="tbId" select="cn.ideal.wfpf.dao.WorkflowMapper.findAllWorkflowsByTbId" />
+		<association property="productCount" column="tbId" select="findProductCount" />
+	</resultMap>
+	<resultMap id="tableelement" type="cn.ideal.wfpf.model.TableElement" />			
+	
+	<select id="findAll" resultMap="tablebrief">
+		select * from table_brief 
+	</select>
+	
+	<select id="findAPage" resultMap="tablebrief" parameterType="java.util.Map">
+		<if test="recordLastNumber != null">
+			SELECT *
+			FROM  (
+			   SELECT a.*, rownum rn
+			   FROM (
+		</if>
+			      select * from table_brief	order by tbId 
+		<if test="recordLastNumber != null">
+			   )a
+			   WHERE rownum <![CDATA[ <= ]]>  #{recordLastNumber}
+			)
+			WHERE  rn <![CDATA[ >= ]]>  #{recordNumber}
+		</if>		
+	</select>
+		
+	<select id="find" resultMap="tablebrief" parameterType="java.lang.Long">
+		select * from table_brief where tbId=#{tbId}
+	</select>
+	
+	<insert id="saveTableBrief" parameterType="cn.ideal.wfpf.model.TableBrief">
+		<selectKey resultType="java.lang.Long" keyProperty="tbId" order="BEFORE">
+			select sq_tbId.nextval from dual
+		</selectKey>
+		insert into table_brief(
+			tbId,name,tableName,cols,status,createdDate
+		)
+		values(
+			#{tbId},
+			#{name,jdbcType=VARCHAR},
+			#{tableName,jdbcType=VARCHAR},
+			#{cols,jdbcType=DECIMAL},
+			#{status,jdbcType=VARCHAR},
+			#{createdDate,jdbcType=TIMESTAMP}
+		)
+	</insert>
+	
+	<update id="updateTableBrief" parameterType="cn.ideal.wfpf.model.TableBrief">
+		update table_brief set 
+			<if test="name != null">
+				name=#{name,jdbcType=VARCHAR}
+			</if>
+			<if test="tableName != null">
+				tableName=#{tableName,jdbcType=VARCHAR}
+			</if>
+			<if test="template != null">
+				template=#{template,jdbcType=VARCHAR},
+			</if>
+			<if test="cols != null">
+				cols=#{cols,jdbcType=DECIMAL}
+			</if>
+			<if test="status != null">
+				status=#{status,jdbcType=VARCHAR}
+			</if>				
+		<where>		
+			tbId=#{tbId,jdbcType=DECIMAL}			
+		</where>				
+	</update>	
+		
+	<update id="updateStatusTableBrief" parameterType="cn.ideal.wfpf.model.TableBrief">
+		update table_brief set 			
+			   status=#{status}
+		<where>		
+		  tbId=#{tbId}			
+		</where>				
+	</update>
+	
+	<insert id="saveTableElement" parameterType="cn.ideal.wfpf.model.TableElement">
+		insert into table_element(
+			tbId,emId,newLabelName,newFunctionName,functionBelongTo,rowes,cols,width,scope,seq,newHiddenFieldName,
+			newDataContent,newFieldType,newFieldDataType,newLength,defaultValue,defaultValueFrom,list,createdDate
+		)
+		values		
+		(
+			#{item.tbId,jdbcType=DECIMAL},
+			#{item.emId,jdbcType=DECIMAL},
+			#{item.newLabelName,jdbcType=VARCHAR},
+			#{item.newFunctionName,jdbcType=VARCHAR},
+			#{item.functionBelongTo,jdbcType=VARCHAR},
+			#{item.rowes,jdbcType=DECIMAL},
+			#{item.cols,jdbcType=DECIMAL},
+			#{item.width,jdbcType=DECIMAL},		
+			#{item.scope,jdbcType=VARCHAR},
+			#{item.seq,jdbcType=DECIMAL},
+			#{item.newHiddenFieldName,jdbcType=VARCHAR},
+			#{item.newDataContent,jdbcType=VARCHAR},
+			#{item.newFieldType,jdbcType=VARCHAR},
+			#{item.newFieldDataType,jdbcType=VARCHAR},
+			#{item.newLength,jdbcType=DECIMAL},
+			#{item.defaultValue,jdbcType=VARCHAR},
+			#{item.defaultValueFrom,jdbcType=VARCHAR},
+			#{item.list,jdbcType=VARCHAR},
+			#{item.createdDate,jdbcType=TIMESTAMP}
+		)		
+	</insert>
+	
+	<insert id="saveBatchTableElement" parameterType="java.util.List">
+		{call
+			declare
+			begin
+		<foreach collection="list" item="item" index="index" separator="">	
+		insert into table_element(
+			tbId,emId,newLabelName,newFunctionName,functionBelongTo,rowes,cols,width,scope,seq,newHiddenFieldName,
+			newDataContent,newFieldType,newFieldDataType,newLength,defaultValue,defaultValueFrom,list,createdDate
+		)
+		values			
+		(
+			#{item.tbId,jdbcType=DECIMAL},
+			#{item.emId,jdbcType=DECIMAL},
+			#{item.newLabelName,jdbcType=VARCHAR},
+			#{item.newFunctionName,jdbcType=VARCHAR},
+			#{item.functionBelongTo,jdbcType=VARCHAR},
+			#{item.rowes,jdbcType=DECIMAL},
+			#{item.cols,jdbcType=DECIMAL},
+			#{item.width,jdbcType=DECIMAL},			
+			#{item.scope,jdbcType=VARCHAR},
+			#{item.seq,jdbcType=DECIMAL},
+			#{item.newHiddenFieldName,jdbcType=VARCHAR},
+			#{item.newDataContent,jdbcType=VARCHAR},
+			#{item.newFieldType,jdbcType=VARCHAR},
+			#{item.newFieldDataType,jdbcType=VARCHAR},
+			#{item.newLength,jdbcType=DECIMAL},
+			#{item.defaultValue,jdbcType=VARCHAR},
+			#{item.defaultValueFrom,jdbcType=VARCHAR},
+			#{item.list,jdbcType=VARCHAR},
+			#{item.createdDate,jdbcType=TIMESTAMP}
+		);
+		</foreach>
+		end
+		}
+	</insert>
+	
+	<update id="updateTableElement" parameterType="cn.ideal.wfpf.model.TableElement">
+		update table_element set 			
+			   newLabelName=#{newLabelName,jdbcType=VARCHAR},
+			   newFunctionName=#{newFunctionName,jdbcType=VARCHAR},
+			   functionBelongTo=#{functionBelongTo,jdbcType=VARCHAR},
+			   newHiddenFieldName=#{newHiddenFieldName,jdbcType=VARCHAR},
+			   newDataContent=#{newDataContent,jdbcType=VARCHAR},
+			   newFieldType=#{newFieldType,jdbcType=VARCHAR},
+			   newFieldDataType=#{newFieldDataType,jdbcType=VARCHAR},
+			   newLength=#{newLength,jdbcType=DECIMAL},
+			   defaultValue=#{defaultValue,jdbcType=VARCHAR},
+			   defaultValueFrom=#{defaultValueFrom,jdbcType=VARCHAR},
+			   rowes=#{rowes,jdbcType=DECIMAL},
+			   cols=#{cols,jdbcType=DECIMAL},
+			   width=#{width,jdbcType=DECIMAL}
+		<where>		
+		      tbId=#{tbId,jdbcType=DECIMAL}
+		  and emId = #{emId,jdbcType=DECIMAL}			
+		</where>				
+	</update>
+		
+	<update id="updateTableElementSeq" parameterType="cn.ideal.wfpf.model.TableElement">
+		update table_element set 			
+			   seq=#{seq}
+		<where>		
+		      tbId=#{tbId}
+		  and emId = #{emId}			
+		</where>				
+	</update>
+	
+	<delete id="deleteTableElement" parameterType="java.util.Map">
+		delete from table_element 
+		<where>		
+		      tbId=#{tbId}
+		  and emId = #{emId}			
+		</where>				
+	</delete>
+	
+	<select id="findTableAllElements" resultMap="tableelement" parameterType="java.util.Map">
+		select a.*,b.labelName,b.fieldName from table_element a
+		 inner join element_library b on a.emId = b.emId 
+		 where a.tbId = #{tbId}
+		 <if test="scope != null">
+		   and a.scope = #{scope}
+		 </if> 
+		 order by a.seq
+	</select>	
+	
+	<select id="findTableElement" resultMap="tableelement" parameterType="java.util.Map">
+		select a.* from table_element a
+		 where a.tbId = #{tbId} 
+		   and a.emId = #{emId}
+	</select>
+	
+	<update id="updateTableElementList" parameterType="java.util.Map">
+		update table_element set 			
+			   list='有效'
+		<where>		
+		      tbId=#{tbId}
+		  and emId in
+          <foreach collection="emIds" item="item" index="index" open="(" close=")"  separator=",">
+              ${item}
+          </foreach>			
+		</where>				
+	</update>
+	
+	<update id="resetTableElementList" parameterType="java.lang.Long">
+		update table_element set 			
+			   list='无效'
+		<where>		
+		      tbId=#{tbId}		 	
+		</where>				
+	</update>
+	
+	<select id="findElementsOnList" resultMap="tableelement" parameterType="java.lang.Long">
+		select a.* from table_element a
+		 where a.tbId = #{tbId} 
+		   and a.list = '有效'
+	  order by seq
+	</select>
+		
+	<select id="findAllWithTableName" resultMap="tablebrief">
+		select * from table_brief where tableName is not null
+	</select>	
+	
+	<select id="findTableSpecialElements" resultMap="tableelement" parameterType="java.lang.Long">
+		select b.emId,b.labelName,b.fieldName from element_library b
+		 where b.grade='列表级' 
+		   and b.emId not in (select emId from table_element where tbId = #{tbId})
+	</select>
+	
+	<!-- 获取流程节点设置的字段 -->
+	<select id="findTableAllElementsOnNode" resultMap="tableelement" parameterType="java.util.Map">
+		select a.* from table_element a
+		 inner join workflow b on b.tbId = a.tbId
+		 inner join workflow_table_element c on b.wfId = c.wfId and a.emId=c.emId
+		 where a.tbId = #{tbId}
+		   and b.wfId = #{wfId}
+		   and c.nodeId = #{nodeId}
+		 order by a.seq
+	</select>
+	
+	<insert id="saveTableElementOnNode" parameterType="java.util.Map">
+		delete from workflow_table_element where wfId = #{wfId} and nodeId = #{nodeId};
+		insert into workflow_table_element(
+			wfId,nodeId,emId
+		)
+		values
+		<foreach collection="emIds" item="item" index="index" separator=",">				
+		(
+			#{wfId},
+			#{nodeId},
+			#{item}
+		)
+		</foreach>
+	</insert>
+		
+	<select id="findAllWithTableNameNoRelated" resultMap="tablebrief">
+		select * from table_brief 
+		where tableName is not null
+		  and tbId not in (select tbId from workflow where status = '有效' and tbId is not null)
+	</select>
+		
+	<delete id="deleteTableBrief" parameterType="java.lang.Long">
+		delete from table_brief 
+		<where>		
+		      tbId=#{tbId}		  	
+		</where>				
+	</delete>	
+		
+	<!-- 获得生产数据 -->
+	<select id="findProductCount" resultType="java.lang.Long">
+		select count(a.wfId) from table_summary a
+		inner join workflow b on a.wfId = b.wfId
+		where b.tbId = #{tbId}
+	</select>
+</mapper>

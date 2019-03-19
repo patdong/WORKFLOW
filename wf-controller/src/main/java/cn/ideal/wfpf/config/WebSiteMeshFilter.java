@@ -13,6 +13,7 @@ public class WebSiteMeshFilter extends ConfigurableSiteMeshFilter {
         	   .addDecoratorPath("/tb/*", "/decorators/decorator.jsp")
         	   .addDecoratorPath("/em/*", "/decorators/decorator.jsp")
         	   .addDecoratorPath("/cf/*", "/decorators/decorator.jsp")
+        	   .addDecoratorPath("/sys/*", "/decorators/decorator.jsp")
         	   .addDecoratorPath("/app/*", "/decorators/actualDecorator.jsp")
                .addExcludedPath("/login")
                .addExcludedPath("/app/showcontent*");        	   

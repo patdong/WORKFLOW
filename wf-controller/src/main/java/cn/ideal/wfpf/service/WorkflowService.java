@@ -15,4 +15,8 @@ public interface WorkflowService extends PageService<Workflow> {
 	List<Workflow> findAllBlindTable();
 	
 	Workflow removeBinding(Workflow obj);
+	
+	boolean setStatus(Long wfId, boolean status);
+	
+	boolean delete(Long wfId);
 }

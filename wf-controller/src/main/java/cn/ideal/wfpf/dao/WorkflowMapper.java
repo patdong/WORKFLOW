@@ -16,11 +16,14 @@ public interface WorkflowMapper {
 	
 	List<Workflow> findAll();
 	
-	Workflow find(Long key);
+	Workflow find(Long wfId);
 	
-	List<Workflow> findAPage(@Param("recordNumber") Long recordNumber,@Param("pageSize") Long  pageSize);
+	List<Workflow> findAPage(@Param("recordNumber") Long recordNumber,@Param("recordLastNumber") Long recordLastNumber,@Param("pageSize") Long  pageSize);
 	
 	List<Workflow> findAllBlindTable();
 	
 	int removeBinding(Workflow obj);
+	
+	void delete(Long wfId);
+	
 }

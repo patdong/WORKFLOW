@@ -344,15 +344,14 @@
 				  $("#delegationDiv").show();
 			  }
 		  }
-	  });
-	  
+	  });	 
   }
   //删除节点 -- 直接删除
   function delNode(){
 	  $("#confirm-dialog").dialog("close");
 	  var delegationNodeId = $("#delegationNodeId").val();
 	  var url = "";
-	  if(delegationNodeId == "") url="/wfnode/delNode/"+clickedNodeId;
+	  if(delegationNodeId == "" || typeof(delegationNodeId) == 'undefined') url="/wfnode/delNode/"+clickedNodeId;
 	  else url="/wfnode/delNode/"+clickedNodeId+"/"+delegationNodeId;
 	  $.ajax({
 		  type: 'GET',
@@ -465,8 +464,7 @@
 	  $("#warn6").hide();
 	  $("#nType").val("");	  	  
 	  $("#action").val("");
-	  showButtons(null);
-	  
+	  showButtons(null);	  
   }
   
   //输入框键输入
@@ -516,8 +514,66 @@
   		  error: function(XMLHttpRequest, textStatus, errorThrown){
   			  console.warn(XMLHttpRequest.responseText);			  
   		  }
-  	});
-	  
+  	});	 
+  }
+  
+  //打开字段设置窗口
+  function openTableElements(tbId){
+	  var wfId = $("#wfId").val();
+	  $("#fields-div").show();
+	  $("#fields-lst").empty();
+	  var li = "<li class=\"list-group-item d-flex justify-content-between lh-condensed\" style=\"height: 40px;background-color: #adcabc;\">"             
+  		  +"<div>"
+    	  +"<h6 class=\"my-0\">&nbsp;字段名称</h6>"               
+          +"</div>"         
+          +"<span class=\"text-muted\">是否可编辑</span>"
+          +"</li>";
+      $("#fields-lst").append(li);
+	  $.ajax({
+  		  type: 'GET',
+  		  url: "/wf/gettableelements/"+wfId+"/"+clickedNodeId+"/"+tbId, 
+  		  dataType: 'json',
+  		  success: function(data){  			
+  			var checked="";
+  			$.each(data,function (index,table) {   
+  				if(table.readOnly) checked="checked";
+  				else checked="";
+  				li = "<li class='list-group-item d-flex justify-content-between lh-condensed' style='height: 40px;'> "
+	            	  +"<span class=\"text-muted\">"+table.newLabelName+"</span> "
+	            	  +"<span class=\"text-muted\"><input type=\"checkbox\" name=\"fieldChecked\" "+checked+" value=\""+table.emId+"\"></span> "
+	          		  +"</li> ";
+  				$("#fields-lst").append(li);
+  			});			
+  		  },
+  		  error: function(XMLHttpRequest, textStatus, errorThrown){
+  			  console.warn(XMLHttpRequest.responseText);			  
+  		  }
+  	  });	  
+  }
+  
+  //保存流程节点字段
+  function setTableElements(){
+	  var wfId = $("#wfId").val();
+	  var emIds = "";
+	  $("#button-hidden").empty();
+	  $('input:checkbox[name=fieldChecked]:checked').each(function(k){		  
+		  emIds += $(this).val()+",";		  
+  	  })
+  	  if(emIds.length > 0){
+  		  emIds = emIds.substring(0,emIds.length-1);		  
+	  }
+	  $.ajax({
+  		  type: 'GET',
+  		  url: "/wf/settableelements/"+wfId+"/"+clickedNodeId,
+  		  data: {emIds:emIds},			  
+  		  dataType: 'json',
+  		  success: function(data){ 
+  			  $("#fields_message").text("配置完成。");
+  		  },
+  		  error: function(XMLHttpRequest, textStatus, errorThrown){
+  			  console.warn(XMLHttpRequest.responseText);			  
+  		  }
+  	  });
   }
 </script>
 <div class="container" style="padding-top:5%">
@@ -752,7 +808,11 @@
 	<SPAN style="cursor:pointer;" onclick="$('#PopUp-1').hide();delLinkConfirm();">取消关联</SPAN>	
 	<p style="margin-top: 0.3rem;margin-bottom: 0.3rem;"></p>
 	<SPAN style="cursor:pointer;" onclick="$('#PopUp-1').hide();delConfirm();">删除节点</SPAN>
-	
+	<!-- 只有流程配置了表，才会出现字段授权功能 -->
+	<c:if test="${!empty wf.tbId }">
+		<hr style="margin-top: 0.3rem;margin-bottom: 0.3rem;"></hr>
+		<SPAN style="cursor:pointer;" onclick="$('#PopUp-1').hide();openTableElements(${wf.tbId});">字段授权</SPAN>
+	</c:if>
 </DIV>
 <!-- 删除弹出窗口 -->
 <div id="confirm-dialog"  title="确认窗口" >
@@ -820,6 +880,29 @@
          </h5>
          <div style="height: 300px;overflow-y: auto;">
           <ul class="list-group mb-3" id="link-lst"></ul>          	
+         </div>
+       </div>
+</div>
+
+<!-- 字段授权窗口 -->
+<div id="fields-div" class="mask opacity" style="display:none">
+	<header>	      
+         <div class="form-inline mt-2 mt-md-0" style="padding: 6px 10px 0px;" >
+           <label>设置节点字段是否可编辑</label>
+         </div>
+         <div style="position: absolute;top: 1px;right: 15px;">
+         	<span class="badge badge-secondary badge-pill" style="background-color:#46a70a;cursor:pointer;" onclick="$('#fields-div').hide();$('#fields_message').text('');">×</span>
+         </div>	      	     
+    </header>
+    <hr style="margin-top: .5rem; margin-bottom: .5rem;"></hr>
+    <div style="padding: 0px 13px 0px;" >
+         <h5 class="d-flex justify-content-between align-items-center mb-2">
+           <span class="text-muted">字段列表</span>   
+           <span id="fields_message"></span>         
+           <span class="badge badge-secondary badge-pill" style="cursor:pointer;" onclick="setTableElements();">确定</span>
+         </h5>
+         <div style="height: 300px;overflow-y: auto;">
+          <ul class="list-group mb-3" id="fields-lst"></ul>          	
          </div>
        </div>
 </div>

@@ -1,6 +1,6 @@
 -- MySQL dump 10.13  Distrib 8.0.11, for Win64 (x86_64)
 --
--- Host: localhost    Database: lawsuit
+-- Host: localhost    Database: workflow
 -- ------------------------------------------------------
 -- Server version	8.0.11
 
@@ -16,21 +16,20 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `sys_authority`
+-- Table structure for table `workflow`
 --
 
-DROP TABLE IF EXISTS `sys_authority`;
+DROP TABLE IF EXISTS `workflow`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
  SET character_set_client = utf8mb4 ;
-CREATE TABLE `sys_authority` (
-  `authorityId` int(11) NOT NULL AUTO_INCREMENT COMMENT '角色序号',
-  `authority` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '角色名称',
-  `authorityName` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '角色描述',
-  `status` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '创建时间',
-  `createdDate` datetime NOT NULL COMMENT '状态',
-  `modifiedDate` datetime NOT NULL COMMENT '修改时间',
-  PRIMARY KEY (`authorityId`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC COMMENT='系统角色表';
+CREATE TABLE `workflow` (
+  `wfId` int(11) NOT NULL AUTO_INCREMENT COMMENT '流程序号',
+  `wfName` varchar(45) DEFAULT NULL,
+  `tbId` int(11) DEFAULT NULL COMMENT '表单编号',
+  `status` varchar(10) NOT NULL,
+  `createdDate` datetime NOT NULL,
+  PRIMARY KEY (`wfId`)
+) ENGINE=InnoDB AUTO_INCREMENT=28 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='工作流';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -42,4 +41,4 @@ CREATE TABLE `sys_authority` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-12-03 14:16:28
+-- Dump completed on 2019-03-18  8:53:35

@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
 import cn.ideal.wf.dao.WorkflowTableMapper;
@@ -22,8 +24,17 @@ public class WorkflowTableServiceImpl implements WorkflowTableService {
 	private WorkflowTableMapper wfTableMapper;
 	@Autowired
 	private WorkflowWFService wfService;
+	
+	private SQLExecutor sqlExecutor;
+	
+	@Value("${workflow.wf.database.executor}")
+    String executorName;
+	
 	@Autowired
-	private SQLExecutor mysqlExecutor;
+    public void setSQLExecutor(ApplicationContext context) {
+		sqlExecutor = (SQLExecutor) context.getBean(executorName);
+    }
+	
 	@Override
 	public WorkflowTableBrief find(Long tbId) {
 		return wfTableMapper.find(tbId);
@@ -46,7 +57,7 @@ public class WorkflowTableServiceImpl implements WorkflowTableService {
 
 	@Override
 	public Map<String, Object> saveDataValueForTable(Storage storage) throws Exception {		
-		return mysqlExecutor.save(storage);			
+		return sqlExecutor.save(storage);			
 	}
 
 	@Override
@@ -56,7 +67,7 @@ public class WorkflowTableServiceImpl implements WorkflowTableService {
 
 	@Override
 	public Map<String, Object> updateDataValueForTable(Storage storage) throws Exception {		
-		return mysqlExecutor.update(storage);
+		return sqlExecutor.update(storage);
 	}
 
 	@Override

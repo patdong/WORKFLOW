@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.ideal.wf.dao.WorkflowWFMapper">
+	<resultMap id="workflow" type="cn.ideal.wf.model.Workflow" >
+		<id column="tbId" property="tbId" jdbcType="NUMERIC" />	
+		<association property="wftableBrief" column="tbId" select="cn.ideal.wf.dao.WorkflowTableMapper.find" />
+	</resultMap>	
+	
+	<select id="find" resultMap="workflow" parameterType="java.lang.Long">
+		select * from workflow where wfId = #{wfId}			
+	</select>
+		
+	<select id="findAllBlindTable" resultMap="workflow">
+		select * from workflow	where tbId is not null	
+	</select>
+</mapper>

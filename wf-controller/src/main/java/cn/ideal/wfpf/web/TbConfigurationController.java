@@ -301,4 +301,31 @@ public class TbConfigurationController {
 		mav.addObject("brief",tableService.find(tbId));
 		return mav;
     }
+	
+	/**
+	 * 启用表单
+	 * @param wfId
+	 * @param request
+	 * @return
+	 */
+	@GetMapping("/startup/{tbId}")
+    public @ResponseBody boolean startUp(@PathVariable Long tbId, HttpServletRequest request) {			
+        return tableService.setStatus(tbId, true);        
+    }
+	
+	/**
+	 * 停用表单
+	 * @param wfId
+	 * @param request
+	 * @return
+	 */
+	@GetMapping("/shutdown/{tbId}")
+    public @ResponseBody boolean shutdown(@PathVariable Long tbId, HttpServletRequest request) {			
+        return tableService.setStatus(tbId, false);        
+    }
+	
+	@GetMapping("/remove/{tbId}")
+    public @ResponseBody boolean remove(@PathVariable Long tbId, HttpServletRequest request) {			
+        return tableService.delete(tbId);      
+    }
 }

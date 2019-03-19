@@ -1,6 +1,6 @@
 -- MySQL dump 10.13  Distrib 8.0.11, for Win64 (x86_64)
 --
--- Host: localhost    Database: lawsuit
+-- Host: localhost    Database: workflow
 -- ------------------------------------------------------
 -- Server version	8.0.11
 
@@ -16,25 +16,18 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `workflow_node`
+-- Table structure for table `workflow_node_action`
 --
 
-DROP TABLE IF EXISTS `workflow_node`;
+DROP TABLE IF EXISTS `workflow_node_action`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
  SET character_set_client = utf8mb4 ;
-CREATE TABLE `workflow_node` (
-  `nodeId` int(11) NOT NULL COMMENT '节点序号',
-  `nodeName` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '节点名称',
-  `timeLimit` int(11) DEFAULT NULL COMMENT '节点时限',
-  `uType` varchar(10) NOT NULL COMMENT '节点操作的类型：角色、用户、单位',
-  `nType` varchar(10) NOT NULL COMMENT '节点类型（多人、单人、并行、串行等）',
-  `status` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '节点办理组织序号',
-  `createdDate` datetime NOT NULL COMMENT '创建时间',
-  `modifiedDate` datetime NOT NULL COMMENT '修改时间',
-  `moduleId` int(11) NOT NULL DEFAULT '1' COMMENT '业务类型，默认1。',
-  `seq` int(11) NOT NULL COMMENT '节点顺序',
-  PRIMARY KEY (`nodeId`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC COMMENT='流程节点表';
+CREATE TABLE `workflow_node_action` (
+  `nodeId` int(11) NOT NULL COMMENT '节点编号',
+  `actionCodeName` varchar(45) NOT NULL COMMENT '流程操作',
+  `type` varchar(10) NOT NULL COMMENT '操作类型',
+  `createdDATE` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='节点行为操作表';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -46,4 +39,4 @@ CREATE TABLE `workflow_node` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-11-27 14:23:21
+-- Dump completed on 2019-03-18  8:53:38

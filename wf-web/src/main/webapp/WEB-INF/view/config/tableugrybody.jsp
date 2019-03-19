@@ -41,7 +41,7 @@
 							</c:when>
 						</c:choose>
 						<c:if test="${!empty element.newLabelName}">
-						<span id="btn-up" class="btn-edit-pointer" onclick="showPos(event,${element.emId},'body');" title="编辑">⤧</span>
+						<span id="btn-up" class="btn-edit-pointer" onclick="showPos(event,${element.emId},'head');" title="编辑">⤧</span>
 						</c:if>
 					</td>
 					</c:if>					
@@ -129,7 +129,7 @@
 							</c:when>
 						</c:choose>
 						<c:if test="${!empty element.newLabelName}">
-						<span id="btn-up" class="btn-edit-pointer" onclick="showPos(event,${element.emId},'body');" title="编辑">⤧</span>
+						<span id="btn-up" class="btn-edit-pointer" onclick="showPos(event,${element.emId},'foot');" title="编辑">⤧</span>
 						</c:if>
 					</td>
 					</c:if>					

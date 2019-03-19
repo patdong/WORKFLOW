@@ -1,6 +1,9 @@
 package cn.ideal.wfpf.model;
 
 import java.util.Date;
+import java.util.List;
+
+import cn.ideal.wf.model.Workflow;
 
 /**
  * 表单概述pojo
@@ -17,6 +20,8 @@ public class TableBrief {
 	private Long cols;
 	private String status;
 	private Date createdDate;
+	private List<Workflow> wf;
+	private Long productCount = 0l;
 	
 	public Long getTbId() {
 		return tbId;
@@ -59,6 +64,18 @@ public class TableBrief {
 	}
 	public void setTemplate(String template) {
 		this.template = template;
+	}
+	public List<Workflow> getWf() {
+		return wf;
+	}
+	public void setWf(List<Workflow> wf) {
+		this.wf = wf;
+	}
+	public Long getProductCount() {
+		return productCount;
+	}
+	public void setProductCount(Long productCount) {
+		this.productCount = productCount;
 	}
 	
 }

@@ -5,6 +5,8 @@ import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,7 +19,7 @@ import cn.ideal.wfpf.model.Page;
 import cn.ideal.wfpf.model.TableBrief;
 import cn.ideal.wfpf.model.TableElement;
 import cn.ideal.wfpf.service.TableService;
-import cn.ideal.wfpf.sqlengine.impl.MySQLExecutor;
+import cn.ideal.wfpf.sqlengine.SQLExecutor;
 
 @Service
 public class TableServiceImpl implements TableService {
@@ -26,8 +28,17 @@ public class TableServiceImpl implements TableService {
 	private TableMapper tableMapper;
 	@Autowired
 	private ElementMapper elementMapper;
+	
+	@Value("${workflow.wfpf.database.executor}")
+    String executorName;
+		
+	private SQLExecutor sqlExecutor;
+	
 	@Autowired
-	private MySQLExecutor mySQLExecutor;
+    public void setSQLExecutor(ApplicationContext context) {
+		sqlExecutor = (SQLExecutor) context.getBean(executorName);
+    }
+
 	
 	@Override
 	public TableBrief saveTableBrief(TableBrief obj) {
@@ -45,7 +56,7 @@ public class TableServiceImpl implements TableService {
 
 	@Override
 	public List<TableBrief> findAll(Page<TableBrief> page) {
-		return tableMapper.findAPage(page.getCurFirstRecord(),Page.pageSize);
+		return tableMapper.findAPage(page.getCurFirstRecord(),page.getCurLastRecord(),Page.pageSize);
 	}
 
 	@Override
@@ -155,9 +166,9 @@ public class TableServiceImpl implements TableService {
 	}
 
 	@Override
-	public void delete(Long tbId, Long emId) {
+	public boolean delete(Long tbId, Long emId) {
 		tableMapper.deleteTableElement(tbId, emId);
-		
+		return true;
 	}
 
 	@Override
@@ -222,12 +233,12 @@ public class TableServiceImpl implements TableService {
 	public boolean createTable(Long tbId, String tableName) throws Exception {
 		tableName = "tb_"+tableName;
 		//判断设定的表名是否已经存在
-		boolean tableExist = mySQLExecutor.isExist(tableName);
+		boolean tableExist = sqlExecutor.isExist(tableName);
 		if(tableExist) {
 			throw new Exception("表名已存在!");
 		}
 			
-		mySQLExecutor.createTable(tbId,tableName);
+		sqlExecutor.createTable(tbId,tableName);
 		TableBrief tb = new TableBrief();
 		tb.setTbId(tbId);
 		tb.setName(tableName);
@@ -346,6 +357,55 @@ public class TableServiceImpl implements TableService {
 			}
 		}
 		return rst;
+	}
+
+	/**
+	 * 获得流程节点被设置的字段
+	 */
+	@Override
+	public List<TableElement> findTableAllElementsOnNode(Long wfId,
+			Long nodeId, Long tbId) {
+		return tableMapper.findTableAllElementsOnNode(wfId, nodeId, tbId);		
+	}
+
+	@Override
+	public boolean setTableFieldsOnNode(Long wfId, Long nodeId, Long[] emIds) {
+		int idx = tableMapper.saveTableElementOnNode(wfId, nodeId, emIds);
+		if(idx > 0) return true;
+		return false;
+	}
+
+	@Override
+	public boolean setStatus(Long tbId, boolean status) {
+		TableBrief tb = new TableBrief();
+		tb.setTbId(tbId);
+		if(status) tb.setStatus("有效");
+		else tb.setStatus("无效");
+		int idx = tableMapper.updateTableBrief(tb);
+		if(idx > 0) return true;
+		return false;
+	}
+
+	/**
+	 * 获得所有没有和在用流程建立过关联的表
+	 */
+	@Override
+	public List<TableBrief> findAllWithTableNameNoRelated() {
+		return tableMapper.findAllWithTableNameNoRelated();
+	}
+
+	@Override
+	public boolean delete(Long tbId) {
+		TableBrief tb = tableMapper.find(tbId);
+		if(tb != null){
+			tableMapper.deleteTableBrief(tbId);
+			if(tb.getTableName() != null){
+				try{					
+					sqlExecutor.dropTable(tb.getTableName());
+				}catch(Exception e){}
+			}
+		}
+		return true;
 	}
 
 }

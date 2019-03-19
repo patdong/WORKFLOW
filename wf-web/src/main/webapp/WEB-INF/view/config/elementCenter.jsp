@@ -77,7 +77,7 @@ function setEmLabelName(event){
           			<td><span class="small-btn" style="background-color:#bbb8b6" onclick="showPos(event,${element.emId },'em-hiddenname')">&nbsp;❒&nbsp;</span>${element.hiddenFieldName }</td>
           			<td><span class="small-btn" style="background-color:#bace15" onclick="showPos(event,${element.emId },'em-functionname')">&nbsp;❒&nbsp;</span>${element.functionName }</td>
           			<td>${element.status }</td>
-          			<td>${element.level }</td>
+          			<td>${element.grade }</td>
           		</tr>
           	</c:forEach>            
          </tbody>

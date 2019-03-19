@@ -19,7 +19,7 @@ import cn.ideal.wf.model.Workflow;
 import cn.ideal.wf.model.WorkflowTableBrief;
 import cn.ideal.wf.model.WorkflowTableElement;
 
-@Service("MYSQLExecutor")
+@Service("WFMYSQLExecutor")
 public class WFMySQLExecutor implements SQLExecutor {
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
@@ -52,7 +52,7 @@ public class WFMySQLExecutor implements SQLExecutor {
 					//保存业务关联主表
 					prebuf.setLength(0);
 					Workflow wf = WorkflowCache.getValue(storage.getWfId());
-					WorkflowTableBrief tb = TableBriefCache.getValue(wf.getTableId());
+					WorkflowTableBrief tb = TableBriefCache.getValue(wf.getTbId());
 					prebuf.append("insert into table_summary ( ");
 					prebuf.append("bizId,wfId,title,createdUserId,createdUserName,createdOrgId,createdOrgName,curUserId,curUserName,createdDate,modifiedDate,status,action ");
 					prebuf.append(" ) ");
@@ -128,7 +128,7 @@ public class WFMySQLExecutor implements SQLExecutor {
 
 			int id = jdbcTemplate.update(prebuf.toString());
 			if(id > 0){
-				return jdbcTemplate.queryForMap("select * from " + storage.getTableName() + "where id = "+ storage.getBizId());
+				return jdbcTemplate.queryForMap("select * from " + storage.getTableName() + " where id = "+ storage.getBizId());
 			}
 			
 		}catch(Exception e){

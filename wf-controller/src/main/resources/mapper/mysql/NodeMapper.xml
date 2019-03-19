@@ -19,7 +19,7 @@
 			
 	<select id="findAllOnlyNode" resultMap="node" parameterType="java.lang.Long">
 		select * from workflow_node
-		 where status != "无效"
+		 where status != '无效'
 		   and wfId = #{wfId}
 	</select>
 	
@@ -142,7 +142,7 @@
 	</resultMap>
 	<select id="findAll" resultType="cn.ideal.wfpf.model.Node" parameterType="java.lang.Long">
 		select * from workflow_node
-		 where status != "无效"
+		 where status != '无效'
 		   and wfId = #{wfId}
 	</select>
 	
@@ -151,7 +151,7 @@
 		select n.* from workflow_node n
 		inner join workflow_node_nodes a on n.nodeId = a.nodeId and a.type='直接连接'
 		 where a.suf_nodeId = #{nodeId}
-		   and n.status != "无效"
+		   and n.status != '无效'
 	</select>
 	
 	<!-- 获取后置节点 -->
@@ -159,7 +159,7 @@
 		select n.* from workflow_node n
 		inner join workflow_node_nodes a on a.suf_nodeId = n.nodeId and a.type='直接连接'
 		 where a.nodeId = #{nodeId}
-		   and n.status != "无效"
+		   and n.status != '无效'
 	</select>
 	
 	<select id="findOneSufNode" resultType="cn.ideal.wfpf.model.Node" parameterType="java.util.Map">

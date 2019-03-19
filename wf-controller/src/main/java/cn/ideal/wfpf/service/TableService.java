@@ -17,6 +17,8 @@ public interface TableService extends PageService<TableBrief> {
 	
 	List<TableBrief> findAllWithTableName();
 	
+	List<TableBrief> findAllWithTableNameNoRelated();
+	
 	List<TableElement> findTableAllElements(Long tbId);
 	
 	List<TableElement> findTableAllElements(Long tbId,String scope);
@@ -31,7 +33,7 @@ public interface TableService extends PageService<TableBrief> {
 	
 	boolean updateTableElementSeq(TableElement obj);
 	
-	void delete(Long tbId, Long emId);
+	boolean delete(Long tbId, Long emId);
 	
 	boolean setTableName(Long tbId,String tableName);
 	
@@ -46,5 +48,12 @@ public interface TableService extends PageService<TableBrief> {
 	boolean updateTableElement(TableElement obj);
 	
 	TableElement[][] findTableAllElements(Long tbId,String scope,String style);
+	
+	List<TableElement> findTableAllElementsOnNode(Long wfId, Long nodeId,Long tbId);
+	
+	boolean setTableFieldsOnNode(Long wfId, Long nodeId, Long[] emIds);
+	
+	boolean setStatus(Long tbId, boolean status);
 		
+	boolean delete(Long tbId);
 }

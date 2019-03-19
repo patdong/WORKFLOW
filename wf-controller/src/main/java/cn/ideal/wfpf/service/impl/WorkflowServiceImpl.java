@@ -45,7 +45,7 @@ public class WorkflowServiceImpl implements WorkflowService{
 
 	@Override
 	public List<Workflow> findAll(Page<Workflow> page) {
-		return workflowMapper.findAPage(page.getCurFirstRecord(),Page.pageSize);
+		return workflowMapper.findAPage(page.getCurFirstRecord(),page.getCurLastRecord(),Page.pageSize);
 	}
 
 	@Override
@@ -58,5 +58,22 @@ public class WorkflowServiceImpl implements WorkflowService{
 		int idx = workflowMapper.removeBinding(obj);
 		if(idx > 0) return this.find(obj.getWfId());
 		return null;
+	}
+
+	@Override
+	public boolean setStatus(Long wfId, boolean status) {
+		Workflow wf = new Workflow();
+		wf.setWfId(wfId);
+		if(status) wf.setStatus("有效");
+		else wf.setStatus("无效");
+		int idx = workflowMapper.update(wf);
+		if(idx > 0) return true;
+		return false;
+	}
+
+	@Override
+	public boolean delete(Long wfId) {
+		workflowMapper.delete(wfId);
+		return true;
 	}
 }

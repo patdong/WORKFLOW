@@ -21,7 +21,7 @@ public class ElementServiceImpl implements ElementService{
 	@Override
 	public Element save(Element element) {
 		element.setStatus("有效");
-		element.setLevel("自定义");
+		element.setGrade("自定义");
 		element.setCreatedDate(new Date());
 		int idx = elementMapper.save(element);
 		if(idx > 0) return element;
@@ -53,7 +53,7 @@ public class ElementServiceImpl implements ElementService{
 
 	@Override
 	public List<Element> findAll(Page<Element> page) {
-		return elementMapper.findAPage(page.getCurFirstRecord(),Page.pageSize);
+		return elementMapper.findAPage(page.getCurFirstRecord(),page.getCurLastRecord(),Page.pageSize);
 	}
 
 	@Override

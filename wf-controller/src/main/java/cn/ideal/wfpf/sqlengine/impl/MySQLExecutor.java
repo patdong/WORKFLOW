@@ -18,7 +18,7 @@ import cn.ideal.wfpf.sqlengine.SQLExecutor;
 
 
 
-@Service
+@Service("WFPFMYSQLExecutor")
 public class MySQLExecutor implements SQLExecutor {	
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
@@ -27,9 +27,10 @@ public class MySQLExecutor implements SQLExecutor {
 	@Autowired
 	private MySQLCreator mySQLCreator;
 	
+	private String primaryKey = "ID";
 	@Override
-	public void executeSql(String sql) throws Exception{
-		jdbcTemplate.execute(sql);
+	public void executeSql(String... sql) throws Exception{
+		jdbcTemplate.execute(sql[0]);
 		
 	}
 
@@ -79,7 +80,7 @@ public class MySQLExecutor implements SQLExecutor {
 						strBuilder.append(",");
 					}
 				}
-				strBuilder.append(mySQLCreator.createPrimaryKey(null));
+				strBuilder.append(mySQLCreator.setPrimaryKey(tableName,primaryKey));
 				strBuilder.append(") ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET="+MySQLCreator.CHARACTER+" COLLATE="+MySQLCreator.COLLATE+" ROW_FORMAT=DYNAMIC COMMENT='"+tableName+"'");
 				
 				try{
@@ -102,5 +103,10 @@ public class MySQLExecutor implements SQLExecutor {
 			return false;
 		}
 		return true;
+	}
+
+	@Override
+	public void dropTable(String tableName) throws Exception {
+		this.executeSql(mySQLCreator.dropTable(tableName));		
 	}
 }

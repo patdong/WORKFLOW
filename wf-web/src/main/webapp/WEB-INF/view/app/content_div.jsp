@@ -2,6 +2,7 @@
 <%@ include file="/WEB-INF/view/include.jsp"%>
 <h1 class="h2" style="text-align:center">${model.tableBrief.tableName}</h1>	
 	<!-- 表单头部 -->
+<c:set var="cols" value="${model.tableBrief.cols}"/>
 <div style="text-align:center;margin-left:2%;margin-right:2%;top:26%">
 	<div class="table-container">					
 		<c:forEach items="${model.headLst}" varStatus="i" step="1" var="element" >								
@@ -49,7 +50,6 @@
 </div>
 <div class="line-gap-table"></div>
 <!-- 表单体 -->
-<c:set var="cols" value="${model.tableBrief.cols}"/>
 <div style="text-align:center;margin-left:2%;margin-right:2%;margin-top: 7%;">
 	<div class="table-container">
 		<c:forEach items="${model.bodyLst}" varStatus="i" step="1" var="element" >

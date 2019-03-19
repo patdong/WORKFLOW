@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.ideal.wfpf.dao.NodeMapper">
+	<resultMap id="node" type="cn.ideal.wfpf.model.Node" >
+		<id column="nodeId" property="nodeId" jdbcType="NUMERIC" />
+		<association property="role" column="nodeId" select="findRole" />
+		<association property="users" column="nodeId" select="findUsers" />
+		<association property="org" column="nodeId" select="findOrg" />
+		<association property="preNodes" column="nodeId" select="findPreNode" />
+		<association property="sufNodes" column="nodeId" select="findSufNode" />		
+		<association property="buttons" column="nodeId" select="findNodeButton" />
+		<association property="nodeAction" column="nodeId" select="findNodeAction" />
+	</resultMap>	
+	
+	<select id="find" resultType="cn.ideal.wfpf.model.Node" parameterType="java.lang.Long">
+		select * from workflow_node
+		 where nodeId = #{nodeId}
+	</select>
+			
+	<select id="findAllOnlyNode" resultMap="node" parameterType="java.lang.Long">
+		select * from workflow_node
+		 where status != '无效'
+		   and wfId = #{wfId}
+	</select>
+	
+	<insert id="save" parameterType="cn.ideal.wfpf.model.Node">
+		<selectKey resultType="java.lang.Long" keyProperty="nodeId" order="BEFORE">
+			select sq_nodeId.nextval from dual
+		</selectKey>
+		insert into workflow_node(
+			nodeId,nodename,timeLimit,uType,nType,status,createdDate,modifiedDate,wfId
+		)
+		values(
+			#{nodeId},
+			#{nodename,jdbcType=VARCHAR},
+			#{timeLimit,jdbcType=DECIMAL},
+			#{uType,jdbcType=VARCHAR},
+			#{nType,jdbcType=VARCHAR},
+			#{status,jdbcType=VARCHAR},
+			#{createdDate,jdbcType=TIMESTAMP},
+			#{modifiedDate,jdbcType=TIMESTAMP},
+			#{wfId,jdbcType=DECIMAL}
+		)
+	</insert>
+	
+	<update id="update" parameterType="cn.ideal.wfpf.model.Node">
+		update workflow_node set
+			nodename = #{nodename,jdbcType=VARCHAR},
+			timeLimit = #{timeLimit,jdbcType=DECIMAL},
+			uType = #{uType,jdbcType=VARCHAR},
+			nType = #{nType,jdbcType=VARCHAR},			
+			status = #{status,jdbcType=VARCHAR}
+		where nodeId = #{nodeId}
+	</update>
+	
+	<delete id="deleteNode" parameterType="java.lang.Long">
+		delete from workflow_node where nodeId = #{nodeId}
+	</delete>
+	
+	<update id="updateStatus" parameterType="cn.ideal.wfpf.model.Node">
+		update workflow_node set			
+			status = #{status}
+		where nodeId = #{nodeId}
+	</update>
+	
+	<insert id="saveNodeNodes" parameterType="cn.ideal.wfpf.model.Node">
+		insert into workflow_node_nodes(
+			nodeId,suf_nodeId,type,createdDate
+		)
+		values
+		<foreach collection="preNodes" item="item" index="index" separator=",">				
+		(
+			#{item.nodeId,jdbcType=DECIMAL},
+			#{nodeId,jdbcType=DECIMAL},
+			#{type,jdbcType=VARCHAR},			
+			#{createdDate,jdbcType=DECIMAL}
+		)
+		</foreach>
+	
+	</insert>
+	
+	<insert id="saveUser" parameterType="cn.ideal.wfpf.model.Node">
+		insert into workflow_node_user(
+			nodeId,userId,userName,unitId,unitName,createdDate
+		)
+		values
+		<foreach collection="users" item="item" index="index" separator=",">				
+		(
+			#{nodeId,jdbcType=DECIMAL},
+			#{item.userId,jdbcType=DECIMAL},
+			#{item.userName,jdbcType=VARCHAR},
+			#{item.currentOrgId,jdbcType=DECIMAL},
+			#{item.currentOrgName,jdbcType=VARCHAR},
+			#{createdDate,jdbcType=DECIMAL}
+		)
+		</foreach>
+	
+	</insert>
+	
+	<insert id="saveRole" parameterType="cn.ideal.wfpf.model.Node">
+		insert into workflow_node_role(
+			nodeId,roleId,roleName,unitId,unitName,createdDate
+		)
+		values(
+			#{nodeId,jdbcType=DECIMAL},
+			#{role.roleId,jdbcType=DECIMAL},
+			#{role.roleName,jdbcType=VARCHAR},
+			#{org.orgId,jdbcType=DECIMAL},
+			#{org.orgName,jdbcType=VARCHAR},
+			#{createdDate,jdbcType=DECIMAL}
+		)
+	</insert>
+	
+	<delete id="deleteUser" parameterType="java.lang.Long">
+		delete from workflow_node_user where nodeId = #{nodeId}
+	</delete>
+	
+	<delete id="deleteRole" parameterType="java.lang.Long">
+		delete from workflow_node_role where nodeId = #{nodeId}
+	</delete>
+	
+	<select id="findRole" resultType="cn.ideal.wfpf.model.CertificationRole" parameterType="java.lang.Long">
+		select * from workflow_node_role
+		 where nodeId = #{nodeId}
+	</select>
+	
+	<select id="findUsers" resultType="cn.ideal.wfpf.model.CertificationUser" parameterType="java.lang.Long">
+		select * from workflow_node_user
+		 where nodeId = #{nodeId}
+	</select>
+	
+	<select id="findOrg" resultType="cn.ideal.wfpf.model.CertificationOrg" parameterType="java.lang.Long">
+		select distinct * from (
+			select unitId as orgId, unitName as orgName from workflow_node_user
+			 where nodeId = #{nodeId}
+			union 
+			select unitId as orgId, unitName as orgName from workflow_node_role
+			 where nodeId = #{nodeId}
+		 ) org
+	</select>
+	
+	<resultMap id="leaf" type="cn.ideal.wfpf.model.Node" >
+		<id column="nodeId" property="nodeId" jdbcType="NUMERIC" />
+		<association property="preNodes" column="nodeId" select="findPreNode" />
+		<association property="sufNodes" column="nodeId" select="findSufNode" />		
+	</resultMap>
+	<select id="findAll" resultType="cn.ideal.wfpf.model.Node" parameterType="java.lang.Long">
+		select * from workflow_node
+		 where status != '无效'
+		   and wfId = #{wfId}
+	</select>
+	
+	<!-- 获取前置节点 -->
+	<select id="findPreNode" resultType="cn.ideal.wfpf.model.Node" parameterType="java.lang.Long">
+		select n.* from workflow_node n
+		inner join workflow_node_nodes a on n.nodeId = a.nodeId and a.type='直接连接'
+		 where a.suf_nodeId = #{nodeId}
+		   and n.status != '无效'
+	</select>
+	
+	<!-- 获取后置节点 -->
+	<select id="findSufNode" resultType="cn.ideal.wfpf.model.Node" parameterType="java.lang.Long">
+		select n.* from workflow_node n
+		inner join workflow_node_nodes a on a.suf_nodeId = n.nodeId and a.type='直接连接'
+		 where a.nodeId = #{nodeId}
+		   and n.status != '无效'
+	</select>
+	
+	<select id="findOneSufNode" resultType="cn.ideal.wfpf.model.Node" parameterType="java.util.Map">
+		select a.* from workflow_node_nodes a
+		 where a.nodeId = #{nodeId}
+		   and a.type='直接连接'
+		   and a.suf_nodeId = #{sufNodeId}
+	</select>
+	
+	<!-- 删除节点的关联关系 -->
+	<delete id="deleteNodeNodes" parameterType="java.lang.Long">
+		{call
+	        declare
+	        begin
+			delete from workflow_node_nodes where nodeId = #{nodeId};			
+			delete from workflow_node_nodes where suf_nodeId = #{nodeId};
+			end
+		}
+	</delete>
+	
+	<!-- 保存节点按钮 -->
+	<insert id="saveNodeAction" parameterType="cn.ideal.wfpf.model.Node">
+		insert into workflow_node_action(
+			nodeId,actionCodeName,type,createdDate
+		)
+		values(
+			#{nodeId},
+			#{nodeAction.actionCodeName},
+			'流程',		
+			#{createdDate}
+		)
+		
+	</insert>
+	
+	
+	<!-- 保存节点按钮 -->
+	<insert id="saveNodeButton" parameterType="cn.ideal.wfpf.model.Node">
+		insert into workflow_node_action(
+			nodeId,actionCodeName,type,createdDate
+		)
+		values
+		<foreach collection="buttons" item="item" index="index" separator=",">				
+		(
+			#{nodeId},
+			#{item.actionCodeName},
+			'行为',		
+			#{createdDate}
+		)
+		</foreach>		
+	</insert>
+	
+	<select id="findNodeAction" resultType="cn.ideal.wfpf.model.Action" parameterType="java.lang.Long">
+		select a.* from workflow_action a
+		inner join workflow_node_action b on a.actionCodeName = b.actionCodeName
+		 where b.nodeId = #{nodeId}
+		   and b.type='流程'
+	</select>
+	
+	<select id="findNodeButton" resultType="cn.ideal.wfpf.model.Action" parameterType="java.lang.Long">
+		select a.* from workflow_action a
+		inner join workflow_node_action b on a.actionCodeName = b.actionCodeName
+		 where b.nodeId = #{nodeId}
+		   and b.type='行为'
+	</select>
+	
+	<!-- 删除节点的按钮关系 -->
+	<delete id="deleteNodeButton" parameterType="java.lang.Long">
+		delete from workflow_node_action where nodeId = #{nodeId} and type = '行为'
+	</delete>
+	
+	<delete id="deleteNodeAction" parameterType="java.lang.Long">
+		delete from workflow_node_action where nodeId = #{nodeId} and type = '流程'
+	</delete>	
+	
+	<delete id="deleteNodeNode" parameterType="java.util.Map">
+		delete from workflow_node_nodes where nodeId = #{nodeId} and suf_nodeId = #{sufNodeId} and type='直接连接'
+	</delete>
+	
+	<update id="delegation" parameterType="java.util.Map">
+		update workflow_node_nodes set
+			nodeId = #{delegationNodeId}
+		where nodeId = #{nodeId}
+	</update>
+	
+	<delete id="deleteNodeLinks" parameterType="java.util.Map">
+		delete from workflow_node_nodes where nodeId = #{nodeId} and type='直接连接' and suf_nodeId not in 
+		<foreach collection="linkNodeIds" item="item" index="index" open="(" close=")"  separator=",">
+                '${item}'
+        </foreach>
+	</delete>
+</mapper>

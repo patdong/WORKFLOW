@@ -28,11 +28,15 @@ public class TableElement {
 	private String list;
 	private String constraint;
 	private Long newLength;
+	private String defaultValue;
+	private String defaultValueFrom;
 	private String status;
 	private Date createdDate;
 	
 	private String labelName;
 	private String fieldName;
+	private boolean readOnly = false;
+	
 	public Long getTbId() {
 		return tbId;
 	}
@@ -164,6 +168,24 @@ public class TableElement {
 	}
 	public void setFunctionBelongTo(String functionBelongTo) {
 		this.functionBelongTo = functionBelongTo;
+	}
+	public boolean isReadOnly() {
+		return readOnly;
+	}
+	public void setReadOnly(boolean readOnly) {
+		this.readOnly = readOnly;
+	}
+	public String getDefaultValue() {
+		return defaultValue;
+	}
+	public void setDefaultValue(String defaultValue) {
+		this.defaultValue = defaultValue;
+	}
+	public String getDefaultValueFrom() {
+		return defaultValueFrom;
+	}
+	public void setDefaultValueFrom(String defaultValueFrom) {
+		this.defaultValueFrom = defaultValueFrom;
 	}
 	
 	

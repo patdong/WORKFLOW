@@ -1,6 +1,12 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"  pageEncoding="UTF-8"  trimDirectiveWhitespaces="true" %>
 <%@ include file="/WEB-INF/view/include.jsp"%>
 <script>
+var gwfId = "";
+$( function() {
+	//初始化
+	$("#confirm-dialog").dialog();
+	$('#confirm-dialog').dialog('close');
+})
 function showPos(event,wfId,item) {
 	  var el, x, y;
 	  el = document.getElementById(item);	  
@@ -61,13 +67,13 @@ function setBinging(){
    			  if(data){
    				$('#workflow-binding').hide(); 
    				$("#tb-"+wfId).text("已绑定");
+   				location.href="/wf/workflowcenter/"+${page.curPage};
    			  }			  
    		  },
    		  error: function(XMLHttpRequest, textStatus, errorThrown){
    			  console.warn(XMLHttpRequest.responseText);			  
    		  }
-   	});    
-
+   	});
 }
 
 //取消表单绑定
@@ -79,13 +85,63 @@ function removeBinding(wfId){
    		  success: function(data){
    			  if(data){   				
    				$("#tb-"+wfId).text("");
+   				location.href="/wf/workflowcenter/"+${page.curPage};
    			  }			  
    		  },
    		  error: function(XMLHttpRequest, textStatus, errorThrown){
    			  console.warn(XMLHttpRequest.responseText);			  
    		  }
-   	});    
+   	});
+}
 
+//启用流程
+function startup(wfId){	        
+ 	$.ajax({
+		  type: 'GET',
+		  url: "/wf/startup/"+wfId,			  
+		  dataType: 'json',
+		  success: function(data){
+			  location.href="/wf/workflowcenter/"+${page.curPage};		  
+		  },
+		  error: function(XMLHttpRequest, textStatus, errorThrown){
+			  console.warn(XMLHttpRequest.responseText);			  
+		  }
+	});
+}
+
+//停用流程
+function shutdown(wfId){	        
+ 	$.ajax({
+		  type: 'GET',
+		  url: "/wf/shutdown/"+wfId,			  
+		  dataType: 'json',
+		  success: function(data){
+			  location.href="/wf/workflowcenter/"+${page.curPage};		  
+		  },
+		  error: function(XMLHttpRequest, textStatus, errorThrown){
+			  console.warn(XMLHttpRequest.responseText);			  
+		  }
+	});
+}
+
+//流程删除确认
+function removeConfirm(wfId){
+	gwfId = wfId;
+	$('#confirm-dialog').dialog('open');
+}
+
+function remove(){
+	$.ajax({
+		  type: 'GET',
+		  url: "/wf/remove/"+gwfId,			  
+		  dataType: 'json',
+		  success: function(data){
+			  location.href="/wf/workflowcenter/"+${page.curPage};		  
+		  },
+		  error: function(XMLHttpRequest, textStatus, errorThrown){
+			  console.warn(XMLHttpRequest.responseText);			  
+		  }
+	});
 }
 </script>
 <div class="container" >
@@ -114,14 +170,26 @@ function removeBinding(wfId){
           			<td><span class="small-btn" style="background-color:#42a288;" onclick="showPos(event,${workflow.wfId },'workflow-name')" >&nbsp;✒&nbsp;</span><span id="${workflow.wfId }">${workflow.wfName }</span></td>
           			<td><span class="small-btn" style="background-color:#16e81d;" onclick="showPos(event,${workflow.wfId },'workflow-binding')">&nbsp;✓&nbsp;</span>
           				<span id="tb-${workflow.wfId }">
-	          				<c:if test="${!empty workflow.tableId }">
+	          				<c:if test="${!empty workflow.tbId }">
 	          				${workflow.wftableBrief.tableName }
 	          				<span class="small-btn" style="background-color:#ce6634;margin-left:3px;" onclick="removeBinding(${workflow.wfId })">&nbsp;✘&nbsp;</span>
 	          				</c:if>
           				</span>
           			</td>
           			<td>${workflow.status }</td>
-          			<td>删除</td>
+          			<td>
+          				<c:choose >          				
+	          				<c:when test="${empty workflow.tbId }">
+	          					<span class="small-btn" style="background-color:#343a40;color:#ffc107;font-weight:bold;cursor:pointer" title="删除" onclick="removeConfirm(${workflow.wfId })">&nbsp;↯&nbsp;</span>
+	          				</c:when>
+	          				<c:when test="${workflow.status eq '有效' }">
+	          					<span class="small-btn" style="background-color:#6c757d;color:#343a40;font-weight:bold;cursor:pointer" title="停用" onclick="shutdown(${workflow.wfId })">&nbsp;⇊&nbsp;</span>
+	          				</c:when>
+	          				<c:when test="${workflow.status eq '无效' }">
+	          					<span class="small-btn" style="background-color:#0dbf36;color:#343a40;font-weight:bold;cursor:pointer" title="启用" onclick="startup(${workflow.wfId })">&nbsp;⇈&nbsp;</span>
+	          				</c:when>
+          				</c:choose>
+          			</td>
           		</tr>
           	</c:forEach>            
          </tbody>
@@ -155,3 +223,30 @@ function removeBinding(wfId){
 		<hr></hr>        
 	</div>    
 </div> 
+
+<!-- 删除弹出窗口 -->
+<div id="confirm-dialog"  title="确认窗口" >
+  <p>流程一旦删除将无法复原！</p>
+  <br>
+  <div style="display:none" id="delegationDiv">  	
+  </div>
+  <br>
+  <nav aria-label="Page navigation example">
+  	<ul class="pagination">  	    
+   		<li class="page-item">
+   		  <div class="btn-confirm-dialog">
+		      <a style="color: #e9eef3;" href="javascript:void(0);"  onclick="remove();">
+		        <span aria-hidden="true">确认</span>		        
+		      </a>
+	      </div>
+	    </li>
+	    <li class="page-item">
+   		  <div class="btn-confirm-dialog">
+		      <a style="color: #e9eef3;" href="javascript:void(0);" onclick="$('#confirm-dialog').dialog('close');">
+		        <span aria-hidden="true">取消</span>		        
+		      </a>
+	      </div>
+	    </li>
+	</ul>
+  </nav>    
+</div>

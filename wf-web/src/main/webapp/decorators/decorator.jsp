@@ -63,7 +63,7 @@ $( function() {
 	              <a class="nav-link" href="/em/elementcenter" style="font-weight:bold;" id="em">元素库</a>
 	            </li>
 	            <li class="nav-item" >
-	              <a class="nav-link" href="/sys/configuration" style="font-weight:bold;" id="em"><span style="font-size:15px;color:blue;">✋</span>环境配置</a>
+	              <a class="nav-link" href="/sys/syscenter" style="font-weight:bold;" id="em"><span style="font-size:15px;color:blue;">✋</span>环境配置</a>
 	            </li>  
 	            <li class="nav-item" >
 	              <a class="nav-link" href="/app/actualcenter" style="font-weight:bold;" id="em">流程实战</a>

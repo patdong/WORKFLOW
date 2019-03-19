@@ -106,7 +106,7 @@ public class ActualController extends PlatformFundation{
 		}
 		
 		listModel.setWf(WorkflowCache.getValue(wfId));
-		listModel.setTableList(wftableService.findElementsOnList(listModel.getWf().getTableId()));
+		listModel.setTableList(wftableService.findElementsOnList(listModel.getWf().getTbId()));
 		listModel.setMenu(wfService.findAllBlindTable());
 		
         return mav;
@@ -133,7 +133,7 @@ public class ActualController extends PlatformFundation{
 			pageModel.setFlowChat(flowChatService.draw(wfId,bizId.get()).toString());
 			pageModel.setWfBrief(wfBriefService.find(bizId.get(), wfId));
 		}else{
-			pageModel.setFlowChat(flowChatService.draw(wfId).toString());
+			pageModel.setFlowChat(flowChatService.draw(wfId).toString());			
 		}
 		
 		if(pageModel.getWfBrief() != null){
@@ -157,7 +157,7 @@ public class ActualController extends PlatformFundation{
 		mav.addObject("model",pageModel);
 		pageModel.setWf(WorkflowCache.getValue(wfId));
 		
-		Long tableId = pageModel.getWf().getTableId();
+		Long tableId = pageModel.getWf().getTbId();
 		List<WorkflowTableElement> headLst = wftableService.findAllTableElementsWithScope(tableId,"head");
 		List<WorkflowTableElement> bodyLst = wftableService.findAllTableElementsWithScope(tableId,"body");		
 		List<WorkflowTableElement> footLst = wftableService.findAllTableElementsWithScope(tableId,"foot");

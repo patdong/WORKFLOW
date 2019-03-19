@@ -5,6 +5,7 @@ package cn.ideal.wfpf.web;
  * @author 郭佟燕
  * @version 2.0
  * */
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -27,8 +28,10 @@ import cn.ideal.wf.tree.FlowChatService;
 import cn.ideal.wfpf.model.CertificationOrg;
 import cn.ideal.wfpf.model.CertificationRole;
 import cn.ideal.wfpf.model.CertificationUser;
+import cn.ideal.wfpf.model.FMsg;
 import cn.ideal.wfpf.model.Node;
 import cn.ideal.wfpf.model.Page;
+import cn.ideal.wfpf.model.TableElement;
 import cn.ideal.wfpf.service.ActionService;
 import cn.ideal.wfpf.service.CertificationService;
 import cn.ideal.wfpf.service.NodeService;
@@ -37,6 +40,7 @@ import cn.ideal.wfpf.service.WorkflowService;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mysql.jdbc.StringUtils;
 
 @Controller
 @RequestMapping("/wf")
@@ -73,7 +77,7 @@ public class WfConfigurationController {
         page.setPageList(workflowService.findAll(page));
         page.setUrl("/wf/workflowcenter");
         mav.addObject("page",page);
-        mav.addObject("tbLst", tableService.findAllWithTableName());
+        mav.addObject("tbLst", tableService.findAllWithTableNameNoRelated());
         return mav;
     }
 	
@@ -167,7 +171,7 @@ public class WfConfigurationController {
     public @ResponseBody boolean setBinding(@PathVariable Long wfId, @RequestParam("tbId") Long tbId, HttpServletRequest request) {	
 		Workflow wf = new Workflow();
 		wf.setWfId(wfId);
-		wf.setTableId(tbId);
+		wf.setTbId(tbId);
         wf = workflowService.update(wf);
         
         if(wf != null) return true;
@@ -198,4 +202,80 @@ public class WfConfigurationController {
 		return wfns;
     }
 
+	/**
+	 * 获得流程节点的表字段设置信息
+	 * @param nodeId
+	 * @param tbId
+	 * @param request
+	 * @return
+	 */
+	@GetMapping("/gettableelements/{wfId}/{nodeId}/{tbId}")
+    public @ResponseBody List<TableElement> getTableElements(@PathVariable Long wfId,@PathVariable Long nodeId,@PathVariable Long tbId, HttpServletRequest request) {	
+		List<TableElement> elements = tableService.findTableAllElements(tbId);
+		List<TableElement> nodeElements = tableService.findTableAllElementsOnNode(wfId, nodeId, tbId);
+		for(TableElement element : elements){
+			for(TableElement nelement : nodeElements){
+				if(element.getEmId().equals(nelement.getEmId())) {
+					element.setReadOnly(true);
+					break;
+				}
+			}
+		}
+		return elements;
+    }
+	
+	/**
+	 * 设置节点表字段是否可操作
+	 * @param wfId
+	 * @param nodeId
+	 * @param emIds
+	 * @param request
+	 * @return
+	 */
+	@GetMapping("/settableelements/{wfId}/{nodeId}")
+    public @ResponseBody FMsg setTableElements(@PathVariable Long wfId,@PathVariable Long nodeId,@RequestParam String emIds, HttpServletRequest request) {
+		FMsg fmsg = null;
+		try{
+			if(!StringUtils.isNullOrEmpty(emIds)){
+				List<Long> emIdLst = new ArrayList<Long>();
+				for(String id: emIds.split(",")){
+					emIdLst.add(Long.parseLong(id));
+				}
+				boolean res = tableService.setTableFieldsOnNode(wfId,nodeId,emIdLst.toArray(new Long[emIdLst.size()]));
+				fmsg = new FMsg(res);
+			}
+			
+		}catch(Exception e){
+			fmsg = new FMsg(FMsg.ERROR,e.getMessage());
+		}
+		
+		return fmsg;
+    }
+	
+	/**
+	 * 启用流程
+	 * @param wfId
+	 * @param request
+	 * @return
+	 */
+	@GetMapping("/startup/{wfId}")
+    public @ResponseBody boolean startUp(@PathVariable Long wfId, HttpServletRequest request) {			
+        return workflowService.setStatus(wfId, true);        
+    }
+	
+	/**
+	 * 停用流程
+	 * @param wfId
+	 * @param request
+	 * @return
+	 */
+	@GetMapping("/shutdown/{wfId}")
+    public @ResponseBody boolean shutdown(@PathVariable Long wfId, HttpServletRequest request) {			
+        return workflowService.setStatus(wfId, false);        
+    }
+	
+	@GetMapping("/remove/{wfId}")
+    public @ResponseBody boolean remove(@PathVariable Long wfId, HttpServletRequest request) {			
+        return workflowService.delete(wfId);        
+    }
 }

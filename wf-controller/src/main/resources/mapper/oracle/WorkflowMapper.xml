@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.ideal.wfpf.dao.WorkflowMapper">
+	<resultMap id="workflow" type="cn.ideal.wf.model.Workflow" >
+		<id column="tbId" property="tbId" jdbcType="NUMERIC" />	
+		<association property="wftableBrief" column="tbId" select="cn.ideal.wf.dao.WorkflowTableMapper.find" />
+	</resultMap>			
+	
+	<insert id="save" parameterType="cn.ideal.wf.model.Workflow">
+		<selectKey resultType="java.lang.Long" keyProperty="wfId" order="BEFORE">
+			select sq_wfId.nextval from dual
+		</selectKey>
+		insert into workflow(
+			wfId,wfName,status,createdDate
+		)
+		values(
+			#{wfId},
+			#{wfName,jdbcType=VARCHAR},			
+			#{status,jdbcType=VARCHAR},
+			#{createdDate,jdbcType=TIMESTAMP}
+		)
+	</insert>
+		
+	<update id="update" parameterType="cn.ideal.wf.model.Workflow">
+		update workflow set 
+			<if test="wfName != null">
+				wfName = #{wfName,jdbcType=VARCHAR} 
+			</if>
+			<if test="tbId != null">
+				tbId = #{tbId,jdbcType=DECIMAL} 
+			</if>
+			<if test="status != null">
+				status = #{status,jdbcType=VARCHAR} 
+			</if>
+			where wfId = #{wfId,jdbcType=DECIMAL}
+	</update>
+	
+	<update id="removeBinding" parameterType="cn.ideal.wf.model.Workflow">
+		update workflow set 			
+			tbId = null 
+			where wfId = #{wfId}
+	</update>
+	
+	<select id="findAPage" resultMap="workflow" parameterType="java.util.Map">
+		<if test="recordLastNumber != null">
+			SELECT *
+			FROM  (
+			   SELECT a.*, rownum rn
+			   FROM (
+		</if>
+			      select * from workflow order by wfId
+		<if test="recordLastNumber != null">
+			   )a
+			   WHERE rownum <![CDATA[ <= ]]>  #{recordLastNumber}
+			)
+			WHERE  rn <![CDATA[ >= ]]>  #{recordNumber}
+		</if>		
+	</select>
+	
+	<select id="find" resultMap="workflow" parameterType="java.lang.Long">
+		select * from workflow where wfId = #{wfId}			
+	</select>
+	
+	<select id="findAll" resultMap="workflow">
+		select * from workflow			
+	</select>
+		
+	<select id="findAllBlindTable" resultMap="workflow">
+		select * from workflow	where tbId is not null;		
+	</select>
+	
+	<delete id="delete" parameterType="java.lang.Long">
+		delete from workflow 
+		<where>		
+		      wfId=#{wfId}		  	
+		</where>
+	</delete>
+	
+	<select id="findAllWorkflowsByTbId" resultType="cn.ideal.wf.model.Workflow" parameterType="java.lang.Long">
+		select * from workflow where tbId = #{tbId}
+	</select>
+</mapper>

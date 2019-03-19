@@ -1,6 +1,6 @@
 -- MySQL dump 10.13  Distrib 8.0.11, for Win64 (x86_64)
 --
--- Host: localhost    Database: lawsuit
+-- Host: localhost    Database: workflow
 -- ------------------------------------------------------
 -- Server version	8.0.11
 
@@ -16,22 +16,28 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `sys_org`
+-- Table structure for table `element_library`
 --
 
-DROP TABLE IF EXISTS `sys_org`;
+DROP TABLE IF EXISTS `element_library`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
  SET character_set_client = utf8mb4 ;
-CREATE TABLE `sys_org` (
-  `orgId` int(11) NOT NULL AUTO_INCREMENT COMMENT '组织序号',
-  `orgName` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '组织名称',
-  `orgType` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT 'dx' COMMENT '组织类型,dx（电信），ls（律师），fy（法院）',
-  `status` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT 'valid',
+CREATE TABLE `element_library` (
+  `emId` int(11) NOT NULL AUTO_INCREMENT COMMENT '元素编号',
+  `labelName` varchar(20) NOT NULL COMMENT '元素标签名称',
+  `fieldName` varchar(45) NOT NULL COMMENT '元素字段名称',
+  `hiddenFieldName` varchar(45) DEFAULT NULL COMMENT '元素隐藏字段名',
+  `functionName` varchar(45) DEFAULT NULL COMMENT '元素方法名称',
+  `status` varchar(10) NOT NULL COMMENT '状态',
   `createdDate` datetime NOT NULL COMMENT '创建时间',
-  `modifiedDate` datetime NOT NULL COMMENT '修改时间',
-  PRIMARY KEY (`orgId`) USING BTREE,
-  KEY `orgId_idx` (`orgId`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC COMMENT='系统组织表';
+  `level` varchar(10) NOT NULL COMMENT '级别（系统级、自定义）',
+  `fieldType` varchar(10) NOT NULL DEFAULT '输入框' COMMENT '字段类型',
+  `fieldDataType` varchar(10) NOT NULL DEFAULT '字符串' COMMENT '字段数据类型',
+  `dataContent` varchar(100) DEFAULT NULL COMMENT '值关联表值（适用于下拉框、多选框）',
+  `length` int(11) DEFAULT NULL COMMENT '字段长度，仅对字符串类型有效',
+  `functionBelongTo` varchar(10) DEFAULT NULL COMMENT '方法隶属于标签或元素',
+  PRIMARY KEY (`emId`)
+) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='元素库';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -43,4 +49,4 @@ CREATE TABLE `sys_org` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-12-03 14:16:28
+-- Dump completed on 2019-03-18  8:53:42

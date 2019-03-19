@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="cn.ideal.wfpf.dao.TableMapper">
-	<resultMap id="tablebrief" type="cn.ideal.wfpf.model.TableBrief" />
+	<resultMap id="tablebrief" type="cn.ideal.wfpf.model.TableBrief" >
+		<id column="tbId" property="tbId" jdbcType="NUMERIC" />
+		<association property="wf" column="tbId" select="cn.ideal.wfpf.dao.WorkflowMapper.findAllWorkflowsByTbId" />
+		<association property="productCount" column="tbId" select="findProductCount" />
+	</resultMap>
 	<resultMap id="tableelement" type="cn.ideal.wfpf.model.TableElement" />			
 	
 	<select id="findAll" resultMap="tablebrief">
@@ -45,6 +49,9 @@
 			</if>
 			<if test="cols != null">
 				cols=#{cols}
+			</if>
+			<if test="status != null">
+				status=#{status}
 			</if>				
 		<where>		
 			tbId=#{tbId}			
@@ -62,7 +69,7 @@
 	<insert id="saveTableElement" parameterType="cn.ideal.wfpf.model.TableElement">
 		insert into table_element(
 			tbId,emId,newLabelName,newFunctionName,functionBelongTo,rowes,cols,width,scope,seq,newHiddenFieldName,
-			newDataContent,newFieldType,newFieldDataType,newLength,list,createdDate
+			newDataContent,newFieldType,newFieldDataType,newLength,defaultValue,defaultValueFrom,list,createdDate
 		)
 		values		
 		(
@@ -81,6 +88,8 @@
 			#{item.newFieldType},
 			#{item.newFieldDataType},
 			#{item.newLength},
+			#{item.defaultValue},
+			#{item.defaultValueFrom},
 			#{item.list},
 			#{item.createdDate}
 		)		
@@ -89,7 +98,7 @@
 	<insert id="saveBatchTableElement" parameterType="java.util.List">
 		insert into table_element(
 			tbId,emId,newLabelName,newFunctionName,functionBelongTo,rowes,cols,width,scope,seq,newHiddenFieldName,
-			newDataContent,newFieldType,newFieldDataType,newLength,list,createdDate
+			newDataContent,newFieldType,newFieldDataType,newLength,defaultValue,defaultValueFrom,list,createdDate
 		)
 		values
 		<foreach collection="list" item="item" index="index" separator=",">				
@@ -109,6 +118,8 @@
 			#{item.newFieldType},
 			#{item.newFieldDataType},
 			#{item.newLength},
+			#{item.defaultValue},
+			#{item.defaultValueFrom},
 			#{item.list},
 			#{item.createdDate}
 		)
@@ -125,6 +136,8 @@
 			   newFieldType=#{newFieldType},
 			   newFieldDataType=#{newFieldDataType},
 			   newLength=#{newLength},
+			   defaultValue=#{defaultValue},
+			   defaultValueFrom=#{defaultValueFrom},
 			   rowes=#{rowes},
 			   cols=#{cols},
 			   width=#{width}
@@ -200,7 +213,53 @@
 	
 	<select id="findTableSpecialElements" resultMap="tableelement" parameterType="java.lang.Long">
 		select b.emId,b.labelName,b.fieldName from element_library b
-		 where b.level='列表级' 
+		 where b.grade='列表级' 
 		   and b.emId not in (select emId from table_element where tbId = #{tbId})
+	</select>
+	
+	<!-- 获取流程节点设置的字段 -->
+	<select id="findTableAllElementsOnNode" resultMap="tableelement" parameterType="java.util.Map">
+		select a.* from table_element a
+		 inner join workflow b on b.tbId = a.tbId
+		 inner join workflow_table_element c on b.wfId = c.wfId and a.emId=c.emId
+		 where a.tbId = #{tbId}
+		   and b.wfId = #{wfId}
+		   and c.nodeId = #{nodeId}
+		 order by a.seq
+	</select>
+	
+	<insert id="saveTableElementOnNode" parameterType="java.util.Map">
+		delete from workflow_table_element where wfId = #{wfId} and nodeId = #{nodeId};
+		insert into workflow_table_element(
+			wfId,nodeId,emId
+		)
+		values
+		<foreach collection="emIds" item="item" index="index" separator=",">				
+		(
+			#{wfId},
+			#{nodeId},
+			#{item}
+		)
+		</foreach>
+	</insert>
+		
+	<select id="findAllWithTableNameNoRelated" resultMap="tablebrief">
+		select * from table_brief 
+		where tableName is not null
+		  and tbId not in (select tbId from workflow where status = '有效' and tbId is not null)
+	</select>
+		
+	<delete id="deleteTableBrief" parameterType="java.lang.Long">
+		delete from table_brief 
+		<where>		
+		      tbId=#{tbId}		  	
+		</where>				
+	</delete>	
+		
+	<!-- 获得生产数据 -->
+	<select id="findProductCount" resultType="java.lang.Long">
+		select count(a.wfId) from table_summary a
+		inner join workflow b on a.wfId = b.wfId
+		where b.tbId = #{tbId}
 	</select>
 </mapper>

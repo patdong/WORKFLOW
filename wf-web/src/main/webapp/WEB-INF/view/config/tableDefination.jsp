@@ -139,8 +139,7 @@
 	  el.style.top = y + "px";
 	  el.style.display = "block";
 	  
-	  $("#emId").val(emId);
-	  	  
+	  $("#emId").val(emId);	
 	  if(scope=="head"){
 		  var ems = ${heads};
 		  $.each(ems,function(key,element){
@@ -151,7 +150,7 @@
 	  }
 	  if(scope=="body"){
 		  var ems = ${bodys};
-		  $.each(ems,function(key,element){
+		  $.each(ems,function(key,element){			 
 			  if(element.emId == emId){				  
 				  setElement(element);
 			  }
@@ -168,7 +167,7 @@
   }
   
    //内部方法，完成字段赋值功能
-  function setElement(element){
+  function setElement(element){	   
 	  $("#emId").val(element.emId); 
 	  $("#element-name").text(element.newLabelName);
 	  $("#newLabelName").val(element.newLabelName);
@@ -183,7 +182,9 @@
 	  $("#newHiddenFieldName").val(element.newHiddenFieldName);
 	  $("#newLength").val(element.newLength);
 	  $("#newDataContent").val(element.newDataContent);
-	  $("#formula").val(element.formula);	 
+	  $("#formula").val(element.formula);
+	  $("#defaultValue").val(element.defaultValue);
+	  $("#defaultValueFrom").val(element.defaultValueFrom);
    }
    
   //设置表单名称
@@ -459,8 +460,8 @@
 </div>
 
 
-<!-- 节点定义窗口 -->
-<div id="element-div" class="node-mask opacity" style="display:none;height:83%;width:32%">
+<!-- 元素定义窗口 -->
+<div id="element-div" class="node-mask opacity" style="display:none;height:85%;width:32%;">
 	<header>	      
          <div class="form-inline mt-2 mt-md-0" style="padding: 6px 10px 0px;" >
           	<label>元素-[<span id="element-name" style="font-weight:bold;"></span>]设置</label>
@@ -512,7 +513,13 @@
 		    </div>
 		    <div class="form-group-dialog">
 		    	<label >隐式字段：</label>
-		        <input name="newHiddenFieldName" id="newHiddenFieldName" class="form-control-one-line mx-sm-2" style="width:25%" />		        		        	        			        		      
+		        <input name="newHiddenFieldName" id="newHiddenFieldName" class="form-control-one-line mx-sm-2" style="width:25%" />
+		        <label >字段初值：</label>
+		        <input name="defaultValue" id="defaultValue" class="form-control-one-line" style="width:25%"/>		        		        	        			        		      
+		    </div>
+		    <div class="form-group-dialog">		        
+		        <label >初值来源：</label>
+		        <input name="defaultValueFrom" id="defaultValueFrom" class="form-control-one-line  mx-sm-2" style="width:60%"/>			        		       
 		    </div>
 		    <div class="form-group-dialog">	        
 		        <label >事件名称：</label>
@@ -526,8 +533,8 @@
 		    </div>
 		    <div class="form-group-dialog">		        
 		        <label >计算公式：</label>
-		        <input name="formula" id="formula" class="form-control-one-line  mx-sm-2" style="width:60%"/>			        		       
-		    </div>	
+		        <input name="formula" id="formula" class="form-control-one-line  mx-sm-2" style="width:60%" readOnly/>			        		       
+		    </div>		    
 		    <hr></hr>		        		      
 	        <div style="margin-bottom:10px;margin-top:10px;">
 		   	   <button class="btn btn-lg btn-primary-dialog" style="margin-right:20px;" type="submit">保存</button>

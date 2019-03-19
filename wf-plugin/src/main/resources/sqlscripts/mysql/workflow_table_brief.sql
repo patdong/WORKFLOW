@@ -1,6 +1,6 @@
 -- MySQL dump 10.13  Distrib 8.0.11, for Win64 (x86_64)
 --
--- Host: localhost    Database: lawsuit
+-- Host: localhost    Database: workflow
 -- ------------------------------------------------------
 -- Server version	8.0.11
 
@@ -16,27 +16,22 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `workflow_brief`
+-- Table structure for table `table_brief`
 --
 
-DROP TABLE IF EXISTS `workflow_brief`;
+DROP TABLE IF EXISTS `table_brief`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
  SET character_set_client = utf8mb4 ;
-CREATE TABLE `workflow_brief` (
-  `bizId` int(11) unsigned NOT NULL COMMENT '业务序号',
-  `flowId` int(11) NOT NULL COMMENT '流程序号',
-  `stepId` int(11) NOT NULL COMMENT '流程办理序号',
-  `nodeName` varchar(20) NOT NULL COMMENT '节点名称',
-  `actionName` varchar(20) DEFAULT NULL COMMENT '操作名称',
-  `dispatchUserId` int(11) DEFAULT NULL COMMENT '办理人编号',
-  `unitId` int(11) DEFAULT NULL COMMENT '办理单位',
-  `createdDate` datetime NOT NULL COMMENT '创建时间',
-  `modifiedDate` datetime DEFAULT NULL COMMENT '修改时间',
-  `finishedDate` datetime DEFAULT NULL COMMENT '完成时间',
-  `moduleId` int(11) NOT NULL COMMENT '模块编号',
-  `status` varchar(20) NOT NULL COMMENT '状态',
-  PRIMARY KEY (`bizId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='工作流简述';
+CREATE TABLE `table_brief` (
+  `tbId` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(30) DEFAULT NULL COMMENT '表单外名称',
+  `tableName` varchar(50) DEFAULT NULL COMMENT '表单内名称',
+  `template` varchar(45) NOT NULL DEFAULT 'bootstrap' COMMENT '表单格式：表单式，bootstrap式',
+  `cols` int(11) DEFAULT NULL COMMENT '表单列数',
+  `status` varchar(10) NOT NULL COMMENT '表单状态',
+  `createdDate` datetime NOT NULL COMMENT '表单创建时间',
+  PRIMARY KEY (`tbId`)
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='表单概述';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -48,4 +43,4 @@ CREATE TABLE `workflow_brief` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-11-27 14:23:20
+-- Dump completed on 2019-03-18  8:53:40

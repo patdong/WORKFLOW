@@ -15,73 +15,66 @@ public class MySQLCreator implements SQLCreator {
 	
 	static final String CHARACTER = "utf8mb4";
 	static final String COLLATE = "utf8mb4_0900_ai_ci";
-	
-	private StringBuilder strBuilder = new StringBuilder();
+
 	@Override
 	public String createInt(String fieldName,Boolean immutable, String comment) {
-		strBuilder.setLength(0);		
-		strBuilder.append(fieldName + " int(11) ");
-		if(immutable) strBuilder.append(" NOT NULL ");
-		strBuilder.append(" COMMENT '"+comment+"'");
+		String sql =  fieldName + " int(11) ";
+		if(immutable) sql += " NOT NULL ";
+		sql += " COMMENT '"+comment+"'";
 		
-		return strBuilder.toString();
+		return sql;
 	}
 
 	@Override
 	public String createVarchar(String fieldName,Boolean immutable, Long length, String comment) {
-		strBuilder.setLength(0);		
-		strBuilder.append(fieldName + " varchar("+length+")");
-		strBuilder.append(" CHARACTER SET "+ CHARACTER );
-		strBuilder.append(" COLLATE "+ COLLATE);
-		if(immutable) strBuilder.append("NOT NULL ");
-		strBuilder.append(" COMMENT '"+comment+"'");
+		String sql = fieldName + " varchar("+length+") CHARACTER SET "+ CHARACTER +" COLLATE "+ COLLATE;
+		if(immutable) sql += " NOT NULL ";
+		sql +=" COMMENT '"+comment+"'";
 		
-		return strBuilder.toString();
+		return sql;
 	}
 
 	@Override
 	public String createDateTime(String fieldName,Boolean immutable, String comment) {
-		strBuilder.setLength(0);		
-		strBuilder.append(fieldName + " datetime ");
-		if(immutable) strBuilder.append(" NOT NULL ");
-		strBuilder.append(" COMMENT '"+comment+"'");
+		String sql = fieldName + " datetime ";
+		if(immutable) sql +=" NOT NULL ";
+		sql +=" COMMENT '"+comment+"'";
 		
-		return strBuilder.toString();
+		return sql;
 	}
 
-	@Override
-	public String createPrimaryKey(String fieldName) {
-		strBuilder.setLength(0);
-		if(StringUtils.isNullOrEmpty(fieldName) ) fieldName = "Id";
-		strBuilder.append(fieldName + " int(11) ");
-		strBuilder.append(" NOT NULL AUTO_INCREMENT");
-		strBuilder.append(" COMMENT  '关键字',");
-		strBuilder.append(" PRIMARY KEY ("+fieldName+") USING BTREE");
-		return strBuilder.toString();
-	}
-
+	
 	@Override
 	public String setCharacter(String characterSet) {
 		if(StringUtils.isNullOrEmpty(characterSet)) characterSet = CHARACTER;
-		strBuilder.setLength(0);		
-		strBuilder.append("SET character_set_client = "+ characterSet);
-		return strBuilder.toString();
+		return "SET character_set_client = "+ characterSet;
 	}
 
 	@Override
 	public String createTable(String tableName) {
-		strBuilder.setLength(0);			
-		strBuilder.append("CREATE TABLE "+ tableName);
-		
-		return strBuilder.toString();
+
+		return "CREATE TABLE "+ tableName;
 	}
 
 	@Override
 	public String dropTable(String tableName) {
-		strBuilder.setLength(0);		
-		strBuilder.append("DROP TABLE IF EXISTS  "+ tableName);
-		
-		return strBuilder.toString();
+		return "DROP TABLE IF EXISTS  "+ tableName;
 	}
 
+	@Override
+	public String getComment(String tableName, String fieldName, String comment) {		
+		return null;
+	}
+
+	@Override
+	public String setPrimaryKey(String tableName, String fieldName) {
+		return fieldName + " int(11) NOT NULL AUTO_INCREMENT  COMMENT  '关键字',  PRIMARY KEY ("+fieldName+") USING BTREE";
+	}
+
+	@Override
+	public String setSequence(String tableName, String fieldName) {		
+		return null;
+	}
+
+	
 }

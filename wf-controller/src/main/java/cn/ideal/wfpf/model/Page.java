@@ -17,6 +17,7 @@ public class Page<E> {
 	private List<E> pageList;              //页面记录集
 	private Long curFirstRecord;           //当前页的首记录
 	private String url;                    //请求路径
+	private Long curLastRecord;            //当前页的末记录
 	
 	public Page(Long recordNumber, Long pageNumber){
 		if(pageSize.intValue() == 0l) return;
@@ -26,7 +27,7 @@ public class Page<E> {
 		//取整
 		size = recordNumber / pageSize;
 		//取余数
-		if(recordNumber % pageSize <= pageSize) size++;
+		if(recordNumber % pageSize >0 && recordNumber % pageSize <= pageSize) size++;
 		
         if(size == 0) size = 1l;
         bodyPages = new Long[3];
@@ -82,6 +83,13 @@ public class Page<E> {
 	}
 	public void setUrl(String url) {
 		this.url = url;
+	}
+	public Long getCurLastRecord() {
+		this.curLastRecord = (this.curPage) * pageSize;
+		return this.curLastRecord;
+	}
+	public void setCurLastRecord(Long curLastRecord) {
+		this.curLastRecord = curLastRecord;
 	}
 	
 	

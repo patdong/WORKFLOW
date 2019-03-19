@@ -160,8 +160,7 @@ public class RichFlowChatServiceImpl implements FlowChatService {
 					}
 				}
 				node.setHeight(node.getHeight()+1);
-			}
-			
+			}			
 		}
 	}
 	
@@ -177,12 +176,13 @@ public class RichFlowChatServiceImpl implements FlowChatService {
 		int h=0;
 		int d=0;
 		///////////////////////////////////////////////////////////////////////////////
-		int rowHeight=60,colWidth=90;     //行高，列宽定义
+		int rowHeight=80,colWidth=90;     //行高，列宽定义
 		int pixelX=6,pixelY=10+offset;   //其实（x,y）象素位置
 		int arrowWidth=70,arrowHeight=1; //水平或垂直箭头的宽度，长度定义
 		int halfHeight=45;               //转弯箭头处水平宽度为整个列宽度的一半
-		int arrowPixelY=19;              //水平箭头的象素差距
+		int arrowPixelY=20;              //水平箭头的象素差距
 		int deltaWidth=0;                //垂直位置间方向线的间距，0为重叠。
+		int gapHeight=40;                //垂直位置一行的除节点外的高度差
 		//////////////////////////////////////////////////////////////////////////////
 		//对矩阵树填值
 		for(FlowChatNode node: nodes){			
@@ -219,7 +219,7 @@ public class RichFlowChatServiceImpl implements FlowChatService {
 						FlowChatNode.Position pos = item.new Position();
 						pos.top = tnode.getTop()+arrowPixelY;
 						pos.width = colWidth*(d*(-1)-2)+arrowWidth;
-						pos.left = tnode.getLeft()-pos.width;						
+						pos.left = tnode.getLeft()-colWidth*(d*(-1)-2)-arrowWidth-10;						
 						pos.height = 1;
 						pos.arrow = "larrow";
 						position[idx][0]= pos;
@@ -235,16 +235,16 @@ public class RichFlowChatServiceImpl implements FlowChatService {
 							int idx = getPositionIndex(item,'d');
 							position=item.getdPositions();
 							FlowChatNode.Position pos = item.new Position();
-							pos.top = tnode.getTop()+rowHeight;
+							pos.top = tnode.getTop() + rowHeight - arrowPixelY;
 							pos.left = tnode.getLeft()+halfHeight;
 							pos.width = arrowHeight;
-							pos.height = (h-1)*rowHeight+arrowPixelY;
+							pos.height = (h-1)*rowHeight+gapHeight;
 							pos.arrow = "dline";
 							position[idx][0]= pos;									
 							FlowChatNode.Position pos2 = item.new Position();
 							pos2.top = pos.top+pos.height;
 							pos2.left = pos.left;
-							pos2.width = colWidth*(d-2)+arrowWidth+halfHeight;
+							pos2.width = colWidth*(d-2)+arrowWidth+halfHeight+5;
 							pos2.height = arrowHeight;
 							pos2.arrow = "rarrow";
 							position[idx][1]= pos2;
@@ -254,10 +254,10 @@ public class RichFlowChatServiceImpl implements FlowChatService {
 							int idx = getPositionIndex(item,'d');
 							position=item.getdPositions();
 							FlowChatNode.Position pos = item.new Position();
-							pos.top = tnode.getTop()-1;
+							pos.top = tnode.getTop();
 							pos.left = tnode.getLeft()+halfHeight;
 							pos.width = arrowHeight;
-							pos.height = (h-1)*rowHeight+halfHeight;
+							pos.height = (h-1)*rowHeight+gapHeight;
 							pos.arrow = "darrow";
 							position[idx][0]= pos;					
 						}
@@ -278,8 +278,8 @@ public class RichFlowChatServiceImpl implements FlowChatService {
 							FlowChatNode.Position pos2 = item.new Position();								
 							pos2.left = pos.left+pos.width-deltaWidth;
 							pos2.width = arrowHeight;
-							pos2.height = (h*(-1)-1)*rowHeight+22;
-							pos2.top = pos.top-pos2.height+1;
+							pos2.height = (h*(-1)-1)*rowHeight+2*arrowPixelY+2;
+							pos2.top = pos.top-(h*(-1)-1)*rowHeight-2*arrowPixelY;
 							pos2.arrow = "uarrow";
 							position[idx][1]= pos2;
 							item.setrPositions(position);
@@ -287,11 +287,11 @@ public class RichFlowChatServiceImpl implements FlowChatService {
 						if(d==0){
 							int idx = getPositionIndex(item,'u');
 							position=item.getuPositions();
-							FlowChatNode.Position pos = item.new Position();
-							pos.top = tnode.getTop()-(h*(-1)-1)*rowHeight-1;
+							FlowChatNode.Position pos = item.new Position();							
+							pos.top = tnode.getTop()- (h*(-1)-1)*rowHeight-arrowPixelY;
 							pos.left = tnode.getLeft()+halfHeight;
 							pos.width = arrowHeight;
-							pos.height = (h*(-1)-1)*rowHeight;
+							pos.height = (h*(-1)-1)*rowHeight+arrowPixelY-2;
 							pos.arrow = "uarrow";
 							position[idx][0]= pos;					
 						}
@@ -301,16 +301,16 @@ public class RichFlowChatServiceImpl implements FlowChatService {
 							
 							FlowChatNode.Position pos = item.new Position();
 							pos.top = tnode.getTop()+arrowPixelY;
-							pos.width = colWidth*(d*(-1)-1)+halfHeight;
-							pos.left = tnode.getLeft()-pos.width-deltaWidth;							
+							pos.width = colWidth*(d*(-1)-1)+halfHeight-d*(-1)-5;
+							pos.left = tnode.getLeft()-(colWidth*(d*(-1)-1)+halfHeight)-deltaWidth;							
 							pos.height = arrowHeight;
 							pos.arrow = "lline";
 							position[idx][0]= pos;									
 							FlowChatNode.Position pos2 = item.new Position();								
-							pos2.left = tnode.getLeft()-pos.width-deltaWidth;
+							pos2.left = tnode.getLeft()-(colWidth*(d*(-1)-1)+halfHeight)-deltaWidth;
 							pos2.width = arrowHeight;
-							pos2.height = (h*(-1)-1)*rowHeight+22;
-							pos2.top = pos.top-pos2.height+1;
+							pos2.height = (h*(-1)-1)*rowHeight+2*arrowPixelY;
+							pos2.top = pos.top-(h*(-1)-1)*rowHeight-2*arrowPixelY;
 							pos2.arrow = "uarrow";
 							position[idx][1]= pos2;
 							item.setlPositions(position);

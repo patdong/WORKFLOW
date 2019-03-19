@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.ideal.wf.dao.WorkflowTableMapper">			
+	<resultMap id="wftablebrief" type="cn.ideal.wf.model.WorkflowTableBrief" />
+	<resultMap id="wftableelement" type="cn.ideal.wf.model.WorkflowTableElement" />
+	<resultMap id="wftablesummary" type="cn.ideal.wf.model.WorkflowTableSummary" />				
+	
+	<select id="find" resultMap="wftablebrief" parameterType="java.lang.Long">
+		select * from table_brief where tbId=#{tbId}
+	</select>
+	
+	<select id="findAll" resultMap="wftablebrief" >
+		select * from table_brief where status = '有效'
+	</select>
+	
+	<select id="findAllTableElements" resultMap="wftableelement" parameterType="java.util.Map">
+		select a.*,b.labelName,b.fieldName from table_element a
+		 inner join element_library b on a.emId = b.emId 
+		 where a.tbId = #{tbId}
+		   and a.scope != '/'
+		 <if test="scope != null">
+		   and a.scope = #{scope}
+		 </if> 
+		 order by a.seq
+	</select>	
+	
+	<select id="findElementsOnList" resultMap="wftableelement" parameterType="java.lang.Long">
+		select a.* ,b.fieldName from table_element a
+		inner join element_library b on a.emId = b.emId
+		 where a.tbId = #{tbId} 
+		   and a.list = '有效'
+	  order by seq
+	</select>	
+	
+	<update id="synchTableSummary" parameterType="cn.ideal.wf.model.WorkflowTableSummary">
+		update table_summary set 			
+			modifiedDate=#{modifiedDate},
+			action=#{action}
+			<if test="curUserName != null">
+			,curUserName=#{curUserName}
+			</if>
+		<where>
+			bizId=#{bizId}
+		and wfId=#{wfId}
+		</where>				
+	</update>
+	<update id="endTableSummary" parameterType="cn.ideal.wf.model.WorkflowTableSummary">
+		update table_summary set 
+			modifiedDate=#{modifiedDate},			
+			finishedDate=#{finishedDate},
+			action=#{action}
+		<where>
+			bizId=#{bizId}
+		and wfId=#{wfId}
+		</where>				
+	</update>
+</mapper>

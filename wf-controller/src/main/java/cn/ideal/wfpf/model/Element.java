@@ -17,7 +17,7 @@ public class Element {
 	private String functionName;
 	private String status;
 	private Date createdDate;
-	private String level;
+	private String grade;
 	private String fieldType;
 	private String fieldDataType;
 	private String dataContent;
@@ -68,11 +68,12 @@ public class Element {
 	public void setCreatedDate(Date createdDate) {
 		this.createdDate = createdDate;
 	}
-	public String getLevel() {
-		return level;
+	
+	public String getGrade() {
+		return grade;
 	}
-	public void setLevel(String level) {
-		this.level = level;
+	public void setGrade(String grade) {
+		this.grade = grade;
 	}
 	public Long getTbId() {
 		return tbId;

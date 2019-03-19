@@ -13,7 +13,7 @@ public interface SQLExecutor {
 	 * 执行拼接好的sql
 	 * 
 	 */
-	void executeSql(String sql) throws Exception;
+	void executeSql(String... sql) throws Exception;
 	
 	
 	/**
@@ -28,4 +28,11 @@ public interface SQLExecutor {
 	 * @return
 	 */
 	boolean isExist(String tableName);
+	
+	/**
+	 * 删除表结构
+	 * @param tableName
+	 * @throws Exception
+	 */
+	void dropTable(String tableName) throws Exception;
 }

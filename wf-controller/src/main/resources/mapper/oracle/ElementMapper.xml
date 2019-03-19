@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.ideal.wfpf.dao.ElementMapper">
+	<resultMap id="element" type="cn.ideal.wfpf.model.Element" />	
+	
+	<select id="find" resultType="cn.ideal.wfpf.model.Element" parameterType="java.lang.Long">
+		select * from element_library
+		 where emId = #{emId}
+	</select>	
+	
+	<insert id="save" parameterType="cn.ideal.wfpf.model.Element">
+		<selectKey resultType="java.lang.Long" keyProperty="emId" order="BEFORE">
+			select sq_emId.nextval from dual
+		</selectKey>
+		insert into element_library(
+			emId,labelName,fieldName,hiddenFieldName,functionName,status,createdDate,grade,fieldType,fieldDataType,dataContent,length
+		)
+		values(
+			#{emId}, 
+			#{labelName,jdbcType=VARCHAR},
+			#{fieldName,jdbcType=VARCHAR},
+			#{hiddenFieldName,jdbcType=VARCHAR},
+			#{functionName,jdbcType=VARCHAR},			
+			#{status,jdbcType=VARCHAR},
+			#{createdDate,jdbcType=TIMESTAMP},
+			#{grade,jdbcType=VARCHAR},
+			#{fieldType,jdbcType=VARCHAR},
+			#{fieldDataType,jdbcType=VARCHAR},
+			#{dataContent,jdbcType=VARCHAR},
+			#{length,jdbcType=DECIMAL}
+			
+		)
+	</insert>
+	
+	<update id="update" parameterType="cn.ideal.wfpf.model.Element">
+		update element_library set
+			labelName = #{labelName,jdbcType=VARCHAR},
+			fieldName = #{fieldName,jdbcType=VARCHAR},
+			hiddenFieldName = #{hiddenFieldName,jdbcType=VARCHAR},
+			functionName = #{functionName,jdbcType=VARCHAR},
+			fieldType = #{fieldType,jdbcType=VARCHAR},
+			fieldDataType = #{fieldDataType,jdbcType=VARCHAR},
+			dataContent = #{dataContent,jdbcType=VARCHAR},
+			length = #{length,jdbcType=DECIMAL}		
+		where emId = #{emId,jdbcType=DECIMAL}
+	</update>
+	
+	<update id="updateStatus" parameterType="cn.ideal.wfpf.model.Element">
+		update element_library set			
+			status = #{status}
+		where emId = #{emId}
+	</update>
+		
+	<select id="findAll" resultMap="element" parameterType="java.lang.Long">
+		select * from element_library
+	</select>
+		
+	<select id="findValidAll" resultMap="element">
+		select * from element_library
+		 where status = '有效'
+	</select>
+	
+	<select id="findValidAllWithTable" resultMap="element" parameterType="java.util.Map">
+		select a.*,b.tbId from element_library a
+		inner join table_element b on a.emId = b.emId 
+		                         and b.tbId = #{tbId}
+		                         <if test="scope != null">
+		                         and b.scope = #{scope}
+		                         </if>
+		 where a.status = '有效'
+		 union all
+		 select a.*,null as tbId from element_library a
+		 where a.status = '有效'
+		   and a.emId not in (select emId from table_element b where b.tbId = #{tbId})
+	</select>
+	
+	<select id="findAPage" resultMap="element" parameterType="java.util.Map">
+		<if test="recordLastNumber != null">
+		SELECT *
+			FROM  (
+			   SELECT a.*, rownum rn
+			   FROM (
+		</if>
+			      select * from element_library order by emId
+		<if test="recordLastNumber != null">
+			   )a
+			   WHERE rownum <![CDATA[ <= ]]>  #{recordLastNumber}
+			)
+			WHERE  rn <![CDATA[ >= ]]>  #{recordNumber}	
+		</if>
+	</select>
+</mapper>

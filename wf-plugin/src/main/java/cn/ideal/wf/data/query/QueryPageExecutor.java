@@ -20,7 +20,7 @@ import cn.ideal.wf.jdbc.dao.SQLExecutor;
 @PropertySource("classpath:application.properties")
 public class QueryPageExecutor {
 	
-	@Value("${workflow.database.executor}")
+	@Value("${workflow.wf.database.executor}")
 	private String executorName;
 
 	private SQLExecutor sqlExecutor;

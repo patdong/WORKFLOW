@@ -1,6 +1,6 @@
 -- MySQL dump 10.13  Distrib 8.0.11, for Win64 (x86_64)
 --
--- Host: localhost    Database: lawsuit
+-- Host: localhost    Database: workflow
 -- ------------------------------------------------------
 -- Server version	8.0.11
 
@@ -16,23 +16,17 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `sys_user`
+-- Table structure for table `workflow_table_element`
 --
 
-DROP TABLE IF EXISTS `sys_user`;
+DROP TABLE IF EXISTS `workflow_table_element`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
  SET character_set_client = utf8mb4 ;
-CREATE TABLE `sys_user` (
-  `userId` int(11) NOT NULL AUTO_INCREMENT COMMENT '员工号',
-  `userName` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '员工账号',
-  `realName` varchar(45) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '员工真实名称',
-  `password` varchar(45) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '密码',
-  `orgId` int(11) NOT NULL COMMENT '员工组织序号',
-  `status` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT 'valid' COMMENT '用户状态',
-  `createdDate` datetime NOT NULL COMMENT '创建时间',
-  `modifiedDate` datetime NOT NULL COMMENT '修改时间',
-  PRIMARY KEY (`userId`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC;
+CREATE TABLE `workflow_table_element` (
+  `wfId` int(11) NOT NULL,
+  `nodeId` int(11) NOT NULL,
+  `emId` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='字段在不同节点的显示';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -44,4 +38,4 @@ CREATE TABLE `sys_user` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-12-03 14:16:27
+-- Dump completed on 2019-03-18  8:53:41

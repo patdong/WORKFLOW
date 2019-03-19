@@ -29,10 +29,10 @@ public class StorageAnalyzer implements Analyzer{
 		if(wf == null) throw new Exception("没有配置流程");
 		if(wf.getWftableBrief() == null) throw new Exception("没有配置表单");
 		Storage storage = new Storage();
-		storage.setTableName(wf.getWftableBrief().getName());		
+		storage.setTableName(wf.getWftableBrief().getName());
 		storage.setWfId(wfId);
 		//获得关联表单的字段并赋值
-		List<WorkflowTableElement> wftems = tableService.findAllTableElements(wf.getTableId());				
+		List<WorkflowTableElement> wftems = tableService.findAllTableElements(wf.getTbId());				
 		for(WorkflowTableElement item : wftems){
 			item.setDataValue(request.getParameter(item.getFieldName()));
 		}
