@@ -23,17 +23,17 @@ public interface TableService extends PageService<TableBrief> {
 	
 	List<TableElement> findTableAllElements(Long tbId,String scope);
 	
-	List<TableElement> findTableAllElementsWithSpecialElements(Long tbId);
+	List<TableElement> findTableAllElementsWithListLevelElements(Long tbId);
 	
 	TableElement findTableElement(Long tbId, Long emId);
 	
-	boolean moveUp(Long tbId, Long emId);
+	boolean moveUp(Long tbId, Long id);
 	
-	boolean moveDown(Long tbId, Long emId);
+	boolean moveDown(Long tbId, Long id);
 	
 	boolean updateTableElementSeq(TableElement obj);
 	
-	boolean delete(Long tbId, Long emId);
+	boolean deleteElement(Long id);
 	
 	boolean setTableName(Long tbId,String tableName);
 	
@@ -47,13 +47,23 @@ public interface TableService extends PageService<TableBrief> {
 	
 	boolean updateTableElement(TableElement obj);
 	
-	TableElement[][] findTableAllElements(Long tbId,String scope,String style);
-	
 	List<TableElement> findTableAllElementsOnNode(Long wfId, Long nodeId,Long tbId);
 	
-	boolean setTableFieldsOnNode(Long wfId, Long nodeId, Long[] emIds);
+	boolean setTableFieldsOnNode(Long wfId, Long nodeId, Long[] ids);
 	
 	boolean setStatus(Long tbId, boolean status);
 		
-	boolean delete(Long tbId);
+	boolean deleteTable(Long tbId);
+	
+	boolean saveLayout(Long tbId, Long headCols,Long bodyCols, Long footCols);
+	
+	List<TableElement> findTableAllFields(Long tbId);
+	
+	List<TableBrief> findAllSubTables(Long tbId);
+	
+	boolean setSubTable(Long tbId, String scope,Long stbId);
+	
+	List<TableBrief> findTableBriefWithTemplate(String template);
+	
+	List<TableElement> findTableFieldsToDBCheck(Long tbId);
 }

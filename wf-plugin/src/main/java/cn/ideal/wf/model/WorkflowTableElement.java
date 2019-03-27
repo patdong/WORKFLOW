@@ -10,6 +10,7 @@ import java.util.Date;
 public class WorkflowTableElement implements Serializable{
 
 	private static final long serialVersionUID = 3936610182338053299L;
+	private Long id;
 	private Long tbId;
 	private Long emId;
 	private String labelName;
@@ -33,7 +34,14 @@ public class WorkflowTableElement implements Serializable{
 	private String status;
 	private Date createdDate;
 	private Object dataValue;
+	private Long stbId;
 	
+	public Long getId() {
+		return id;
+	}
+	public void setId(Long id) {
+		this.id = id;
+	}
 	public Long getTbId() {
 		return tbId;
 	}
@@ -172,6 +180,12 @@ public class WorkflowTableElement implements Serializable{
 	}
 	public void setNewFunctionName(String newFunctionName) {
 		this.newFunctionName = newFunctionName;
+	}
+	public Long getStbId() {
+		return stbId;
+	}
+	public void setStbId(Long stbId) {
+		this.stbId = stbId;
 	}	
 	
 }

@@ -26,4 +26,6 @@ public interface WorkflowMapper {
 	
 	void delete(Long wfId);
 	
+	void deleteTableElementOnNode(Long wfId);
+	
 }

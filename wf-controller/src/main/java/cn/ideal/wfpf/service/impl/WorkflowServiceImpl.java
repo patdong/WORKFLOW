@@ -5,6 +5,8 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import cn.ideal.wf.model.Workflow;
 import cn.ideal.wfpf.dao.WorkflowMapper;
@@ -54,9 +56,13 @@ public class WorkflowServiceImpl implements WorkflowService{
 	}
 
 	@Override
+	@Transactional(propagation=Propagation.REQUIRED,rollbackFor = Exception.class)
 	public Workflow removeBinding(Workflow obj) {
 		int idx = workflowMapper.removeBinding(obj);
-		if(idx > 0) return this.find(obj.getWfId());
+		if(idx > 0) {
+			workflowMapper.deleteTableElementOnNode(obj.getWfId());
+			return this.find(obj.getWfId());
+		}
 		return null;
 	}
 

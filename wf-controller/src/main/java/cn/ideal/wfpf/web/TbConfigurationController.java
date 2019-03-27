@@ -1,7 +1,6 @@
 package cn.ideal.wfpf.web;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -18,15 +17,18 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
+import cn.ideal.wf.table.draw.PureTableService;
 import cn.ideal.wfpf.model.FMsg;
 import cn.ideal.wfpf.model.Page;
 import cn.ideal.wfpf.model.TableBrief;
 import cn.ideal.wfpf.model.TableElement;
+import cn.ideal.wfpf.model.TableLayout;
 import cn.ideal.wfpf.service.ElementService;
 import cn.ideal.wfpf.service.TableService;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mysql.jdbc.StringUtils;
 
 @Controller
 @RequestMapping("/tb")
@@ -36,6 +38,8 @@ public class TbConfigurationController {
 	private TableService tableService;
 	@Autowired
 	private ElementService elementService;
+	@Autowired
+	private PureTableService plattenTableService;
 	
 	
 	/**
@@ -64,43 +68,38 @@ public class TbConfigurationController {
 	 * 管理表单
 	 * */
 	@GetMapping("/tabledefination/{tbId}")
-    public ModelAndView defineWorkflow(@PathVariable Long tbId, 
+    public ModelAndView defineTable(@PathVariable Long tbId, 
     		@RequestParam(value = "scope", defaultValue = "") String scope,
-    		@RequestParam(value = "style", defaultValue = "2") String style,
     		@RequestParam(value = "fieldsetting", defaultValue = "no") String fieldsetting,
-    		@RequestParam(value = "template", defaultValue = "table") String template,
     		HttpServletRequest request) {
 		ModelAndView mav = new ModelAndView("config/tableDefination");
 		scope = (scope.equals(""))?"body":scope;
 		mav.addObject("emList",elementService.findValidAllWithTable(tbId,scope));
-		mav.addObject("tbemList",tableService.findTableAllElements(tbId,scope));
-		List<TableElement> headLst = tableService.findTableAllElements(tbId,"head");
-		List<TableElement> bodyLst = tableService.findTableAllElements(tbId,"body");		
-		List<TableElement> footLst = tableService.findTableAllElements(tbId,"foot");
 		
-		if(bodyLst.size() % Long.parseLong(style) != 0){
-			for(int i=0; i< bodyLst.size() % Long.parseLong(style) ; i++){
-				bodyLst.add(new TableElement());
-			}
-		}
-		mav.addObject("headList",headLst);
-		mav.addObject("bodyList",bodyLst);
-		mav.addObject("footList",footLst);
-		mav.addObject("brief",tableService.find(tbId));
-		mav.addObject("tbId",tbId);
-		mav.addObject("scope",scope);
-		mav.addObject("style",style);
-		mav.addObject("fieldsetting",fieldsetting);
-		mav.addObject("template",template);
-		mav.addObject("tbList", tableService.findTableAllElementsWithSpecialElements(tbId));
 		try {
+			List<TableElement> te = tableService.findTableAllElements(tbId,scope);			
 			ObjectMapper mapper = new ObjectMapper();
-			mav.addObject("heads",mapper.writeValueAsString(headLst));
-			mav.addObject("bodys",mapper.writeValueAsString(bodyLst));
-			mav.addObject("foots",mapper.writeValueAsString(footLst));
+			mav.addObject("tbems",mapper.writeValueAsString(te));	
+			mav.addObject("tbemList",te);
 		} catch (JsonProcessingException e) {			
 			e.printStackTrace();
 		}
+		TableBrief tb = tableService.find(tbId);		
+		for(TableLayout tl : tb.getLayout()){
+			if(tl.getScope().equals("head")) mav.addObject("headCols",tl.getCols());  
+			if(tl.getScope().equals("body")) mav.addObject("bodyCols",tl.getCols()); 
+			if(tl.getScope().equals("foot")) mav.addObject("footCols",tl.getCols()); 
+			if(tl.getScope().equals(scope)) mav.addObject("layout", tl.getCols()+" 列");				
+		}
+		mav.addObject("layouts",tb.getLayout());
+		mav.addObject("brief",tb);
+		if(fieldsetting.equals("yes")) mav.addObject("table",plattenTableService.draw(tbId, scope,true).toString());
+		else mav.addObject("table",plattenTableService.draw(tbId, scope,false).toString());
+		mav.addObject("tbId",tbId);
+		mav.addObject("scope",scope);
+		mav.addObject("fieldsetting",fieldsetting);
+		mav.addObject("tbList", tableService.findTableAllElementsWithListLevelElements(tbId));
+		mav.addObject("subTbs", tableService.findAllSubTables(tbId));
         return mav;
     }
 		
@@ -128,12 +127,10 @@ public class TbConfigurationController {
     		@RequestParam("scope") String scope,HttpServletRequest request) {	
 		TableElement[] te = new TableElement[emId.length];
 		for(int i=0;i<emId.length; i++){
-			TableElement telement = new TableElement();
-			telement.setCreatedDate(new Date());
+			TableElement telement = new TableElement();			
 			telement.setEmId(emId[i]);
 			telement.setTbId(tbId);			
-			telement.setScope(scope);
-			telement.setSeq(new Long(i));
+			telement.setScope(scope);			
 			te[i] = telement;
 		}
 		return tableService.saveTableElement(te);        
@@ -144,9 +141,9 @@ public class TbConfigurationController {
 	 * @param request
 	 * @return
 	 */
-	@GetMapping("/moveup/{tbId}/{emId}")
-    public @ResponseBody boolean moveup(@PathVariable Long tbId, @PathVariable Long emId,HttpServletRequest request) {	
-		return tableService.moveUp(tbId,emId);		
+	@GetMapping("/moveup/{tbId}/{id}")
+    public @ResponseBody boolean moveup(@PathVariable Long tbId, @PathVariable Long id,HttpServletRequest request) {	
+		return tableService.moveUp(tbId,id);		
     }
 	
 	/**
@@ -154,14 +151,14 @@ public class TbConfigurationController {
 	 * @param request
 	 * @return
 	 */
-	@GetMapping("/movedown/{tbId}/{emId}")
-    public @ResponseBody boolean movedown(@PathVariable Long tbId, @PathVariable Long emId,HttpServletRequest request) {	
-		return tableService.moveDown(tbId,emId);		
+	@GetMapping("/movedown/{tbId}/{id}")
+    public @ResponseBody boolean movedown(@PathVariable Long tbId, @PathVariable Long id,HttpServletRequest request) {	
+		return tableService.moveDown(tbId,id);		
     }
 	
-	@GetMapping("/remove/{tbId}/{emId}")
-    public @ResponseBody boolean remove(@PathVariable Long tbId, @PathVariable Long emId,HttpServletRequest request) {	
-		tableService.delete(tbId,emId);	
+	@GetMapping("/remove/{tbId}/{id}")
+    public @ResponseBody boolean remove(@PathVariable Long tbId, @PathVariable Long id,HttpServletRequest request) {	
+		tableService.deleteElement(id);	
 		return true;
     }
 	
@@ -172,22 +169,6 @@ public class TbConfigurationController {
 	@GetMapping("/setTableName/{tbId}")
     public @ResponseBody boolean setTableName(@PathVariable Long tbId,@RequestParam("tableName") String tableName,HttpServletRequest request) {	
 		return tableService.setTableName(tbId,tableName);			
-    }
-		
-	/**
-	 * 保存表单概述信息
-	 */
-	@GetMapping("/savetbrief/{tbId}")
-    public @ResponseBody boolean savetbrief(@PathVariable Long tbId,HttpServletRequest request) {
-		String template = request.getParameter("template");
-		String style = request.getParameter("style");
-		TableBrief tb = new TableBrief();
-		tb.setTbId(tbId);
-		tb.setTemplate(template);
-		tb.setCols(Long.parseLong(style));
-		tb = tableService.updateTableBrief(tb);
-		if(tb == null) return false;
-		return true;
     }
 	
 	/**
@@ -235,7 +216,7 @@ public class TbConfigurationController {
 	 */
 	@GetMapping("/getTableScheme/{tbId}")
     public @ResponseBody List<TableElement> getTableElements(@PathVariable Long tbId, HttpServletRequest request) {	
-		return tableService.findTableAllElements(tbId);	
+		return tableService.findTableFieldsToDBCheck(tbId);	
     }
 	
 	/**
@@ -247,9 +228,11 @@ public class TbConfigurationController {
 	 */
 	@PostMapping("/saveElement/{tbId}")
     public ModelAndView saveElement(@ModelAttribute("element") TableElement element, @PathVariable Long tbId,
-    		HttpServletRequest request) {	
+    		HttpServletRequest request) {
+		String scope = request.getParameter("escope");
+		element.setScope(scope);
 		tableService.updateTableElement(element);
-        return new ModelAndView("redirect:/tb/tabledefination/"+tbId+"?scope=body&style=2&fieldsetting=yes");
+        return new ModelAndView("redirect:/tb/tabledefination/"+tbId+"?scope="+scope+"&fieldsetting=yes");
     }
 	
 	/**
@@ -281,26 +264,6 @@ public class TbConfigurationController {
 		return mav;
     }
 	
-	/**
-	 * 页面标准的表体实现
-	 * @param tbId
-	 * @param style
-	 * @param request
-	 * @return
-	 */
-	@GetMapping("/standardtablebody/{tbId}")
-    public ModelAndView getTableBodyForStandard(@PathVariable Long tbId,
-    		@RequestParam(value = "style", defaultValue = "2") String style,
-    		HttpServletRequest request) {
-		ModelAndView mav = new ModelAndView("config/tableugrybody");
-		
-		mav.addObject("headList",tableService.findTableAllElements(tbId,"head",style));
-		mav.addObject("bodyList",tableService.findTableAllElements(tbId,"body",style));
-		mav.addObject("footList",tableService.findTableAllElements(tbId,"foot",style));
-		mav.addObject("style",style);
-		mav.addObject("brief",tableService.find(tbId));
-		return mav;
-    }
 	
 	/**
 	 * 启用表单
@@ -326,6 +289,77 @@ public class TbConfigurationController {
 	
 	@GetMapping("/remove/{tbId}")
     public @ResponseBody boolean remove(@PathVariable Long tbId, HttpServletRequest request) {			
-        return tableService.delete(tbId);      
+        return tableService.deleteTable(tbId);      
+    }
+	
+	@GetMapping("/savelayout/{tbId}")
+    public @ResponseBody boolean savelayout(@PathVariable Long tbId, HttpServletRequest request) {	
+		Long headCols = null;
+		Long bodyCols = null;
+		Long footCols = null;
+		if(!StringUtils.isNullOrEmpty(request.getParameter("headCols"))) headCols = Long.parseLong(request.getParameter("headCols"));
+		if(!StringUtils.isNullOrEmpty(request.getParameter("bodyCols"))) bodyCols = Long.parseLong(request.getParameter("bodyCols"));
+		if(!StringUtils.isNullOrEmpty(request.getParameter("footCols"))) footCols = Long.parseLong(request.getParameter("footCols"));
+		return tableService.saveLayout(tbId,headCols,bodyCols,footCols); 		
+    }
+	
+	/**
+	 * 设置子表单
+	 * @param tbId
+	 * @param request
+	 * @return
+	 */
+	@GetMapping("/setSubTable/{tbId}/{subTbId}/{scope}")
+    public @ResponseBody boolean setSubTable(@PathVariable Long tbId,@PathVariable Long subTbId,@PathVariable String scope, HttpServletRequest request) {			
+        return tableService.setSubTable(tbId,scope,subTbId);      
+    }
+	
+	/**
+	 * 重新绘制表单
+	 * @param tbId
+	 * @param scope
+	 * @param request
+	 * @return
+	 */
+	@GetMapping("/redraw/{tbId}/{scope}/{fieldsetting}")
+    public @ResponseBody FMsg redraw(@PathVariable Long tbId,@PathVariable String scope,@PathVariable String fieldsetting, HttpServletRequest request) {			
+        FMsg fmsg = new FMsg();
+        fmsg.setCode(FMsg.SUCCESS);
+		if(fieldsetting.equals("yes")) {			
+			fmsg.setMessage(plattenTableService.draw(tbId, scope, true).toString()); 		
+		}
+        else fmsg.setMessage(plattenTableService.draw(tbId, scope, false).toString());
+		
+		return fmsg;
+    }
+	
+	/**
+	 * 预览
+	 * @param tbId
+	 * @param request
+	 * @return
+	 */
+	@GetMapping("/review/{tbId}")
+    public @ResponseBody FMsg redraw(@PathVariable Long tbId,HttpServletRequest request) {			
+        FMsg fmsg = new FMsg();
+        fmsg.setCode(FMsg.SUCCESS);
+		fmsg.setMessage(plattenTableService.draw(tbId).toString());
+		
+		return fmsg;
+    }
+	
+	@GetMapping("/setTemplate/{tbId}")
+    public @ResponseBody boolean setTemplate(@PathVariable Long tbId,@RequestParam("template") String template,HttpServletRequest request) {	
+		TableBrief tb = new TableBrief();
+		tb.setTbId(tbId);
+		tb.setTemplate(template);
+		tb = tableService.updateTableBrief(tb);	
+		if(tb != null) return true;
+		return false;
+    }
+	
+	@GetMapping("/getPlugIns")
+    public @ResponseBody List<TableBrief> getPlugIns(@RequestParam("newFieldType") String newFieldType, HttpServletRequest request) {	
+		return tableService.findTableBriefWithTemplate(newFieldType);
     }
 }

@@ -12,12 +12,13 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import cn.ideal.wfpf.dao.ElementMapper;
 import cn.ideal.wfpf.dao.TableMapper;
 import cn.ideal.wfpf.model.Element;
 import cn.ideal.wfpf.model.Page;
 import cn.ideal.wfpf.model.TableBrief;
 import cn.ideal.wfpf.model.TableElement;
+import cn.ideal.wfpf.model.TableLayout;
+import cn.ideal.wfpf.service.ElementService;
 import cn.ideal.wfpf.service.TableService;
 import cn.ideal.wfpf.sqlengine.SQLExecutor;
 
@@ -27,7 +28,7 @@ public class TableServiceImpl implements TableService {
 	@Autowired
 	private TableMapper tableMapper;
 	@Autowired
-	private ElementMapper elementMapper;
+	private ElementService elementService;
 	
 	@Value("${workflow.wfpf.database.executor}")
     String executorName;
@@ -45,7 +46,14 @@ public class TableServiceImpl implements TableService {
 		obj.setStatus("有效");
 		obj.setCreatedDate(new Date());
 		int idx = tableMapper.saveTableBrief(obj);
-		if(idx == 1) return obj;
+		if(idx == 1) {
+			TableLayout tl = new TableLayout();
+			tl.setTbId(obj.getTbId());
+			tl.setCols(2l);
+			tl.setScope("body");
+			idx = tableMapper.saveTableLayout(tl);
+			if(idx == 1) return obj;
+		}
 		return null;
 	}
 
@@ -75,10 +83,25 @@ public class TableServiceImpl implements TableService {
 	@Transactional(propagation=Propagation.REQUIRED)
 	public boolean saveTableElement(TableElement[] objs) {
 		List<TableElement> teLst = new ArrayList<TableElement>();
+		if(objs == null || objs.length == 0) return true;
+		Long seq = tableMapper.findMaxSeq(objs[0].getTbId());
+		if(seq == null) seq = 0l;
+		
 		for(TableElement te : objs){
 			TableElement item = this.findTableElement(te.getTbId(),te.getEmId());
 			if(item == null) {
-				Element em = elementMapper.find(te.getEmId());
+				Element em = elementService.find(te.getEmId());
+				//标签
+				TableElement label = new TableElement();
+				label.setTbId(te.getTbId());
+				label.setNewLabelName(em.getLabelName());				
+				label.setNewFieldType("标签");
+				label.setScope(te.getScope());
+				label.setList("无效");
+				label.setSeq(++seq);
+				label.setCreatedDate(new Date());
+				teLst.add(label);
+				//字段
 				te.setNewLabelName(em.getLabelName());
 				te.setNewFunctionName(em.getFunctionName());
 				te.setNewHiddenFieldName(em.getHiddenFieldName());
@@ -87,6 +110,8 @@ public class TableServiceImpl implements TableService {
 				te.setNewFieldDataType(em.getFieldDataType());
 				te.setNewLength(em.getLength());
 				te.setList("无效");
+				te.setSeq(++seq);
+				te.setCreatedDate(new Date());
 				teLst.add(te);
 			}
 		}
@@ -107,12 +132,12 @@ public class TableServiceImpl implements TableService {
 	}
 
 	@Override
-	public boolean moveUp(Long tbId, Long emId) {
+	public boolean moveUp(Long tbId, Long id) {
 		List<TableElement> teLst = tableMapper.findTableAllElements(tbId,null);
 		int i=0;
 		TableElement curTe = null;
 		for(TableElement te : teLst){
-			if(te.getEmId().equals(emId)) {
+			if(te.getId().equals(id)) {
 				curTe = te;
 				break;
 			}
@@ -130,12 +155,12 @@ public class TableServiceImpl implements TableService {
 	}
 
 	@Override
-	public boolean moveDown(Long tbId, Long emId) {
+	public boolean moveDown(Long tbId, Long id) {
 		List<TableElement> teLst = tableMapper.findTableAllElements(tbId,null);
 		int i=0;
 		TableElement curTe = null;
 		for(TableElement te : teLst){
-			if(te.getEmId().equals(emId)) {
+			if(te.getId().equals(id)) {
 				curTe = te;
 				break;
 			}
@@ -166,8 +191,8 @@ public class TableServiceImpl implements TableService {
 	}
 
 	@Override
-	public boolean delete(Long tbId, Long emId) {
-		tableMapper.deleteTableElement(tbId, emId);
+	public boolean deleteElement(Long id) {
+		tableMapper.deleteTableElement(id);
 		return true;
 	}
 
@@ -197,7 +222,7 @@ public class TableServiceImpl implements TableService {
 			List<TableElement> teLst = new ArrayList<TableElement>();
 			for(Long id : newEmIds){
 				Long seq = 99l;
-				Element em = elementMapper.find(id);
+				Element em = elementService.find(id);
 				TableElement te = new TableElement();
 				te.setTbId(tbId);
 				te.setEmId(em.getEmId());
@@ -253,111 +278,54 @@ public class TableServiceImpl implements TableService {
 		return tableMapper.findAllWithTableName();
 	}
 
+	/**
+	 * 获取表单及表单列表上的字段
+	 */
 	@Override
-	public List<TableElement> findTableAllElementsWithSpecialElements(Long tbId) {
-		List<TableElement> tes = tableMapper.findTableAllElements(tbId,null);
-		tes.addAll(tableMapper.findTableSpecialElements(tbId));
+	public List<TableElement> findTableAllElementsWithListLevelElements(Long tbId) {
+		List<TableElement> tes = tableMapper.findTableAllFields(tbId);
+		tes.addAll(tableMapper.findTableListLevelElements(tbId));
 		return tes;
 	}
 
-	@Override
-	public boolean updateTableElement(TableElement obj) {
-		int idx = tableMapper.updateTableElement(obj);
-		if(idx > 0) return true;
-		return false;
-	}
-
 	/**
-	 * 将表格生成多维数组，此方法仅限表格展示的时候使用
-	 * @param tbId
-	 * @param scope
-	 * @param style
-	 * @return
+	 * 设置表元素
 	 */
 	@Override
-	public TableElement[][] findTableAllElements(Long tbId, String scope,String style) {
-		if(StringUtils.isEmpty(style)) return null;
-		Long column = 0l;
-		try{
-			column = Long.parseLong(style);
-		}catch(Exception e){
-			return null;
-		}
-		List<TableElement> ems = this.findTableAllElements(tbId, scope);
-		//修复配置和实际设值之间的差异
-		for(TableElement item : ems){
-			if(item.getCols() > Long.parseLong(style)) item.setCols(column);
-		}	
-				
-		TableElement[][] emary = new TableElement[ems.size()][column.intValue()];
-		int row = 0,col = 0;
-		for(TableElement item : ems){			
-			if(col > (column-1)){
-				row++;
-				col = 0;				
-			}
-			if(emary[row][col] == null) {			
-				emary[row][col] = item;
-				//多行仅在同列的行上做扩展
-				if(item.getRowes() > 1) {			
-					for(int i=1;i<item.getRowes()-1;i++){
-						emary[row+i][col] = new TableElement();
-					}
-				}
-				//多列在同列多行上扩展
-				if(item.getCols() > 1) {
-					//修复配置和实际设值之间的差异，以style的设置为准
-					if(col+item.getCols() > column) item.setCols(column-col);
-					for(int j=0;j<item.getRowes()-1;j++){
-						for(int i=col+1;i<col+item.getCols();i++){
-							emary[row+j][i] = new TableElement();
-						}
-					}
-				}
-				col+=item.getCols();
-			}else{
-				int l=0;
-				//判断当前行列是否有空位可以存放读到的数据
-				for(l=col;l<column;l++){
-					if(emary[row][l] != null){
-						col++;
-					}else{
-						emary[row][l] = item;
-						col+=item.getCols();
-						break;
-					}
-				}
-				//将读到的数据放到下一行
-				if(l==column){
-					emary[row+1][0] = item;
-				}
-			}
-		}
+	public boolean updateTableElement(TableElement obj) {
+		int idx = 0;
 		
-		//修复配置和实际设值之间的差异
-		TableElement te = null;
-		row = 0;
-		for(int i=0; i<emary.length; i++){
-			col=0;	
-			if(emary[i][0] != null) row++;
-			for(int j=0;j<column;j++){
-				if(emary[i][j] != null){
-					te = emary[i][j];
-					if(emary[i][j].getNewLabelName() == null) col++;
-					else col += emary[i][j].getCols();
-				}
-			}
-			if(col>0 && col<column) te.setCols(te.getCols()+column-col);
+		String[] valAry = obj.getNewFieldDataType().split(",");
+		if(valAry.length == 2){
+			obj.setNewFieldDataType(valAry[1]);
+			obj.setStbId(Long.parseLong(valAry[0]));
 		}
-		
-		TableElement[][] rst = new TableElement[row][column.intValue()];
-		for(int i=0;i<row;i++){
-			for(int j=0;j<column;j++){
-				rst[i][j] = emary[i][j];
+		if(obj.getId() == null) {
+			Element em = new Element();
+			if(!(obj.getNewFieldType().contains("子表单") || obj.getNewFieldType().contains("组件"))){				
+				em.setCreatedDate(new Date());
+				em.setDataContent(obj.getNewDataContent());
+				em.setFieldDataType(obj.getNewFieldDataType());
+				em.setFieldName(obj.getFieldName());
+				em.setFieldType(obj.getNewFieldType());
+				em.setFunctionBelongTo(obj.getFunctionBelongTo());
+				em.setFunctionName(obj.getNewFunctionName());
+				em.setGrade("自定义");
+				em.setHiddenFieldName(obj.getNewHiddenFieldName());
+				em.setLabelName(obj.getNewLabelName());
+				em.setLength(obj.getNewLength());
+				em = elementService.save(em);
 			}
+			Long seq = tableMapper.findMaxSeq(obj.getTbId());
+			obj.setSeq(seq+1);
+			obj.setCreatedDate(new Date());
+			obj.setEmId(em.getEmId());
+			idx = tableMapper.saveTableElement(obj);
 		}
-		return rst;
-	}
+		else idx = tableMapper.updateTableElement(obj);
+		if(idx > 0) return true;
+		return false;
+	}	
 
 	/**
 	 * 获得流程节点被设置的字段
@@ -368,13 +336,19 @@ public class TableServiceImpl implements TableService {
 		return tableMapper.findTableAllElementsOnNode(wfId, nodeId, tbId);		
 	}
 
+	/**
+	 * 设置表单在节点上的属性
+	 */
 	@Override
-	public boolean setTableFieldsOnNode(Long wfId, Long nodeId, Long[] emIds) {
-		int idx = tableMapper.saveTableElementOnNode(wfId, nodeId, emIds);
+	public boolean setTableFieldsOnNode(Long wfId, Long nodeId, Long[] ids) {
+		int idx = tableMapper.saveTableElementOnNode(wfId, nodeId, ids);
 		if(idx > 0) return true;
 		return false;
 	}
 
+	/**
+	 * 设置表单状态
+	 */
 	@Override
 	public boolean setStatus(Long tbId, boolean status) {
 		TableBrief tb = new TableBrief();
@@ -393,9 +367,12 @@ public class TableServiceImpl implements TableService {
 	public List<TableBrief> findAllWithTableNameNoRelated() {
 		return tableMapper.findAllWithTableNameNoRelated();
 	}
-
+	
+	/**
+	 * 删除指定的表单包括表结构
+	 */
 	@Override
-	public boolean delete(Long tbId) {
+	public boolean deleteTable(Long tbId) {
 		TableBrief tb = tableMapper.find(tbId);
 		if(tb != null){
 			tableMapper.deleteTableBrief(tbId);
@@ -406,6 +383,90 @@ public class TableServiceImpl implements TableService {
 			}
 		}
 		return true;
+	}
+
+	
+	
+	/**
+	 * 设置表单布局
+	 */
+	@Override
+	@Transactional(propagation=Propagation.REQUIRED,rollbackFor = Exception.class)
+	public boolean saveLayout(Long tbId, Long headCols, Long bodyCols,
+			Long footCols) {
+		tableMapper.deleteLayout(tbId);
+		if(headCols != null){
+			TableLayout tl = new TableLayout();
+			tl.setCols(headCols);
+			tl.setScope("head");
+			tl.setTbId(tbId);
+			tableMapper.saveTableLayout(tl);
+		}
+		
+		if(bodyCols != null){
+			TableLayout tl = new TableLayout();
+			tl.setCols(bodyCols);
+			tl.setScope("body");
+			tl.setTbId(tbId);
+			tableMapper.saveTableLayout(tl);
+		}
+		
+		if(footCols != null){
+			TableLayout tl = new TableLayout();
+			tl.setCols(footCols);
+			tl.setScope("foot");
+			tl.setTbId(tbId);
+			tableMapper.saveTableLayout(tl);
+		}
+		
+		return true;
+	}
+
+
+	/**
+	 * 获取当前表配置的所有元素
+	 */
+	@Override
+	public List<TableElement> findTableAllFields(Long tbId) {
+		return tableMapper.findTableAllFields(tbId);
+	}
+
+
+	/**
+	 * 获取当前表可用的子表
+	 */
+	@Override
+	public List<TableBrief> findAllSubTables(Long tbId) {
+		return tableMapper.findAllSubTables(tbId);
+	}
+
+
+	/**
+	 * 设置子表
+	 */
+	@Override
+	public boolean setSubTable(Long tbId, String scope, Long stbId) {
+		int idx = tableMapper.setSubTable(tbId, scope, stbId);
+		if(idx == 1) return true;
+		return false;
+	}
+
+
+	/**
+	 * 根据模板类型返回所有的表单
+	 */
+	@Override
+	public List<TableBrief> findTableBriefWithTemplate(String template) {
+		return tableMapper.findTableBriefWithTemplate(template);
+	}
+
+
+	/**
+	 * 仅供表单创建数据库表的时候的字段检测
+	 */
+	@Override
+	public List<TableElement> findTableFieldsToDBCheck(Long tbId) {
+		return tableMapper.findTableFieldsToDBCheck(tbId);
 	}
 
 }

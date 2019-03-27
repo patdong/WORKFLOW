@@ -540,7 +540,7 @@
   				else checked="";
   				li = "<li class='list-group-item d-flex justify-content-between lh-condensed' style='height: 40px;'> "
 	            	  +"<span class=\"text-muted\">"+table.newLabelName+"</span> "
-	            	  +"<span class=\"text-muted\"><input type=\"checkbox\" name=\"fieldChecked\" "+checked+" value=\""+table.emId+"\"></span> "
+	            	  +"<span class=\"text-muted\"><input type=\"checkbox\" name=\"fieldChecked\" "+checked+" value=\""+table.id+"\"></span> "
 	          		  +"</li> ";
   				$("#fields-lst").append(li);
   			});			
@@ -554,18 +554,18 @@
   //保存流程节点字段
   function setTableElements(){
 	  var wfId = $("#wfId").val();
-	  var emIds = "";
+	  var ids = "";
 	  $("#button-hidden").empty();
 	  $('input:checkbox[name=fieldChecked]:checked').each(function(k){		  
-		  emIds += $(this).val()+",";		  
+		  ids += $(this).val()+",";		  
   	  })
-  	  if(emIds.length > 0){
-  		  emIds = emIds.substring(0,emIds.length-1);		  
+  	  if(ids.length > 0){
+  		ids = ids.substring(0,ids.length-1);		  
 	  }
 	  $.ajax({
   		  type: 'GET',
   		  url: "/wf/settableelements/"+wfId+"/"+clickedNodeId,
-  		  data: {emIds:emIds},			  
+  		  data: {ids:ids},			  
   		  dataType: 'json',
   		  success: function(data){ 
   			  $("#fields_message").text("配置完成。");

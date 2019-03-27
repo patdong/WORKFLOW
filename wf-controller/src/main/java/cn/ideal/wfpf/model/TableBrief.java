@@ -8,7 +8,7 @@ import cn.ideal.wf.model.Workflow;
 /**
  * 表单概述pojo
  * @author 郭佟燕
- * @vrsion 2.0
+ * @version 2.0
  *
  */
 public class TableBrief {
@@ -21,7 +21,8 @@ public class TableBrief {
 	private String status;
 	private Date createdDate;
 	private List<Workflow> wf;
-	private Long productCount = 0l;
+	private Long productCount = 0l;   //统计该表在生产中已经产生的数据
+	private List<TableLayout> layout;
 	
 	public Long getTbId() {
 		return tbId;
@@ -76,6 +77,12 @@ public class TableBrief {
 	}
 	public void setProductCount(Long productCount) {
 		this.productCount = productCount;
+	}
+	public List<TableLayout> getLayout() {
+		return layout;
+	}
+	public void setLayout(List<TableLayout> layout) {
+		this.layout = layout;
 	}
 	
 }

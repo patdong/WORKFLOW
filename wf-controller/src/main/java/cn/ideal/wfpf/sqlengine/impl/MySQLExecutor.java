@@ -36,7 +36,7 @@ public class MySQLExecutor implements SQLExecutor {
 
 	@Override
 	public void createTable(Long tbId,String tableName) throws Exception {		
-		List<TableElement> tbemLst = tableService.findTableAllElements(tbId);
+		List<TableElement> tbemLst = tableService.findTableFieldsToDBCheck(tbId);
 		
 		StringBuilder strBuilder = new StringBuilder();
 		//判断表单是否已经配置了数据库对应的表名称

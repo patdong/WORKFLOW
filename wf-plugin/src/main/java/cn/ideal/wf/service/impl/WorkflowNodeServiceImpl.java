@@ -10,13 +10,13 @@ import org.springframework.stereotype.Service;
 import cn.ideal.wf.cache.WorkflowNodeCache;
 import cn.ideal.wf.common.WFConstants;
 import cn.ideal.wf.dao.WorkflowNodeMapper;
+import cn.ideal.wf.flowchat.draw.FlowChatService;
 import cn.ideal.wf.model.FlowChatNode;
 import cn.ideal.wf.model.WorkflowAction;
 import cn.ideal.wf.model.WorkflowNode;
 import cn.ideal.wf.model.WorkflowUser;
 import cn.ideal.wf.service.WorkflowFlowService;
 import cn.ideal.wf.service.WorkflowNodeService;
-import cn.ideal.wf.tree.FlowChatService;
 
 @Service
 public class WorkflowNodeServiceImpl implements WorkflowNodeService{

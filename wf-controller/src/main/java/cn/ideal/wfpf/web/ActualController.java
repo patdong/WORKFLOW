@@ -26,6 +26,7 @@ import cn.ideal.wf.data.analyzer.ParameterAnalyzer;
 import cn.ideal.wf.data.analyzer.Storage;
 import cn.ideal.wf.data.analyzer.StorageAnalyzer;
 import cn.ideal.wf.data.query.QueryPageExecutor;
+import cn.ideal.wf.flowchat.draw.FlowChatService;
 import cn.ideal.wf.model.WorkflowTableBrief;
 import cn.ideal.wf.model.WorkflowTableElement;
 import cn.ideal.wf.page.ListModel;
@@ -37,7 +38,6 @@ import cn.ideal.wf.service.WorkflowFlowService;
 import cn.ideal.wf.service.WorkflowNodeService;
 import cn.ideal.wf.service.WorkflowTableService;
 import cn.ideal.wf.service.WorkflowWFService;
-import cn.ideal.wf.tree.FlowChatService;
 
 
 @Controller

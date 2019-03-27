@@ -415,9 +415,9 @@ code {
 	color: #965555;
     background-color: #09d438;
     display: inline-block;
-    padding: .2em .3em;    
+    padding: .1em .1em;    
     font-weight: 700;
-    line-height: 1;
+    line-height: 0.9;
     text-align: center;
     white-space: nowrap;
     vertical-align: baseline;
@@ -436,10 +436,10 @@ code {
 	color: #fff;
     background-color: #dcd69a;
     display: inline-block;
-    padding: .4em .3em;
+    padding: .1em .1em;
     font-size: 72%;
     font-weight: 700;
-    line-height: 1;
+    line-height: 1.3;
     text-align: center;
     white-space: nowrap;
     vertical-align: baseline;
@@ -456,15 +456,12 @@ code {
 
 .btn-edit-pointer{
 	color: #90790a;    
-    display: inline-block;
-    padding: .4em .3em;   
+    display: inline-block;   
     font-weight: 700;
     text-align: center;
     white-space: nowrap;
     vertical-align: baseline;    
     cursor:pointer;
-    margin-left: 10px;
-    margin-right: 10px;
     font-size: 1.3rem;  
 }
 

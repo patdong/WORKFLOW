@@ -10,6 +10,7 @@ import java.util.Date;
  */
 public class TableElement {
 
+	private Long id;
 	private Long tbId;
 	private Long emId;
 	private String newLabelName;
@@ -32,11 +33,19 @@ public class TableElement {
 	private String defaultValueFrom;
 	private String status;
 	private Date createdDate;
+	private Long stbId;
 	
 	private String labelName;
 	private String fieldName;
 	private boolean readOnly = false;
 	
+	
+	public Long getId() {
+		return id;
+	}
+	public void setId(Long id) {
+		this.id = id;
+	}
 	public Long getTbId() {
 		return tbId;
 	}
@@ -186,6 +195,12 @@ public class TableElement {
 	}
 	public void setDefaultValueFrom(String defaultValueFrom) {
 		this.defaultValueFrom = defaultValueFrom;
+	}
+	public Long getStbId() {
+		return stbId;
+	}
+	public void setStbId(Long stbId) {
+		this.stbId = stbId;
 	}
 	
 	

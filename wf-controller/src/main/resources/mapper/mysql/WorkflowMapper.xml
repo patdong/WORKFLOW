@@ -66,4 +66,8 @@
 	<select id="findAllWorkflowsByTbId" resultType="cn.ideal.wf.model.Workflow" parameterType="java.lang.Long">
 		select * from workflow where tbId = #{tbId}
 	</select>
+	
+	<delete id="deleteTableElementOnNode" parameterType="java.lang.Long">
+		delete from workflow_table_element where wfId = #{wfId}			
+	</delete>
 </mapper>

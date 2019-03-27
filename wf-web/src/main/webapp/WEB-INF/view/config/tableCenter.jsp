@@ -120,6 +120,7 @@ function remove(){
             <tr>
               <th>#序列</th>
               <th>表单名称</th>
+              <th>模板</th>
               <th>流程绑定</th>
               <th>库表名称</th>
               <th>已入生产</th>
@@ -132,6 +133,7 @@ function remove(){
           		<tr>
           			<td><a href="/tb/tabledefination/${table.tbId}">#${table.tbId }</a></td>
           			<td><span class="small-btn" style="background-color:#42a288;" onclick="showPos(event,${table.tbId },'table-name')" >&nbsp;✒&nbsp;</span><span id="${table.tbId }">${table.tableName }</span></td>
+          			<td>${table.template}</td>
           			<td>          				
           				<c:forEach items="${table.wf}" varStatus="idx" step="1" var="wf" >
           					[${wf.wfName}] &nbsp;

@@ -38,7 +38,7 @@ public class OracleExecutor implements SQLExecutor {
 
 	@Override
 	public void createTable(Long tbId,String tableName) throws Exception {
-		List<TableElement> tbemLst = tableService.findTableAllElements(tbId);
+		List<TableElement> tbemLst = tableService.findTableFieldsToDBCheck(tbId);
 		
 		StringBuilder strBuilder = new StringBuilder();
 		List<String> sql = new ArrayList<String>();

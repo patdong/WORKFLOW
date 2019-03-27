@@ -21,10 +21,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
+import cn.ideal.wf.flowchat.draw.FlowChatService;
 import cn.ideal.wf.model.Workflow;
 import cn.ideal.wf.model.WorkflowNode;
 import cn.ideal.wf.service.WorkflowNodeService;
-import cn.ideal.wf.tree.FlowChatService;
 import cn.ideal.wfpf.model.CertificationOrg;
 import cn.ideal.wfpf.model.CertificationRole;
 import cn.ideal.wfpf.model.CertificationUser;
@@ -211,7 +211,7 @@ public class WfConfigurationController {
 	 */
 	@GetMapping("/gettableelements/{wfId}/{nodeId}/{tbId}")
     public @ResponseBody List<TableElement> getTableElements(@PathVariable Long wfId,@PathVariable Long nodeId,@PathVariable Long tbId, HttpServletRequest request) {	
-		List<TableElement> elements = tableService.findTableAllElements(tbId);
+		List<TableElement> elements = tableService.findTableAllFields(tbId);
 		List<TableElement> nodeElements = tableService.findTableAllElementsOnNode(wfId, nodeId, tbId);
 		for(TableElement element : elements){
 			for(TableElement nelement : nodeElements){
@@ -233,12 +233,12 @@ public class WfConfigurationController {
 	 * @return
 	 */
 	@GetMapping("/settableelements/{wfId}/{nodeId}")
-    public @ResponseBody FMsg setTableElements(@PathVariable Long wfId,@PathVariable Long nodeId,@RequestParam String emIds, HttpServletRequest request) {
+    public @ResponseBody FMsg setTableElements(@PathVariable Long wfId,@PathVariable Long nodeId,@RequestParam String ids, HttpServletRequest request) {
 		FMsg fmsg = null;
 		try{
-			if(!StringUtils.isNullOrEmpty(emIds)){
+			if(!StringUtils.isNullOrEmpty(ids)){
 				List<Long> emIdLst = new ArrayList<Long>();
-				for(String id: emIds.split(",")){
+				for(String id: ids.split(",")){
 					emIdLst.add(Long.parseLong(id));
 				}
 				boolean res = tableService.setTableFieldsOnNode(wfId,nodeId,emIdLst.toArray(new Long[emIdLst.size()]));
