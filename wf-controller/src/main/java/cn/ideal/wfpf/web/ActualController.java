@@ -38,6 +38,7 @@ import cn.ideal.wf.service.WorkflowFlowService;
 import cn.ideal.wf.service.WorkflowNodeService;
 import cn.ideal.wf.service.WorkflowTableService;
 import cn.ideal.wf.service.WorkflowWFService;
+import cn.ideal.wf.table.draw.PureTableService;
 
 
 @Controller
@@ -64,6 +65,9 @@ public class ActualController extends PlatformFundation{
 	@Autowired
 	@Qualifier("richFlowChatService")
 	private FlowChatService flowChatService;
+	@Autowired
+	private PureTableService plattenTableService;
+	
 	/**
 	 * 实战首页
 	 * */
@@ -139,6 +143,7 @@ public class ActualController extends PlatformFundation{
 		if(pageModel.getWfBrief() != null){
 			pageModel.setButtons(workflowNodeService.findButtonsByNodeName(pageModel.getWfBrief().getNodeName(), wfId));
 		}
+		pageModel.setTable(plattenTableService.draw(pageModel.getTableBrief().getTbId()).toString());
         return mav;
     }
 	

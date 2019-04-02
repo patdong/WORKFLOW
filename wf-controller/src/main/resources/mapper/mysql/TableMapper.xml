@@ -288,6 +288,7 @@
 	<select id="findAllWithTableNameNoRelated" resultMap="tablebrief">
 		select * from table_brief 
 		where tableName is not null
+		  and template = '表'
 		  and tbId not in (select tbId from workflow where status = '有效' and tbId is not null)
 	</select>
 		

@@ -4,6 +4,7 @@
 	<resultMap id="wftablebrief" type="cn.ideal.wf.model.WorkflowTableBrief" />
 	<resultMap id="wftableelement" type="cn.ideal.wf.model.WorkflowTableElement" />
 	<resultMap id="wftablesummary" type="cn.ideal.wf.model.WorkflowTableSummary" />				
+	<resultMap id="wftablelayout" type="cn.ideal.wf.model.WorkflowTableLayout" />
 	
 	<select id="find" resultMap="wftablebrief" parameterType="java.lang.Long">
 		select * from table_brief where tbId=#{tbId}
@@ -54,4 +55,28 @@
 		and wfId=#{wfId}
 		</where>				
 	</update>
+	
+	<select id="findSubTable" resultMap="wftablebrief" parameterType="java.util.Map">
+		select * from table_brief where tbId in (select stbId from table_layout where tbId = #{tbId} and scope = #{scope})
+	</select>
+	
+	<select id="findTableAllElements" resultMap="wftableelement" parameterType="java.util.Map">
+		select a.*,b.labelName,b.fieldName from table_element a
+		 left join element_library b on a.emId = b.emId 
+		 where a.tbId = #{tbId}
+		 <if test="scope != null">
+		   and a.scope = #{scope}
+		 </if> 
+		 order by a.seq
+	</select>
+	
+	<select id="findTableLayoutWithScope" resultMap="wftablelayout" parameterType="java.util.Map">
+		select * from table_layout 
+		 where tbId=#{tbId} and scope=#{scope}
+	</select>
+	
+	<select id="findTableLayout" resultMap="wftablelayout" parameterType="java.util.Map">
+		select * from table_layout 
+		 where tbId=#{tbId}
+	</select>
 </mapper>

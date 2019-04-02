@@ -3,8 +3,8 @@
 <script> 
     $(function(){
     	//根据不同的表单风格做处理
-    	if("${model.bizId}" == "") $("#includedContent").load("/app/showcontent/${model.wf.wfId}/div");
-    	else $("#includedContent").load("/app/showcontent/${model.wf.wfId }/${model.bizId}/div"); 
+    	//if("${model.bizId}" == "") $("#includedContent").load("/app/showcontent/${model.wf.wfId}/div");
+    	//else $("#includedContent").load("/app/showcontent/${model.wf.wfId }/${model.bizId}/div"); 
     });
     
     //表单保存提交

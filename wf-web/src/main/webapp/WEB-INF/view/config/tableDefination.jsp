@@ -356,7 +356,8 @@
 		  url: "/tb/setSubTable/${tbId}/"+$("#subTbId").val()+"/"+$("#tscope").val(),
 		  dataType: 'json',
 		  success: function(data){
-			  $("#subTable-div").hide();			  
+			  $("#subTable-div").hide();
+			  location.href="/tb/tabledefination/${tbId}?scope="+gscope+"&fieldsetting="+gfieldsetting;
 		  },
 		  error: function(XMLHttpRequest, textStatus, errorThrown){
 			  console.warn(XMLHttpRequest.responseText);		  
@@ -467,7 +468,7 @@
   		<span style="margin-left:0.3%;"><select style="font-size:.78rem;" id="tscope" onchange="changeScope();"><option value="head">表头</option><option value="body">表体</option><option value="foot">表尾</option></select></span>  		  		
   		<span style="margin-left:0.3%;font-size:.78rem;" id="layout"></span>
   		<span style="margin-left:0.3%;">|</span>
-  		<span style="margin-left:0.3%;cursor:pointer;" onclick="showFieldSetting();" id="fieldsetting"><span style="color: #90790a;">⤧</span>元素</span>
+  		<span style="margin-left:0.3%;cursor:pointer;" onclick="showFieldSetting();" id="fieldsetting"><span style="color: #90790a;">⤧</span>编辑</span>
   		<span style="margin-left:0.3%;">|</span>   		
   		<c:if test="${empty brief.name }" > 		
 			<span id="db1" style="cursor:pointer;" title="生成库表数据" onclick="createTable();"><img src="/img/wf_btn12.PNG"></span>
@@ -611,7 +612,7 @@
 		        	<option value="String">字符串</option>
 			        <option value="Date">日期</option>		       
 		        </select>       
-		        <label >操作方式：</label>
+		        <label >元素模型：</label>
 			    <select name="newFieldType" id="newFieldType" class="form-control-one-line" required style="width:25%" onChange="changeNewFieldType();">
 			        <option>输入框</option>
 			        <option>下拉框</option>
@@ -838,25 +839,28 @@
          </div>	      	     
     </header>
     <hr style="margin-top: .5rem; margin-bottom: .5rem;"></hr>
-    <div style="padding: 0px 13px 0px;overflow:auto; " >    	
-    	<label style="font-size:.78rem;">表单名称</label>：${brief.tableName }<br>
-    	<label style="font-size:.78rem;">表单模板</label>：${brief.template }<br>
-    	<label style="font-size:.78rem;">数据表名</label>：${brief.name }<br>
+    <div style="padding: 0px 13px 0px;overflow:auto; " > 
+    	<table  border="1px solid" style="border-color: green;">
+    		<tr><td style="font-size:.78rem;width:30%">表单名称</td><td style="width:50%">${brief.tableName }</td></tr>
+    		<tr><td style="font-size:.78rem;width:30%">表单模板</td><td style="width:50%">${brief.template }</td></tr>
+    		<tr><td style="font-size:.78rem;width:30%">数据表名</td><td style="width:50%">${brief.name }</td></tr>
+    	</table>    	
     	<hr style="margin-top: .5rem; margin-bottom: .5rem;"></hr> 
-    	<c:forEach var="layout" items="${layouts}" varStatus="status">
-    		<c:choose>
-    			<c:when test="${layout.scope eq 'head'}">
-    				<label style="font-size:.78rem;">表头</label>
-    			</c:when>
-    			<c:when test="${layout.scope eq 'body'}">
-    				<label style="font-size:.78rem;">表体</label>
-    			</c:when>
-    			<c:when test="${layout.scope eq 'foot'}">
-    				<label style="font-size:.78rem;">表尾</label>
-    			</c:when>
-    		</c:choose>
-  			：${layout.cols }列 <c:if test="${!empty layout.stbId }"><label style="font-size:.78rem;">[外子表：${layout.stableName }]</label></c:if><br>
-  		</c:forEach>    	
+    	<table border="1px solid" style="border-color: red;">    		
+    		<c:forEach var="layout" items="${layouts}" varStatus="status">
+	    		<c:choose>
+	    			<c:when test="${layout.scope eq 'head'}">
+	    				<tr><td style="font-size:.78rem;width:20%">表头</td><td style="width:50%">${layout.cols }列<c:if test="${!empty layout.stbId }"><label style="font-size:.78rem;margin-left:5px;">[外子表：${layout.stableName }]</label></c:if></td></tr>
+	    			</c:when>
+	    			<c:when test="${layout.scope eq 'body'}">
+	    				<tr><td style="font-size:.78rem;width:20%">表体</td><td style="width:50%">${layout.cols }列<c:if test="${!empty layout.stbId }"><label style="font-size:.78rem;margin-left:5px;">[外子表：${layout.stableName }]</label></c:if></td></tr>
+	    			</c:when>
+	    			<c:when test="${layout.scope eq 'foot'}">
+	    				<tr><td style="font-size:.78rem;width:20%">表尾</td><td style="width:50%">${layout.cols }列<c:if test="${!empty layout.stbId }"><label style="font-size:.78rem;margin-left:5px;">[外子表：${layout.stableName }]</label></c:if></td></tr>
+	    			</c:when>
+	    		</c:choose>
+    		</c:forEach>    		
+  		</table>   	
     </div>
     <hr style="margin-top: .5rem; margin-bottom: .5rem;"></hr>    
 </div>

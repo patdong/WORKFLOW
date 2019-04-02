@@ -64,11 +64,25 @@ COMMENT ON COLUMN table_brief.createdDate IS '表单创建时间';
 ALTER TABLE table_brief ADD (CONSTRAINT tbId_PK PRIMARY KEY (tbId));
 CREATE SEQUENCE sq_tbId START WITH 1 INCREMENT BY 1 MAXVALUE 1E27 MINVALUE 1 NOCYCLE NOCACHE ORDER;
 
+DROP TABLE table_layout;
+CREATE TABLE table_layout (
+  tbId NUMBER NOT NULL,
+  scope varchar(10) NOT NULL,  
+  cols NUMBER NOT NULL ,
+  stbId NUMBER DEFAULT NULL
+);
+COMMENT ON COLUMN table_layout.tbId IS '表单编号';
+COMMENT ON COLUMN table_layout.scope IS '表单区域';
+COMMENT ON COLUMN table_layout.stbId IS '子表单编号';
+COMMENT ON COLUMN table_layout.cols IS '表单列数';
+
 
 DROP TABLE table_element;
+DROP SEQUENCE sq_id;
 CREATE TABLE table_element (
+  id NUMBER NOT NULL,
   tbId NUMBER NOT NULL,
-  emId NUMBER NOT NULL,
+  emId NUMBER NULL,
   newLabelName varchar2(30) DEFAULT NULL ,
   newFunctionName varchar2(50) DEFAULT NULL ,
   functionBelongTo varchar2(10) DEFAULT NULL ,
@@ -79,8 +93,8 @@ CREATE TABLE table_element (
   scope varchar2(10) NOT NULL ,
   formula varchar2(50) DEFAULT NULL ,
   newDataContent varchar2(50) DEFAULT NULL ,
-  newFieldType varchar2(10) DEFAULT '输入框' NOT NULL ,
-  newFieldDataType varchar2(10) DEFAULT 'String' NOT NULL ,
+  newFieldType varchar2(10) DEFAULT '输入框' ,
+  newFieldDataType varchar2(10) DEFAULT 'String' ,
   seq NUMBER NOT NULL ,
   list varchar2(10) DEFAULT '无效' ,
   constraint varchar2(10) DEFAULT NULL ,
@@ -88,9 +102,10 @@ CREATE TABLE table_element (
   defaultValue varchar2(45) DEFAULT NULL ,
   defaultValueFrom varchar2(100) DEFAULT NULL ,
   status varchar2(10) DEFAULT '有效' NOT NULL ,
-  createdDate DATE NOT NULL 
+  createdDate DATE NOT NULL,
+  stbId NUMBER NULL
 );
-
+COMMENT ON COLUMN table_element.id IS '表单元素编号';
 COMMENT ON COLUMN table_element.tbId IS '表单编号';
 COMMENT ON COLUMN table_element.emId IS '元素编号';
 COMMENT ON COLUMN table_element.newLabelName IS '字段标签名称';
@@ -113,6 +128,9 @@ COMMENT ON COLUMN table_element.defaultValue IS '字段默认初始值';
 COMMENT ON COLUMN table_element.defaultValueFrom IS '初始值来源，目前仅支持根据指定的类的属性获取';
 COMMENT ON COLUMN table_element.status IS '有效';
 COMMENT ON COLUMN table_element.createdDate IS '创建时间';
+COMMENT ON COLUMN table_element.stbId IS '子表单编号';
+
+CREATE SEQUENCE sq_id START WITH 1 INCREMENT BY 1 MAXVALUE 1E27 MINVALUE 1 NOCYCLE NOCACHE ORDER;
 
 DROP TABLE table_summary;
 CREATE TABLE table_summary (

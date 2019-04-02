@@ -22,6 +22,7 @@ public class PageModel extends Model{
 	private int nextNodeSize;                      //当前办理节点的续办节点个数
 	private WorkflowTableBrief tableBrief;         //表单概述
 	private WorkflowBrief wfBrief;                 //流程
+	private String table;                    //表单
 	private List<WorkflowTableElement> headLst;    //表单头
 	private List<WorkflowTableElement> bodyLst;    //表单体
 	private List<WorkflowTableElement> footLst;    //表单尾
@@ -127,6 +128,14 @@ public class PageModel extends Model{
 
 	public int getNextNodeSize() {
 		return nextNodeSize;
+	}
+
+	public String getTable() {
+		return table;
+	}
+
+	public void setTable(String table) {
+		this.table = table;
 	}
 	
 	

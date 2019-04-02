@@ -71,7 +71,7 @@
 		 union all
 		 select a.*,null as tbId from element_library a
 		 where a.status = '有效'
-		   and a.emId not in (select emId from table_element b where b.tbId = #{tbId})
+		   and a.emId not in (select emId from table_element b where b.tbId = #{tbId} and b.emId is not null)
 	</select>
 	
 	<select id="findAPage" resultMap="element" parameterType="java.util.Map">

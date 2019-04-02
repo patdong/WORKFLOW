@@ -5,6 +5,7 @@
 		<id column="tbId" property="tbId" jdbcType="NUMERIC" />
 		<association property="wf" column="tbId" select="cn.ideal.wfpf.dao.WorkflowMapper.findAllWorkflowsByTbId" />
 		<association property="productCount" column="tbId" select="findProductCount" />
+		<association property="layout" column="tbId" select="findTableLayout" />
 	</resultMap>
 	<resultMap id="tableelement" type="cn.ideal.wfpf.model.TableElement" />			
 	
@@ -32,20 +33,40 @@
 		select * from table_brief where tbId=#{tbId}
 	</select>
 	
+	<select id="findTableLayout" resultType="cn.ideal.wfpf.model.TableLayout" parameterType="java.lang.Long">
+		select a.*,b.tableName as stableName from table_layout a 
+		left join table_brief b on b.tbId = a.stbId
+		where a.tbId=#{tbId}
+	</select>
+	
+	<select id="findTableLayoutWithScope" resultType="cn.ideal.wfpf.model.TableLayout" parameterType="java.util.Map">
+		select * from table_layout where tbId=#{tbId} and scope=#{scope}
+	</select>
+	
 	<insert id="saveTableBrief" parameterType="cn.ideal.wfpf.model.TableBrief">
 		<selectKey resultType="java.lang.Long" keyProperty="tbId" order="BEFORE">
 			select sq_tbId.nextval from dual
 		</selectKey>
 		insert into table_brief(
-			tbId,name,tableName,cols,status,createdDate
+			tbId,name,tableName,status,createdDate
 		)
 		values(
 			#{tbId},
 			#{name,jdbcType=VARCHAR},
-			#{tableName,jdbcType=VARCHAR},
-			#{cols,jdbcType=DECIMAL},
+			#{tableName,jdbcType=VARCHAR},			
 			#{status,jdbcType=VARCHAR},
 			#{createdDate,jdbcType=TIMESTAMP}
+		)
+	</insert>
+	
+	<insert id="saveTableLayout"  parameterType="cn.ideal.wfpf.model.TableLayout">
+		insert into table_layout(
+			tbId,scope,cols
+		)
+		values(
+			#{tbId,jdbcType=DECIMAL},
+			#{scope,jdbcType=VARCHAR},
+			#{cols,jdbcType=DECIMAL}
 		)
 	</insert>
 	
@@ -58,11 +79,8 @@
 				tableName=#{tableName,jdbcType=VARCHAR}
 			</if>
 			<if test="template != null">
-				template=#{template,jdbcType=VARCHAR},
-			</if>
-			<if test="cols != null">
-				cols=#{cols,jdbcType=DECIMAL}
-			</if>
+				template=#{template,jdbcType=VARCHAR}
+			</if>			
 			<if test="status != null">
 				status=#{status,jdbcType=VARCHAR}
 			</if>				
@@ -80,31 +98,36 @@
 	</update>
 	
 	<insert id="saveTableElement" parameterType="cn.ideal.wfpf.model.TableElement">
+		<selectKey resultType="java.lang.Long" keyProperty="id" order="BEFORE">
+			select sq_id.nextval from dual
+		</selectKey>
 		insert into table_element(
-			tbId,emId,newLabelName,newFunctionName,functionBelongTo,rowes,cols,width,scope,seq,newHiddenFieldName,
-			newDataContent,newFieldType,newFieldDataType,newLength,defaultValue,defaultValueFrom,list,createdDate
+			id,tbId,emId,newLabelName,newFunctionName,functionBelongTo,rowes,cols,width,scope,seq,newHiddenFieldName,
+			newDataContent,newFieldType,newFieldDataType,newLength,defaultValue,defaultValueFrom,list,stbId,createdDate
 		)
 		values		
 		(
-			#{item.tbId,jdbcType=DECIMAL},
-			#{item.emId,jdbcType=DECIMAL},
-			#{item.newLabelName,jdbcType=VARCHAR},
-			#{item.newFunctionName,jdbcType=VARCHAR},
-			#{item.functionBelongTo,jdbcType=VARCHAR},
-			#{item.rowes,jdbcType=DECIMAL},
-			#{item.cols,jdbcType=DECIMAL},
-			#{item.width,jdbcType=DECIMAL},		
-			#{item.scope,jdbcType=VARCHAR},
-			#{item.seq,jdbcType=DECIMAL},
-			#{item.newHiddenFieldName,jdbcType=VARCHAR},
-			#{item.newDataContent,jdbcType=VARCHAR},
-			#{item.newFieldType,jdbcType=VARCHAR},
-			#{item.newFieldDataType,jdbcType=VARCHAR},
-			#{item.newLength,jdbcType=DECIMAL},
-			#{item.defaultValue,jdbcType=VARCHAR},
-			#{item.defaultValueFrom,jdbcType=VARCHAR},
-			#{item.list,jdbcType=VARCHAR},
-			#{item.createdDate,jdbcType=TIMESTAMP}
+			#{id},
+			#{tbId,jdbcType=DECIMAL},
+			#{emId,jdbcType=DECIMAL},
+			#{newLabelName,jdbcType=VARCHAR},
+			#{newFunctionName,jdbcType=VARCHAR},
+			#{functionBelongTo,jdbcType=VARCHAR},
+			#{rowes,jdbcType=DECIMAL},
+			#{cols,jdbcType=DECIMAL},
+			#{width,jdbcType=DECIMAL},		
+			#{scope,jdbcType=VARCHAR},
+			#{seq,jdbcType=DECIMAL},
+			#{newHiddenFieldName,jdbcType=VARCHAR},
+			#{newDataContent,jdbcType=VARCHAR},
+			#{newFieldType,jdbcType=VARCHAR},
+			#{newFieldDataType,jdbcType=VARCHAR},
+			#{newLength,jdbcType=DECIMAL},
+			#{defaultValue,jdbcType=VARCHAR},
+			#{defaultValueFrom,jdbcType=VARCHAR},
+			#{list,jdbcType=VARCHAR},
+			#{stbId,jdbcType=DECIMAL},
+			#{createdDate,jdbcType=TIMESTAMP}
 		)		
 	</insert>
 	
@@ -112,34 +135,39 @@
 		{call
 			declare
 			begin
-		<foreach collection="list" item="item" index="index" separator="">	
-		insert into table_element(
-			tbId,emId,newLabelName,newFunctionName,functionBelongTo,rowes,cols,width,scope,seq,newHiddenFieldName,
-			newDataContent,newFieldType,newFieldDataType,newLength,defaultValue,defaultValueFrom,list,createdDate
-		)
-		values			
-		(
-			#{item.tbId,jdbcType=DECIMAL},
-			#{item.emId,jdbcType=DECIMAL},
-			#{item.newLabelName,jdbcType=VARCHAR},
-			#{item.newFunctionName,jdbcType=VARCHAR},
-			#{item.functionBelongTo,jdbcType=VARCHAR},
-			#{item.rowes,jdbcType=DECIMAL},
-			#{item.cols,jdbcType=DECIMAL},
-			#{item.width,jdbcType=DECIMAL},			
-			#{item.scope,jdbcType=VARCHAR},
-			#{item.seq,jdbcType=DECIMAL},
-			#{item.newHiddenFieldName,jdbcType=VARCHAR},
-			#{item.newDataContent,jdbcType=VARCHAR},
-			#{item.newFieldType,jdbcType=VARCHAR},
-			#{item.newFieldDataType,jdbcType=VARCHAR},
-			#{item.newLength,jdbcType=DECIMAL},
-			#{item.defaultValue,jdbcType=VARCHAR},
-			#{item.defaultValueFrom,jdbcType=VARCHAR},
-			#{item.list,jdbcType=VARCHAR},
-			#{item.createdDate,jdbcType=TIMESTAMP}
-		);
-		</foreach>
+			<selectKey resultType="java.lang.Long" keyProperty="id" order="BEFORE">
+				select sq_id.nextval from dual
+			</selectKey>
+			<foreach collection="list" item="item" index="index" separator="">			
+				insert into table_element(
+					id,tbId,emId,newLabelName,newFunctionName,functionBelongTo,rowes,cols,width,scope,seq,newHiddenFieldName,
+					newDataContent,newFieldType,newFieldDataType,newLength,defaultValue,defaultValueFrom,list,stbId,createdDate
+				)
+				values			
+				(
+					#{id},
+					#{item.tbId,jdbcType=DECIMAL},
+					#{item.emId,jdbcType=DECIMAL},
+					#{item.newLabelName,jdbcType=VARCHAR},
+					#{item.newFunctionName,jdbcType=VARCHAR},
+					#{item.functionBelongTo,jdbcType=VARCHAR},
+					#{item.rowes,jdbcType=DECIMAL},
+					#{item.cols,jdbcType=DECIMAL},
+					#{item.width,jdbcType=DECIMAL},			
+					#{item.scope,jdbcType=VARCHAR},
+					#{item.seq,jdbcType=DECIMAL},
+					#{item.newHiddenFieldName,jdbcType=VARCHAR},
+					#{item.newDataContent,jdbcType=VARCHAR},
+					#{item.newFieldType,jdbcType=VARCHAR},
+					#{item.newFieldDataType,jdbcType=VARCHAR},
+					#{item.newLength,jdbcType=DECIMAL},
+					#{item.defaultValue,jdbcType=VARCHAR},
+					#{item.defaultValueFrom,jdbcType=VARCHAR},
+					#{item.list,jdbcType=VARCHAR},
+					#{item.stbId,jdbcType=DECIMAL},
+					#{item.createdDate,jdbcType=TIMESTAMP}
+				);
+			</foreach>
 		end
 		}
 	</insert>
@@ -158,10 +186,10 @@
 			   defaultValueFrom=#{defaultValueFrom,jdbcType=VARCHAR},
 			   rowes=#{rowes,jdbcType=DECIMAL},
 			   cols=#{cols,jdbcType=DECIMAL},
-			   width=#{width,jdbcType=DECIMAL}
+			   width=#{width,jdbcType=DECIMAL},
+			   stbId=#{stbId,jdbcType=DECIMAL}
 		<where>		
-		      tbId=#{tbId,jdbcType=DECIMAL}
-		  and emId = #{emId,jdbcType=DECIMAL}			
+		      id=#{id,jdbcType=DECIMAL}	
 		</where>				
 	</update>
 		
@@ -169,28 +197,48 @@
 		update table_element set 			
 			   seq=#{seq}
 		<where>		
-		      tbId=#{tbId}
-		  and emId = #{emId}			
+		      id=#{id,jdbcType=DECIMAL}		 	
 		</where>				
 	</update>
 	
 	<delete id="deleteTableElement" parameterType="java.util.Map">
 		delete from table_element 
 		<where>		
-		      tbId=#{tbId}
-		  and emId = #{emId}			
+		    id=#{id,jdbcType=DECIMAL}				
 		</where>				
 	</delete>
 	
 	<select id="findTableAllElements" resultMap="tableelement" parameterType="java.util.Map">
 		select a.*,b.labelName,b.fieldName from table_element a
-		 inner join element_library b on a.emId = b.emId 
+		 left join element_library b on a.emId = b.emId 
 		 where a.tbId = #{tbId}
 		 <if test="scope != null">
 		   and a.scope = #{scope}
 		 </if> 
 		 order by a.seq
 	</select>	
+	
+	<!-- 用于流程节点上字段的配置、所有列表可操作字段 -->
+	<select id="findTableAllFields" resultMap="tableelement" parameterType="java.lang.Long">
+		select a.*,b.labelName,b.fieldName from table_element a
+		 left join element_library b on a.emId = b.emId 
+		 where a.tbId = #{tbId}		 
+		   and a.newFieldType not in ( '标签','子表')
+		 order by a.seq		 
+	</select>
+	
+	<!-- 用于数据库字段检测 -->
+	<select id="findTableFieldsToDBCheck" resultMap="tableelement" parameterType="java.lang.Long">
+		select a.*,b.labelName,b.fieldName from table_element a
+		 left join element_library b on a.emId = b.emId 
+		 where a.tbId = #{tbId}		 
+		   and a.newFieldType not in ( '标签','子表','组件')
+		 union all
+		 select a.*,b.labelName,b.fieldName from table_element a
+		 left join element_library b on a.emId = b.emId 
+		 where a.tbId in (select stbId from table_element where tbId = #{tbId} and newFieldType ='组件')
+			and a.newFieldType not in ( '标签','子表','组件')
+	</select>
 	
 	<select id="findTableElement" resultMap="tableelement" parameterType="java.util.Map">
 		select a.* from table_element a
@@ -229,7 +277,7 @@
 		select * from table_brief where tableName is not null
 	</select>	
 	
-	<select id="findTableSpecialElements" resultMap="tableelement" parameterType="java.lang.Long">
+	<select id="findTableListLevelElements" resultMap="tableelement" parameterType="java.lang.Long">
 		select b.emId,b.labelName,b.fieldName from element_library b
 		 where b.grade='列表级' 
 		   and b.emId not in (select emId from table_element where tbId = #{tbId})
@@ -243,16 +291,17 @@
 		 where a.tbId = #{tbId}
 		   and b.wfId = #{wfId}
 		   and c.nodeId = #{nodeId}
+		   and a.newFieldType !='标签'
 		 order by a.seq
 	</select>
 	
 	<insert id="saveTableElementOnNode" parameterType="java.util.Map">
 		delete from workflow_table_element where wfId = #{wfId} and nodeId = #{nodeId};
 		insert into workflow_table_element(
-			wfId,nodeId,emId
+			wfId,nodeId,id
 		)
 		values
-		<foreach collection="emIds" item="item" index="index" separator=",">				
+		<foreach collection="ids" item="item" index="index" separator=",">				
 		(
 			#{wfId},
 			#{nodeId},
@@ -264,6 +313,7 @@
 	<select id="findAllWithTableNameNoRelated" resultMap="tablebrief">
 		select * from table_brief 
 		where tableName is not null
+		  and template = '表'
 		  and tbId not in (select tbId from workflow where status = '有效' and tbId is not null)
 	</select>
 		
@@ -279,5 +329,41 @@
 		select count(a.wfId) from table_summary a
 		inner join workflow b on a.wfId = b.wfId
 		where b.tbId = #{tbId}
+	</select>
+	<select id="findMaxSeq" resultType="java.lang.Long" parameterType="java.lang.Long">
+		select max(a.seq) as seq from table_element a
+		 where a.tbId = #{tbId}		  
+	</select>
+		
+	<delete id="deleteLayout" parameterType="java.lang.Long">
+		delete from table_layout
+		<where>		
+		      tbId=#{tbId}		  	
+		</where>				
+	</delete>
+	
+	<select id="findAllSubTables" resultMap="tablebrief" parameterType="java.lang.Long">
+		select * from table_brief 
+		 where tbId != #{tbId} 
+		   and status='有效' 
+		   and tableName is not null 
+		   and template = '子表'
+	</select>
+	
+	<update id="setSubTable" parameterType="java.util.Map">
+		update table_layout set 			
+			   stbId=#{stbId}
+		<where>		
+		       tbId=#{tbId}	
+		   and scope=#{scope}	 	
+		</where>				
+	</update>
+	
+	<select id="findSubTable" resultMap="tablebrief" parameterType="java.util.Map">
+		select * from table_brief where tbId in (select stbId from table_layout where tbId = #{tbId} and scope = #{scope})
+	</select>	
+	
+	<select id="findTableBriefWithTemplate" resultMap="tablebrief" parameterType="java.lang.String">
+		select * from table_brief where template=#{template} and status = '有效'
 	</select>
 </mapper>

@@ -302,7 +302,7 @@ public class TableServiceImpl implements TableService {
 		}
 		if(obj.getId() == null) {
 			Element em = new Element();
-			if(!(obj.getNewFieldType().contains("子表单") || obj.getNewFieldType().contains("组件"))){				
+			if(!(obj.getNewFieldType().contains("标签") || obj.getNewFieldType().contains("子表单") || obj.getNewFieldType().contains("组件"))){				
 				em.setCreatedDate(new Date());
 				em.setDataContent(obj.getNewDataContent());
 				em.setFieldDataType(obj.getNewFieldDataType());

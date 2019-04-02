@@ -20,7 +20,8 @@ public class PlattenTableServiceImpl implements PureTableService {
 		StringBuffer sb = new StringBuffer();
 		WorkflowTableBrief tb = workflowTableMapper.find(tbId);	
 		//表单名称
-		sb.append("<label style='text-align:center;width:100%;font-size:30px;'>"+tb.getTableName()+"</label>");	
+		String tableName = (tb.getTableName()==null)?"":tb.getTableName();
+		sb.append("<label style='text-align:center;width:100%;font-size:30px;'>"+tableName+"</label>");	
 		//表单内容
 		List<WorkflowTableLayout> layouts = workflowTableMapper.findTableLayout(tbId);
 		if(layouts == null || layouts.size() == 0) return null;
@@ -46,10 +47,10 @@ public class PlattenTableServiceImpl implements PureTableService {
 								else sb.append(obj.getNewLabelName()+"\n");
 								break;
 							case "输入框":									
-								sb.append("<input type='text' name='"+obj.getFieldName()+"' >\n");
+								sb.append("<input type='text' name='"+tb.getName()+"_"+obj.getFieldName()+"' >\n");
 								break;
 							case "下拉框":
-								sb.append("<select name='"+obj.getFieldName()+"' >\n");
+								sb.append("<select name='"+tb.getName()+"_"+obj.getFieldName()+"' >\n");
 								for(String content : obj.getNewDataContent().split(",")){
 									sb.append("<option>"+content+"</option>\n");
 								}						
@@ -57,18 +58,18 @@ public class PlattenTableServiceImpl implements PureTableService {
 								break;
 							case "多选框":
 								for(String content : obj.getNewDataContent().split(",")){
-									sb.append("<input type='checkbox' name='"+obj.getFieldName()+"' >");
+									sb.append("<input type='checkbox' name='"+tb.getName()+"_"+obj.getFieldName()+"' >");
 									sb.append(content +"\n");
 								}
 								break;
 							case "单选框":
 								for(String content : obj.getNewDataContent().split(",")){
-									sb.append("<input type='radio' name='"+obj.getFieldName()+"' >");
+									sb.append("<input type='radio' name='"+tb.getName()+"_"+obj.getFieldName()+"' >");
 									sb.append(content +"\n");
 								}
 								break;
 							case "文本框":
-								sb.append("<textarea name='"+obj.getFieldName()+"'/>\n");
+								sb.append("<textarea name='"+tb.getName()+"_"+obj.getFieldName()+"'/>\n");
 								break;
 							case "子表":									
 								sb.append(drawSubTable(obj.getStbId(),3).toString());								
@@ -243,6 +244,7 @@ public class PlattenTableServiceImpl implements PureTableService {
 	private StringBuffer drawSubTable(Long stbId, int rows){
 		if(stbId == null) return null;
 		String scope = "body";
+		WorkflowTableBrief tb = workflowTableMapper.find(stbId);
 		WorkflowTableLayout layout = workflowTableMapper.findTableLayoutWithScope(stbId, scope);
 		if(layout == null) return null;
 		List<WorkflowTableElement> tes = workflowTableMapper.findTableAllElements(stbId,scope);
@@ -269,10 +271,10 @@ public class PlattenTableServiceImpl implements PureTableService {
 			sb.append("<td colspan="+obj.getCols()+" rowspan="+obj.getRowes()+" style='text-align:left;padding-left:5px;font-size:15px'>\n");
 			switch(obj.getNewFieldType()) {			
 			case "输入框":
-				sb.append("<input type='text' name='"+obj.getFieldName()+"'>\n");
+				sb.append("<input type='text' name='"+tb.getName()+"_"+obj.getFieldName()+"'>\n");
 				break;
 			case "下拉框":
-				sb.append("<select name='"+obj.getFieldName()+"' >\n");
+				sb.append("<select name='"+tb.getName()+"_"+obj.getFieldName()+"' >\n");
 				for(String content : obj.getNewDataContent().split(",")){
 					sb.append("<option>"+content+"</option>\n");
 				}						
@@ -280,18 +282,18 @@ public class PlattenTableServiceImpl implements PureTableService {
 				break;
 			case "多选框":
 				for(String content : obj.getNewDataContent().split(",")){
-					sb.append("<input type='checkbox' name='"+obj.getFieldName()+"' >");
+					sb.append("<input type='checkbox' name='"+tb.getName()+"_"+obj.getFieldName()+"' >");
 					sb.append(content +"\n");
 				}
 				break;
 			case "单选框":
 				for(String content : obj.getNewDataContent().split(",")){
-					sb.append("<input type='radio' name='"+obj.getFieldName()+"' >");
+					sb.append("<input type='radio' name='"+tb.getName()+"_"+obj.getFieldName()+"' >");
 					sb.append(content +"\n");
 				}
 				break;
 			case "文本框":
-				sb.append("<textarea name='"+obj.getFieldName()+"'/>\n");
+				sb.append("<textarea name='"+tb.getName()+"_"+obj.getFieldName()+"'/>\n");
 				break;						
 			default:
 				break;
@@ -313,6 +315,7 @@ public class PlattenTableServiceImpl implements PureTableService {
 	private StringBuffer drawPlugIn(Long stbId){
 		if(stbId == null) return null;
 		String scope = "body";
+		WorkflowTableBrief tb = workflowTableMapper.find(stbId);
 		WorkflowTableLayout layout = workflowTableMapper.findTableLayoutWithScope(stbId, scope);
 		if(layout == null) return null;
 		List<WorkflowTableElement> tes = workflowTableMapper.findTableAllElements(stbId,scope);
@@ -324,10 +327,10 @@ public class PlattenTableServiceImpl implements PureTableService {
 			sb.append("<td colspan="+obj.getCols()+" rowspan="+obj.getRowes()+" style='text-align:left;padding-left:5px;font-size:15px'>\n");
 			switch(obj.getNewFieldType()) {			
 			case "输入框":
-				sb.append("<input type='text' name='"+obj.getFieldName()+"'>\n");
+				sb.append("<input type='text' name='"+tb.getName()+"_"+obj.getFieldName()+"'>\n");
 				break;
 			case "下拉框":
-				sb.append("<select name='"+obj.getFieldName()+"' >\n");
+				sb.append("<select name='"+tb.getName()+"_"+obj.getFieldName()+"' >\n");
 				for(String content : obj.getNewDataContent().split(",")){
 					sb.append("<option>"+content+"</option>\n");
 				}						
@@ -335,18 +338,18 @@ public class PlattenTableServiceImpl implements PureTableService {
 				break;
 			case "多选框":
 				for(String content : obj.getNewDataContent().split(",")){
-					sb.append("<input type='checkbox' name='"+obj.getFieldName()+"' >");
+					sb.append("<input type='checkbox' name='"+tb.getName()+"_"+obj.getFieldName()+"' >");
 					sb.append(content +"\n");
 				}
 				break;
 			case "单选框":
 				for(String content : obj.getNewDataContent().split(",")){
-					sb.append("<input type='radio' name='"+obj.getFieldName()+"' >");
+					sb.append("<input type='radio' name='"+tb.getTableName()+"_"+obj.getFieldName()+"' >");
 					sb.append(content +"\n");
 				}
 				break;
 			case "文本框":
-				sb.append("<textarea name='"+obj.getFieldName()+"'/>\n");
+				sb.append("<textarea name='"+tb.getName()+"_"+obj.getFieldName()+"'/>\n");
 				break;						
 			default:
 				break;
