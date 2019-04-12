@@ -1,4 +1,4 @@
-package cn.ideal.wf.model;
+package cn.ideal.wfpf.model;
 
 /**
  * 工作流pojo
@@ -10,7 +10,7 @@ import java.util.Date;
 import java.util.List;
 
 
-public class Workflow implements Serializable {
+public class WFPFWorkflow implements Serializable {
 	private static final long serialVersionUID = -2546295384449824310L;
 	private Long wfId;
 	private String wfName;
@@ -18,7 +18,7 @@ public class Workflow implements Serializable {
 	private String status;
 	private Date createdDate;	
 	
-	private List<WorkflowTableBrief> wftableBrief;
+	private List<TableBrief> tbLst;
 	
 	public Long getWfId() {
 		return wfId;
@@ -50,13 +50,12 @@ public class Workflow implements Serializable {
 	public void setCreatedDate(Date createdDate) {
 		this.createdDate = createdDate;
 	}
-	public List<WorkflowTableBrief> getWftableBrief() {
-		return wftableBrief;
+	public List<TableBrief> getTbLst() {
+		return tbLst;
 	}
-	public void setWftableBrief(List<WorkflowTableBrief> wftableBrief) {
-		this.wftableBrief = wftableBrief;
+	public void setTbLst(List<TableBrief> tbLst) {
+		this.tbLst = tbLst;
 	}
-	
 	
 	
 }

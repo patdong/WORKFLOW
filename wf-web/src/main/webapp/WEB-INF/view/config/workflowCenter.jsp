@@ -168,13 +168,19 @@ function remove(){
           		<tr>
           			<td><a href="/wf/workflowdefination/${workflow.wfId}">#${workflow.wfId }</a></td>
           			<td><span class="small-btn" style="background-color:#42a288;" onclick="showPos(event,${workflow.wfId },'workflow-name')" >&nbsp;✒&nbsp;</span><span id="${workflow.wfId }">${workflow.wfName }</span></td>
-          			<td><span class="small-btn" style="background-color:#16e81d;" onclick="showPos(event,${workflow.wfId },'workflow-binding')">&nbsp;✓&nbsp;</span>
-          				<span id="tb-${workflow.wfId }">
-	          				<c:if test="${!empty workflow.tbId }">
-	          				${workflow.wftableBrief.tableName }
-	          				<span class="small-btn" style="background-color:#ce6634;margin-left:3px;" onclick="removeBinding(${workflow.wfId })">&nbsp;✘&nbsp;</span>
-	          				</c:if>
-          				</span>
+          			<td>          			
+          				<c:forEach items="${workflow.tbLst}" varStatus="idx" step="1" var="tb" >          					
+          					<c:set var="tn" value="${tb.tableName} ${tn }"/>
+          					<c:set var="count" value="${idx.index}"/>
+          				</c:forEach>          				
+          				<c:if test="${count > 0 }">
+          				<span style="color:red;font-weight:bold;cursor:pointer" title="${tn}">警告：被多个表单使用!</span>
+          				</c:if>
+          				<c:if test="${count == 0 }">
+          					${tn}
+          				</c:if>
+          				<c:set var="count" value="" />
+          				<c:set var="tn" value="" />
           			</td>
           			<td>${workflow.status }</td>
           			<td>

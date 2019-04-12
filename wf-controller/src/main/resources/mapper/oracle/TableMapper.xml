@@ -3,7 +3,8 @@
 <mapper namespace="cn.ideal.wfpf.dao.TableMapper">
 	<resultMap id="tablebrief" type="cn.ideal.wfpf.model.TableBrief" >
 		<id column="tbId" property="tbId" jdbcType="NUMERIC" />
-		<association property="wf" column="tbId" select="cn.ideal.wfpf.dao.WorkflowMapper.findAllWorkflowsByTbId" />
+		<id column="wfId" property="wfId" jdbcType="NUMERIC" />
+		<association property="wf" column="wfId" select="cn.ideal.wfpf.dao.WorkflowMapper.find" />
 		<association property="productCount" column="tbId" select="findProductCount" />
 		<association property="layout" column="tbId" select="findTableLayout" />
 	</resultMap>
@@ -61,12 +62,13 @@
 	
 	<insert id="saveTableLayout"  parameterType="cn.ideal.wfpf.model.TableLayout">
 		insert into table_layout(
-			tbId,scope,cols
+			tbId,scope,cols,stbId
 		)
 		values(
 			#{tbId,jdbcType=DECIMAL},
 			#{scope,jdbcType=VARCHAR},
-			#{cols,jdbcType=DECIMAL}
+			#{cols,jdbcType=DECIMAL},
+			#{stbId,jdbcType=DECIMAL}
 		)
 	</insert>
 	
@@ -83,6 +85,9 @@
 			</if>			
 			<if test="status != null">
 				status=#{status,jdbcType=VARCHAR}
+			</if>
+			<if test="wfId != null">
+				wfId=#{wfId}
 			</if>				
 		<where>		
 			tbId=#{tbId,jdbcType=DECIMAL}			
@@ -201,10 +206,17 @@
 		</where>				
 	</update>
 	
-	<delete id="deleteTableElement" parameterType="java.util.Map">
+	<delete id="deleteTableElement" parameterType="java.lang.Long">
 		delete from table_element 
 		<where>		
 		    id=#{id,jdbcType=DECIMAL}				
+		</where>				
+	</delete>
+	
+	<delete id="deleteTableElementByTbId" parameterType="java.lang.Long">
+		delete from table_element 
+		<where>		
+		      tbId=#{tbId,jdbcType=DECIMAL}			
 		</where>				
 	</delete>
 	
@@ -223,7 +235,7 @@
 		select a.*,b.labelName,b.fieldName from table_element a
 		 left join element_library b on a.emId = b.emId 
 		 where a.tbId = #{tbId}		 
-		   and a.newFieldType not in ( '标签','子表')
+		   and a.newFieldType not in ( '标签','子表','列表')
 		 order by a.seq		 
 	</select>
 	
@@ -232,12 +244,12 @@
 		select a.*,b.labelName,b.fieldName from table_element a
 		 left join element_library b on a.emId = b.emId 
 		 where a.tbId = #{tbId}		 
-		   and a.newFieldType not in ( '标签','子表','组件')
+		   and a.newFieldType not in ( '标签','子表','组件','列表')
 		 union all
 		 select a.*,b.labelName,b.fieldName from table_element a
 		 left join element_library b on a.emId = b.emId 
 		 where a.tbId in (select stbId from table_element where tbId = #{tbId} and newFieldType ='组件')
-			and a.newFieldType not in ( '标签','子表','组件')
+			and a.newFieldType not in ( '标签','子表','组件','列表')
 	</select>
 	
 	<select id="findTableElement" resultMap="tableelement" parameterType="java.util.Map">
@@ -280,7 +292,7 @@
 	<select id="findTableListLevelElements" resultMap="tableelement" parameterType="java.lang.Long">
 		select b.emId,b.labelName,b.fieldName from element_library b
 		 where b.grade='列表级' 
-		   and b.emId not in (select emId from table_element where tbId = #{tbId})
+		   and b.emId not in (select emId from table_element where tbId = #{tbId} and emid is not null)
 	</select>
 	
 	<!-- 获取流程节点设置的字段 -->
@@ -335,12 +347,21 @@
 		 where a.tbId = #{tbId}		  
 	</select>
 		
-	<delete id="deleteLayout" parameterType="java.lang.Long">
+	<delete id="deleteLayout" parameterType="java.util.Map">
 		delete from table_layout
 		<where>		
-		      tbId=#{tbId}		  	
+		      tbId=#{tbId}	
+		  <if test="scope != null">
+		  and scope=#{scope}
+		  </if>		  	
 		</where>				
 	</delete>
+	
+	<select id="findLayout" resultType="cn.ideal.wfpf.model.TableLayout" parameterType="java.util.Map">
+		select * from table_layout 
+		 where tbId = #{tbId} 
+		   and scope = #{scope}
+	</select>
 	
 	<select id="findAllSubTables" resultMap="tablebrief" parameterType="java.lang.Long">
 		select * from table_brief 
@@ -366,4 +387,34 @@
 	<select id="findTableBriefWithTemplate" resultMap="tablebrief" parameterType="java.lang.String">
 		select * from table_brief where template=#{template} and status = '有效'
 	</select>
+	
+	<update id="removeBinding" parameterType="java.lang.Long">
+		update table_brief set 			
+			wfId = null 
+			where tbId = #{tbId}
+	</update>
+	
+	<select id="findByWfId" resultMap="tablebrief" parameterType="java.lang.Long">
+		select * from table_brief where wfId = #{wfId}
+	</select>
+	
+	<update id="updateTableBriefToNull" parameterType="cn.ideal.wfpf.model.TableBrief">
+		update table_brief set 
+			   tbId = #{tbId}
+			<if test="name == null">
+				,name=null
+			</if>
+			<if test="tableName == null">
+				,tableName=null
+			</if>			
+			<if test="cols == null">
+				,cols=null
+			</if>
+			<if test="wfId == null">
+				,wfId=null
+			</if>				
+		<where>		
+			tbId=#{tbId}			
+		</where>				
+	</update>
 </mapper>

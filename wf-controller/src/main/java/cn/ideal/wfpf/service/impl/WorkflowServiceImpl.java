@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import cn.ideal.wf.model.Workflow;
+import cn.ideal.wfpf.model.WFPFWorkflow;
 import cn.ideal.wfpf.dao.WorkflowMapper;
 import cn.ideal.wfpf.model.Page;
 import cn.ideal.wfpf.service.WorkflowService;
@@ -20,7 +20,7 @@ public class WorkflowServiceImpl implements WorkflowService{
 	private WorkflowMapper workflowMapper;
 	
 	@Override
-	public Workflow save(Workflow obj) {
+	public WFPFWorkflow save(WFPFWorkflow obj) {
 		obj.setStatus("有效");
 		obj.setCreatedDate(new Date());
 		int idx = workflowMapper.save(obj);
@@ -29,46 +29,46 @@ public class WorkflowServiceImpl implements WorkflowService{
 	}
 
 	@Override
-	public Workflow update(Workflow obj) {
+	public WFPFWorkflow update(WFPFWorkflow obj) {
 		int idx = workflowMapper.update(obj);
 		if(idx > 0) return obj;
 		return null;
 	}	
 
 	@Override
-	public Workflow find(Long key) {
+	public WFPFWorkflow find(Long key) {
 		return workflowMapper.find(key);
 	}	
 
 	@Override
-	public List<Workflow> findAll() {
+	public List<WFPFWorkflow> findAll() {
 		return workflowMapper.findAll();
 	}
 
 	@Override
-	public List<Workflow> findAll(Page<Workflow> page) {
+	public List<WFPFWorkflow> findAll(Page<WFPFWorkflow> page) {
 		return workflowMapper.findAPage(page.getCurFirstRecord(),page.getCurLastRecord(),Page.pageSize);
 	}
 
 	@Override
-	public List<Workflow> findAllBlindTable() {
+	public List<WFPFWorkflow> findAllBlindTable() {
 		return workflowMapper.findAllBlindTable();
 	}
 
 	@Override
 	@Transactional(propagation=Propagation.REQUIRED,rollbackFor = Exception.class)
-	public Workflow removeBinding(Workflow obj) {
-		int idx = workflowMapper.removeBinding(obj);
-		if(idx > 0) {
-			workflowMapper.deleteTableElementOnNode(obj.getWfId());
-			return this.find(obj.getWfId());
+	public boolean removeBinding(Long wfId) {
+		int idx = workflowMapper.removeBinding(wfId);
+		if(idx == 1) {
+			workflowMapper.deleteTableElementOnNode(wfId);
+			return true;
 		}
-		return null;
+		return false;
 	}
 
 	@Override
 	public boolean setStatus(Long wfId, boolean status) {
-		Workflow wf = new Workflow();
+		WFPFWorkflow wf = new WFPFWorkflow();
 		wf.setWfId(wfId);
 		if(status) wf.setStatus("有效");
 		else wf.setStatus("无效");

@@ -11,21 +11,16 @@ import cn.ideal.wf.model.Workflow;
 import cn.ideal.wf.model.WorkflowAction;
 import cn.ideal.wf.model.WorkflowBrief;
 import cn.ideal.wf.model.WorkflowNode;
-import cn.ideal.wf.model.WorkflowTableBrief;
-import cn.ideal.wf.model.WorkflowTableElement;
 
 public class PageModel extends Model{
 	private Long bizId;                            //当前业务编号，初始为空
 	private Workflow wf;                           //流程概述
 	private String nodeName;                       //当前办理节点
 	private List<WorkflowNode> nextNodes;          //当前办理节点的续办节点
-	private int nextNodeSize;                      //当前办理节点的续办节点个数
-	private WorkflowTableBrief tableBrief;         //表单概述
+	private int nextNodeSize;                      //当前办理节点的续办节点个数	
 	private WorkflowBrief wfBrief;                 //流程
-	private String table;                    //表单
-	private List<WorkflowTableElement> headLst;    //表单头
-	private List<WorkflowTableElement> bodyLst;    //表单体
-	private List<WorkflowTableElement> footLst;    //表单尾
+	private String table;                          //表单绘制
+	
 	private List<WorkflowAction> buttons;          //节点按钮
 	private Map<String, Object> bizTable;          //表单数据
 	private String flowChat;                       //流程图
@@ -51,38 +46,6 @@ public class PageModel extends Model{
 
 	public void setNodeName(String nodeName) {
 		this.nodeName = nodeName;
-	}
-
-	public WorkflowTableBrief getTableBrief() {
-		return tableBrief;
-	}
-
-	public void setTableBrief(WorkflowTableBrief tableBrief) {
-		this.tableBrief = tableBrief;
-	}
-
-	public List<WorkflowTableElement> getHeadLst() {
-		return headLst;
-	}
-
-	public void setHeadLst(List<WorkflowTableElement> headLst) {
-		this.headLst = headLst;
-	}
-
-	public List<WorkflowTableElement> getBodyLst() {
-		return bodyLst;
-	}
-
-	public void setBodyLst(List<WorkflowTableElement> bodyLst) {
-		this.bodyLst = bodyLst;
-	}
-
-	public List<WorkflowTableElement> getFootLst() {
-		return footLst;
-	}
-
-	public void setFootLst(List<WorkflowTableElement> footLst) {
-		this.footLst = footLst;
 	}
 
 	public Map<String, Object> getBizTable() {

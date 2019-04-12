@@ -20,57 +20,57 @@
 			bizId,flowId,stepId,nodeName,dispatchUserId,unitId,createdDate,modifiedDate,finishedDate,wfId,status
 		)
 		values(
-			#{bizId},
-			#{flowId},
-			#{stepId},
-			#{nodeName},
-			#{dispatchUserId},
-			#{unitId},
-			#{createdDate},
-			#{modifiedDate},
-			#{finishedDate},
-			#{wfId},
-			#{status}
+			#{bizId,jdbcType=DECIMAL},
+			#{flowId,jdbcType=DECIMAL},
+			#{stepId,jdbcType=DECIMAL},
+			#{nodeName,jdbcType=VARCHAR},
+			#{dispatchUserId,jdbcType=DECIMAL},
+			#{unitId,jdbcType=DECIMAL},
+			#{createdDate,jdbcType=TIMESTAMP},
+			#{modifiedDate,jdbcType=TIMESTAMP},
+			#{finishedDate,jdbcType=TIMESTAMP},
+			#{wfId,jdbcType=DECIMAL},
+			#{status,jdbcType=VARCHAR}
 		)
 	</insert>
 	
 	<update id="updateFlowBrief" parameterType="cn.ideal.wf.model.WorkflowBrief">
 		update workflow_brief set 
-			modifiedDate=#{modifiedDate},
-			flowId=#{flowId},
-			stepId=#{stepId},
-			nodeName=#{nodeName},
-			dispatchUserId=#{dispatchUserId},
-			unitId=#{unitId},
-			actionName=#{actionName},
-			finishedDate=#{finishedDate}
+			modifiedDate=#{modifiedDate,jdbcType=TIMESTAMP},
+			flowId=#{flowId,jdbcType=DECIMAL},
+			stepId=#{stepId,jdbcType=DECIMAL},
+			nodeName=#{nodeName,jdbcType=VARCHAR},
+			dispatchUserId=#{dispatchUserId,jdbcType=DECIMAL},
+			unitId=#{unitId,jdbcType=DECIMAL},
+			actionName=#{actionName,jdbcType=VARCHAR},
+			finishedDate=#{finishedDate,jdbcType=TIMESTAMP}
 		<where>		
-			bizId=#{bizId}	
-		and wfId = #{wfId}
+			bizId=#{bizId,jdbcType=DECIMAL}	
+		and wfId = #{wfId,jdbcType=DECIMAL}
 		</where>				
 	</update>
 	
 	<update id="endFlowBrief" parameterType="cn.ideal.wf.model.WorkflowBrief">
 		update workflow_brief set 			
-			finishedDate=#{finishedDate}
+			finishedDate=#{finishedDate,jdbcType=TIMESTAMP}
 			<if test="actionName != null">
-			,actionName=#{actionName}
+			,actionName=#{actionName,jdbcType=VARCHAR}
 			</if>
 			<if test="status != null">
-			,status=#{status}
+			,status=#{status,jdbcType=VARCHAR}
 			</if>			
 		<where>		
-			bizId=#{bizId}
-		and wfId = #{wfId}			
+			bizId=#{bizId,jdbcType=DECIMAL}
+		and wfId = #{wfId,jdbcType=DECIMAL}			
 		</where>				
 	</update>
 		
 	<update id="updateStatusFlowBrief" parameterType="cn.ideal.wf.model.WorkflowBrief">
 		update workflow_brief set 			
-			status=#{status}
+			status=#{status,jdbcType=VARCHAR}
 		<where>		
-			bizId=#{bizId}
-		and wfId = #{wfId}			
+			bizId=#{bizId,jdbcType=DECIMAL}
+		and wfId = #{wfId,jdbcType=DECIMAL}			
 		</where>				
 	</update>
 </mapper>

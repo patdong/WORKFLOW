@@ -67,4 +67,5 @@ public class HomeController {
 		securityService.autoLogin(userForm.getUsername(), userForm.getPassword());
         return new ModelAndView("redirect:/center");
     }
+		
 }

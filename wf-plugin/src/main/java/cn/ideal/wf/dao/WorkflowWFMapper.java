@@ -11,6 +11,6 @@ public interface WorkflowWFMapper {
 	
 	Workflow find(Long key);
 		
-	List<Workflow> findAllBlindTable();
+	List<Workflow> findHavingBindTable();
 
 }

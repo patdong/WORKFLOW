@@ -90,7 +90,7 @@ function removeConfirm(tbId){
 	gtbId = tbId;
 	$('#confirm-dialog').dialog('open');
 }
-
+//删除
 function remove(){
 	$.ajax({
 		  type: 'GET',
@@ -103,6 +103,61 @@ function remove(){
 			  console.warn(XMLHttpRequest.responseText);			  
 		  }
 	});
+}
+
+//表单拷贝
+function copy(tbId){
+	$.ajax({
+		  type: 'GET',
+		  url: "/tb/copy/"+tbId,			  
+		  dataType: 'json',
+		  success: function(data){
+			  location.href="/tb/tablecenter/"+${page.curPage};		  
+		  },
+		  error: function(XMLHttpRequest, textStatus, errorThrown){
+			  console.warn(XMLHttpRequest.responseText);			  
+		  }
+	});
+}
+
+//设置流程绑定
+function setBinging(){
+      var wfId = $('input[name=wfId]:checked').val();
+      var tbId = $("#tbId").val();      
+     	$.ajax({
+   		  type: 'GET',
+   		  url: "/tb/setbinding/"+tbId,
+   		  data: {wfId:wfId},			  
+   		  dataType: 'json',
+   		  success: function(data){
+   			  if(data){
+   				$('#workflow-binding').hide(); 
+   				$("#tb-"+tbId).text("已绑定");
+   				location.href="/tb/tablecenter/"+${page.curPage};		  
+   			  }			  
+   		  },
+   		  error: function(XMLHttpRequest, textStatus, errorThrown){
+   			  console.warn(XMLHttpRequest.responseText);			  
+   		  }
+   	});
+}
+
+//取消流程绑定
+function removeBinding(tbId){	        
+     	$.ajax({
+   		  type: 'GET',
+   		  url: "/tb/removebinding/"+tbId,			  
+   		  dataType: 'json',
+   		  success: function(data){
+   			  if(data){   				
+   				$("#tb-"+tbId).text("");
+   				location.href="/tb/tablecenter/"+${page.curPage};		  
+   			  }			  
+   		  },
+   		  error: function(XMLHttpRequest, textStatus, errorThrown){
+   			  console.warn(XMLHttpRequest.responseText);			  
+   		  }
+   	});
 }
 </script>
 <div class="container" >
@@ -134,15 +189,16 @@ function remove(){
           			<td><a href="/tb/tabledefination/${table.tbId}">#${table.tbId }</a></td>
           			<td><span class="small-btn" style="background-color:#42a288;" onclick="showPos(event,${table.tbId },'table-name')" >&nbsp;✒&nbsp;</span><span id="${table.tbId }">${table.tableName }</span></td>
           			<td>${table.template}</td>
-          			<td>          				
-          				<c:forEach items="${table.wf}" varStatus="idx" step="1" var="wf" >
-          					[${wf.wfName}] &nbsp;
-          					<c:set var="count" value="${idx.index}"/>
-          				</c:forEach>          				
-          				<c:if test="${count > 0 }">
-          				<span style="color:red;font-weight:bold;cursor:pointer" title="多个流程关联！">!</span>
-          				</c:if>
-          				<c:set var="count" value="" />
+          			<td>
+          				<c:if test="${table.template eq '表'}">
+          				<span class="small-btn" style="background-color:#16e81d;" onclick="showPos(event,${table.tbId },'workflow-binding')">&nbsp;✓&nbsp;</span>
+          				<span id="tb-${table.tbId }">          					
+	          				<c:if test="${!empty table.wfId }">
+	          					${table.wf.wfName}
+	          					<span class="small-btn" style="background-color:#ce6634;margin-left:3px;" onclick="removeBinding(${table.tbId })">&nbsp;✘&nbsp;</span>
+	          				</c:if>
+          				</span> 
+          				</c:if>         				
           			</td>
           			<td>${table.name}</td>
           			<td>          				
@@ -154,6 +210,7 @@ function remove(){
           			</td>
           			<td>${table.status }</td>
           			<td>
+          				<span class="small-btn" style="background-color:#ffc107;color:#28a745;font-weight:bold;cursor:pointer" title="拷贝" onclick="copy(${table.tbId })">&nbsp;✍&nbsp;</span>
           				<c:choose >	   
           					<c:when test="${empty table.tableName || table.productCount == 0 }">
 	          					<span class="small-btn" style="background-color:#343a40;color:#ffc107;font-weight:bold;cursor:pointer" title="删除" onclick="removeConfirm(${table.tbId })">&nbsp;↯&nbsp;</span>
@@ -164,7 +221,7 @@ function remove(){
 	          				<c:when test="${table.status eq '无效' }">
 	          					<span class="small-btn" style="background-color:#0dbf36;color:#343a40;font-weight:bold;cursor:pointer" title="启用" onclick="startup(${table.tbId })">&nbsp;⇈&nbsp;</span>
 	          				</c:when>
-          				</c:choose>
+          				</c:choose>          				
           			</td>          			
           		</tr>
           	</c:forEach>            
@@ -205,3 +262,24 @@ function remove(){
 	</ul>
   </nav>    
 </div>
+
+<!-- 工作流表单绑定 -->
+<div id="workflow-binding" class="popup-width" style="display:none;width:20%">
+	<header>	      
+         <div class="form-inline mt-2 mt-md-0" style="padding: 6px 10px 0px;" >
+          	<label>流程绑定设置</label>
+         </div>
+         <div style="position: absolute;top: 1px;right: 15px;">
+         	<span class="badge badge-secondary badge-pill" style="background-color:#46a70a;cursor:pointer;" onclick="$('#workflow-binding').hide();">×</span>
+         </div>	      	     
+    </header>
+    <hr style="margin-top: .5rem; margin-bottom: .5rem;"></hr>
+    <div style="padding: 0px 13px 0px; height: 200px;overflow-y: auto;">		
+		<c:forEach items="${wfLst }" var="workflow">
+			<p style="margin-bottom: 0rem;">
+				<input type="radio" id="wfId" name="wfId" value="${workflow.wfId}" class="form-element" onclick="setBinging();">${workflow.wfName}
+			</p>
+		</c:forEach>
+		<hr></hr>        
+	</div>    
+</div> 

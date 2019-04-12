@@ -3,7 +3,6 @@ package cn.ideal.wf.page;
 import java.util.List;
 import java.util.Map;
 
-import cn.ideal.wf.model.Workflow;
 import cn.ideal.wf.model.WorkflowTableElement;
 
 /**
@@ -15,7 +14,6 @@ import cn.ideal.wf.model.WorkflowTableElement;
 public class ListModel extends Model{
 	private String scope;
 	private Page<Map<String,Object>> page;
-	private Workflow  wf;
 	private List<WorkflowTableElement> tableList;
 	
 	public String getScope() {
@@ -30,12 +28,7 @@ public class ListModel extends Model{
 	public void setPage(Page<Map<String,Object>> page) {
 		this.page = page;
 	}
-	public Workflow getWf() {
-		return wf;
-	}
-	public void setWf(Workflow wf) {
-		this.wf = wf;
-	}
+		
 	public List<WorkflowTableElement> getTableList() {
 		return tableList;
 	}

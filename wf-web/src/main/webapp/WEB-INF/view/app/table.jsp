@@ -1,16 +1,10 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"  pageEncoding="UTF-8"  trimDirectiveWhitespaces="true" %>
 <%@ include file="/WEB-INF/view/include.jsp"%>
-<script> 
-    $(function(){
-    	//根据不同的表单风格做处理
-    	//if("${model.bizId}" == "") $("#includedContent").load("/app/showcontent/${model.wf.wfId}/div");
-    	//else $("#includedContent").load("/app/showcontent/${model.wf.wfId }/${model.bizId}/div"); 
-    });
-    
+<script>     
     //表单保存提交
     function doStorage(){
-    	if("${model.bizId}" == "") $("#myForm").attr("action","/app/save/${model.wf.wfId}");
-    	else $("#myForm").attr("action","/app/save/${model.wf.wfId}/${model.bizId}");
+    	if("${model.bizId}" == "") $("#myForm").attr("action","/app/save/${model.wftb.tbId}");
+    	else $("#myForm").attr("action","/app/save/${model.wftb.tbId}/${model.bizId}");    	
     	$("#myForm").submit();
     }
     //表单重置
@@ -22,7 +16,7 @@
     function doAction(){
     	var nextNodeSize = "${model.nextNodeSize}";
     	if(nextNodeSize <= 1){
-	    	$("#myForm").attr("action","/app/doaction/${model.wf.wfId}/${model.bizId}");
+	    	$("#myForm").attr("action","/app/doaction/${model.wftb.tbId}/${model.bizId}");
 	    	$("#myForm").submit();
     	}else{
     		//弹出节点选择框
@@ -37,14 +31,14 @@
   	
   	//指定流程节点提交
     function doFixedAction(nodeId){
-    	$("#myForm").attr("action","/app/doaction/${model.wf.wfId}/${model.bizId}/"+nodeId);
+    	$("#myForm").attr("action","/app/doaction/${model.wftb.tbId}/${model.bizId}/"+nodeId);
     	$("#myForm").submit();
     	
     }
   
   	//流程按钮操作
   	function doButton(buttonName){
-  		$("#myForm").attr("action","/app/dobutton/${model.wf.wfId}/${model.bizId}/"+buttonName);
+  		$("#myForm").attr("action","/app/dobutton/${model.wftb.tbId}/${model.bizId}/"+buttonName);
     	$("#myForm").submit();
   	}
 </script> 	
@@ -58,7 +52,7 @@
   		<button class="btn btn-sm btn-outline-secondary" type="button" onclick="doButton('${button.actionCodeName}');">${button.actionName}</button> 
   	</c:forEach>
   	&nbsp;
-  	<c:if test="${!empty model.wfBrief || empty model.wfBrief.finishedDate }">
+  	<c:if test="${!empty model.nodeName }">
 	    <div class="btn-group mr-2">
 	      <button class="btn btn-sm btn-outline-secondary" type="button" onclick="doStorage();">保存</button> 
 	      <button class="btn btn-sm btn-outline-secondary" type="button" onclick="doReset()">重置</button>     
@@ -76,7 +70,7 @@
 <form id="myForm" method="post" action="">
 <input type="hidden" name="wfId" value="${model.wf.wfId }" />
 <input type="hidden" name="bizId" value="${model.bizId}" />
-<div id="includedContent"></div>
+<div id="includedContent" style="padding-bottom:20px;">${model.table }</div>
 </form>
 <!-- 流程跟踪 -->
 <div id="workflow" class="draw" style="top: 23%;z-index: 999;background:white;display:none;">

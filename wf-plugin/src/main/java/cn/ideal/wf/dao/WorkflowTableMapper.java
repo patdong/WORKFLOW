@@ -17,7 +17,9 @@ public interface WorkflowTableMapper {
 	
 	List<WorkflowTableBrief> findAll();
 	
-	List<WorkflowTableElement> findAllTableElements(@Param("tbId") Long tbId,@Param("scope") String scope);
+	List<WorkflowTableElement> findTableFields(@Param("tbId") Long tbId);
+	
+	List<String> findTableFieldNames(@Param("tbId") Long tbId);
 	
 	List<WorkflowTableElement> findElementsOnList(Long tbId);
 	
@@ -53,5 +55,9 @@ public interface WorkflowTableMapper {
 	
 	WorkflowTableLayout findTableLayoutWithScope(@Param("tbId") Long tbId,@Param("scope") String scope);
 	
-	List<WorkflowTableLayout> findTableLayout(Long tbId);
+	List<WorkflowTableLayout> findTableLayout(Long tbId);	
+	
+	List<WorkflowTableBrief> findAllSubTables(Long tbId); 
+	
+	List<WorkflowTableBrief> findAllBlindTable();
 }

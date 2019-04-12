@@ -20,9 +20,9 @@ public interface WorkflowTableService {
 	
 	List<WorkflowTableBrief> findAll();	
 	
-	List<WorkflowTableElement> findAllTableElementsWithScope(Long tbId,String scope);
+	List<WorkflowTableElement> findTableFields(Long tbId);
 	
-	List<WorkflowTableElement> findAllTableElements(Long tbId);
+	List<String> findTableFieldNames(Long tbId);
 	
 	List<WorkflowTableElement> findElementsOnList(Long tbId);
 	
@@ -43,4 +43,13 @@ public interface WorkflowTableService {
 	 * @return
 	 */
 	boolean endTableSummary(WorkflowTableSummary wfts);
+	
+	/**
+	 * 根据指定的主表获得旗下的所有子表
+	 * @param tbId
+	 * @return
+	 */
+	List<WorkflowTableBrief> findAllSubTables(Long tbId);
+	
+	List<WorkflowTableBrief> findAllBlindTable();
 }

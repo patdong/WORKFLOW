@@ -2,19 +2,19 @@ package cn.ideal.wfpf.service;
 
 import java.util.List;
 
-import cn.ideal.wf.model.Workflow;
+import cn.ideal.wfpf.model.WFPFWorkflow;
 
-public interface WorkflowService extends PageService<Workflow> {
+public interface WorkflowService extends PageService<WFPFWorkflow> {
 
-	Workflow save(Workflow obj);
+	WFPFWorkflow save(WFPFWorkflow obj);
 	
-	Workflow update(Workflow obj);	
+	WFPFWorkflow update(WFPFWorkflow obj);	
 	
-	Workflow find(Long key);
+	WFPFWorkflow find(Long key);
 	
-	List<Workflow> findAllBlindTable();
+	List<WFPFWorkflow> findAllBlindTable();
 	
-	Workflow removeBinding(Workflow obj);
+	boolean removeBinding(Long wfId);
 	
 	boolean setStatus(Long wfId, boolean status);
 	

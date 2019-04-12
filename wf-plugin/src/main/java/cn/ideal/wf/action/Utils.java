@@ -58,6 +58,7 @@ public abstract class Utils {
 	public WorkflowNode findNextNode(Long wfId, Long bizId) {
 		WorkflowFlow wf = workflowFlowService.findDoingFlow(bizId,wfId);
 		List<WorkflowNode> wfns = workflowNodeService.findNextNodes(wf.getNodeName(), wf.getWfId());
+		if(wfns == null || wfns.size() == 0) return null;
 		if(wfns.size() > 0) return wfns.get(0);
 		return null;
 	}

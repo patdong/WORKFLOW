@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
 import cn.ideal.wf.flowchat.draw.FlowChatService;
-import cn.ideal.wf.model.Workflow;
+import cn.ideal.wfpf.model.WFPFWorkflow;
 import cn.ideal.wf.model.WorkflowNode;
 import cn.ideal.wf.service.WorkflowNodeService;
 import cn.ideal.wfpf.model.CertificationOrg;
@@ -72,8 +72,8 @@ public class WfConfigurationController {
 	@GetMapping("/workflowcenter/{pageNumber}")
     public ModelAndView enterWorkflowCenterWithPage( @PathVariable Long pageNumber,HttpServletRequest request) {		
         ModelAndView mav = new ModelAndView("config/workflowCenter");
-        List<Workflow> wfLst = workflowService.findAll();
-        Page<Workflow> page = new Page<Workflow>(new Long(wfLst.size()),pageNumber);
+        List<WFPFWorkflow> wfLst = workflowService.findAll();
+        Page<WFPFWorkflow> page = new Page<WFPFWorkflow>(new Long(wfLst.size()),pageNumber);
         page.setPageList(workflowService.findAll(page));
         page.setUrl("/wf/workflowcenter");
         mav.addObject("page",page);
@@ -86,7 +86,7 @@ public class WfConfigurationController {
 	 * */
 	@GetMapping("/newworkflow")
     public ModelAndView newWorkflow(HttpServletRequest request) {		
-        Workflow wf = workflowService.save(new Workflow());
+        WFPFWorkflow wf = workflowService.save(new WFPFWorkflow());
         
         return  new ModelAndView("redirect:/wf/workflowdefination/"+wf.getWfId());
     }
@@ -96,7 +96,7 @@ public class WfConfigurationController {
 	 * */
 	@GetMapping("/setWfName/{wfId}")
     public @ResponseBody boolean setWfName(ModelMap map, @PathVariable Long wfId, HttpServletRequest request) {	
-		Workflow wf = new Workflow();
+		WFPFWorkflow wf = new WFPFWorkflow();
 		wf.setWfId(wfId);
 		wf.setWfName(request.getParameter("wfName"));
         wf = workflowService.update(wf);
@@ -169,7 +169,7 @@ public class WfConfigurationController {
 	 * */
 	@GetMapping("/setbinding/{wfId}")
     public @ResponseBody boolean setBinding(@PathVariable Long wfId, @RequestParam("tbId") Long tbId, HttpServletRequest request) {	
-		Workflow wf = new Workflow();
+		WFPFWorkflow wf = new WFPFWorkflow();
 		wf.setWfId(wfId);
 		wf.setTbId(tbId);
         wf = workflowService.update(wf);
@@ -182,13 +182,8 @@ public class WfConfigurationController {
 	 * 取消表单绑定
 	 * */
 	@GetMapping("/removebinding/{wfId}")
-    public @ResponseBody boolean removeBinding(@PathVariable Long wfId, HttpServletRequest request) {	
-		Workflow wf = new Workflow();
-		wf.setWfId(wfId);
-        wf = workflowService.removeBinding(wf);
-        
-        if(wf != null) return true;
-        return false;
+    public @ResponseBody boolean removeBinding(@PathVariable Long wfId, HttpServletRequest request) {			
+        return workflowService.removeBinding(wfId);        
     }
 	
 	/**

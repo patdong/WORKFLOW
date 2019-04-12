@@ -38,6 +38,8 @@ public interface TableMapper {
 	
 	void deleteTableElement(@Param("id") Long id);
 	
+	void deleteTableElementByTbId(@Param("tbId") Long tbId);
+	
 	int updateTableElementList(@Param("tbId") Long tbId,@Param("emIds") Long[]  emIds);
 	
 	int resetTableElementList(Long tbId);
@@ -63,7 +65,7 @@ public interface TableMapper {
 	
 	Long findMaxSeq(Long tbId);
 	
-	void deleteLayout(Long tbId);
+	void deleteLayout(@Param("tbId") Long tbId,@Param("scope") String scope);
 	
 	List<TableBrief> findAllSubTables(Long tbId);
 	
@@ -75,4 +77,9 @@ public interface TableMapper {
 	
 	List<TableElement> findTableFieldsToDBCheck(Long tbId);
 	
+	TableLayout findLayout(@Param("tbId") Long tbId,@Param("scope") String scope);
+	
+	int removeBinding(Long tbId);
+	
+	int updateTableBriefToNull(TableBrief tb);
 }

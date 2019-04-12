@@ -1,17 +1,21 @@
 package cn.ideal.wf.data.analyzer;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import cn.ideal.wf.cache.WorkflowCache;
-import cn.ideal.wf.model.Workflow;
-import cn.ideal.wf.model.WorkflowTableElement;
+import cn.ideal.wf.cache.TableBriefCache;
+import cn.ideal.wf.model.WorkflowTableBrief;
 import cn.ideal.wf.service.WorkflowTableService;
 import cn.ideal.wf.service.WorkflowWFService;
+
+import com.mysql.jdbc.StringUtils;
 
 @Service
 public class StorageAnalyzer implements Analyzer{
@@ -20,25 +24,57 @@ public class StorageAnalyzer implements Analyzer{
 	@Autowired
 	private WorkflowTableService tableService;
 	@Override
-	public Storage dataAnalyze(HttpServletRequest request, Long wfId) throws Exception{
-		Workflow wf = WorkflowCache.getValue(wfId);
-		if(wf == null) {
-			wf = wfService.find(wfId);
-			WorkflowCache.put(wf);
-		}
-		if(wf == null) throw new Exception("没有配置流程");
-		if(wf.getWftableBrief() == null) throw new Exception("没有配置表单");
+	public Storage dataAnalyze(HttpServletRequest request, Long tbId) throws Exception{
+		WorkflowTableBrief wftb = TableBriefCache.getValue(tbId);		
 		Storage storage = new Storage();
-		storage.setTableName(wf.getWftableBrief().getName());
-		storage.setWfId(wfId);
-		//获得关联表单的字段并赋值
-		List<WorkflowTableElement> wftems = tableService.findAllTableElements(wf.getTbId());				
-		for(WorkflowTableElement item : wftems){
-			item.setDataValue(request.getParameter(item.getFieldName()));
-		}
-		storage.setFields(wftems);
+		storage.setTableName(wftb.getName());
+		storage.setWfId(wftb.getWfId());
+		storage.setTbId(tbId);
+		//获得主表单的字段并赋值
+		List<String> fields = tableService.findTableFieldNames(tbId);
+		Map<String,String> keyVal = new HashMap<String,String>();
+		for(String field : fields){
+			if(request.getParameter(storage.getTableName()+"_"+field) == null) keyVal.put(field,"");
+			else keyVal.put(field,request.getParameter(storage.getTableName()+"_"+field));
+		}		
+		storage.setFields(keyVal);
 		
+		//获得子表单的字段并赋值
+		List<WorkflowTableBrief> wftbs = tableService.findAllSubTables(tbId);
+		List<Map<String,String>> sFields = new ArrayList<Map<String,String>>();
+		
+		for(WorkflowTableBrief tb : wftbs){			
+			String[] ids = request.getParameterValues(tb.getName()+"_ID");
+			for(int i=0;i<ids.length;i++){
+				fields = tableService.findTableFieldNames(tb.getTbId());
+				//增加关键字的字段-隐藏字段
+				fields.add("ID");
+				keyVal = new HashMap<String,String>();
+				for(String field : fields){
+					keyVal.put(field,request.getParameterValues(tb.getName()+"_"+field)[i]);
+				}
+				//过滤掉空记录
+				if(isEmptyRecord(keyVal)){
+					if(!StringUtils.isNullOrEmpty(keyVal.get("ID"))) storage.getsIds(tb.getName()).add(Long.parseLong(keyVal.get("ID")));
+				}else sFields.add(keyVal);
+			}
+			storage.setsFields(tb.getName(), sFields);
+		}
 		return storage;
 	}
 
+	/**
+	 * 判断记录是否是空记录
+	 * @param keyVal
+	 * @return
+	 */
+	boolean isEmptyRecord(Map<String,String> keyVal){
+		boolean valid = true;
+		for(String key : keyVal.keySet()){
+			if(!key.equals("ID")){
+				if(!StringUtils.isNullOrEmpty(keyVal.get(key))) return false;
+			}
+		}
+		return valid;
+	}
 }

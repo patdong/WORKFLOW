@@ -35,4 +35,12 @@ public interface SQLExecutor {
 	 * @throws Exception
 	 */
 	void dropTable(String tableName) throws Exception;
+	
+	/**
+	 * 重命名表名
+	 * @param tableName
+	 * @param oldTableName
+	 * @throws Exception
+	 */
+	void rename(String tableName,String oldTableName) throws Exception;
 }

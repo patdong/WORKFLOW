@@ -13,6 +13,6 @@ public interface WorkflowWFService{
 
 	Workflow find(Long key);
 	
-	List<Workflow> findAllBlindTable();	
+	List<Workflow> findHavingBindTable();	
 
 }

@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="cn.ideal.wfpf.dao.WorkflowMapper">
-	<resultMap id="workflow" type="cn.ideal.wf.model.Workflow" >
-		<id column="tbId" property="tbId" jdbcType="NUMERIC" />	
-		<association property="wftableBrief" column="tbId" select="cn.ideal.wf.dao.WorkflowTableMapper.find" />
-	</resultMap>			
+	<resultMap id="wfpfworkflow" type="cn.ideal.wfpf.model.WFPFWorkflow" >
+		<id column="wfId" property="wfId" jdbcType="NUMERIC" />	
+		<association property="tbLst" column="wfId" select="cn.ideal.wfpf.dao.TableMapper.findByWfId" />
+	</resultMap>
 	
-	<insert id="save" useGeneratedKeys="true" keyProperty="wfId" parameterType="cn.ideal.wf.model.Workflow">
+	<insert id="save" useGeneratedKeys="true" keyProperty="wfId" parameterType="cn.ideal.wfpf.model.WFPFWorkflow">
 		insert into workflow(
 			wfName,status,createdDate
 		)
@@ -17,7 +17,7 @@
 		)
 	</insert>
 		
-	<update id="update" parameterType="cn.ideal.wf.model.Workflow">
+	<update id="update" parameterType="cn.ideal.wfpf.model.WFPFWorkflow">
 		update workflow set 
 			<if test="wfName != null">
 				wfName = #{wfName} 
@@ -31,28 +31,28 @@
 			where wfId = #{wfId}
 	</update>
 	
-	<update id="removeBinding" parameterType="cn.ideal.wf.model.Workflow">
+	<update id="removeBinding" parameterType="java.lang.Long">
 		update workflow set 			
 			tbId = null 
 			where wfId = #{wfId}
 	</update>
 	
-	<select id="findAPage" resultMap="workflow" parameterType="java.util.Map">
+	<select id="findAPage" resultMap="wfpfworkflow" parameterType="java.util.Map">
 		select * from workflow	order by wfId 
 		<if test="recordNumber != null ">
 			LIMIT #{recordNumber},#{pageSize}
 		</if>	
 	</select>
 	
-	<select id="find" resultMap="workflow" parameterType="java.lang.Long">
+	<select id="find" resultType="cn.ideal.wfpf.model.WFPFWorkflow" parameterType="java.lang.Long">
 		select * from workflow where wfId = #{wfId}			
 	</select>
 	
-	<select id="findAll" resultMap="workflow">
+	<select id="findAll" resultType="cn.ideal.wfpf.model.WFPFWorkflow">
 		select * from workflow			
 	</select>
 		
-	<select id="findAllBlindTable" resultMap="workflow">
+	<select id="findAllBlindTable" resultType="cn.ideal.wfpf.model.WFPFWorkflow">
 		select * from workflow	where tbId is not null;		
 	</select>
 	
@@ -62,10 +62,6 @@
 		      wfId=#{wfId}		  	
 		</where>
 	</delete>
-	
-	<select id="findAllWorkflowsByTbId" resultType="cn.ideal.wf.model.Workflow" parameterType="java.lang.Long">
-		select * from workflow where tbId = #{tbId}
-	</select>
 	
 	<delete id="deleteTableElementOnNode" parameterType="java.lang.Long">
 		delete from workflow_table_element where wfId = #{wfId}			

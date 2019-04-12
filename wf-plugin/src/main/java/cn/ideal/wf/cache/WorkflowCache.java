@@ -36,7 +36,7 @@ public class WorkflowCache implements CommandLineRunner {
 	public void run(String... args) throws Exception {		
 		logger.info("启动时数据加载");
 		hashWorkflow = redisTemplate.opsForHash();
-		List<Workflow> wfs = workflowWFService.findAllBlindTable();
+		List<Workflow> wfs = workflowWFService.findHavingBindTable();
 		for(Workflow wf : wfs){
 			hashWorkflow.put(WF_KEY, wf.getWfId(), wf);
 		}

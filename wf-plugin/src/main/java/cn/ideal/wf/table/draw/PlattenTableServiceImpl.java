@@ -2,11 +2,15 @@ package cn.ideal.wf.table.draw;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
 import cn.ideal.wf.dao.WorkflowTableMapper;
+import cn.ideal.wf.jdbc.dao.SQLExecutor;
 import cn.ideal.wf.model.WorkflowTableBrief;
 import cn.ideal.wf.model.WorkflowTableElement;
 import cn.ideal.wf.model.WorkflowTableLayout;
@@ -15,6 +19,17 @@ import cn.ideal.wf.model.WorkflowTableLayout;
 public class PlattenTableServiceImpl implements PureTableService {
 	@Autowired
 	private WorkflowTableMapper workflowTableMapper;
+	
+	private SQLExecutor sqlExecutor;
+	
+	@Value("${workflow.wf.database.executor}")
+    String executorName;
+	
+	@Autowired
+    public void setSQLExecutor(ApplicationContext context) {
+		sqlExecutor = (SQLExecutor) context.getBean(executorName);
+    }
+	
 	@Override
 	public StringBuffer draw(Long tbId) {
 		StringBuffer sb = new StringBuffer();
@@ -40,46 +55,8 @@ public class PlattenTableServiceImpl implements PureTableService {
 							String style = null;
 							if(obj.getNewFieldType().equals("标签")) style="text-align: right;font-size:15px";
 							else style="text-align: left;padding-left:5px;font-size:15px";
-							sb.append("<td colspan="+obj.getCols()+" rowspan="+obj.getRowes()+" style='"+style+"'>\n");							
-							switch(obj.getNewFieldType()) {
-							case "标签":
-								if(!obj.getNewLabelName().equals("&nbsp;"))sb.append(obj.getNewLabelName()+"：\n");
-								else sb.append(obj.getNewLabelName()+"\n");
-								break;
-							case "输入框":									
-								sb.append("<input type='text' name='"+tb.getName()+"_"+obj.getFieldName()+"' >\n");
-								break;
-							case "下拉框":
-								sb.append("<select name='"+tb.getName()+"_"+obj.getFieldName()+"' >\n");
-								for(String content : obj.getNewDataContent().split(",")){
-									sb.append("<option>"+content+"</option>\n");
-								}						
-								sb.append("</select>");
-								break;
-							case "多选框":
-								for(String content : obj.getNewDataContent().split(",")){
-									sb.append("<input type='checkbox' name='"+tb.getName()+"_"+obj.getFieldName()+"' >");
-									sb.append(content +"\n");
-								}
-								break;
-							case "单选框":
-								for(String content : obj.getNewDataContent().split(",")){
-									sb.append("<input type='radio' name='"+tb.getName()+"_"+obj.getFieldName()+"' >");
-									sb.append(content +"\n");
-								}
-								break;
-							case "文本框":
-								sb.append("<textarea name='"+tb.getName()+"_"+obj.getFieldName()+"'/>\n");
-								break;
-							case "子表":									
-								sb.append(drawSubTable(obj.getStbId(),3).toString());								
-								break;
-							case "组件":	
-								sb.append(drawPlugIn(obj.getStbId()).toString());								
-								break;									
-							default:
-								break;
-							}						
+							sb.append("<td colspan="+obj.getCols()+" rowspan="+obj.getRowes()+" style='"+style+"'>\n");
+							sb.append(drawTableElement(obj,tb.getName(),null));											
 							sb.append("</td>\n");
 						}					
 					}
@@ -87,8 +64,8 @@ public class PlattenTableServiceImpl implements PureTableService {
 				sb.append("</tr>\n");
 			}		
 			sb.append("</table><br>\n");	
-			if(tl.getScope().equals("body")){
-				StringBuffer ssb = drawSubTable(tl.getStbId(),5);
+			if(tl.getScope().equals("表体")){
+				StringBuffer ssb = drawSubTable(tl.getStbId(),5,null);
 				if(ssb != null) sb.append(ssb.toString());
 			}
 		}
@@ -98,7 +75,7 @@ public class PlattenTableServiceImpl implements PureTableService {
 	@Override
 	public StringBuffer draw(Long tbId, String scope, boolean setting) {		
 		WorkflowTableLayout layout = workflowTableMapper.findTableLayoutWithScope(tbId, scope);
-		if(layout == null) return null;
+		if(layout == null) return new StringBuffer();
 		Object[][] tesary = packTableElements(tbId,scope,layout.getCols());
 		
 		StringBuffer sb = new StringBuffer();
@@ -114,40 +91,9 @@ public class PlattenTableServiceImpl implements PureTableService {
 					if(tesary[i][j] instanceof WorkflowTableElement){
 						WorkflowTableElement obj = (WorkflowTableElement)tesary[i][j];
 						sb.append("<td colspan="+obj.getCols()+" rowspan="+obj.getRowes()+">\n");
+						if(setting) sb.append("<span id='btn-up' class='btn-edit-pointer' onclick=\"showPos(event,'"+obj.getId()+"');\" title='编辑'>⤧</span>\n");
 						sb.append("<label style='color:gray;font-size:0.8rem;'>["+obj.getNewLabelName()+"]</label>");
-						switch(obj.getNewFieldType()) {
-						case "标签":
-							sb.append(obj.getNewLabelName()+"\n");
-							break;
-						case "输入框":							
-							sb.append("<input type='text' name='"+obj.getFieldName()+"' >\n");
-							break;
-						case "下拉框":
-							sb.append("<select name='"+obj.getFieldName()+"' >\n");
-							for(String content : obj.getNewDataContent().split(",")){
-								sb.append("<option>"+content+"</option>\n");
-							}						
-							sb.append("</select>");
-							break;
-						case "多选框":
-							for(String content : obj.getNewDataContent().split(",")){
-								sb.append("<input type='checkbox' name='"+obj.getFieldName()+"' >");
-								sb.append(content +"\n");
-							}
-							break;
-						case "单选框":
-							for(String content : obj.getNewDataContent().split(",")){
-								sb.append("<input type='radio' name='"+obj.getFieldName()+"' >");
-								sb.append(content +"\n");
-							}
-							break;
-						case "文本框":
-							sb.append("<textarea name='"+obj.getFieldName()+"'/>\n");
-							break;						
-						default:
-							break;
-						}
-						if(setting) sb.append("<span id='btn-up' class='btn-edit-pointer' onclick=\"showPos(event,'"+obj.getId()+"','head');\" title='编辑'>⤧</span>\n");
+						sb.append(drawTableElement(obj,null,null));						
 						sb.append("</td>\n");
 					}					
 				}
@@ -157,11 +103,58 @@ public class PlattenTableServiceImpl implements PureTableService {
 		sb.append("</table>\n");		
 		WorkflowTableBrief stb = workflowTableMapper.findSubTable(tbId, scope);
 		if(stb != null) sb.append("<br><span style='margin-right:98%;font-size:1.5rem;color:green;border:1px solid;border-color:green;cursor:pointer;background-color: #8aea8a;' title='关联子表["+stb.getTableName()+"]' onclick=\"$('#subTable-div').show();\">⟰</span>\n");
-		else if(scope.equals("body")) sb.append("<br><span style='margin-right:98%;font-size:1.5rem;color:#adb90e;border:1px solid;border-color:#b8bb5f;cursor:pointer;' title='增加子表' onclick=\"$('#subTable-div').show();\">⟰</span>\n");
+		else if(scope.equals("表体")) sb.append("<br><span style='margin-right:98%;font-size:1.5rem;color:#adb90e;border:1px solid;border-color:#b8bb5f;cursor:pointer;' title='增加子表' onclick=\"$('#subTable-div').show();\">⟰</span>\n");
 		return sb;
 	}
 
-
+	
+	@Override
+	public StringBuffer draw(Long tbId, Long bizId) {
+		if(bizId == null) return draw(tbId);
+		StringBuffer sb = new StringBuffer();
+		WorkflowTableBrief tb = workflowTableMapper.find(tbId);	
+		//获得业务数据
+		List<Map<String,Object>> res = sqlExecutor.query("select * from "+tb.getName()+" where id = "+bizId);
+		Map<String,Object> resMap = res.get(0);
+		
+		//表单名称
+		String tableName = (tb.getTableName()==null)?"":tb.getTableName();
+		sb.append("<label style='text-align:center;width:100%;font-size:30px;'>"+tableName+"</label>");	
+		//表单内容
+		List<WorkflowTableLayout> layouts = workflowTableMapper.findTableLayout(tbId);
+		if(layouts == null || layouts.size() == 0) return null;
+		for(WorkflowTableLayout tl : layouts){
+			Object[][] tesary = packTableElements(tbId,tl.getScope(),tl.getCols());			
+			sb.append("<table border='1' style='width:100%'>\n");		
+			for(int i=0;i<tesary.length-1;i++){
+				sb.append("<tr style='height:40px'>\n");
+				for(int j=0;j<tesary[i].length;j++){
+					if(tesary[i][j] == null){
+						sb.append("<td>\n");					
+						sb.append("</td>\n");
+					}else{
+						if(tesary[i][j] instanceof WorkflowTableElement){
+							WorkflowTableElement obj = (WorkflowTableElement)tesary[i][j];
+							String style = null;
+							if(obj.getNewFieldType().equals("标签")) style="text-align: right;font-size:15px";
+							else style="text-align: left;padding-left:5px;font-size:15px";
+							sb.append("<td colspan="+obj.getCols()+" rowspan="+obj.getRowes()+" style='"+style+"'>\n");	
+							sb.append(drawTableElement(obj,tb.getName(),resMap));												
+							sb.append("</td>\n");
+						}					
+					}
+				}
+				sb.append("</tr>\n");
+			}		
+			sb.append("</table><br>\n");	
+			if(tl.getScope().equals("表体")){
+				StringBuffer ssb = drawSubTable(tl.getStbId(),5,bizId);
+				if(ssb != null) sb.append(ssb.toString());
+			}
+		}
+		return sb;
+	}
+	
 	/**
 	 * 表单元素位置设置
 	 * @param tbId
@@ -235,15 +228,14 @@ public class PlattenTableServiceImpl implements PureTableService {
 		}
 		return findPosition(ary,++rows);
 	}
-	
 	/**
 	 * 子表
 	 * @param stbId
 	 * @return
 	 */
-	private StringBuffer drawSubTable(Long stbId, int rows){
+	private StringBuffer drawSubTable(Long stbId, int rows,Long bizId){
 		if(stbId == null) return null;
-		String scope = "body";
+		String scope = "表体";
 		WorkflowTableBrief tb = workflowTableMapper.find(stbId);
 		WorkflowTableLayout layout = workflowTableMapper.findTableLayoutWithScope(stbId, scope);
 		if(layout == null) return null;
@@ -265,43 +257,23 @@ public class PlattenTableServiceImpl implements PureTableService {
 			sb.append("<td style='text-align: center;font-size:15px;width:"+100/labels.size()+"%'>"+obj.getNewLabelName()+"</td>\n");
 		}
 		sb.append("</tr>\n");
+		List<Map<String,Object>> res = sqlExecutor.query("select * from "+tb.getName()+" where id in (select skey from table_keys where zkey= "+bizId+") order by id");
+		Map<String,Object> resMap = null;
 		for(int i=0;i<rows;i++){
-		sb.append("<tr style='height:35px'>\n");
-		for(WorkflowTableElement obj : ems){			
-			sb.append("<td colspan="+obj.getCols()+" rowspan="+obj.getRowes()+" style='text-align:left;padding-left:5px;font-size:15px'>\n");
-			switch(obj.getNewFieldType()) {			
-			case "输入框":
-				sb.append("<input type='text' name='"+tb.getName()+"_"+obj.getFieldName()+"'>\n");
-				break;
-			case "下拉框":
-				sb.append("<select name='"+tb.getName()+"_"+obj.getFieldName()+"' >\n");
-				for(String content : obj.getNewDataContent().split(",")){
-					sb.append("<option>"+content+"</option>\n");
-				}						
-				sb.append("</select>");
-				break;
-			case "多选框":
-				for(String content : obj.getNewDataContent().split(",")){
-					sb.append("<input type='checkbox' name='"+tb.getName()+"_"+obj.getFieldName()+"' >");
-					sb.append(content +"\n");
-				}
-				break;
-			case "单选框":
-				for(String content : obj.getNewDataContent().split(",")){
-					sb.append("<input type='radio' name='"+tb.getName()+"_"+obj.getFieldName()+"' >");
-					sb.append(content +"\n");
-				}
-				break;
-			case "文本框":
-				sb.append("<textarea name='"+tb.getName()+"_"+obj.getFieldName()+"'/>\n");
-				break;						
-			default:
-				break;
-			}						
-			sb.append("</td>\n");
-					
+			sb.append("<tr style='height:35px'>\n");
+			//赋值：
+			if(res.size() > i ) resMap = res.get(i);
+			else resMap = null;
+			for(WorkflowTableElement obj : ems){				
+				sb.append("<td colspan="+obj.getCols()+" rowspan="+obj.getRowes()+" style='text-align:left;padding-left:5px;font-size:15px'>\n");
+				sb.append(drawTableElement(obj,tb.getName(),resMap));								
+				sb.append("</td>\n");					
 			}
-		sb.append("</tr>\n");
+			//定义主键作为隐藏项
+			String sId = "";
+			if(resMap != null) sId = resMap.get("ID").toString();
+			sb.append("<input type='hidden' name='"+tb.getName()+"_ID' value='"+sId+"'>");
+			sb.append("</tr>\n");
 		}
 		sb.append("</table>\n");
 		return sb;
@@ -310,12 +282,12 @@ public class PlattenTableServiceImpl implements PureTableService {
 	/**
 	 * 组件
 	 * @param stbId
+	 * @param tbName 主表的库表名称
 	 * @return
 	 */
-	private StringBuffer drawPlugIn(Long stbId){
+	private StringBuffer drawPlugIn(Long stbId,String tbName,Map<String,Object> resMap){
 		if(stbId == null) return null;
-		String scope = "body";
-		WorkflowTableBrief tb = workflowTableMapper.find(stbId);
+		String scope = "表体";
 		WorkflowTableLayout layout = workflowTableMapper.findTableLayoutWithScope(stbId, scope);
 		if(layout == null) return null;
 		List<WorkflowTableElement> tes = workflowTableMapper.findTableAllElements(stbId,scope);
@@ -325,40 +297,74 @@ public class PlattenTableServiceImpl implements PureTableService {
 		sb.append("<tr style='height:35px'>\n");
 		for(WorkflowTableElement obj : tes){			
 			sb.append("<td colspan="+obj.getCols()+" rowspan="+obj.getRowes()+" style='text-align:left;padding-left:5px;font-size:15px'>\n");
-			switch(obj.getNewFieldType()) {			
-			case "输入框":
-				sb.append("<input type='text' name='"+tb.getName()+"_"+obj.getFieldName()+"'>\n");
-				break;
-			case "下拉框":
-				sb.append("<select name='"+tb.getName()+"_"+obj.getFieldName()+"' >\n");
-				for(String content : obj.getNewDataContent().split(",")){
-					sb.append("<option>"+content+"</option>\n");
-				}						
-				sb.append("</select>");
-				break;
-			case "多选框":
-				for(String content : obj.getNewDataContent().split(",")){
-					sb.append("<input type='checkbox' name='"+tb.getName()+"_"+obj.getFieldName()+"' >");
-					sb.append(content +"\n");
-				}
-				break;
-			case "单选框":
-				for(String content : obj.getNewDataContent().split(",")){
-					sb.append("<input type='radio' name='"+tb.getTableName()+"_"+obj.getFieldName()+"' >");
-					sb.append(content +"\n");
-				}
-				break;
-			case "文本框":
-				sb.append("<textarea name='"+tb.getName()+"_"+obj.getFieldName()+"'/>\n");
-				break;						
-			default:
-				break;
-			}						
-			sb.append("</td>\n");
-					
+			sb.append(drawTableElement(obj,tbName,resMap));							
+			sb.append("</td>\n");					
 			}
 		sb.append("</tr>\n");		
 		sb.append("</table>\n");
 		return sb;
+	}
+
+	
+	private String drawTableElement(WorkflowTableElement obj,String tbName,Map<String,Object> resMap){
+		StringBuffer sb = new StringBuffer();
+		String pre = "";
+		if(tbName != null) pre = tbName+"_";
+		Object value = resMap != null ? resMap.get(obj.getFieldName()):null;
+		switch(obj.getNewFieldType()) {
+		case "标签":
+			if(!obj.getNewLabelName().equals("&nbsp;"))sb.append(obj.getNewLabelName()+"：\n");
+			else sb.append(obj.getNewLabelName()+"\n");
+			break;
+		case "输入框":
+			if(value != null)sb.append("<input type='text' name='"+pre+obj.getFieldName()+"' value='"+value+"'>\n");
+			else sb.append("<input type='text' name='"+pre+obj.getFieldName()+"' value=''>\n");
+			break;
+		case "下拉框":
+			String selected = "";
+			sb.append("<select name='"+pre+obj.getFieldName()+"' >\n");
+			sb.append("<option value=''>请选择</option>");
+			for(String content : obj.getNewDataContent().split(",")){
+				if(value != null && value.equals(content)) selected = "selected";
+				sb.append("<option "+selected+" value='"+content+"'>"+content+"</option>\n");
+			}
+			selected = "";
+			sb.append("</select>");
+			break;
+		case "多选框":
+			String checkboxchecked = "";
+			for(String content : obj.getNewDataContent().split(",")){
+				if(value != null && value.toString().contains(content)) checkboxchecked = "checked";
+				sb.append("<input type='checkbox' name='"+pre+obj.getFieldName()+"' "+checkboxchecked+" value='"+content+"'>");
+				sb.append(content +"\n");
+				checkboxchecked = "";
+			}
+			break;
+		case "单选框":
+			String radiochecked = "";
+			for(String content : obj.getNewDataContent().split(",")){
+				if(value != null && value.equals(content)) radiochecked = "checked";
+				sb.append("<input type='radio' name='"+pre+obj.getFieldName()+"' "+radiochecked+" value='"+content+"'>");
+				sb.append(content +"\n");
+			}
+			radiochecked = "";
+			break;
+		case "文本框":
+			if(value != null) sb.append("<textarea name='"+pre+obj.getFieldName()+"'>"+value+"</textarea>\n");
+			else sb.append("<textarea name='"+pre+obj.getFieldName()+"'></textarea>\n");
+			break;
+		case "子表":	
+			Long bizId = null;
+			if(resMap != null && resMap.get("ID") != null) bizId = Long.parseLong(((Integer)resMap.get("ID")).toString());
+			sb.append(drawSubTable(obj.getStbId(),3,bizId).toString());								
+			break;
+		case "组件":	
+			sb.append(drawPlugIn(obj.getStbId(),tbName,resMap).toString());								
+			break;									
+		default:
+			break;
+		}
+		
+		return sb.toString();
 	}
 }

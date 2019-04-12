@@ -41,18 +41,13 @@ public class WorkflowTableServiceImpl implements WorkflowTableService {
 	}
 
 	@Override
-	public List<WorkflowTableElement> findAllTableElementsWithScope(Long tbId,String scope) {
-		return wfTableMapper.findAllTableElements(tbId, scope);
-	}
-
-	@Override
 	public List<WorkflowTableElement> findElementsOnList(Long tbId) {
 		return wfTableMapper.findElementsOnList(tbId);
 	}
 
 	@Override
-	public List<WorkflowTableElement> findAllTableElements(Long tbId) {
-		return wfTableMapper.findAllTableElements(tbId, null);
+	public List<WorkflowTableElement> findTableFields(Long tbId) {
+		return wfTableMapper.findTableFields(tbId);
 	}
 
 	@Override
@@ -82,6 +77,21 @@ public class WorkflowTableServiceImpl implements WorkflowTableService {
 		int idx = wfTableMapper.endTableSummary(wfts);
 		if(idx > 0) return true;
 		return false;
+	}
+
+	@Override
+	public List<WorkflowTableBrief> findAllSubTables(Long tbId) {
+		return wfTableMapper.findAllSubTables(tbId);
+	}
+
+	@Override
+	public List<String> findTableFieldNames(Long tbId) {
+		return wfTableMapper.findTableFieldNames(tbId);
+	}
+
+	@Override
+	public List<WorkflowTableBrief> findAllBlindTable() {
+		return wfTableMapper.findAllBlindTable();
 	}
 
 

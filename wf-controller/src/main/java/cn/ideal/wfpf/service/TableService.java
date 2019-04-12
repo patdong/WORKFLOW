@@ -66,4 +66,10 @@ public interface TableService extends PageService<TableBrief> {
 	List<TableBrief> findTableBriefWithTemplate(String template);
 	
 	List<TableElement> findTableFieldsToDBCheck(Long tbId);
+	
+	boolean copy(Long tbId);
+	
+	boolean removeBinding(Long tbId);
+	
+	boolean dropTable(Long tbId) throws Exception;
 }

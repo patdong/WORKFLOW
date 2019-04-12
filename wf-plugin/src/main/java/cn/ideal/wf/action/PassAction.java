@@ -30,7 +30,8 @@ public class PassAction extends Utils implements Action{
 		WorkflowNode nextNode = this.findNextNode(wfId,bizId);
 		if(nextNode == null) {
 			res =this.endFlow(bizId,wfId,user);
-			if(!res) throw new Exception("PassActon-流程办结失败");						
+			if(!res) throw new Exception("PassActon-流程办结失败");	
+			return true;
 		}
 			
 		if(users == null) {
@@ -63,7 +64,8 @@ public class PassAction extends Utils implements Action{
 		}
 		if(nextNode == null) {
 			res =this.endFlow(bizId,wfId,user);
-			if(!res) throw new Exception("PassActon-流程办结失败");						
+			if(!res) throw new Exception("PassActon-流程办结失败");	
+			return true;
 		}
 			
 		if(users == null) {

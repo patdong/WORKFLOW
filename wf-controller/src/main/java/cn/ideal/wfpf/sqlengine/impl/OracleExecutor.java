@@ -117,4 +117,13 @@ public class OracleExecutor implements SQLExecutor {
 	public void dropTable(String tableName) throws Exception {
 		this.executeSql(oracleCreator.dropTable(tableName));		
 	}
+	
+	@Override
+	public void rename(String tableName, String oldTableName) throws Exception {		
+		try{
+			jdbcTemplate.execute("ALTER TABLE "+oldTableName+" TO "+tableName);
+		}catch(Exception e){
+			throw e;
+		}
+	}
 }

@@ -31,10 +31,10 @@
     <nav class="col-md-2 d-none d-md-block sidebar" style="background-color:#249024;">
       <div class="sidebar-sticky">
         <ul class="nav flex-column">     
-          <c:forEach items="${model.menu}" varStatus="i" step="1" var="workflow" >
-          	<li class="nav-item" style="padding-top:15px;" onclick="location.href='/app/list/${workflow.wfId}/1'" > 
+          <c:forEach items="${model.menu}" varStatus="i" step="1" var="tableBrief" >
+          	<li class="nav-item" style="padding-top:15px;" onclick="location.href='/app/list/${tableBrief.tbId}/1'" > 
           		<span class="menu-icon" >&nbsp;✍&nbsp;</span> 
-          		<label <c:if test="${model.wf.wfId == workflow.wfId}">class="menu-sel-font"</c:if> style="color: white;cursor:pointer">&nbsp;${workflow.wfName }</label> 
+          		<label <c:if test="${model.wftb.tbId == tableBrief.tbId}">class="menu-sel-font"</c:if> style="color: white;cursor:pointer">&nbsp;${tableBrief.tableName }</label> 
           		<hr style="margin-top: 0.5rem; margin-bottom: 0.5rem;"></hr>                            
             </li>
           </c:forEach>          

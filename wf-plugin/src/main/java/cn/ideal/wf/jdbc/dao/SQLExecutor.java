@@ -16,7 +16,7 @@ public interface SQLExecutor {
 	
 	Map<String,Object> save(Storage storage);
 	
-	Map<String,Object> update(Storage field);
+	Map<String,Object> update(Storage storage);
 	
 	List<Map<String,Object>> query(String sql);
 }

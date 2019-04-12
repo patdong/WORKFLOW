@@ -20,8 +20,8 @@ public class WorkflowWFServiceImpl implements WorkflowWFService{
 	}
 
 	@Override
-	public List<Workflow> findAllBlindTable() {
-		return workflowWFMapper.findAllBlindTable();
+	public List<Workflow> findHavingBindTable() {
+		return workflowWFMapper.findHavingBindTable();
 	}
 
 }

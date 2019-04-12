@@ -14,15 +14,28 @@
 		select * from table_brief where status = '有效'
 	</select>
 	
-	<select id="findAllTableElements" resultMap="wftableelement" parameterType="java.util.Map">
-		select a.*,b.labelName,b.fieldName from table_element a
-		 inner join element_library b on a.emId = b.emId 
-		 where a.tbId = #{tbId}
-		   and a.scope != '/'
-		 <if test="scope != null">
-		   and a.scope = #{scope}
-		 </if> 
-		 order by a.seq
+	<select id="findTableFields" resultMap="wftableelement" parameterType="java.lang.Long">
+		select a.*,b.fieldName from table_element a
+		  left join element_library b on a.emId = b.emId 
+		 where a.tbId = #{tbId}		 
+		   and a.newFieldType not in ( '标签','子表','组件','列表')
+		 union all
+		select a.*,b.fieldName from table_element a
+		  left join element_library b on a.emId = b.emId 
+		 where a.tbId in (select stbId from table_element where tbId = #{tbId} and newFieldType ='组件')
+		   and a.newFieldType not in ( '标签','子表','组件','列表')
+	</select>
+	
+	<select id="findTableFieldNames" resultType="java.lang.String" parameterType="java.lang.Long">
+		select b.fieldName from table_element a
+		  left join element_library b on a.emId = b.emId 
+		 where a.tbId = #{tbId}		 
+		   and a.newFieldType not in ( '标签','子表','组件','列表')
+		 union all
+		select b.fieldName from table_element a
+		  left join element_library b on a.emId = b.emId 
+		 where a.tbId in (select stbId from table_element where tbId = #{tbId} and newFieldType ='组件')
+		   and a.newFieldType not in ( '标签','子表','组件','列表')
 	</select>	
 	
 	<select id="findElementsOnList" resultMap="wftableelement" parameterType="java.lang.Long">
@@ -79,4 +92,19 @@
 		select * from table_layout 
 		 where tbId=#{tbId}
 	</select>
+	
+	<select id="findByWfId" resultMap="wftablebrief" parameterType="java.lang.Long">
+		select a.* from table_brief a 
+		where a.wfId=#{wfId}
+	</select>
+	
+	<select id="findAllSubTables" resultMap="wftablebrief" parameterType="java.lang.Long">
+		select * from table_brief where tbId in (select stbId from table_layout where tbId = #{tbId})
+		union
+		select * from table_brief where tbId in (select stbId from table_element where tbId = #{tbId} and newFieldType='子表')
+	</select>
+	
+	<select id="findAllBlindTable" resultMap="wftablebrief" >
+		select * from table_brief where wfId is not null and status = '有效'
+	</select>	
 </mapper>

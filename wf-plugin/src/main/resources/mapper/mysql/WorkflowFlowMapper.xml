@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="cn.ideal.wf.dao.WorkflowFlowMapper">
-	<resultMap id="workflow" type="cn.ideal.wf.model.WorkflowFlow" />
+	<resultMap id="workflowflow" type="cn.ideal.wf.model.WorkflowFlow" />
 	<resultMap id="workflowwithstep" type="cn.ideal.wf.model.WorkflowFlow" >
 		<id column="workflowId" property="workflowId" jdbcType="NUMERIC" />
 		<association property="workflowSteps" column="workflowId" select="cn.ideal.wf.dao.WorkflowStepMapper.findAllByFlowId" />
 	</resultMap>			
 	
-	<select id="findAll" resultMap="workflow" parameterType="java.util.Map">
+	<select id="findAll" resultMap="workflowflow" parameterType="java.util.Map">
 		select * from workflow_flow where bizId = #{bizId} and wfId = #{wfId}
 	</select>
 		
-	<select id="find" resultMap="workflow" parameterType="java.lang.Long">
+	<select id="find" resultMap="workflowflow" parameterType="java.lang.Long">
 		select * from workflow_flow where flowId=#{flowId}
 	</select>
 		
@@ -63,7 +63,7 @@
 	</select>
 	
 	<!-- 获取前一个流程 -->
-	<select id="findPrevFlow" resultMap="workflow" parameterType="java.util.Map">
+	<select id="findPrevFlow" resultMap="workflowflow" parameterType="java.util.Map">
 		select * from workflow_flow 
 		 where flowId in (
 			select flowParentId 
@@ -75,7 +75,7 @@
 	</select>
 	
 	<!-- 获取发起人流程 -->
-	<select id="findSenderFlow" resultMap="workflow" parameterType="java.util.Map">
+	<select id="findSenderFlow" resultMap="workflowflow" parameterType="java.util.Map">
 		select * from workflow_flow 
 		 where flowId in (
 			select min(flowId) 

@@ -1,10 +1,10 @@
 package cn.ideal.wf.data.analyzer;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import cn.ideal.wf.model.WorkflowTableElement;
 import cn.ideal.wf.model.WorkflowUser;
 
 /**
@@ -18,7 +18,10 @@ public class Storage {
 	private Long bizId;                                                               //业务编号
 	private String tableName;                                                         //查询主表名
 	private Long wfId;                                                                //流程编号
-	private List<WorkflowTableElement> fields;                                        //入库的字段集合
+	private Long tbId;                                                                //表单编号
+	private Map<String,String> fields;                                                //入库的字段集合
+	private Map<String,List<Map<String,String>>> sFields;                             //入库的子表字段集合
+	private Map<String,List<Long>> sIds;                                              //要删除的子表关键字集合
 	private WorkflowUser user;                                                        //操作用户
 	
 	private Long beginNumber;                                                         //查询的指定记录开始下标
@@ -37,10 +40,10 @@ public class Storage {
 	public void setTableName(String tableName) {
 		this.tableName = tableName;
 	}
-	public List<WorkflowTableElement> getFields() {
+	public Map<String,String> getFields() {
 		return fields;
 	}
-	public void setFields(List<WorkflowTableElement> fields) {
+	public void setFields(Map<String,String> fields) {
 		this.fields = fields;
 	}
 	
@@ -77,6 +80,35 @@ public class Storage {
 	}
 	public void setWfId(Long wfId) {
 		this.wfId = wfId;
+	}
+	public Map<String, List<Map<String,String>>> getsFields() {
+		return sFields;
+	}
+	
+	public List<Map<String,String>> getsFields(String stbname) {
+		return sFields.get(stbname);
+	}
+	
+	public void setsFields(String stbname, List<Map<String,String>> sFields) {
+		if(this.sFields == null) this.sFields = new HashMap<String,List<Map<String,String>>>();
+		this.sFields.put(stbname, sFields);
+	}
+	public List<Long> getsIds(String stbname) {
+		if(this.sIds == null) sIds = new HashMap<String,List<Long>>();
+		if(sIds.get(stbname) == null) sIds.put(stbname, new ArrayList<Long>());
+		
+		return sIds.get(stbname);
+	}
+	public void setsIds(String stbname,List<Long> sIds) {
+		if(this.sIds == null) this.sIds = new HashMap<String,List<Long>>();
+		if(this.sIds.get(stbname) == null) this.sIds.put(stbname, sIds);
+		else this.sIds.put(stbname, sIds);
+	}
+	public Long getTbId() {
+		return tbId;
+	}
+	public void setTbId(Long tbId) {
+		this.tbId = tbId;
 	}
 	
 }

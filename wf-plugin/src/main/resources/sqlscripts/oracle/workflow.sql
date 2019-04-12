@@ -51,6 +51,7 @@ CREATE TABLE table_brief (
   template varchar(45) DEFAULT 'bootstrap' NOT NULL,
   cols NUMBER DEFAULT NULL ,
   status varchar(10) NOT NULL ,
+  wfId NUMBER NULL,
   createdDate DATE NOT NULL
 );
 COMMENT ON COLUMN table_brief.tbId IS '表单编号';
@@ -59,6 +60,7 @@ COMMENT ON COLUMN table_brief.tableName IS '表单内名称';
 COMMENT ON COLUMN table_brief.template IS '表单格式：表单式，bootstrap式';
 COMMENT ON COLUMN table_brief.cols IS '表单列数';
 COMMENT ON COLUMN table_brief.status IS '表单状态';
+COMMENT ON COLUMN table_brief.wfId IS '流程编号';
 COMMENT ON COLUMN table_brief.createdDate IS '表单创建时间';
 
 ALTER TABLE table_brief ADD (CONSTRAINT tbId_PK PRIMARY KEY (tbId));
@@ -135,6 +137,7 @@ CREATE SEQUENCE sq_id START WITH 1 INCREMENT BY 1 MAXVALUE 1E27 MINVALUE 1 NOCYC
 DROP TABLE table_summary;
 CREATE TABLE table_summary (
   bizId NUMBER NOT NULL ,
+  tableName varchar2(30) NOT NULL,
   wfId NUMBER NOT NULL ,
   title varchar2(100) NOT NULL ,
   createdUserId NUMBER NOT NULL ,
@@ -150,6 +153,7 @@ CREATE TABLE table_summary (
   action varchar2(10) DEFAULT NULL 
 );
 COMMENT ON COLUMN table_summary.bizId IS '业务编号';
+COMMENT ON COLUMN table_summary.tableName IS '业务表名';
 COMMENT ON COLUMN table_summary.wfId IS '流程编号';
 COMMENT ON COLUMN table_summary.title IS '业务名称';
 COMMENT ON COLUMN table_summary.createdUserId IS '业务创建人编号';
@@ -163,6 +167,19 @@ COMMENT ON COLUMN table_summary.modifiedDate IS '业务修改时间';
 COMMENT ON COLUMN table_summary.finishedDate IS '业务完成时间';
 COMMENT ON COLUMN table_summary.status IS '业务办理状态';
 COMMENT ON COLUMN table_summary.action IS '业务触发事件';
+
+DROP TABLE table_keys;
+CREATE TABLE table_keys (
+  tableName varchar2(40) NOT NULL,
+  zkey NUMBER NOT NULL,
+  stableName varchar2(40) NOT NULL,
+  skey NUMBER NOT NULL
+);
+COMMENT ON COLUMN table_keys.tableName IS '主表名称';
+COMMENT ON COLUMN table_keys.zkey IS '主表关键字';
+COMMENT ON COLUMN table_keys.stableName IS '子表表名';
+COMMENT ON COLUMN table_keys.skey IS '子表关键字';
+
 
 
 DROP TABLE workflow;

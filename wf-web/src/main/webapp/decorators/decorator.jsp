@@ -53,12 +53,12 @@ $( function() {
         <div class="collapse navbar-collapse" id="navbarCollapse">
           <sec:authorize access="hasRole('ROLE_ADMIN')">
 	          <ul class="navbar-nav mr-auto">
-	            <li class="nav-item" > <!-- active(选中变色） -->	            	
-	              <a class="nav-link" href="/wf/workflowcenter" style="font-weight:bold;" id="wf">流程定义<span class="sr-only">(current)</span></a>
-	            </li>
 	            <li class="nav-item" >
 	              <a class="nav-link" href="/tb/tablecenter" style="font-weight:bold;" id="tb">表单管理</a>
 	            </li>
+	            <li class="nav-item" > <!-- active(选中变色） -->	            	
+	              <a class="nav-link" href="/wf/workflowcenter" style="font-weight:bold;" id="wf">流程定义<span class="sr-only">(current)</span></a>
+	            </li>	            
 	            <li class="nav-item" >
 	              <a class="nav-link" href="/em/elementcenter" style="font-weight:bold;" id="em">元素库</a>
 	            </li>

@@ -424,9 +424,9 @@
 	  if($("#nodename").val() == "") {
 		  $("#warn1").show();
 		  goon = false;
-	  }		  
+	  }			 
 	  if($("#nType").val() == "") {
-		  $("#warn2").show();
+		  $("#warn2").show();		  
 		  goon = false;
 	  }	
 	  if($("#action").val() == "") {
@@ -618,18 +618,19 @@
 		    </div>
 		    <div class="popup-form-group">
 		    	<select name="nType" id="nType" class="form-control-one-line" onclick="nodeKeydown('warn2');" style="width:75%">
-		    		<option>节点属性</option>
+		    		<option value="">节点属性</option>
 		    		<option value="串行">串行</option>
 		    	</select>
-		        
+		        <label style="display:none;color:red;font-weight:bold;" id="warn2">!</label>
 		    </div>		    
 	        <div class="popup-form-group">
 	        	<select name="nodeAction.actionCodeName" id="action" class="form-control-one-line" onclick="nodeKeydown('warn3');" style="width:75%">
-		    		<option>节点行为</option>
+		    		<option value="">节点行为</option>
 		    		<c:forEach var="item" items="${actions}" varStatus="status">
 			  			<option value="${item.actionCodeName}" >${item.actionName}</option>
 			  		</c:forEach>	
-		    	</select>	        			        		          			        			     
+		    	</select>
+		    	<label style="display:none;color:red;font-weight:bold;" id="warn3">!</label>        			        		          			        			     
 	        </div>	
 	        <div class="popup-form-group">
 	        	<label for="button" class="sr-only">操作协助</label>
@@ -809,7 +810,7 @@
 	<p style="margin-top: 0.3rem;margin-bottom: 0.3rem;"></p>
 	<SPAN style="cursor:pointer;" onclick="$('#PopUp-1').hide();delConfirm();">删除节点</SPAN>
 	<!-- 只有流程配置了表，才会出现字段授权功能 -->
-	<c:if test="${!empty wf.tbId }">
+	<c:if test="${! empty wf.tbLst }">
 		<hr style="margin-top: 0.3rem;margin-bottom: 0.3rem;"></hr>
 		<SPAN style="cursor:pointer;" onclick="$('#PopUp-1').hide();openTableElements(${wf.tbId});">字段授权</SPAN>
 	</c:if>

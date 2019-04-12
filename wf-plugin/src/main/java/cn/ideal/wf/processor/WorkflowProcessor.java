@@ -16,10 +16,12 @@ import org.springframework.transaction.annotation.Transactional;
 import cn.ideal.wf.action.Action;
 import cn.ideal.wf.action.PassAction;
 import cn.ideal.wf.action.Utils;
+import cn.ideal.wf.cache.TableBriefCache;
 import cn.ideal.wf.common.WFConstants;
 import cn.ideal.wf.model.WorkflowAction;
 import cn.ideal.wf.model.WorkflowBrief;
 import cn.ideal.wf.model.WorkflowNode;
+import cn.ideal.wf.model.WorkflowTableBrief;
 import cn.ideal.wf.model.WorkflowUser;
 import cn.ideal.wf.service.PlatformService;
 import cn.ideal.wf.service.WorkflowBriefService;
@@ -54,16 +56,17 @@ public class WorkflowProcessor extends Utils implements Processor {
      */
 	@Override
 	@Transactional(propagation=Propagation.REQUIRED)
-	public boolean doAction(Long wfId, Long bizId, WorkflowUser wfu) throws Exception {
+	public boolean doAction(Long tbId, Long bizId, WorkflowUser wfu) throws Exception {
 		boolean res = true;
-		WorkflowBrief wfb = workflowBriefService.findDoingFlow(bizId,wfId);
+		WorkflowTableBrief wftb = TableBriefCache.getValue(tbId);
+		WorkflowBrief wfb = workflowBriefService.findDoingFlow(bizId,wftb.getWfId());
 		WorkflowAction action = new WorkflowAction();
 		//判断是否已经创建了流程，未创建则先创建再流转
 		if(wfb == null){
-			workflowFlowService.startFlow(bizId, wfId, WFConstants.WF_NODE_START,wfu);	
+			workflowFlowService.startFlow(bizId, wftb.getWfId(), WFConstants.WF_NODE_START,wfu);	
 			action.setActionCodeName("PassAction");			
 		}else{
-			WorkflowNode curNode = workflowNodeService.findNode(wfb.getNodeName(), wfId);
+			WorkflowNode curNode = workflowNodeService.findNode(wfb.getNodeName(), wftb.getWfId());
 			action = curNode.getAction();
 		}
 		
@@ -79,7 +82,7 @@ public class WorkflowProcessor extends Utils implements Processor {
 		Object obj = appContext.getBean(action.getActionCodeName());
 		if(obj instanceof Action){
 			Action wfa = (Action)obj;
-			res = wfa.action(bizId, wfId, wfu, wfuLst.toArray(new WorkflowUser[wfuLst.size()]));
+			res = wfa.action(bizId, wftb.getWfId(), wfu, wfuLst.toArray(new WorkflowUser[wfuLst.size()]));
 			if(!res) throw new Exception("流程推进失败");
 		}	
 			
@@ -92,13 +95,14 @@ public class WorkflowProcessor extends Utils implements Processor {
 	 */
 	@Override
 	@Transactional(propagation=Propagation.REQUIRED)
-	public boolean doAction(Long wfId, Long bizId, WorkflowUser wfu,WorkflowNode node) throws Exception {
+	public boolean doAction(Long tbId, Long bizId, WorkflowUser wfu,WorkflowNode node) throws Exception {
 		boolean res = true;
-		WorkflowBrief wfb = workflowBriefService.findDoingFlow(bizId,wfId);
+		WorkflowTableBrief wftb = TableBriefCache.getValue(tbId);
+		WorkflowBrief wfb = workflowBriefService.findDoingFlow(bizId,wftb.getWfId());
 		WorkflowAction action = null;
 		//判断是否已经创建了流程，未创建则先创建再流转
 		if(wfb == null){
-			workflowFlowService.startFlow(bizId, wfId, WFConstants.WF_NODE_START,wfu);				
+			workflowFlowService.startFlow(bizId, wftb.getWfId(), WFConstants.WF_NODE_START,wfu);				
 		}
 		
 		action = new WorkflowAction();
@@ -115,7 +119,7 @@ public class WorkflowProcessor extends Utils implements Processor {
 		Object obj = appContext.getBean(action.getActionCodeName());
 		if(obj instanceof PassAction){
 			PassAction wfa = (PassAction)obj;
-			res = wfa.action(bizId, wfId, wfu,node, wfuLst.toArray(new WorkflowUser[wfuLst.size()]));
+			res = wfa.action(bizId, wftb.getWfId(), wfu,node, wfuLst.toArray(new WorkflowUser[wfuLst.size()]));
 			if(!res) throw new Exception("流程推进失败");
 		}	
 			
@@ -127,13 +131,14 @@ public class WorkflowProcessor extends Utils implements Processor {
 	 */
 	@Override
 	@Transactional(propagation=Propagation.REQUIRED)
-	public boolean doAction(Long wfId, Long bizId, WorkflowUser wfu,WorkflowNode node, WorkflowUser... nextWfu) throws Exception {
+	public boolean doAction(Long tbId, Long bizId, WorkflowUser wfu,WorkflowNode node, WorkflowUser... nextWfu) throws Exception {
 		boolean res = true;
-		WorkflowBrief wfb = workflowBriefService.findDoingFlow(bizId,wfId);
+		WorkflowTableBrief wftb = TableBriefCache.getValue(tbId);
+		WorkflowBrief wfb = workflowBriefService.findDoingFlow(bizId,wftb.getWfId());
 		WorkflowAction action = null;
 		//判断是否已经创建了流程，未创建则先创建再流转
 		if(wfb == null){
-			workflowFlowService.startFlow(bizId, wfId, WFConstants.WF_NODE_START,wfu);				
+			workflowFlowService.startFlow(bizId, wftb.getWfId(), WFConstants.WF_NODE_START,wfu);				
 		}
 		
 		action = new WorkflowAction();
@@ -151,7 +156,7 @@ public class WorkflowProcessor extends Utils implements Processor {
 		Object obj = appContext.getBean(action.getActionCodeName());
 		if(obj instanceof PassAction){
 			PassAction wfa = (PassAction)obj;
-			res = wfa.action(bizId, wfId, wfu,node, nextWfu);
+			res = wfa.action(bizId, wftb.getWfId(), wfu,node, nextWfu);
 			if(!res) throw new Exception("流程推进失败");
 		}	
 			
@@ -169,9 +174,10 @@ public class WorkflowProcessor extends Utils implements Processor {
 
 
 	@Override
-	public boolean doButton(Long wfId, Long bizId, WorkflowUser wfu,String buttonName) throws Exception {
+	public boolean doButton(Long tbId, Long bizId, WorkflowUser wfu,String buttonName) throws Exception {
 		boolean res = true;
-		WorkflowBrief wfb = workflowBriefService.findDoingFlow(bizId,wfId);
+		WorkflowTableBrief wftb = TableBriefCache.getValue(tbId);
+		WorkflowBrief wfb = workflowBriefService.findDoingFlow(bizId,wftb.getWfId());
 		//判断是否已经创建了流程，未创建则先创建再流转
 		if(wfb == null){
 			throw new Exception("流程操作失败");
@@ -189,7 +195,7 @@ public class WorkflowProcessor extends Utils implements Processor {
 		Object obj = appContext.getBean(buttonName);
 		if(obj instanceof Action){
 			Action wfa = (Action)obj;
-			res = wfa.action(bizId, wfId, wfu, wfuLst.toArray(new WorkflowUser[wfuLst.size()]));
+			res = wfa.action(bizId, wftb.getWfId(), wfu, wfuLst.toArray(new WorkflowUser[wfuLst.size()]));
 			if(!res) throw new Exception("流程推进失败");
 		}	
 			

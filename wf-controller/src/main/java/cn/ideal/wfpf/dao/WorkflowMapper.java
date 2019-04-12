@@ -5,24 +5,24 @@ import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
-import cn.ideal.wf.model.Workflow;
+import cn.ideal.wfpf.model.WFPFWorkflow;
 
 @Mapper
 public interface WorkflowMapper {
 
-	int save(Workflow obj);
+	int save(WFPFWorkflow obj);
 	
-	int update(Workflow obj);
+	int update(WFPFWorkflow obj);
 	
-	List<Workflow> findAll();
+	List<WFPFWorkflow> findAll();
 	
-	Workflow find(Long wfId);
+	WFPFWorkflow find(Long wfId);
 	
-	List<Workflow> findAPage(@Param("recordNumber") Long recordNumber,@Param("recordLastNumber") Long recordLastNumber,@Param("pageSize") Long  pageSize);
+	List<WFPFWorkflow> findAPage(@Param("recordNumber") Long recordNumber,@Param("recordLastNumber") Long recordLastNumber,@Param("pageSize") Long  pageSize);
 	
-	List<Workflow> findAllBlindTable();
+	List<WFPFWorkflow> findAllBlindTable();
 	
-	int removeBinding(Workflow obj);
+	int removeBinding(Long wfId);
 	
 	void delete(Long wfId);
 	

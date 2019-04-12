@@ -21,36 +21,36 @@
 			createdDate,finishedDate,timeDiffer,serial,executeUserId,executeUserName
 		)
 		values(
-			#{stepId},
-			#{flowId},
-			#{dispatchUserId},
-			#{dispatchUserName},
-			#{unitId},
-			#{unitName},
-			#{actionName},
-			#{status},
-			#{createdDate},
-			#{finishedDate},
-			#{timeDiffer},
-			#{serial},
-			#{executeUserId},
-			#{executeUserName}
+			#{stepId,jdbcType=DECIMAL},
+			#{flowId,jdbcType=DECIMAL},
+			#{dispatchUserId,jdbcType=DECIMAL},
+			#{dispatchUserName,jdbcType=VARCHAR},
+			#{unitId,jdbcType=DECIMAL},
+			#{unitName,jdbcType=VARCHAR},
+			#{actionName,jdbcType=VARCHAR},
+			#{status,jdbcType=VARCHAR},
+			#{createdDate,jdbcType=TIMESTAMP},
+			#{finishedDate,jdbcType=TIMESTAMP},
+			#{timeDiffer,jdbcType=VARCHAR},
+			#{serial,jdbcType=DECIMAL},
+			#{executeUserId,jdbcType=DECIMAL},
+			#{executeUserName,jdbcType=VARCHAR}
 		)
 	</insert>	
 	
 	<update id="endFlowStep" parameterType="cn.ideal.wf.model.WorkflowStep">
 		update workflow_step set 
-			finishedDate=#{finishedDate},
-			actionName=#{actionName},
-			status=#{status},
-			executeUserId = #{executeUserId},
-			executeUserName = #{executeUserName}	
+			finishedDate=#{finishedDate,jdbcType=DECIMAL},
+			actionName=#{actionName,jdbcType=VARCHAR},
+			status=#{status,jdbcType=VARCHAR},
+			executeUserId = #{executeUserId,jdbcType=DECIMAL},
+			executeUserName = #{executeUserName,jdbcType=VARCHAR}	
 		<where>
 			<if test="flowId != null">
-				and flowId=#{flowId}
+				and flowId=#{flowId,jdbcType=DECIMAL}
 			</if>
 			<if test="stepId != null">
-				and stepId=#{stepId}
+				and stepId=#{stepId,jdbcType=DECIMAL}
 			</if>
 		</where>		
 		
@@ -63,27 +63,27 @@
 	
 	<update id="setWorkflowStepUser" parameterType="cn.ideal.wf.model.WorkflowStep">
 		update workflow_step set 
-			dispatchUserId=#{dispatchUserId},
-			dispatchUserName=#{dispatchUserName},
-			unitId=#{unitId},
-			unitName=#{unitName}
+			dispatchUserId=#{dispatchUserId,jdbcType=DECIMAL},
+			dispatchUserName=#{dispatchUserName,jdbcType=VARCHAR},
+			unitId=#{unitId,jdbcType=DECIMAL},
+			unitName=#{unitName,jdbcType=VARCHAR}
 		<where>						
-			stepId=#{stepId}			
+			stepId=#{stepId,jdbcType=DECIMAL}			
 		</where>				
 	</update>
 	
 	<select id="findWrokflowStep" resultMap="workflowstep" parameterType="java.util.Map">
 		select wfs.* from workflow_step wfs
 		inner join workflow_flow wf on wf.flowId = wfs.flowId
-		where wf.bizId = #{bizId}
+		where wf.bizId = #{bizId,jdbcType=DECIMAL}
 		  <if test="nodeName != null">
-		  and wf.nodeName = #{nodeName}
+		  and wf.nodeName = #{nodeName,jdbcType=VARCHAR}
 		  </if>
 		  <if test="userId != null">
-		  and wfs.dispatchUserId = #{userId}
+		  and wfs.dispatchUserId = #{userId,jdbcType=DECIMAL}
 		  </if>
 		  <if test="unitId != null">
-		  and wfs.unitId = #{unitId}
+		  and wfs.unitId = #{unitId,jdbcType=DECIMAL}
 		  </if>
 		order by createdDate desc
 		limit 1

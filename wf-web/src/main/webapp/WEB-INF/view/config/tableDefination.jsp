@@ -20,6 +20,8 @@
 	  $("#lst-div").draggable();
 	  $("#scheme-div").draggable();
 	  $("#tbname-dialog").draggable();
+	  $("#confirm-dialog").dialog();
+	  $('#confirm-dialog').dialog('close');
 	  //设置表单位置的radiobox值
 	  var $scope = $('input:radio[name=scope]');	 
 	  $scope.filter('[value=${scope}]').prop('checked', true);
@@ -116,7 +118,7 @@
   }
   
    //弹出操作菜单
-  function showPos(event,id,scope) {
+  function showPos(event,id) {
 	  var el, x, y;
 	  el = document.getElementById('element-div');	  
 	  
@@ -201,17 +203,17 @@
   //表单列数设置，默认必须是2列。
   function saveLayout(){	  		  
 	  var headCols=$("#headCols").val();		  
-	  if (!/^[1-9]$/.test(headCols)) {
+	  if (!/^[1-9][0-9]$/.test(headCols)) {
 		  headCols="";
 	  }		
 	  $("#headCols").val(headCols);
 	  var bodyCols=$("#bodyCols").val();		  
-	  if (!/^[1-9]$/.test(bodyCols)) {
+	  if (!/^[1-9][0-9]$/.test(bodyCols)) {
 		  bodyCols="2";
 	  }		
 	  $("#bodyCols").val(bodyCols);
 	  var footCols=$("#footCols").val();		  
-	  if (!/^[1-9]$/.test(footCols)) {
+	  if (!/^[1-9][0-9]$/.test(footCols)) {
 		  footCols="";
 	  }		
 	  $("#footCols").val(footCols);
@@ -290,6 +292,35 @@
 	  }
   }
   
+  //表重命名
+  function renameTable(){
+	  $('#tbname-dialog').show();
+  }
+  
+   //删除表确认
+  function dropTableConfirm(){
+	  $('#confirm-dialog').dialog('open');
+  }
+  //删除表
+  function dropTable(){
+	  $.ajax({
+		  type: 'GET',
+		  url: "/tb/droptable/${tbId}",			  
+		  dataType: 'json',
+		  success: function(data){
+			  if(data.code == '1'){				  
+				  location.href="/tb/tabledefination/${tbId}?scope="+gscope+"&fieldsetting="+gfieldsetting;
+			  }
+			  if(data.code == '0'){
+				  $('#alert-dialog').show();
+				  $("#alert-msg").text(data.message+"请联系管理员.");				  
+			  }	  
+		  },
+		  error: function(XMLHttpRequest, textStatus, errorThrown){
+			  console.warn(XMLHttpRequest.responseText);			  
+		  }
+	});  
+  }
   //库表检测
   function checkTableScheme(){		  
 	  $.ajax({
@@ -465,7 +496,7 @@
   		<span style="margin-left:0.3%;">|</span>
   		<span style="margin-left:0.3%;cursor:pointer;" onclick="$('#setting-div').show();"><span style="color:#0c8e2a;">❆</span>布局 </span> 
   		<span style="margin-left:0.3%;">|</span>   		
-  		<span style="margin-left:0.3%;"><select style="font-size:.78rem;" id="tscope" onchange="changeScope();"><option value="head">表头</option><option value="body">表体</option><option value="foot">表尾</option></select></span>  		  		
+  		<span style="margin-left:0.3%;"><select style="font-size:.78rem;" id="tscope" onchange="changeScope();"><option value="表头">表头</option><option value="表体">表体</option><option value="表尾">表尾</option></select></span>  		  		
   		<span style="margin-left:0.3%;font-size:.78rem;" id="layout"></span>
   		<span style="margin-left:0.3%;">|</span>
   		<span style="margin-left:0.3%;cursor:pointer;" onclick="showFieldSetting();" id="fieldsetting"><span style="color: #90790a;">⤧</span>编辑</span>
@@ -475,6 +506,8 @@
 		</c:if>
 		<c:if test="${!empty brief.name }" > 		
 			<span id="db2" style="cursor:pointer;" title="重构库表数据" onclick="createTable();"><img src="/img/wf_btn13.PNG"></span>
+			<span style="cursor:pointer;" title="重命名" onclick="renameTable();"><img src="/img/wf_btn18.PNG"></span>
+			<span style="cursor:pointer;" title="删除表" onclick="dropTableConfirm();"><img src="/img/wf_btn19.PNG"></span>
 		</c:if> 
 		<span id="dbcheck" style="cursor:pointer;" title="库表检测" onclick="checkTableScheme();"><img src="/img/wf_btn15.PNG"></span>		
   		<span style="margin-left:0.3%;">|</span> 
@@ -518,9 +551,9 @@
     <hr style="margin-top: .5rem; margin-bottom: .5rem;border-top: 1px solid #0c4219;"></hr>    
     <div id="ems-dialog" style="height:70%">
 	    <div style="margin-left:5px;padding-left:1px;" >
-		    <input type="radio" id="scope" name="scope" value="head" onclick="fresh('head');">&nbsp;表头
-		    <input type="radio" id="scope" name="scope" value="body" checked onclick="fresh('body');">&nbsp;表体
-		    <input type="radio" id="scope" name="scope" value="foot" onclick="fresh('foot');">&nbsp;表尾 		    
+		    <input type="radio" id="scope" name="scope" value="表头" onclick="fresh('表头');">&nbsp;表头
+		    <input type="radio" id="scope" name="scope" value="表体" checked onclick="fresh('表体');">&nbsp;表体
+		    <input type="radio" id="scope" name="scope" value="表尾" onclick="fresh('表尾');">&nbsp;表尾 		    
 	    </div>
 	
 		<hr style="margin-top: .1rem; border-top: 1px solid #0c4219;"></hr> 
@@ -848,19 +881,36 @@
     	<hr style="margin-top: .5rem; margin-bottom: .5rem;"></hr> 
     	<table border="1px solid" style="border-color: red;">    		
     		<c:forEach var="layout" items="${layouts}" varStatus="status">
-	    		<c:choose>
-	    			<c:when test="${layout.scope eq 'head'}">
-	    				<tr><td style="font-size:.78rem;width:20%">表头</td><td style="width:50%">${layout.cols }列<c:if test="${!empty layout.stbId }"><label style="font-size:.78rem;margin-left:5px;">[外子表：${layout.stableName }]</label></c:if></td></tr>
-	    			</c:when>
-	    			<c:when test="${layout.scope eq 'body'}">
-	    				<tr><td style="font-size:.78rem;width:20%">表体</td><td style="width:50%">${layout.cols }列<c:if test="${!empty layout.stbId }"><label style="font-size:.78rem;margin-left:5px;">[外子表：${layout.stableName }]</label></c:if></td></tr>
-	    			</c:when>
-	    			<c:when test="${layout.scope eq 'foot'}">
-	    				<tr><td style="font-size:.78rem;width:20%">表尾</td><td style="width:50%">${layout.cols }列<c:if test="${!empty layout.stbId }"><label style="font-size:.78rem;margin-left:5px;">[外子表：${layout.stableName }]</label></c:if></td></tr>
-	    			</c:when>
-	    		</c:choose>
+	    		<tr><td style="font-size:.78rem;width:20%">${layout.scope }</td><td style="width:50%">${layout.cols }列<c:if test="${!empty layout.stbId }"><label style="font-size:.78rem;margin-left:5px;">[外子表：${layout.stableName }]</label></c:if></td></tr>	    		
     		</c:forEach>    		
   		</table>   	
     </div>
     <hr style="margin-top: .5rem; margin-bottom: .5rem;"></hr>    
+</div>
+
+<!-- 删除弹出窗口 -->
+<div id="confirm-dialog"  title="确认窗口" >
+  <p>表单一旦删除将无法复原！</p>
+  <br>
+  <div style="display:none" id="delegationDiv">  	
+  </div>
+  <br>
+  <nav aria-label="Page navigation example">
+  	<ul class="pagination">  	    
+   		<li class="page-item">
+   		  <div class="btn-confirm-dialog">
+		      <a style="color: #e9eef3;" href="javascript:void(0);"  onclick="dropTable();">
+		        <span aria-hidden="true">确认</span>		        
+		      </a>
+	      </div>
+	    </li>
+	    <li class="page-item">
+   		  <div class="btn-confirm-dialog">
+		      <a style="color: #e9eef3;" href="javascript:void(0);" onclick="$('#confirm-dialog').dialog('close');">
+		        <span aria-hidden="true">取消</span>		        
+		      </a>
+	      </div>
+	    </li>
+	</ul>
+  </nav>    
 </div>

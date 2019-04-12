@@ -5,7 +5,6 @@ package cn.ideal.wfpf.web;
  * @version 2.0
  * */
 
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -13,6 +12,9 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -27,8 +29,7 @@ import cn.ideal.wf.data.analyzer.Storage;
 import cn.ideal.wf.data.analyzer.StorageAnalyzer;
 import cn.ideal.wf.data.query.QueryPageExecutor;
 import cn.ideal.wf.flowchat.draw.FlowChatService;
-import cn.ideal.wf.model.WorkflowTableBrief;
-import cn.ideal.wf.model.WorkflowTableElement;
+import cn.ideal.wf.model.Workflow;
 import cn.ideal.wf.page.ListModel;
 import cn.ideal.wf.page.Page;
 import cn.ideal.wf.page.PageModel;
@@ -43,15 +44,14 @@ import cn.ideal.wf.table.draw.PureTableService;
 
 @Controller
 @RequestMapping("/app")
+@PropertySource("classpath:application.properties")
 public class ActualController extends PlatformFundation{
 	@Autowired
 	private WorkflowWFService wfService;	
 	@Autowired
 	private WorkflowTableService wftableService;
 	@Autowired
-	private WorkflowFlowService wfFlowService;
-	@Autowired
-	private QueryPageExecutor queryPageExecutor;
+	private WorkflowFlowService wfFlowService;	
 	@Autowired
 	private ParameterAnalyzer parameterAnalyzer;
 	@Autowired
@@ -68,6 +68,15 @@ public class ActualController extends PlatformFundation{
 	@Autowired
 	private PureTableService plattenTableService;
 	
+	@Value("${workflow.wf.database.querypageexecutor}")
+	private String queryPageExecutorName;
+
+	private QueryPageExecutor queryPageExecutor;
+	
+	@Autowired
+    public void setQueryPageExecutor(ApplicationContext context) {
+		queryPageExecutor = (QueryPageExecutor) context.getBean(queryPageExecutorName);
+    }
 	/**
 	 * 实战首页
 	 * */
@@ -75,23 +84,23 @@ public class ActualController extends PlatformFundation{
     public ModelAndView homePage(HttpServletRequest request) {
 		ModelAndView mav = new ModelAndView("app/actualCenter");
 		ListModel listModel = new ListModel();
-		mav.addObject("model", listModel);
-		listModel.setMenu(wfService.findAllBlindTable());
+		mav.addObject("model", listModel);		
+		listModel.setMenu(wftableService.findAllBlindTable());
         return mav;
     }
 	
 	/**
 	 * 获取指定业务列表信息
-	 * 
+	 * 此方法是采用流程驱动方式
 	 */
-	@GetMapping(value={"/list/{wfId}/{scope}/{pageNumber}","/list/{wfId}/{pageNumber}"})
-    public ModelAndView getList(@PathVariable Long wfId,@PathVariable Long pageNumber,@PathVariable Optional<String> scope, HttpServletRequest request) {
+	@GetMapping(value={"/list/{tbId}/{scope}/{pageNumber}","/list/{tbId}/{pageNumber}"})
+    public ModelAndView getList(@PathVariable Long tbId,@PathVariable Long pageNumber,@PathVariable Optional<String> scope, HttpServletRequest request) {
 		ModelAndView mav = new ModelAndView("app/list");
 		ListModel listModel = new ListModel();
 		mav.addObject("model", listModel);
 		try{
 			Storage storage = null;
-			storage = parameterAnalyzer.dataAnalyze(request, wfId);
+			storage = parameterAnalyzer.dataAnalyze(request, tbId);
 			storage.setUser(this.getWorkflowUser(request));
 			storage.setBeginNumberWithPageNumber(pageNumber);
 			//下拉列表处理
@@ -103,15 +112,15 @@ public class ActualController extends PlatformFundation{
 			Long count = queryPageExecutor.queryAll(storage);
 	        Page<Map<String,Object>> page = new Page<Map<String,Object>>(count,pageNumber);
 	        page.setPageList(queryPageExecutor.queryPage(storage));
-	        page.setUrl("/app/list/"+wfId);
+	        page.setUrl("/app/list/"+tbId);
 	        listModel.setPage(page);
 		}catch(Exception e){	
 			e.printStackTrace();
 		}
 		
-		listModel.setWf(WorkflowCache.getValue(wfId));
-		listModel.setTableList(wftableService.findElementsOnList(listModel.getWf().getTbId()));
-		listModel.setMenu(wfService.findAllBlindTable());
+		listModel.setWftb(TableBriefCache.getValue(tbId));
+		listModel.setTableList(wftableService.findElementsOnList(tbId));
+		listModel.setMenu(wftableService.findAllBlindTable());
 		
         return mav;
     }	
@@ -123,70 +132,34 @@ public class ActualController extends PlatformFundation{
 	 * @param request
 	 * @return
 	 */
-	@GetMapping(value={"/showtable/{wfId}/{bizId}/{style}","/showtable/{wfId}/{style}"})
-    public ModelAndView showTable(@PathVariable Long wfId, @PathVariable Optional<Long> bizId,@PathVariable String style,HttpServletRequest request) {
+	@GetMapping(value={"/showtable/{tbId}/{bizId}","/showtable/{tbId}"})
+    public ModelAndView showTable(@PathVariable Long tbId, @PathVariable Optional<Long> bizId, HttpServletRequest request) {
 		ModelAndView mav = new ModelAndView("app/table");
 		PageModel pageModel = new PageModel();
 		mav.addObject("model",pageModel);
 		if(bizId.isPresent()) pageModel.setBizId(bizId.get());
-		pageModel.setWf(WorkflowCache.getValue(wfId));		
-		pageModel.setMenu(wfService.findAllBlindTable());
-		pageModel.setNodeName(wfProcessor.findNodeName(wfId,pageModel.getBizId()));
-		pageModel.setNextNodes(workflowNodeService.findNextNodes(pageModel.getNodeName(), wfId));
-		if(bizId.isPresent()) {			
-			pageModel.setFlowChat(flowChatService.draw(wfId,bizId.get()).toString());
-			pageModel.setWfBrief(wfBriefService.find(bizId.get(), wfId));
+		pageModel.setWftb(TableBriefCache.getValue(tbId));
+		Workflow wf = WorkflowCache.getValue(pageModel.getWftb().getWfId());
+		pageModel.setWf(wf);		
+		pageModel.setMenu(wftableService.findAllBlindTable());
+		pageModel.setNodeName(wfProcessor.findNodeName(wf.getWfId(),pageModel.getBizId()));
+		pageModel.setNextNodes(workflowNodeService.findNextNodes(pageModel.getNodeName(), wf.getWfId()));
+		if(bizId.isPresent()) {
+			pageModel.setFlowChat(flowChatService.draw(wf.getWfId(),bizId.get()).toString());
+			pageModel.setWfBrief(wfBriefService.find(bizId.get(), wf.getWfId()));
+			pageModel.setTable(plattenTableService.draw(pageModel.getWftb().getTbId(),bizId.get()).toString());
 		}else{
-			pageModel.setFlowChat(flowChatService.draw(wfId).toString());			
+			pageModel.setFlowChat(flowChatService.draw(wf.getWfId()).toString());
+			pageModel.setTable(plattenTableService.draw(pageModel.getWftb().getTbId()).toString());
 		}
 		
 		if(pageModel.getWfBrief() != null){
-			pageModel.setButtons(workflowNodeService.findButtonsByNodeName(pageModel.getWfBrief().getNodeName(), wfId));
+			pageModel.setButtons(workflowNodeService.findButtonsByNodeName(pageModel.getWfBrief().getNodeName(), wf.getWfId()));
 		}
-		pageModel.setTable(plattenTableService.draw(pageModel.getTableBrief().getTbId()).toString());
+		
         return mav;
     }
 	
-	/**
-	 * 表单内容因格式的不同做不同的展示
-	 * @param wfId
-	 * @param bizId
-	 * @param style
-	 * @param request
-	 * @return
-	 */
-	@GetMapping(value = {"/showcontent/{wfId}/{style}", "/showcontent/{wfId}/{bizId}/{style}"})
-    public ModelAndView showContent(@PathVariable Long wfId, @PathVariable Optional<Long> bizId, @PathVariable String style, HttpServletRequest request) {
-		ModelAndView mav = new ModelAndView("app/content_div"); 
-		PageModel pageModel = new PageModel();
-		mav.addObject("model",pageModel);
-		pageModel.setWf(WorkflowCache.getValue(wfId));
-		
-		Long tableId = pageModel.getWf().getTbId();
-		List<WorkflowTableElement> headLst = wftableService.findAllTableElementsWithScope(tableId,"head");
-		List<WorkflowTableElement> bodyLst = wftableService.findAllTableElementsWithScope(tableId,"body");		
-		List<WorkflowTableElement> footLst = wftableService.findAllTableElementsWithScope(tableId,"foot");
-		WorkflowTableBrief tb = TableBriefCache.getValue(tableId);
-		
-		if(bodyLst.size() % tb.getCols() != 0){
-			for(int i=0; i< bodyLst.size() % tb.getCols(); i++){
-				bodyLst.add(new WorkflowTableElement());
-			}
-		}
-		pageModel.setTableBrief(tb);
-		pageModel.setHeadLst(headLst);
-		pageModel.setBodyLst(bodyLst);
-		pageModel.setFootLst(footLst);
-
-		if(bizId.isPresent()){
-			Storage storage = new Storage();
-			storage.setBizId(bizId.get());
-			storage.setTableName(tb.getName());
-			pageModel.setBizTable(queryPageExecutor.query(storage));
-			pageModel.setBizId(bizId.get());
-		}
-        return mav;
-    }
 	
 	/**
 	 * 保存表单信息
@@ -197,9 +170,9 @@ public class ActualController extends PlatformFundation{
 	 * @return
 	 * @throws Exception
 	 */
-	@PostMapping(value={"/save/{wfId}","/save/{wfId}/{bizId}"})
-	public ModelAndView saveTableData(@PathVariable Long wfId, @PathVariable Optional<Long> bizId,HttpServletRequest request) throws Exception{		
-		Storage storage = storageAnalyzer.dataAnalyze(request, wfId);		
+	@PostMapping(value={"/save/{tbId}","/save/{tbId}/{bizId}"})
+	public ModelAndView saveTableData(@PathVariable Long tbId, @PathVariable Optional<Long> bizId,HttpServletRequest request) throws Exception{		
+		Storage storage = storageAnalyzer.dataAnalyze(request, tbId);		
 		//获取运行系统的当前登录用户
 		storage.setUser(this.getWorkflowUser(request));	
 		Map<String,Object> obj;
@@ -209,7 +182,7 @@ public class ActualController extends PlatformFundation{
 		}
 		else obj = wftableService.saveDataValueForTable(storage);
 		
-		ModelAndView mav = new ModelAndView("redirect:/app/showtable/"+wfId+"/"+obj.get("ID")+"/div");
+		ModelAndView mav = new ModelAndView("redirect:/app/showtable/"+tbId+"/"+obj.get("ID"));
 		return mav;
 	}
 	
@@ -221,12 +194,12 @@ public class ActualController extends PlatformFundation{
 	 * @return
 	 * @throws Exception
 	 */
-	@PostMapping(value={"/doaction/{wfId}/{bizId}","/doaction/{wfId}/{bizId}/{nodeId}"})
-	public ModelAndView doaction(@PathVariable Long wfId, @PathVariable Long bizId,@PathVariable Optional<Long> nodeId, HttpServletRequest request) throws Exception{
-		ModelAndView mav = new ModelAndView("redirect:/app/list/"+wfId+"/1");	
+	@PostMapping(value={"/doaction/{tbId}/{bizId}","/doaction/{tbId}/{bizId}/{nodeId}"})
+	public ModelAndView doaction(@PathVariable Long tbId, @PathVariable Long bizId,@PathVariable Optional<Long> nodeId, HttpServletRequest request) throws Exception{
+		ModelAndView mav = new ModelAndView("redirect:/app/list/"+tbId+"/1");	
 		if(nodeId.isPresent()){			
-			wfProcessor.doAction(wfId, bizId, this.getWorkflowUser(request), workflowNodeService.findNode(nodeId.get()));
-		}else wfProcessor.doAction(wfId, bizId, this.getWorkflowUser(request));
+			wfProcessor.doAction(tbId, bizId, this.getWorkflowUser(request), workflowNodeService.findNode(nodeId.get()));
+		}else wfProcessor.doAction(tbId, bizId, this.getWorkflowUser(request));
 		
 		return mav;
 	}
@@ -239,10 +212,10 @@ public class ActualController extends PlatformFundation{
 	 * @return
 	 * @throws Exception
 	 */
-	@PostMapping(value={"/dobutton/{wfId}/{bizId}/{buttonName}"})
-	public ModelAndView dobutton(@PathVariable Long wfId, @PathVariable Long bizId,@PathVariable String buttonName,HttpServletRequest request) throws Exception{
-		ModelAndView mav = new ModelAndView("redirect:/app/list/"+wfId+"/1");						
-		wfProcessor.doButton(wfId, bizId, this.getWorkflowUser(request),buttonName);
+	@PostMapping(value={"/dobutton/{tbId}/{bizId}/{buttonName}"})
+	public ModelAndView dobutton(@PathVariable Long tbId, @PathVariable Long bizId,@PathVariable String buttonName,HttpServletRequest request) throws Exception{
+		ModelAndView mav = new ModelAndView("redirect:/app/list/"+tbId+"/1");						
+		wfProcessor.doButton(tbId, bizId, this.getWorkflowUser(request),buttonName);
 		
 		return mav;
 	}

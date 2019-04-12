@@ -14,6 +14,7 @@ public class WorkflowTableBrief implements Serializable{
 	private String name;
 	private String tableName;
 	private String template;
+	private Long wfId;
 	private Long cols;
 	private String status;
 	private Date createdDate;
@@ -59,6 +60,12 @@ public class WorkflowTableBrief implements Serializable{
 	}
 	public void setTemplate(String template) {
 		this.template = template;
+	}
+	public Long getWfId() {
+		return wfId;
+	}
+	public void setWfId(Long wfId) {
+		this.wfId = wfId;
 	}
 	
 }

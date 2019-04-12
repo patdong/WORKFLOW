@@ -68,7 +68,7 @@ public class ElementServiceImpl implements ElementService{
 
 	@Override
 	public List<Element> findValidAllWithTable(Long tbId, String scope) {
-		if(StringUtils.isEmpty(scope)) scope = "body";
+		if(StringUtils.isEmpty(scope)) scope = "表体";
 		return elementMapper.findValidAllWithTable(tbId,scope);
 	}
 }

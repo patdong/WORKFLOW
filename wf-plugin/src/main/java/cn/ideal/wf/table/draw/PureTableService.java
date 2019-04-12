@@ -11,4 +11,6 @@ public interface PureTableService {
 	StringBuffer draw(Long tbId);
 	
 	StringBuffer draw(Long tbId,String scope, boolean setting);
+	
+	StringBuffer draw(Long tbId, Long bizId);
 }

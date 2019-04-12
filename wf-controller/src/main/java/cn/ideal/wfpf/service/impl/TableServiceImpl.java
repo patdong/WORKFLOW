@@ -20,6 +20,7 @@ import cn.ideal.wfpf.model.TableElement;
 import cn.ideal.wfpf.model.TableLayout;
 import cn.ideal.wfpf.service.ElementService;
 import cn.ideal.wfpf.service.TableService;
+import cn.ideal.wfpf.service.WorkflowService;
 import cn.ideal.wfpf.sqlengine.SQLExecutor;
 
 @Service
@@ -29,6 +30,8 @@ public class TableServiceImpl implements TableService {
 	private TableMapper tableMapper;
 	@Autowired
 	private ElementService elementService;
+	@Autowired
+	private WorkflowService wfService;
 	
 	@Value("${workflow.wfpf.database.executor}")
     String executorName;
@@ -50,7 +53,7 @@ public class TableServiceImpl implements TableService {
 			TableLayout tl = new TableLayout();
 			tl.setTbId(obj.getTbId());
 			tl.setCols(2l);
-			tl.setScope("body");
+			tl.setScope("表体");
 			idx = tableMapper.saveTableLayout(tl);
 			if(idx == 1) return obj;
 		}
@@ -186,7 +189,7 @@ public class TableServiceImpl implements TableService {
 
 	@Override
 	public List<TableElement> findTableAllElements(Long tbId, String scope) {
-		if(StringUtils.isEmpty(scope)) scope = "body";
+		if(StringUtils.isEmpty(scope)) scope = "表体";
 		return tableMapper.findTableAllElements(tbId, scope);
 	}
 
@@ -233,7 +236,7 @@ public class TableServiceImpl implements TableService {
 				te.setNewFieldType(em.getFieldType());
 				te.setNewFieldDataType(em.getFieldDataType());
 				te.setNewLength(em.getLength());
-				te.setScope("/");
+				te.setScope("列表");
 				te.setSeq(seq);
 				te.setList("有效");
 				te.setStatus("有效");
@@ -253,6 +256,9 @@ public class TableServiceImpl implements TableService {
 		return tableMapper.findElementsOnList(tbId);
 	}
 
+	/**
+	 * 生成库表
+	 */
 	@Override
 	@Transactional(propagation=Propagation.REQUIRED,rollbackFor = Exception.class)
 	public boolean createTable(Long tbId, String tableName) throws Exception {
@@ -262,9 +268,11 @@ public class TableServiceImpl implements TableService {
 		if(tableExist) {
 			throw new Exception("表名已存在!");
 		}
-			
-		sqlExecutor.createTable(tbId,tableName);
-		TableBrief tb = new TableBrief();
+		//判断是新建表还是重命名表
+		TableBrief tb = tableMapper.find(tbId);
+		if(tb.getName() == null) sqlExecutor.createTable(tbId,tableName);
+		else sqlExecutor.rename(tableName,tb.getName());
+		tb = new TableBrief();
 		tb.setTbId(tbId);
 		tb.setName(tableName);
 		tb = this.updateTableBrief(tb);
@@ -317,6 +325,7 @@ public class TableServiceImpl implements TableService {
 				em = elementService.save(em);
 			}
 			Long seq = tableMapper.findMaxSeq(obj.getTbId());
+			if(seq == null) seq = 0l;
 			obj.setSeq(seq+1);
 			obj.setCreatedDate(new Date());
 			obj.setEmId(em.getEmId());
@@ -376,6 +385,8 @@ public class TableServiceImpl implements TableService {
 		TableBrief tb = tableMapper.find(tbId);
 		if(tb != null){
 			tableMapper.deleteTableBrief(tbId);
+			tableMapper.deleteLayout(tbId, null);
+			tableMapper.deleteTableElementByTbId(tb.getTbId());
 			if(tb.getTableName() != null){
 				try{					
 					sqlExecutor.dropTable(tb.getTableName());
@@ -392,30 +403,40 @@ public class TableServiceImpl implements TableService {
 	 */
 	@Override
 	@Transactional(propagation=Propagation.REQUIRED,rollbackFor = Exception.class)
-	public boolean saveLayout(Long tbId, Long headCols, Long bodyCols,
-			Long footCols) {
-		tableMapper.deleteLayout(tbId);
-		if(headCols != null){
-			TableLayout tl = new TableLayout();
-			tl.setCols(headCols);
-			tl.setScope("head");
-			tl.setTbId(tbId);
+	public boolean saveLayout(Long tbId, Long headCols, Long bodyCols,Long footCols) {		
+		TableLayout tl = tableMapper.findLayout(tbId, "表头");
+		if(tl != null) tableMapper.deleteLayout(tbId, "表头");
+		if(headCols != null){			
+			if(tl == null) {
+				tl = new TableLayout();
+				tl.setScope("表头");
+				tl.setTbId(tbId);
+			}			
+			tl.setCols(headCols);						
 			tableMapper.saveTableLayout(tl);
 		}
 		
-		if(bodyCols != null){
-			TableLayout tl = new TableLayout();
-			tl.setCols(bodyCols);
-			tl.setScope("body");
-			tl.setTbId(tbId);
+		tl = tableMapper.findLayout(tbId, "表体");
+		if(tl != null) tableMapper.deleteLayout(tbId, "表体");
+		if(bodyCols != null){			
+			if(tl == null) {
+				tl = new TableLayout();
+				tl.setScope("表体");
+				tl.setTbId(tbId);
+			}			
+			tl.setCols(bodyCols);						
 			tableMapper.saveTableLayout(tl);
 		}
 		
-		if(footCols != null){
-			TableLayout tl = new TableLayout();
-			tl.setCols(footCols);
-			tl.setScope("foot");
-			tl.setTbId(tbId);
+		tl = tableMapper.findLayout(tbId, "表尾");
+		if(tl != null) tableMapper.deleteLayout(tbId, "表尾");
+		if(footCols != null){			
+			if(tl == null) {
+				tl = new TableLayout();
+				tl.setScope("表尾");
+				tl.setTbId(tbId);
+			}			
+			tl.setCols(footCols);						
 			tableMapper.saveTableLayout(tl);
 		}
 		
@@ -467,6 +488,67 @@ public class TableServiceImpl implements TableService {
 	@Override
 	public List<TableElement> findTableFieldsToDBCheck(Long tbId) {
 		return tableMapper.findTableFieldsToDBCheck(tbId);
+	}
+
+
+	/**
+	 * 拷贝指定表单信息
+	 */
+	@Override
+	@Transactional(propagation=Propagation.REQUIRED,rollbackFor = Exception.class)
+	public boolean copy(Long tbId) {
+		//拷贝tableBrief
+		TableBrief tb = this.find(tbId);
+		TableBrief copyTb = new TableBrief();
+		copyTb.setCols(tb.getCols());
+		copyTb.setCreatedDate(new Date());
+		copyTb.setName(tb.getName());
+		copyTb.setTableName(tb.getTableName()+"_拷贝");
+		copyTb.setStatus(tb.getStatus());
+		copyTb.setTemplate(tb.getTemplate());
+		int idx = tableMapper.saveTableBrief(copyTb);
+		if(idx == 1){
+			//拷贝tableLayout
+			for(TableLayout tl : tb.getLayout()){
+				tl.setTbId(copyTb.getTbId());
+				tableMapper.saveTableLayout(tl);
+			}
+			for(TableElement te : this.findTableAllElements(tbId)){
+				te.setTbId(copyTb.getTbId());
+				te.setCreatedDate(new Date());
+				this.saveTableElement(te);
+			}			
+		}
+		
+		return true;
+	}
+
+
+	@Override
+	public boolean removeBinding(Long tbId) {
+		TableBrief tb = tableMapper.find(tbId);
+		int idx = tableMapper.removeBinding(tbId);
+		if(idx > 0) {
+			return wfService.removeBinding(tb.getWfId());			
+		}
+		return false;
+	}
+
+
+	@Override
+	public boolean dropTable(Long tbId) throws Exception {
+		TableBrief tb = tableMapper.find(tbId);
+		try{					
+			sqlExecutor.dropTable(tb.getName());			
+			tb.setTbId(tbId);
+			tb.setName(null);
+			int idx = tableMapper.updateTableBriefToNull(tb);
+			if(idx == 1) return true;
+			else return false;
+		}catch(Exception e){
+			throw e;
+		}
+				
 	}
 
 }
