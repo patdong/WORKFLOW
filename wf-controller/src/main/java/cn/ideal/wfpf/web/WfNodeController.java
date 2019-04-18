@@ -8,7 +8,6 @@ package cn.ideal.wfpf.web;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -54,10 +53,16 @@ public class WfNodeController {
         return new ModelAndView("redirect:/wf/workflowdefination/"+node.getWfId());
     }
 	
-	@GetMapping(value={"/delNode/{nodeId}","/delNode/{nodeId}/{delegationNodeId}"})
+	/*@GetMapping(value={"/delNode/{nodeId}","/delNode/{nodeId}/{delegationNodeId}"})
     public @ResponseBody boolean delNode(@PathVariable Long nodeId, @PathVariable Optional<Long> delegationNodeId, HttpServletRequest request) {
 		if(delegationNodeId.isPresent()) nodeService.setDelegationNode(nodeId, delegationNodeId.get());
 		else nodeService.delete(nodeId);		
+		return true;
+    }*/
+	
+	@GetMapping(value={"/delNode/{nodeId}"})
+    public @ResponseBody boolean delNode(@PathVariable Long nodeId, HttpServletRequest request) {
+		nodeService.delete(nodeId);		
 		return true;
     }
 	
@@ -100,7 +105,7 @@ public class WfNodeController {
 	 * @param request
 	 * @return
 	 */
-	@GetMapping(value={"/delNodeLink/{nodeId}/{lineNodeIds}","/delNodeLink/{nodeId}"})
+	/*@GetMapping(value={"/delNodeLink/{nodeId}/{lineNodeIds}","/delNodeLink/{nodeId}"})
     public @ResponseBody boolean delNodeLink(@PathVariable Long nodeId, @PathVariable Optional<String> lineNodeIds, HttpServletRequest request) {
 		if(!lineNodeIds.isPresent()) nodeService.deleteLink(nodeId, new Long[]{0l});
 		else{
@@ -112,6 +117,26 @@ public class WfNodeController {
 			
 			nodeService.deleteLink(nodeId, lary);
 		}
+		return true;
+    }*/	
+	
+	@GetMapping(value={"/delNodeLink/{nodeId}/{lineNodeIds}"})
+    public @ResponseBody boolean delNodeLink(@PathVariable Long nodeId, @PathVariable String lineNodeIds, HttpServletRequest request) {
+		
+		String[] ary = lineNodeIds.split(",");
+		Long[] lary = new Long[ary.length];
+		for(int i=0;i<lary.length;i++){
+			lary[i] = Long.parseLong(ary[i]);
+		}
+		
+		nodeService.deleteLink(nodeId, lary);
+	
+		return true;
+    }
+	
+	@GetMapping(value={"/delNodeLink/{nodeId}"})
+    public @ResponseBody boolean delNodeLink(@PathVariable Long nodeId, HttpServletRequest request) {
+		nodeService.deleteLink(nodeId, new Long[]{0l});		
 		return true;
     }
 }

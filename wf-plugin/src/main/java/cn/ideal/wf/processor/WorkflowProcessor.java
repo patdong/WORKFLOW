@@ -95,10 +95,11 @@ public class WorkflowProcessor extends Utils implements Processor {
 	 */
 	@Override
 	@Transactional(propagation=Propagation.REQUIRED)
-	public boolean doAction(Long tbId, Long bizId, WorkflowUser wfu,WorkflowNode node) throws Exception {
+	public boolean doAction(Long tbId, Long bizId, WorkflowUser wfu,Long nodeId) throws Exception {
 		boolean res = true;
 		WorkflowTableBrief wftb = TableBriefCache.getValue(tbId);
 		WorkflowBrief wfb = workflowBriefService.findDoingFlow(bizId,wftb.getWfId());
+		WorkflowNode node = workflowNodeService.findNode(nodeId);
 		WorkflowAction action = null;
 		//判断是否已经创建了流程，未创建则先创建再流转
 		if(wfb == null){
@@ -131,10 +132,11 @@ public class WorkflowProcessor extends Utils implements Processor {
 	 */
 	@Override
 	@Transactional(propagation=Propagation.REQUIRED)
-	public boolean doAction(Long tbId, Long bizId, WorkflowUser wfu,WorkflowNode node, WorkflowUser... nextWfu) throws Exception {
+	public boolean doAction(Long tbId, Long bizId, WorkflowUser wfu,Long nodeId, WorkflowUser... nextWfu) throws Exception {
 		boolean res = true;
 		WorkflowTableBrief wftb = TableBriefCache.getValue(tbId);
 		WorkflowBrief wfb = workflowBriefService.findDoingFlow(bizId,wftb.getWfId());
+		WorkflowNode node = workflowNodeService.findNode(nodeId);
 		WorkflowAction action = null;
 		//判断是否已经创建了流程，未创建则先创建再流转
 		if(wfb == null){

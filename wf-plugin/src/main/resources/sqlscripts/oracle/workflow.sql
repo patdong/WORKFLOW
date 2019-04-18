@@ -31,7 +31,7 @@ COMMENT ON COLUMN element_library.length IS '字段长度，仅对字符串类�
 COMMENT ON COLUMN element_library.functionBelongTo IS '方法隶属于标签或元素';
 
 ALTER TABLE element_library ADD (CONSTRAINT emId_PK PRIMARY KEY (emId));
-CREATE SEQUENCE sq_emId START WITH 1 INCREMENT BY 1 MAXVALUE 1E27 MINVALUE 1 NOCYCLE NOCACHE ORDER;
+CREATE SEQUENCE sq_emId START WITH 100 INCREMENT BY 1 MAXVALUE 1E27 MINVALUE 1 NOCYCLE NOCACHE ORDER;
 
 
 DROP TABLE sys_configuration;
@@ -434,7 +434,7 @@ INSERT INTO element_library VALUES
 INSERT INTO element_library VALUES 
 (14,'批复建设起止年限','projectDateFrom','','','有效',sysdate,'系统级','输入框','String',NULL,100,NULL);
 INSERT INTO element_library VALUES 
-(15,'办理状态','action',NULL,NULL,'有效',sysdate,'列表级','/','String',NULL,NULL,NULL);
+(15,'办理状态','action',NULL,NULL,'有效',sysdate,'列表级','列表'','String',NULL,NULL,NULL);
 INSERT INTO element_library VALUES 
 (16,'姓名','name','','','有效',sysdate,'自定义','输入框','String','',100,NULL);
 INSERT INTO element_library VALUES 

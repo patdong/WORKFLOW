@@ -1,12 +1,13 @@
 package cn.ideal.wfpf.service.impl;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,15 +33,20 @@ public class TableServiceImpl implements TableService {
 	private ElementService elementService;
 	@Autowired
 	private WorkflowService wfService;
-	
-	@Value("${workflow.wfpf.database.executor}")
-    String executorName;
+	@Autowired
+	private JdbcTemplate jdbcTemplate;	
 		
 	private SQLExecutor sqlExecutor;
 	
 	@Autowired
     public void setSQLExecutor(ApplicationContext context) {
-		sqlExecutor = (SQLExecutor) context.getBean(executorName);
+		try {
+			String driver = jdbcTemplate.getDataSource().getConnection().getMetaData().getDriverName();
+			if(driver.toLowerCase().contains("mysql")) sqlExecutor = (SQLExecutor) context.getBean("WFPFMYSQLExecutor");
+			if(driver.toLowerCase().contains("oracle")) sqlExecutor = (SQLExecutor) context.getBean("WFPFORACLEExecutor");
+		} catch (SQLException e) {			
+			e.printStackTrace();
+		}	
     }
 
 	
@@ -310,7 +316,7 @@ public class TableServiceImpl implements TableService {
 		}
 		if(obj.getId() == null) {
 			Element em = new Element();
-			if(!(obj.getNewFieldType().contains("标签") || obj.getNewFieldType().contains("子表单") || obj.getNewFieldType().contains("组件"))){				
+			if(!(obj.getNewFieldType().contains("标签") || obj.getNewFieldType().contains("子表") || obj.getNewFieldType().contains("组件"))){				
 				em.setCreatedDate(new Date());
 				em.setDataContent(obj.getNewDataContent());
 				em.setFieldDataType(obj.getNewFieldDataType());

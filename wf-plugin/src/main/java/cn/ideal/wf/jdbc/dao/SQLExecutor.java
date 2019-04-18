@@ -19,4 +19,14 @@ public interface SQLExecutor {
 	Map<String,Object> update(Storage storage);
 	
 	List<Map<String,Object>> query(String sql);
+	
+	Long queryAll(Storage storage);
+	
+	Long queryWorkflowAll(Storage storage);
+	
+	List<Map<String,Object>> queryPage(Storage storage);
+	
+	List<Map<String,Object>> queryWorkflowPage(Storage storage);
+	
+	Map<String,Object> query(Storage storage);
 }

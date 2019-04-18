@@ -4,26 +4,26 @@ package cn.ideal.wf.page;
  * @author 郭佟燕
  * @version 2.0
  */
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import cn.ideal.wf.model.Workflow;
 import cn.ideal.wf.model.WorkflowAction;
 import cn.ideal.wf.model.WorkflowBrief;
 import cn.ideal.wf.model.WorkflowNode;
 
 public class PageModel extends Model{
-	private Long bizId;                            //当前业务编号，初始为空
-	private Workflow wf;                           //流程概述
-	private String nodeName;                       //当前办理节点
-	private List<WorkflowNode> nextNodes;          //当前办理节点的续办节点
+	private Long bizId;                            //当前业务编号，初始为空		
+	private String nodeName;                       //当前办理节点	
+	private List<Map<String,Object>> nextNodes;    //当前办理节点的续办节点
 	private int nextNodeSize;                      //当前办理节点的续办节点个数	
-	private WorkflowBrief wfBrief;                 //流程
-	private String table;                          //表单绘制
+	private WorkflowBrief wfBrief;                 //流程概述
+	private List<Map<String,String>> buttons;      //节点按钮
 	
-	private List<WorkflowAction> buttons;          //节点按钮
-	private Map<String, Object> bizTable;          //表单数据
+	private String table;                          //表单绘制
 	private String flowChat;                       //流程图
+	
 	public Long getBizId() {
 		return bizId;
 	}
@@ -32,28 +32,12 @@ public class PageModel extends Model{
 		this.bizId = bizId;
 	}
 
-	public Workflow getWf() {
-		return wf;
-	}
-
-	public void setWf(Workflow wf) {
-		this.wf = wf;
-	}
-
 	public String getNodeName() {
 		return nodeName;
 	}
 
 	public void setNodeName(String nodeName) {
 		this.nodeName = nodeName;
-	}
-
-	public Map<String, Object> getBizTable() {
-		return bizTable;
-	}
-
-	public void setBizTable(Map<String, Object> bizTable) {
-		this.bizTable = bizTable;
 	}
 
 	public String getFlowChat() {
@@ -72,20 +56,32 @@ public class PageModel extends Model{
 		this.wfBrief = wfBrief;
 	}
 
-	public List<WorkflowAction> getButtons() {
+	public List<Map<String,String>> getButtons() {
 		return buttons;
 	}
 
 	public void setButtons(List<WorkflowAction> buttons) {
-		this.buttons = buttons;
+		this.buttons = new ArrayList<Map<String,String>>();
+		for(WorkflowAction wfa : buttons){
+			Map<String,String> button = new HashMap<String,String>();
+			button.put("actionCodeName", wfa.getActionCodeName());
+			button.put("actionName", wfa.getActionName());
+			this.buttons.add(button);
+		}
 	}
 
-	public List<WorkflowNode> getNextNodes() {
+	public List<Map<String,Object>> getNextNodes() {
 		return nextNodes;
 	}
 
 	public void setNextNodes(List<WorkflowNode> nextNodes) {
-		this.nextNodes = nextNodes;
+		this.nextNodes = new ArrayList<Map<String,Object>>();
+		for(WorkflowNode wfn : nextNodes){
+			Map<String,Object> node = new HashMap<String,Object>();
+			node.put("nodeId", wfn.getNodeId());
+			node.put("nodeName", wfn.getNodeName());
+			this.nextNodes.add(node);
+		}
 		if(nextNodes != null) this.nextNodeSize = nextNodes.size();
 	}
 
@@ -100,6 +96,6 @@ public class PageModel extends Model{
 	public void setTable(String table) {
 		this.table = table;
 	}
-	
+
 	
 }

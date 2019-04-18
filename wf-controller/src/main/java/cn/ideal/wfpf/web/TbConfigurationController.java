@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,7 +30,7 @@ import cn.ideal.wfpf.service.WorkflowService;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mysql.jdbc.StringUtils;
+
 
 @Controller
 @RequestMapping("/tb")
@@ -271,9 +272,9 @@ public class TbConfigurationController {
 		Long headCols = null;
 		Long bodyCols = null;
 		Long footCols = null;
-		if(!StringUtils.isNullOrEmpty(request.getParameter("headCols"))) headCols = Long.parseLong(request.getParameter("headCols"));
-		if(!StringUtils.isNullOrEmpty(request.getParameter("bodyCols"))) bodyCols = Long.parseLong(request.getParameter("bodyCols"));
-		if(!StringUtils.isNullOrEmpty(request.getParameter("footCols"))) footCols = Long.parseLong(request.getParameter("footCols"));
+		if(!StringUtils.isEmpty(request.getParameter("headCols"))) headCols = Long.parseLong(request.getParameter("headCols"));
+		if(!StringUtils.isEmpty(request.getParameter("bodyCols"))) bodyCols = Long.parseLong(request.getParameter("bodyCols"));
+		if(!StringUtils.isEmpty(request.getParameter("footCols"))) footCols = Long.parseLong(request.getParameter("footCols"));
 		return tableService.saveLayout(tbId,headCols,bodyCols,footCols); 		
     }
 	

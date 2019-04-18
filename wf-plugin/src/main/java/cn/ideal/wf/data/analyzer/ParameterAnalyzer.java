@@ -10,10 +10,8 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import cn.ideal.wf.cache.TableBriefCache;
-import cn.ideal.wf.cache.WorkflowCache;
-import cn.ideal.wf.model.Workflow;
 import cn.ideal.wf.model.WorkflowTableBrief;
+import cn.ideal.wf.service.WorkflowTableService;
 import cn.ideal.wf.service.WorkflowWFService;
 
 import com.alibaba.druid.util.StringUtils;
@@ -22,18 +20,13 @@ import com.alibaba.druid.util.StringUtils;
 public class ParameterAnalyzer implements Analyzer {
 	@Autowired
     private WorkflowWFService workflowWFService;
+	@Autowired
+    private WorkflowTableService workflowTableService;
 	
 	@Override
 	public Storage dataAnalyze(HttpServletRequest request, Long tbId) throws Exception{
 		//TO-DO 此方法还没写完
-		WorkflowTableBrief wftb = TableBriefCache.getValue(tbId);
-		Workflow wf = WorkflowCache.getValue(wftb.getWfId());
-		if(wf == null) {
-			wf = workflowWFService.find(wftb.getWfId());
-			WorkflowCache.put(wf);
-		}
-		if(wf == null) return null;
-		
+		WorkflowTableBrief wftb = workflowTableService.find(tbId);	    
 		Storage storage = new Storage();
 		storage.setWfId(wftb.getWfId());
 		storage.setTbId(tbId);

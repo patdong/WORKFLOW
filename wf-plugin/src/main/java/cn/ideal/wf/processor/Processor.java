@@ -1,5 +1,4 @@
 package cn.ideal.wf.processor;
-import cn.ideal.wf.model.WorkflowNode;
 /**
  * 业务平台处理
  * @author 郭佟燕
@@ -28,7 +27,7 @@ public interface Processor {
 	 * @return
 	 * @throws Exception
 	 */
-	boolean doAction(Long tbId, Long bizId, WorkflowUser wfu, WorkflowNode node) throws Exception;
+	boolean doAction(Long tbId, Long bizId, WorkflowUser wfu, Long nodeId) throws Exception;
 	
 	/**
 	 * 推进流程，根据传入的节点和办理人
@@ -40,7 +39,7 @@ public interface Processor {
 	 * @return
 	 * @throws Exception
 	 */
-	boolean doAction(Long tbId, Long bizId, WorkflowUser wfu, WorkflowNode node,WorkflowUser ...nextWfu) throws Exception;
+	boolean doAction(Long tbId, Long bizId, WorkflowUser wfu, Long nodeId,WorkflowUser ...nextWfu) throws Exception;
 
 	
 	/**

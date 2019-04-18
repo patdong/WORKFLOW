@@ -74,8 +74,9 @@
 	</select>
 	
 	<select id="findTableAllElements" resultMap="wftableelement" parameterType="java.util.Map">
-		select a.*,b.labelName,b.fieldName from table_element a
+		select c.name as tableName,a.*,b.labelName,b.fieldName from table_element a
 		 left join element_library b on a.emId = b.emId 
+		 inner join table_brief c on c.tbId = a.tbId 
 		 where a.tbId = #{tbId}
 		 <if test="scope != null">
 		   and a.scope = #{scope}

@@ -9,13 +9,12 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
-import cn.ideal.wf.cache.TableBriefCache;
 import cn.ideal.wf.model.WorkflowTableBrief;
 import cn.ideal.wf.service.WorkflowTableService;
 import cn.ideal.wf.service.WorkflowWFService;
 
-import com.mysql.jdbc.StringUtils;
 
 @Service
 public class StorageAnalyzer implements Analyzer{
@@ -25,7 +24,7 @@ public class StorageAnalyzer implements Analyzer{
 	private WorkflowTableService tableService;
 	@Override
 	public Storage dataAnalyze(HttpServletRequest request, Long tbId) throws Exception{
-		WorkflowTableBrief wftb = TableBriefCache.getValue(tbId);		
+		WorkflowTableBrief wftb = tableService.find(tbId); //TableBriefCache.getValue(tbId);		
 		Storage storage = new Storage();
 		storage.setTableName(wftb.getName());
 		storage.setWfId(wftb.getWfId());
@@ -55,7 +54,7 @@ public class StorageAnalyzer implements Analyzer{
 				}
 				//过滤掉空记录
 				if(isEmptyRecord(keyVal)){
-					if(!StringUtils.isNullOrEmpty(keyVal.get("ID"))) storage.getsIds(tb.getName()).add(Long.parseLong(keyVal.get("ID")));
+					if(!StringUtils.isEmpty(keyVal.get("ID"))) storage.getsIds(tb.getName()).add(Long.parseLong(keyVal.get("ID")));
 				}else sFields.add(keyVal);
 			}
 			storage.setsFields(tb.getName(), sFields);
@@ -72,7 +71,7 @@ public class StorageAnalyzer implements Analyzer{
 		boolean valid = true;
 		for(String key : keyVal.keySet()){
 			if(!key.equals("ID")){
-				if(!StringUtils.isNullOrEmpty(keyVal.get(key))) return false;
+				if(!StringUtils.isEmpty(keyVal.get(key))) return false;
 			}
 		}
 		return valid;

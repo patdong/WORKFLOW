@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,7 +23,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
 import cn.ideal.wf.flowchat.draw.FlowChatService;
-import cn.ideal.wfpf.model.WFPFWorkflow;
 import cn.ideal.wf.model.WorkflowNode;
 import cn.ideal.wf.service.WorkflowNodeService;
 import cn.ideal.wfpf.model.CertificationOrg;
@@ -32,6 +32,7 @@ import cn.ideal.wfpf.model.FMsg;
 import cn.ideal.wfpf.model.Node;
 import cn.ideal.wfpf.model.Page;
 import cn.ideal.wfpf.model.TableElement;
+import cn.ideal.wfpf.model.WFPFWorkflow;
 import cn.ideal.wfpf.service.ActionService;
 import cn.ideal.wfpf.service.CertificationService;
 import cn.ideal.wfpf.service.NodeService;
@@ -40,7 +41,6 @@ import cn.ideal.wfpf.service.WorkflowService;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mysql.jdbc.StringUtils;
 
 @Controller
 @RequestMapping("/wf")
@@ -231,7 +231,7 @@ public class WfConfigurationController {
     public @ResponseBody FMsg setTableElements(@PathVariable Long wfId,@PathVariable Long nodeId,@RequestParam String ids, HttpServletRequest request) {
 		FMsg fmsg = null;
 		try{
-			if(!StringUtils.isNullOrEmpty(ids)){
+			if(!StringUtils.isEmpty(ids)){
 				List<Long> emIdLst = new ArrayList<Long>();
 				for(String id: ids.split(",")){
 					emIdLst.add(Long.parseLong(id));

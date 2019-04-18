@@ -35,7 +35,16 @@ public class WorkflowTableElement implements Serializable{
 	private Date createdDate;
 	private Object dataValue;
 	private Long stbId;
+	private String tableName;
 	
+	
+	public WorkflowTableElement(){}
+	
+	public WorkflowTableElement(String labelName,String dataValue){
+		this.labelName = labelName;
+		this.dataValue = dataValue;
+	}
+		
 	public Long getId() {
 		return id;
 	}
@@ -186,6 +195,12 @@ public class WorkflowTableElement implements Serializable{
 	}
 	public void setStbId(Long stbId) {
 		this.stbId = stbId;
+	}
+	public String getTableName() {
+		return tableName;
+	}
+	public void setTableName(String tableName) {
+		this.tableName = tableName;
 	}	
 	
 }

@@ -203,17 +203,17 @@
   //表单列数设置，默认必须是2列。
   function saveLayout(){	  		  
 	  var headCols=$("#headCols").val();		  
-	  if (!/^[1-9][0-9]$/.test(headCols)) {
+	  if (!/^[1-9][0-9]*$/.test(headCols)) {
 		  headCols="";
 	  }		
 	  $("#headCols").val(headCols);
 	  var bodyCols=$("#bodyCols").val();		  
-	  if (!/^[1-9][0-9]$/.test(bodyCols)) {
+	  if (!/^[1-9][0-9]*$/.test(bodyCols)) {
 		  bodyCols="2";
 	  }		
 	  $("#bodyCols").val(bodyCols);
 	  var footCols=$("#footCols").val();		  
-	  if (!/^[1-9][0-9]$/.test(footCols)) {
+	  if (!/^[1-9][0-9]*$/.test(footCols)) {
 		  footCols="";
 	  }		
 	  $("#footCols").val(footCols);

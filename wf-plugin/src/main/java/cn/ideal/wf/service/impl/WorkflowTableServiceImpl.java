@@ -4,15 +4,14 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
 import cn.ideal.wf.dao.WorkflowTableMapper;
 import cn.ideal.wf.data.analyzer.Storage;
-import cn.ideal.wf.jdbc.dao.SQLExecutor;
+import cn.ideal.wf.jdbc.dao.SQLConnector;
 import cn.ideal.wf.model.WorkflowTableBrief;
 import cn.ideal.wf.model.WorkflowTableElement;
+import cn.ideal.wf.model.WorkflowTableLayout;
 import cn.ideal.wf.model.WorkflowTableSummary;
 import cn.ideal.wf.service.WorkflowTableService;
 import cn.ideal.wf.service.WorkflowWFService;
@@ -24,17 +23,7 @@ public class WorkflowTableServiceImpl implements WorkflowTableService {
 	private WorkflowTableMapper wfTableMapper;
 	@Autowired
 	private WorkflowWFService wfService;
-	
-	private SQLExecutor sqlExecutor;
-	
-	@Value("${workflow.wf.database.executor}")
-    String executorName;
-	
-	@Autowired
-    public void setSQLExecutor(ApplicationContext context) {
-		sqlExecutor = (SQLExecutor) context.getBean(executorName);
-    }
-	
+		
 	@Override
 	public WorkflowTableBrief find(Long tbId) {
 		return wfTableMapper.find(tbId);
@@ -52,7 +41,7 @@ public class WorkflowTableServiceImpl implements WorkflowTableService {
 
 	@Override
 	public Map<String, Object> saveDataValueForTable(Storage storage) throws Exception {		
-		return sqlExecutor.save(storage);			
+		return SQLConnector.getSQLExecutor().save(storage);			
 	}
 
 	@Override
@@ -62,7 +51,7 @@ public class WorkflowTableServiceImpl implements WorkflowTableService {
 
 	@Override
 	public Map<String, Object> updateDataValueForTable(Storage storage) throws Exception {		
-		return sqlExecutor.update(storage);
+		return SQLConnector.getSQLExecutor().update(storage);
 	}
 
 	@Override
@@ -92,6 +81,26 @@ public class WorkflowTableServiceImpl implements WorkflowTableService {
 	@Override
 	public List<WorkflowTableBrief> findAllBlindTable() {
 		return wfTableMapper.findAllBlindTable();
+	}
+
+	@Override
+	public List<WorkflowTableLayout> findTableLayout(Long tbId) {
+		return wfTableMapper.findTableLayout(tbId);
+	}
+
+	@Override
+	public List<WorkflowTableElement> findTableAllElements(Long tbId,String scope) {
+		return wfTableMapper.findTableAllElements(tbId, scope);
+	}
+
+	@Override
+	public WorkflowTableLayout findTableLayoutWithScope(Long tbId, String scope) {
+		return wfTableMapper.findTableLayoutWithScope(tbId, scope);
+	}
+
+	@Override
+	public WorkflowTableBrief findSubTable(Long tbId, String scope) {
+		return wfTableMapper.findSubTable(tbId, scope);
 	}
 
 

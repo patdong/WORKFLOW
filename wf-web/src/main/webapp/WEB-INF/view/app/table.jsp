@@ -1,6 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"  pageEncoding="UTF-8"  trimDirectiveWhitespaces="true" %>
 <%@ include file="/WEB-INF/view/include.jsp"%>
-<script>     
+<script>   
     //表单保存提交
     function doStorage(){
     	if("${model.bizId}" == "") $("#myForm").attr("action","/app/save/${model.wftb.tbId}");
@@ -32,8 +32,7 @@
   	//指定流程节点提交
     function doFixedAction(nodeId){
     	$("#myForm").attr("action","/app/doaction/${model.wftb.tbId}/${model.bizId}/"+nodeId);
-    	$("#myForm").submit();
-    	
+    	$("#myForm").submit();    	
     }
   
   	//流程按钮操作
@@ -44,20 +43,18 @@
 </script> 	
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
   <h1 class="h2">
-  	<label onclick="location.href='/app/list/${model.wf.wfId}/1'" style="cursor:pointer;color:#dc3545;">⇦</label>
+  	<label onclick="location.href='/app/list/${model.wftb.tbId}/1'" style="cursor:pointer;color:#dc3545;">⇦</label>
   	✍  	
   </h1>
   <div class="btn-toolbar mb-2 mb-md-0">
   	<c:forEach items="${model.buttons}" varStatus="i" var="button" >
   		<button class="btn btn-sm btn-outline-secondary" type="button" onclick="doButton('${button.actionCodeName}');">${button.actionName}</button> 
   	</c:forEach>
-  	&nbsp;
-  	<c:if test="${!empty model.nodeName }">
-	    <div class="btn-group mr-2">
-	      <button class="btn btn-sm btn-outline-secondary" type="button" onclick="doStorage();">保存</button> 
-	      <button class="btn btn-sm btn-outline-secondary" type="button" onclick="doReset()">重置</button>     
-	    </div>
-    </c:if>  
+  	&nbsp;  	
+    <div class="btn-group mr-2">
+      <button class="btn btn-sm btn-outline-secondary" type="button" onclick="doStorage();">保存</button> 
+      <button class="btn btn-sm btn-outline-secondary" type="button" onclick="doReset()">重置</button>     
+    </div> 
     <c:if test="${!empty model.bizId}">
     	<c:if test="${!empty model.nodeName}">
     		<button class="btn btn-sm btn-outline-secondary" type="button" onclick="doAction();">${model.nodeName}完毕</button>
@@ -68,8 +65,6 @@
 </div> 	
 	
 <form id="myForm" method="post" action="">
-<input type="hidden" name="wfId" value="${model.wf.wfId }" />
-<input type="hidden" name="bizId" value="${model.bizId}" />
 <div id="includedContent" style="padding-bottom:20px;">${model.table }</div>
 </form>
 <!-- 流程跟踪 -->

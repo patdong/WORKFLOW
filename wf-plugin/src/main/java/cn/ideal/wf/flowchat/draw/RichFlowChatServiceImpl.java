@@ -376,6 +376,7 @@ public class RichFlowChatServiceImpl implements FlowChatService {
 	 */
 	@Override
 	public StringBuffer draw(Long wfId) {
+		if(wfId == null) return new StringBuffer();
 		offset=0;
 		FlowChatNode[][] tree = this.decorateNodeTree(wfId,null);
 		
@@ -440,6 +441,9 @@ public class RichFlowChatServiceImpl implements FlowChatService {
 
 	@Override
 	public StringBuffer draw(Long wfId, Long bizId) {
+		if(wfId == null) return new StringBuffer();
+		if(bizId == null) return draw(wfId);
+		
 		offset=50;
 		FlowChatNode[][] tree = this.decorateNodeTree(wfId,bizId);
 		

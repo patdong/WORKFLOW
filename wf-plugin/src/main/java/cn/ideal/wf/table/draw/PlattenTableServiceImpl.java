@@ -1,45 +1,37 @@
 package cn.ideal.wf.table.draw;
 
+import java.math.BigDecimal;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
-import cn.ideal.wf.dao.WorkflowTableMapper;
-import cn.ideal.wf.jdbc.dao.SQLExecutor;
+import cn.ideal.wf.jdbc.dao.SQLConnector;
 import cn.ideal.wf.model.WorkflowTableBrief;
 import cn.ideal.wf.model.WorkflowTableElement;
 import cn.ideal.wf.model.WorkflowTableLayout;
+import cn.ideal.wf.service.WorkflowTableService;
 
 @Service
 public class PlattenTableServiceImpl implements PureTableService {
 	@Autowired
-	private WorkflowTableMapper workflowTableMapper;
-	
-	private SQLExecutor sqlExecutor;
-	
-	@Value("${workflow.wf.database.executor}")
-    String executorName;
-	
-	@Autowired
-    public void setSQLExecutor(ApplicationContext context) {
-		sqlExecutor = (SQLExecutor) context.getBean(executorName);
-    }
+	private WorkflowTableService workflowTableService;
 	
 	@Override
 	public StringBuffer draw(Long tbId) {
 		StringBuffer sb = new StringBuffer();
-		WorkflowTableBrief tb = workflowTableMapper.find(tbId);	
+		WorkflowTableBrief tb = workflowTableService.find(tbId);	
 		//表单名称
 		String tableName = (tb.getTableName()==null)?"":tb.getTableName();
 		sb.append("<label style='text-align:center;width:100%;font-size:30px;'>"+tableName+"</label>");	
 		//表单内容
-		List<WorkflowTableLayout> layouts = workflowTableMapper.findTableLayout(tbId);
+		List<WorkflowTableLayout> layouts = workflowTableService.findTableLayout(tbId);
 		if(layouts == null || layouts.size() == 0) return null;
+		//主表关键字
+		sb.append("<input type='hidden' name='bizId' value='' />");
+		if(tb.getWfId() != null) sb.append("<input type='hidden' name='wfId' value="+tb.getWfId()+" />");
 		for(WorkflowTableLayout tl : layouts){
 			Object[][] tesary = packTableElements(tbId,tl.getScope(),tl.getCols());			
 			sb.append("<table border='1' style='width:100%'>\n");		
@@ -74,7 +66,7 @@ public class PlattenTableServiceImpl implements PureTableService {
 
 	@Override
 	public StringBuffer draw(Long tbId, String scope, boolean setting) {		
-		WorkflowTableLayout layout = workflowTableMapper.findTableLayoutWithScope(tbId, scope);
+		WorkflowTableLayout layout = workflowTableService.findTableLayoutWithScope(tbId, scope);
 		if(layout == null) return new StringBuffer();
 		Object[][] tesary = packTableElements(tbId,scope,layout.getCols());
 		
@@ -101,7 +93,7 @@ public class PlattenTableServiceImpl implements PureTableService {
 			sb.append("</tr>\n");
 		}
 		sb.append("</table>\n");		
-		WorkflowTableBrief stb = workflowTableMapper.findSubTable(tbId, scope);
+		WorkflowTableBrief stb = workflowTableService.findSubTable(tbId, scope);
 		if(stb != null) sb.append("<br><span style='margin-right:98%;font-size:1.5rem;color:green;border:1px solid;border-color:green;cursor:pointer;background-color: #8aea8a;' title='关联子表["+stb.getTableName()+"]' onclick=\"$('#subTable-div').show();\">⟰</span>\n");
 		else if(scope.equals("表体")) sb.append("<br><span style='margin-right:98%;font-size:1.5rem;color:#adb90e;border:1px solid;border-color:#b8bb5f;cursor:pointer;' title='增加子表' onclick=\"$('#subTable-div').show();\">⟰</span>\n");
 		return sb;
@@ -112,17 +104,21 @@ public class PlattenTableServiceImpl implements PureTableService {
 	public StringBuffer draw(Long tbId, Long bizId) {
 		if(bizId == null) return draw(tbId);
 		StringBuffer sb = new StringBuffer();
-		WorkflowTableBrief tb = workflowTableMapper.find(tbId);	
+		WorkflowTableBrief tb = workflowTableService.find(tbId);	
 		//获得业务数据
-		List<Map<String,Object>> res = sqlExecutor.query("select * from "+tb.getName()+" where id = "+bizId);
+		List<Map<String,Object>> res = SQLConnector.getSQLExecutor().query("select * from "+tb.getName()+" where id = "+bizId);
 		Map<String,Object> resMap = res.get(0);
 		
 		//表单名称
 		String tableName = (tb.getTableName()==null)?"":tb.getTableName();
 		sb.append("<label style='text-align:center;width:100%;font-size:30px;'>"+tableName+"</label>");	
 		//表单内容
-		List<WorkflowTableLayout> layouts = workflowTableMapper.findTableLayout(tbId);
+		List<WorkflowTableLayout> layouts = workflowTableService.findTableLayout(tbId);
 		if(layouts == null || layouts.size() == 0) return null;
+		//主表关键字		
+		sb.append("<input type='hidden' name='bizId' value="+bizId+" />");
+		//流程编号
+		if(tb.getWfId() != null) sb.append("<input type='hidden' name='wfId' value="+tb.getWfId()+" />");
 		for(WorkflowTableLayout tl : layouts){
 			Object[][] tesary = packTableElements(tbId,tl.getScope(),tl.getCols());			
 			sb.append("<table border='1' style='width:100%'>\n");		
@@ -163,7 +159,7 @@ public class PlattenTableServiceImpl implements PureTableService {
 	 * @return
 	 */
 	private Object[][] packTableElements(Long tbId, String scope, Long layoutCols){
-		List<WorkflowTableElement> tes = workflowTableMapper.findTableAllElements(tbId,scope);
+		List<WorkflowTableElement> tes = workflowTableService.findTableAllElements(tbId,scope);
 		Object[][] tesary = null; 
 		int crowes = 0;
 		for(WorkflowTableElement te : tes){
@@ -236,10 +232,10 @@ public class PlattenTableServiceImpl implements PureTableService {
 	private StringBuffer drawSubTable(Long stbId, int rows,Long bizId){
 		if(stbId == null) return null;
 		String scope = "表体";
-		WorkflowTableBrief tb = workflowTableMapper.find(stbId);
-		WorkflowTableLayout layout = workflowTableMapper.findTableLayoutWithScope(stbId, scope);
+		WorkflowTableBrief tb = workflowTableService.find(stbId);
+		WorkflowTableLayout layout = workflowTableService.findTableLayoutWithScope(stbId, scope);
 		if(layout == null) return null;
-		List<WorkflowTableElement> tes = workflowTableMapper.findTableAllElements(stbId,scope);
+		List<WorkflowTableElement> tes = workflowTableService.findTableAllElements(stbId,scope);
 		List<WorkflowTableElement> labels = new LinkedList<WorkflowTableElement>();
 		List<WorkflowTableElement> ems = new LinkedList<WorkflowTableElement>();
 		
@@ -257,7 +253,8 @@ public class PlattenTableServiceImpl implements PureTableService {
 			sb.append("<td style='text-align: center;font-size:15px;width:"+100/labels.size()+"%'>"+obj.getNewLabelName()+"</td>\n");
 		}
 		sb.append("</tr>\n");
-		List<Map<String,Object>> res = sqlExecutor.query("select * from "+tb.getName()+" where id in (select skey from table_keys where zkey= "+bizId+") order by id");
+
+		List<Map<String,Object>> res = SQLConnector.getSQLExecutor().query("select * from "+tb.getName()+" where id in (select skey from table_keys where zkey= "+bizId+") order by id");
 		Map<String,Object> resMap = null;
 		for(int i=0;i<rows;i++){
 			sb.append("<tr style='height:35px'>\n");
@@ -288,9 +285,9 @@ public class PlattenTableServiceImpl implements PureTableService {
 	private StringBuffer drawPlugIn(Long stbId,String tbName,Map<String,Object> resMap){
 		if(stbId == null) return null;
 		String scope = "表体";
-		WorkflowTableLayout layout = workflowTableMapper.findTableLayoutWithScope(stbId, scope);
+		WorkflowTableLayout layout = workflowTableService.findTableLayoutWithScope(stbId, scope);
 		if(layout == null) return null;
-		List<WorkflowTableElement> tes = workflowTableMapper.findTableAllElements(stbId,scope);
+		List<WorkflowTableElement> tes = workflowTableService.findTableAllElements(stbId,scope);
 		
 		StringBuffer sb = new StringBuffer();
 		sb.append("<table border='0' style='width:100%'>\n");		
@@ -355,7 +352,10 @@ public class PlattenTableServiceImpl implements PureTableService {
 			break;
 		case "子表":	
 			Long bizId = null;
-			if(resMap != null && resMap.get("ID") != null) bizId = Long.parseLong(((Integer)resMap.get("ID")).toString());
+			if(resMap != null && resMap.get("ID") != null) {
+				if(resMap.get("ID") instanceof Integer) bizId = Long.parseLong(((Integer)resMap.get("ID")).toString());
+				else if(resMap.get("ID") instanceof BigDecimal) bizId = Long.parseLong(((BigDecimal)resMap.get("ID")).toString());
+			}
 			sb.append(drawSubTable(obj.getStbId(),3,bizId).toString());								
 			break;
 		case "组件":	

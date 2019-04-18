@@ -11,6 +11,7 @@ import java.util.Map;
 import cn.ideal.wf.data.analyzer.Storage;
 import cn.ideal.wf.model.WorkflowTableBrief;
 import cn.ideal.wf.model.WorkflowTableElement;
+import cn.ideal.wf.model.WorkflowTableLayout;
 import cn.ideal.wf.model.WorkflowTableSummary;
 
 
@@ -52,4 +53,12 @@ public interface WorkflowTableService {
 	List<WorkflowTableBrief> findAllSubTables(Long tbId);
 	
 	List<WorkflowTableBrief> findAllBlindTable();
+	
+	List<WorkflowTableLayout> findTableLayout(Long tbId);
+	
+	List<WorkflowTableElement> findTableAllElements(Long tbId,String scope);
+	
+	WorkflowTableLayout findTableLayoutWithScope(Long tbId, String scope);
+	
+	WorkflowTableBrief findSubTable(Long tbId, String scope);
 }

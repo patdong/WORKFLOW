@@ -2,6 +2,8 @@ package cn.ideal.wf.service;
 
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
+
 import cn.ideal.wf.model.WorkflowUser;
 
 /**
@@ -20,5 +22,13 @@ public interface PlatformService {
 	 * @return
 	 */
 	List<WorkflowUser> findUsersByRoleIdAndOrgId(Long roleId, Long orgId);
+	
+	
+	/**
+	 * 获得平台的当前用户
+	 * @param request
+	 * @return
+	 */
+	WorkflowUser getWorkflowUser(HttpServletRequest request);
 		
 }

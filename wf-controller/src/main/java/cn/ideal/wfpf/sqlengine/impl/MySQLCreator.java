@@ -5,8 +5,7 @@ package cn.ideal.wfpf.sqlengine.impl;
  * @version 2.0
  */
 import org.springframework.stereotype.Service;
-
-import com.mysql.jdbc.StringUtils;
+import org.springframework.util.StringUtils;
 
 import cn.ideal.wfpf.sqlengine.SQLCreator;
 
@@ -46,7 +45,7 @@ public class MySQLCreator implements SQLCreator {
 	
 	@Override
 	public String setCharacter(String characterSet) {
-		if(StringUtils.isNullOrEmpty(characterSet)) characterSet = CHARACTER;
+		if(StringUtils.isEmpty(characterSet)) characterSet = CHARACTER;
 		return "SET character_set_client = "+ characterSet;
 	}
 
