@@ -332,7 +332,7 @@ code {
     box-shadow: 0 0 0 0.1rem rgba(158,159,160,1);
 }
  
-/* ±ØÊäÏîÐ£Ñé·ç¸ñ¿ØÖÆ */
+/* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ */
 #node-error{
 	color: red;
 	font-size: 13px;
@@ -592,4 +592,8 @@ code {
     z-index: 1;
     top: 9px;
     left: 45%;
+}
+
+.error {
+	color:#FF0000;	
 }

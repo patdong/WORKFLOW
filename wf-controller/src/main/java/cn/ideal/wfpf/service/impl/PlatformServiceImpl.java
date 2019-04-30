@@ -19,7 +19,7 @@ public class PlatformServiceImpl implements PlatformService{
 	private CertificationService certificationService;
 	
 	@Override
-	public List<WorkflowUser> findUsersByRoleIdAndOrgId(Long roleId, Long orgId) {
+	public List<WorkflowUser> findUsersByRoleIdAndOrgId(Long roleId, Long orgId,Long senderId) {
 		// TODO Auto-generated method stub
 		return null;
 	}

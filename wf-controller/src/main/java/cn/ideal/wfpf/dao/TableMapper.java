@@ -53,7 +53,7 @@ public interface TableMapper {
 	
 	List<TableElement> findTableAllElementsOnNode(@Param("wfId") Long wfId, @Param("nodeId") Long nodeId,@Param("tbId") Long tbId);
 	
-	int saveTableElementOnNode(@Param("wfId") Long wfId, @Param("nodeId") Long nodeId,@Param("ids") Long[] ids);
+	int saveTableElementOnNode(@Param("wfId") Long wfId, @Param("nodeId") Long nodeId,@Param("nodeName") String nodeName,@Param("teLst") List<TableElement> teLst);
 	
 	List<TableBrief> findAllWithTableNameNoRelated();
 	

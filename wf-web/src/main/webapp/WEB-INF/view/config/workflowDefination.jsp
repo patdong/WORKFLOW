@@ -21,7 +21,7 @@
     //下拉框选择操作 - 角色选择
     $('#role-ul li').on('click', function(){
     	$('#role').text($(this).text()); 
-    	$('#roleName').text($(this).text());    	
+    	$('#roleName').val($(this).text());      	
     	$('#roleId').val($(this).attr("value"));    	    	
     });
     
@@ -41,7 +41,7 @@
 			  $.each(data,function (index, user) {
 			      li = "<li class=\"list-group-item d-flex justify-content-between lh-condensed\">"
 			        + "<div>"
-			        + "<h6 class=\"my-0\"><input type=\"checkbox\" name=\"userChecked\" value=\""+user.userId+"\">&nbsp;"+user.userName+"</h6>"
+			        + "<h6 class=\"my-0\"><input type=\"checkbox\" name=\"userChecked\" value=\""+user.userId+"\">"+user.userName+"</h6>"
 			        + "</div>"
 			        + "<span class=\"text-muted\">"+user.currentOrgName+"</span>"
 			        + "<span style=\"display:none\">"+user.currentOrgId+"</span>"			        
@@ -97,7 +97,7 @@
 			  $.each(data,function (index, org) {
 			      li = "<li class=\"list-group-item d-flex justify-content-between lh-condensed\">"
 			        + "<div>"
-			        + "<h6 class=\"my-0\"><input type=\"radio\" name=\"orgChecked\" value=\""+org.orgId+"\">&nbsp;"+org.orgName+"</h6>"
+			        + "<h6 class=\"my-0\"><input type=\"radio\" name=\"orgChecked\" value=\""+org.orgId+"\">"+org.orgName+"</h6>"
 			        + "</div>"
 			        + "<span class=\"text-muted\">"+org.currentOrgName+"</span>"
 			        + "</li>";
@@ -132,7 +132,8 @@
   //弹出操作菜单
   function showPos(event,cNodeId,cNodeName,cNodeStatus) {
 	  var el, x, y;
-	  if(cNodeId > 0) el = document.getElementById('PopUp-1');
+	  if(cNodeId == 0) el = document.getElementById('PopUp-2');
+	  else if(cNodeId > 0) el = document.getElementById('PopUp-1');
 	  else el = document.getElementById('PopUp');
 	  $("#frozen").show();
 	  $("#unfrozen").show();
@@ -184,13 +185,13 @@
 		      		
 		      if(node.role != null){
 			      $('#role').text(node.role.roleName); 
-			      $('#roleName').text(node.role.roleName);    	
+			      $('#roleName').val(node.role.roleName);    	
 			      $('#roleId').val(node.role.roleId);
 			      $("input[name=noder][value=办理角色]").prop('checked', true);
 			      $('#user-sel').hide();$('#role-sel').show();$('#org-sel').show();
 		      }
-		      
-		      if(node.users != null){
+
+		      if(node.users != null && node.users != ""){		    	  
 		    	  //先删除div下的元素，然后再添加
 	    		  var el = document.getElementById('user-hidden');
 	    		  while( el.hasChildNodes() ){
@@ -527,6 +528,7 @@
     	  +"<h6 class=\"my-0\">&nbsp;字段名称</h6>"               
           +"</div>"         
           +"<span class=\"text-muted\">是否可编辑</span>"
+          +"<span class=\"text-muted\">是否必输项</span>"
           +"</li>";
       $("#fields-lst").append(li);
 	  $.ajax({
@@ -535,14 +537,18 @@
   		  dataType: 'json',
   		  success: function(data){  			
   			var checked="";
-  			$.each(data,function (index,table) {   
-  				if(table.readOnly) checked="checked";
-  				else checked="";
+  			var rqchecked = "";
+  			$.each(data,function (index,table) { 
+  				checked="";
+				rqchecked = "";
+  				if(table.readOnly) checked="checked";  				
+  				if(table.required == '是') rqchecked = "checked";  				
   				li = "<li class='list-group-item d-flex justify-content-between lh-condensed' style='height: 40px;'> "
-	            	  +"<span class=\"text-muted\">"+table.newLabelName+"</span> "
-	            	  +"<span class=\"text-muted\"><input type=\"checkbox\" name=\"fieldChecked\" "+checked+" value=\""+table.id+"\"></span> "
+	            	  +"<span class=\"text-muted\">"+table.newLabelName+"</span>"	            	  
+	            	  +"<span class=\"text-muted\"><input type=\"checkbox\" name=\"fieldChecked\" "+checked+" value=\""+table.id+"\"></span>"	            	 
+	            	  +"<span class=\"text-muted\"><input type=\"checkbox\" name=\"required\" "+rqchecked+" value=\""+table.id+"\"></span>"
 	          		  +"</li> ";
-  				$("#fields-lst").append(li);
+  				$("#fields-lst").append(li);  				
   			});			
   		  },
   		  error: function(XMLHttpRequest, textStatus, errorThrown){
@@ -555,6 +561,7 @@
   function setTableElements(){
 	  var wfId = $("#wfId").val();
 	  var ids = "";
+	  var requiredIds = "";
 	  $("#button-hidden").empty();
 	  $('input:checkbox[name=fieldChecked]:checked').each(function(k){		  
 		  ids += $(this).val()+",";		  
@@ -562,10 +569,16 @@
   	  if(ids.length > 0){
   		ids = ids.substring(0,ids.length-1);		  
 	  }
+	  $('input:checkbox[name=required]:checked').each(function(k){		  
+		  requiredIds += $(this).val()+",";		  
+  	  })
+  	  if(requiredIds.length > 0){
+  		requiredIds = requiredIds.substring(0,requiredIds.length-1);		  
+	  }
 	  $.ajax({
   		  type: 'GET',
   		  url: "/wf/settableelements/"+wfId+"/"+clickedNodeId,
-  		  data: {ids:ids},			  
+  		  data: {ids:ids,requiredIds:requiredIds},			  
   		  dataType: 'json',
   		  success: function(data){ 
   			  $("#fields_message").text("配置完成。");
@@ -789,6 +802,12 @@
        </div>
 </div>	
 <!-- /*onmouseover="document.getElementById('PopUp').style.display = 'none' "*/ -->
+<DIV id='PopUp-2' class="popup" >
+    <div class="popup-close" style="cursor:pointer;" onclick="$('#PopUp-2').hide();">×</div>
+    <c:if test="${! empty wf.tbLst }">
+		<SPAN style="cursor:pointer;" onclick="$('#PopUp-2').hide();openTableElements(${wf.tbId});">字段授权</SPAN>
+	</c:if>
+</DIV>
 <DIV id='PopUp' class="popup" >
     <div class="popup-close" style="cursor:pointer;" onclick="$('#PopUp').hide();">×</div>
 	<SPAN style="cursor:pointer;" onclick="$('#PopUp').hide();$('#node-div').show();$('#myForm')[0].reset();">新增</SPAN>
@@ -902,7 +921,7 @@
            <span id="fields_message"></span>         
            <span class="badge badge-secondary badge-pill" style="cursor:pointer;" onclick="setTableElements();">确定</span>
          </h5>
-         <div style="height: 300px;overflow-y: auto;">
+         <div style="height: 270px;overflow-y: auto;">
           <ul class="list-group mb-3" id="fields-lst"></ul>          	
          </div>
        </div>

@@ -94,6 +94,12 @@ public class WorkflowTableServiceImpl implements WorkflowTableService {
 	}
 
 	@Override
+	public List<WorkflowTableElement> findTableAllElements(Long tbId,String scope,Long wfId, String nodeName) {
+		if(wfId == null || nodeName == null) return wfTableMapper.findTableAllElements(tbId, scope);	
+		return wfTableMapper.findTableAllElementsWithWorkflow(tbId, scope, wfId, nodeName);				
+	}
+	
+	@Override
 	public WorkflowTableLayout findTableLayoutWithScope(Long tbId, String scope) {
 		return wfTableMapper.findTableLayoutWithScope(tbId, scope);
 	}

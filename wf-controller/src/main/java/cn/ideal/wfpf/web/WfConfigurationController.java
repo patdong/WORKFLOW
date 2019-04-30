@@ -212,6 +212,7 @@ public class WfConfigurationController {
 			for(TableElement nelement : nodeElements){
 				if(element.getEmId().equals(nelement.getEmId())) {
 					element.setReadOnly(true);
+					element.setRequired(nelement.getRequired());
 					break;
 				}
 			}
@@ -228,15 +229,30 @@ public class WfConfigurationController {
 	 * @return
 	 */
 	@GetMapping("/settableelements/{wfId}/{nodeId}")
-    public @ResponseBody FMsg setTableElements(@PathVariable Long wfId,@PathVariable Long nodeId,@RequestParam String ids, HttpServletRequest request) {
+    public @ResponseBody FMsg setTableElements(@PathVariable Long wfId,@PathVariable Long nodeId,@RequestParam String ids, @RequestParam String requiredIds,HttpServletRequest request) {
 		FMsg fmsg = null;
 		try{
 			if(!StringUtils.isEmpty(ids)){
 				List<Long> emIdLst = new ArrayList<Long>();
+				List<Long> requiredLst = new ArrayList<Long>();
 				for(String id: ids.split(",")){
 					emIdLst.add(Long.parseLong(id));
 				}
-				boolean res = tableService.setTableFieldsOnNode(wfId,nodeId,emIdLst.toArray(new Long[emIdLst.size()]));
+				for(String id: requiredIds.split(",")){
+					if(StringUtils.isEmpty(id)) requiredLst.add(null);
+					else requiredLst.add(Long.parseLong(id));
+				}
+				List<TableElement> teLst = new ArrayList<TableElement>();
+				for(Long id : emIdLst){
+					TableElement te = new TableElement();
+					te.setId(id);
+					if(requiredLst.contains(id)) te.setRequired("是");
+					teLst.add(te);
+				}
+				boolean res = tableService.setTableFieldsOnNode(wfId,nodeId,teLst);
+				fmsg = new FMsg(res);
+			}else{				
+				boolean res = tableService.setTableFieldsOnNode(wfId,nodeId,new ArrayList<TableElement>());
 				fmsg = new FMsg(res);
 			}
 			

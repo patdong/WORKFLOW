@@ -44,6 +44,7 @@ public class ReturnToCreatorAction extends Utils implements Action {
 			String curUserName = "";
 			for(WorkflowUser item : users) curUserName += item.getUserName() + ",";	
 			WorkflowTableSummary wfts = new WorkflowTableSummary();	
+			if(users.length > 0) wfts.setCurUserId(users[0].getUserId());
 			wfts.setCurUserName(curUserName);
 			wfts.setModifiedDate(new Date());
 			//任何动作都反应在action字段上

@@ -46,14 +46,16 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter{
             .antMatchers("/templates/**")
             .antMatchers("/css/**")
             .antMatchers("/js/**")
-            .antMatchers("/img/**");            
+            .antMatchers("/img/**")
+            .antMatchers("/certification/**");            
     }
 	
 	@Override
     protected void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests()
+        	.antMatchers("/certification/**").permitAll()
             .anyRequest()
-            .fullyAuthenticated()
+            .authenticated()            
             .and().formLogin().loginPage("/login").failureUrl("/loginFailure").permitAll()
             .successHandler(authenticationSuccessHandler)
             .and().csrf().disable()

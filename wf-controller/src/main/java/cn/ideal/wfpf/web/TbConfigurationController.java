@@ -145,9 +145,9 @@ public class TbConfigurationController {
 	 * @param request
 	 * @return
 	 */
-	@GetMapping("/moveup/{tbId}/{id}")
-    public @ResponseBody boolean moveup(@PathVariable Long tbId, @PathVariable Long id,HttpServletRequest request) {	
-		return tableService.moveUp(tbId,id);		
+	@GetMapping("/moveup/{tbId}/{id}/{scope}")
+    public @ResponseBody boolean moveup(@PathVariable Long tbId, @PathVariable Long id,@PathVariable String scope,HttpServletRequest request) {	
+		return tableService.moveUp(tbId,id,scope);		
     }
 	
 	/**
@@ -155,9 +155,9 @@ public class TbConfigurationController {
 	 * @param request
 	 * @return
 	 */
-	@GetMapping("/movedown/{tbId}/{id}")
-    public @ResponseBody boolean movedown(@PathVariable Long tbId, @PathVariable Long id,HttpServletRequest request) {	
-		return tableService.moveDown(tbId,id);		
+	@GetMapping("/movedown/{tbId}/{id}/{scope}")
+    public @ResponseBody boolean movedown(@PathVariable Long tbId, @PathVariable Long id,@PathVariable String scope,HttpServletRequest request) {	
+		return tableService.moveDown(tbId,id,scope);		
     }
 	
 	@GetMapping("/remove/{tbId}/{id}")

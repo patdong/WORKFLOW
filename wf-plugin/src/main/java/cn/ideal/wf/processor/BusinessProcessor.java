@@ -12,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import com.alibaba.druid.util.StringUtils;
+
 import cn.ideal.wf.data.analyzer.ParameterAnalyzer;
 import cn.ideal.wf.data.analyzer.Storage;
 import cn.ideal.wf.data.analyzer.StorageAnalyzer;
@@ -21,6 +23,7 @@ import cn.ideal.wf.model.WorkflowBrief;
 import cn.ideal.wf.model.WorkflowTableBrief;
 import cn.ideal.wf.model.WorkflowTableElement;
 import cn.ideal.wf.model.WorkflowTableLayout;
+import cn.ideal.wf.model.WorkflowUser;
 import cn.ideal.wf.page.ListModel;
 import cn.ideal.wf.page.Page;
 import cn.ideal.wf.page.PageModel;
@@ -98,6 +101,36 @@ public class BusinessProcessor {
 		return listModel;
 	}
 
+	
+	/**
+	 * 获取列表页面信息
+	 * @param tbId       业务编号
+	 * @param pageNumber  列表页码
+	 * @param selectedScope   列表下拉框选项
+	 * @return
+	 */
+	public ListModel getListAll(Long pageNumber,Long pageSize,String selectedScope,HttpServletRequest request){
+		ListModel listModel = new ListModel();		
+		try{
+			WorkflowUser user = platformService.getWorkflowUser(request);
+			if(StringUtils.isEmpty(selectedScope) || selectedScope.equals("apply")){
+				Long count = jdbcSQLExecutor.queryAll(user.getUserId());
+		        Page<Map<String,Object>> page = new Page<Map<String,Object>>(count,pageNumber);
+		        page.setPageList(jdbcSQLExecutor.queryPage(user.getUserId(),pageNumber,pageSize));
+		        listModel.setPage(page);
+			}else{
+				Long count = jdbcSQLExecutor.queryWorkflowAll(user.getUserId());
+		        Page<Map<String,Object>> page = new Page<Map<String,Object>>(count,pageNumber);
+		        page.setPageList(jdbcSQLExecutor.queryWorkflowPage(user.getUserId(),pageNumber,pageSize));
+		        listModel.setPage(page);
+			}
+		}catch(Exception e){	
+			e.printStackTrace();
+		}
+		
+		return listModel;
+	}
+	
 	/**
 	 * 获取表单展示页面信息
 	 * @param tbId
@@ -116,18 +149,53 @@ public class BusinessProcessor {
 		if(wfId != null){
 			pageModel.setNodeName(wfProcessor.findNodeName(wfId,bizId));
 			pageModel.setNextNodes(workflowNodeService.findNextNodes(pageModel.getNodeName(), wfId));		
-			WorkflowBrief wfbf = wfBriefService.find(bizId, wfId);
-			if(wfbf != null){
-				pageModel.setButtons(workflowNodeService.findButtonsByNodeName(wfbf.getNodeName(), wfId));
+			if(bizId != null){
+				WorkflowBrief wfbf = wfBriefService.find(bizId, wfId);
+				if(wfbf != null){
+					pageModel.setButtons(workflowNodeService.findButtonsByNodeName(wfbf.getNodeName(), wfId));
+				}
 			}
 						
-			//和页面相关		
+			//流程图		
 			pageModel.setFlowChat(flowChatService.draw(wfId,bizId).toString());	
 		}
+		//表单
 		pageModel.setTable(plattenTableService.draw(tbId,bizId).toString());		
 		pageModel.setMenu(wfTableService.findAllBlindTable());
 		
 		return pageModel;
+	}
+	
+	/**
+	 * 返回页面的字段值
+	 * 
+	 * key: 表 (主表)
+	 *      subTable (表外部子表）
+	 *      子表编号  (表内部子表）
+	 * @param tbId
+	 * @param bizId
+	 * @return
+	 */
+	public Map<String,List<Map<String,Object>>> getFieldsValue(Long tbId, Long bizId){
+		Map<String,List<Map<String,Object>>> fieldsValueMap = new HashMap<String,List<Map<String,Object>>>();
+		WorkflowTableBrief tb = wfTableService.find(tbId);
+		List<Map<String,Object>> res = SQLConnector.getSQLExecutor().query("select * from "+tb.getName()+" where id = "+bizId);
+		fieldsValueMap.put("表", res);
+		tb = wfTableService.findSubTable(tbId,"表体");
+		Long stbId = null;
+		if(tb != null){
+			res = SQLConnector.getSQLExecutor().query("select * from "+tb.getName()+" where id in (select skey from table_keys where zkey= "+bizId+") order by id");
+			fieldsValueMap.put("subTable", res);
+			stbId = tb.getTbId();
+		}		
+		List<WorkflowTableBrief> tbLst = wfTableService.findAllSubTables(tbId);
+		for(WorkflowTableBrief obj : tbLst){	
+			if(stbId != null && obj.getTbId().equals(stbId)) continue;
+			res = SQLConnector.getSQLExecutor().query("select * from "+obj.getName()+" where id in (select skey from table_keys where zkey= "+bizId+") order by id");
+			fieldsValueMap.put(obj.getTbId().toString(), res);
+		}		
+		
+		return fieldsValueMap;
 	}
 	
 	/**

@@ -49,13 +49,14 @@
 			select sq_tbId.nextval from dual
 		</selectKey>
 		insert into table_brief(
-			tbId,name,tableName,status,createdDate
+			tbId,name,tableName,status,template,createdDate
 		)
 		values(
 			#{tbId},
 			#{name,jdbcType=VARCHAR},
 			#{tableName,jdbcType=VARCHAR},			
 			#{status,jdbcType=VARCHAR},
+			#{template,jdbcType=VARCHAR},
 			#{createdDate,jdbcType=TIMESTAMP}
 		)
 	</insert>
@@ -140,9 +141,7 @@
 		{call
 			declare
 			begin
-			<selectKey resultType="java.lang.Long" keyProperty="id" order="BEFORE">
-				select sq_id.nextval from dual
-			</selectKey>
+			
 			<foreach collection="list" item="item" index="index" separator="">			
 				insert into table_element(
 					id,tbId,emId,newLabelName,newFunctionName,functionBelongTo,rowes,cols,width,scope,seq,newHiddenFieldName,
@@ -150,7 +149,7 @@
 				)
 				values			
 				(
-					#{id},
+					sq_id.nextval,
 					#{item.tbId,jdbcType=DECIMAL},
 					#{item.emId,jdbcType=DECIMAL},
 					#{item.newLabelName,jdbcType=VARCHAR},
@@ -192,7 +191,8 @@
 			   rowes=#{rowes,jdbcType=DECIMAL},
 			   cols=#{cols,jdbcType=DECIMAL},
 			   width=#{width,jdbcType=DECIMAL},
-			   stbId=#{stbId,jdbcType=DECIMAL}
+			   stbId=#{stbId,jdbcType=DECIMAL},
+			   emId=#{emId,jdbcType=DECIMAL}
 		<where>		
 		      id=#{id,jdbcType=DECIMAL}	
 		</where>				
@@ -232,11 +232,18 @@
 	
 	<!-- 用于流程节点上字段的配置、所有列表可操作字段 -->
 	<select id="findTableAllFields" resultMap="tableelement" parameterType="java.lang.Long">
-		select a.*,b.labelName,b.fieldName from table_element a
-		 left join element_library b on a.emId = b.emId 
-		 where a.tbId = #{tbId}		 
-		   and a.newFieldType not in ( '标签','子表','列表')
-		 order by a.seq		 
+		select * from(
+			select a.*,b.labelName,b.fieldName from table_element a
+			 left join element_library b on a.emId = b.emId 
+			 where a.tbId = #{tbId}		 
+			   and a.newFieldType not in ( '标签','子表','列表')
+			union all
+			 select a.*,b.labelName,b.fieldName from table_element a
+			 left join element_library b on a.emId = b.emId 
+			 where a.tbId in (select stbId from table_element where tbId = #{tbId} and newFieldType ='子表')
+				and a.newFieldType not in ( '标签','子表','列表')
+			)
+		 order by seq		 
 	</select>
 	
 	<!-- 用于数据库字段检测 -->
@@ -297,9 +304,9 @@
 	
 	<!-- 获取流程节点设置的字段 -->
 	<select id="findTableAllElementsOnNode" resultMap="tableelement" parameterType="java.util.Map">
-		select a.* from table_element a
-		 inner join workflow b on b.tbId = a.tbId
-		 inner join workflow_table_element c on b.wfId = c.wfId and a.emId=c.emId
+		select a.*,c.required from table_element a
+		 inner join table_brief b on b.tbId = a.tbId 
+		 inner join workflow_table_element c on b.wfId = c.wfId and a.id=c.id
 		 where a.tbId = #{tbId}
 		   and b.wfId = #{wfId}
 		   and c.nodeId = #{nodeId}
@@ -308,18 +315,25 @@
 	</select>
 	
 	<insert id="saveTableElementOnNode" parameterType="java.util.Map">
-		delete from workflow_table_element where wfId = #{wfId} and nodeId = #{nodeId};
-		insert into workflow_table_element(
-			wfId,nodeId,id
-		)
-		values
-		<foreach collection="ids" item="item" index="index" separator=",">				
-		(
-			#{wfId},
-			#{nodeId},
-			#{item}
-		)
-		</foreach>
+		{call
+			declare
+			begin
+				delete from workflow_table_element where wfId = #{wfId} and nodeId = #{nodeId};
+				<foreach collection="teLst" item="item" index="index" separator="">
+				insert into workflow_table_element(
+					wfId,nodeId,nodeName,id,required
+				)
+				values							
+				(
+					#{wfId},
+					#{nodeId},
+					#{nodeName},
+					#{item.id},
+					#{item.required}
+				);
+				</foreach>
+			end
+		}
 	</insert>
 		
 	<select id="findAllWithTableNameNoRelated" resultMap="tablebrief">

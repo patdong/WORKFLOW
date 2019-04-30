@@ -38,7 +38,7 @@ public class TableElement {
 	private String labelName;
 	private String fieldName;
 	private boolean readOnly = false;
-	
+	private String required = "否";
 	
 	public Long getId() {
 		return id;
@@ -201,6 +201,12 @@ public class TableElement {
 	}
 	public void setStbId(Long stbId) {
 		this.stbId = stbId;
+	}
+	public String getRequired() {
+		return required;
+	}
+	public void setRequired(String required) {
+		this.required = required;
 	}
 	
 	

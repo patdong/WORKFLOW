@@ -1,8 +1,13 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"  pageEncoding="UTF-8"  trimDirectiveWhitespaces="true" %>
 <%@ include file="/WEB-INF/view/include.jsp"%>
-<script>   
+<script>
+	
     //表单保存提交
     function doStorage(){
+    	$("#myForm").valid();
+    	//必输项的默认提示信息：
+        $.validator.messages.required = "此项为必输项！";
+    	
     	if("${model.bizId}" == "") $("#myForm").attr("action","/app/save/${model.wftb.tbId}");
     	else $("#myForm").attr("action","/app/save/${model.wftb.tbId}/${model.bizId}");    	
     	$("#myForm").submit();
@@ -50,11 +55,13 @@
   	<c:forEach items="${model.buttons}" varStatus="i" var="button" >
   		<button class="btn btn-sm btn-outline-secondary" type="button" onclick="doButton('${button.actionCodeName}');">${button.actionName}</button> 
   	</c:forEach>
-  	&nbsp;  	
-    <div class="btn-group mr-2">
-      <button class="btn btn-sm btn-outline-secondary" type="button" onclick="doStorage();">保存</button> 
-      <button class="btn btn-sm btn-outline-secondary" type="button" onclick="doReset()">重置</button>     
-    </div> 
+  	&nbsp; 
+  	<c:if test="${!empty model.nodeName}"> 	
+	    <div class="btn-group mr-2">
+	      <button class="btn btn-sm btn-outline-secondary" type="button" onclick="doStorage();">保存</button> 
+	      <button class="btn btn-sm btn-outline-secondary" type="button" onclick="doReset()">重置</button>     
+	    </div>
+    </c:if>
     <c:if test="${!empty model.bizId}">
     	<c:if test="${!empty model.nodeName}">
     		<button class="btn btn-sm btn-outline-secondary" type="button" onclick="doAction();">${model.nodeName}完毕</button>
@@ -64,11 +71,11 @@
   </div>
 </div> 	
 	
-<form id="myForm" method="post" action="">
+<form id="myForm" method="post" action=""> 
 <div id="includedContent" style="padding-bottom:20px;">${model.table }</div>
 </form>
 <!-- 流程跟踪 -->
-<div id="workflow" class="draw" style="top: 23%;z-index: 999;background:white;display:none;">
+<div id="workflow" class="draw" style="height:40%;top: 17%;z-index: 999;background:white;display:none;">
 	<header>
 	 <div class="form-inline mt-2 mt-md-0" style="padding: 6px 10px 0px;" >流程跟踪 </div>	               
         <div style="position: absolute;top: 1px;right: 15px;">
@@ -76,9 +83,6 @@
         </div>	      	     
    	</header>
    	<hr style="margin-top: .5rem; margin-bottom: .5rem;"></hr>  
-   	<!--  	 	
-	
-	-->
 	${model.flowChat}
 </div>
 <!-- 续办节点选择窗口 -->

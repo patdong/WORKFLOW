@@ -76,13 +76,15 @@ public class PageModel extends Model{
 
 	public void setNextNodes(List<WorkflowNode> nextNodes) {
 		this.nextNodes = new ArrayList<Map<String,Object>>();
-		for(WorkflowNode wfn : nextNodes){
-			Map<String,Object> node = new HashMap<String,Object>();
-			node.put("nodeId", wfn.getNodeId());
-			node.put("nodeName", wfn.getNodeName());
-			this.nextNodes.add(node);
+		if(nextNodes != null){
+			for(WorkflowNode wfn : nextNodes){
+				Map<String,Object> node = new HashMap<String,Object>();
+				node.put("nodeId", wfn.getNodeId());
+				node.put("nodeName", wfn.getNodeName());
+				this.nextNodes.add(node);
+			}
+			this.nextNodeSize = nextNodes.size();
 		}
-		if(nextNodes != null) this.nextNodeSize = nextNodes.size();
 	}
 
 	public int getNextNodeSize() {

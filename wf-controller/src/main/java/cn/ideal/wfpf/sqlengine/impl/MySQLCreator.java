@@ -75,5 +75,11 @@ public class MySQLCreator implements SQLCreator {
 		return null;
 	}
 
+	@Override
+	public String dropSequence(String tableName) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 	
 }

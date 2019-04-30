@@ -44,7 +44,7 @@
 		</if>	
 	</select>
 	
-	<select id="find" resultType="cn.ideal.wfpf.model.WFPFWorkflow" parameterType="java.lang.Long">
+	<select id="find" resultMap="wfpfworkflow" parameterType="java.lang.Long">
 		select * from workflow where wfId = #{wfId}			
 	</select>
 	

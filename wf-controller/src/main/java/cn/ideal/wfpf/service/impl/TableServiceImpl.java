@@ -13,13 +13,16 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import cn.ideal.wf.common.WFConstants;
 import cn.ideal.wfpf.dao.TableMapper;
 import cn.ideal.wfpf.model.Element;
+import cn.ideal.wfpf.model.Node;
 import cn.ideal.wfpf.model.Page;
 import cn.ideal.wfpf.model.TableBrief;
 import cn.ideal.wfpf.model.TableElement;
 import cn.ideal.wfpf.model.TableLayout;
 import cn.ideal.wfpf.service.ElementService;
+import cn.ideal.wfpf.service.NodeService;
 import cn.ideal.wfpf.service.TableService;
 import cn.ideal.wfpf.service.WorkflowService;
 import cn.ideal.wfpf.sqlengine.SQLExecutor;
@@ -34,7 +37,9 @@ public class TableServiceImpl implements TableService {
 	@Autowired
 	private WorkflowService wfService;
 	@Autowired
-	private JdbcTemplate jdbcTemplate;	
+	private JdbcTemplate jdbcTemplate;
+	@Autowired
+	private NodeService nodeService;
 		
 	private SQLExecutor sqlExecutor;
 	
@@ -54,6 +59,7 @@ public class TableServiceImpl implements TableService {
 	public TableBrief saveTableBrief(TableBrief obj) {
 		obj.setStatus("有效");
 		obj.setCreatedDate(new Date());
+		obj.setTemplate("表");
 		int idx = tableMapper.saveTableBrief(obj);
 		if(idx == 1) {
 			TableLayout tl = new TableLayout();
@@ -141,8 +147,8 @@ public class TableServiceImpl implements TableService {
 	}
 
 	@Override
-	public boolean moveUp(Long tbId, Long id) {
-		List<TableElement> teLst = tableMapper.findTableAllElements(tbId,null);
+	public boolean moveUp(Long tbId, Long id ,String scope) {
+		List<TableElement> teLst = tableMapper.findTableAllElements(tbId,scope);
 		int i=0;
 		TableElement curTe = null;
 		for(TableElement te : teLst){
@@ -164,8 +170,8 @@ public class TableServiceImpl implements TableService {
 	}
 
 	@Override
-	public boolean moveDown(Long tbId, Long id) {
-		List<TableElement> teLst = tableMapper.findTableAllElements(tbId,null);
+	public boolean moveDown(Long tbId, Long id,String scope) {
+		List<TableElement> teLst = tableMapper.findTableAllElements(tbId,scope);
 		int i=0;
 		TableElement curTe = null;
 		for(TableElement te : teLst){
@@ -314,9 +320,9 @@ public class TableServiceImpl implements TableService {
 			obj.setNewFieldDataType(valAry[1]);
 			obj.setStbId(Long.parseLong(valAry[0]));
 		}
-		if(obj.getId() == null) {
-			Element em = new Element();
-			if(!(obj.getNewFieldType().contains("标签") || obj.getNewFieldType().contains("子表") || obj.getNewFieldType().contains("组件"))){				
+		Element em = new Element();		
+		if(!(StringUtils.isEmpty(obj.getFieldName()) || obj.getNewFieldType().contains("标签") || obj.getNewFieldType().contains("子表") || obj.getNewFieldType().contains("组件"))){				
+			if(obj.getEmId() == null){
 				em.setCreatedDate(new Date());
 				em.setDataContent(obj.getNewDataContent());
 				em.setFieldDataType(obj.getNewFieldDataType());
@@ -329,12 +335,25 @@ public class TableServiceImpl implements TableService {
 				em.setLabelName(obj.getNewLabelName());
 				em.setLength(obj.getNewLength());
 				em = elementService.save(em);
+			}else{
+				em.setFieldName(obj.getFieldName());
+				em.setEmId(obj.getEmId());
+				em.setLabelName(obj.getNewLabelName());
+				em.setHiddenFieldName(obj.getNewHiddenFieldName());
+				em.setFunctionName(obj.getNewFunctionName());
+				em.setFieldType(obj.getNewFieldType());
+				em.setFieldDataType(obj.getNewFieldDataType());
+				em.setDataContent(obj.getNewDataContent());
+				em.setLength(obj.getNewLength());
+				em = elementService.update(em);
 			}
+			obj.setEmId(em.getEmId());
+		}		
+		if(obj.getId() == null) {			
 			Long seq = tableMapper.findMaxSeq(obj.getTbId());
 			if(seq == null) seq = 0l;
 			obj.setSeq(seq+1);
-			obj.setCreatedDate(new Date());
-			obj.setEmId(em.getEmId());
+			obj.setCreatedDate(new Date());			
 			idx = tableMapper.saveTableElement(obj);
 		}
 		else idx = tableMapper.updateTableElement(obj);
@@ -355,8 +374,16 @@ public class TableServiceImpl implements TableService {
 	 * 设置表单在节点上的属性
 	 */
 	@Override
-	public boolean setTableFieldsOnNode(Long wfId, Long nodeId, Long[] ids) {
-		int idx = tableMapper.saveTableElementOnNode(wfId, nodeId, ids);
+	public boolean setTableFieldsOnNode(Long wfId, Long nodeId, List<TableElement> teLst) {
+		String nodeName = null;
+		if(nodeId.longValue() == 0l) nodeName = WFConstants.WF_NODE_START;
+		else {
+			Node node = nodeService.find(nodeId);
+			if(node != null) nodeName = node.getNodename();
+			else return false;
+		}
+				
+		int idx = tableMapper.saveTableElementOnNode(wfId, nodeId,nodeName, teLst);
 		if(idx > 0) return true;
 		return false;
 	}

@@ -5,6 +5,8 @@ package cn.ideal.wf.jdbc.dao;
  * @version 2.0
  */
 import java.math.BigInteger;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -13,9 +15,10 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import cn.ideal.wf.cache.TableBriefCache;
 import cn.ideal.wf.data.analyzer.Storage;
 import cn.ideal.wf.model.WorkflowTableBrief;
+import cn.ideal.wf.model.WorkflowUser;
+import cn.ideal.wf.cache.TableBriefCache;
 
 
 @Service("WFMYSQLExecutor")
@@ -52,10 +55,12 @@ public class WFMySQLExecutor implements SQLExecutor {
 					prebuf.setLength(0);
 					WorkflowTableBrief tb = TableBriefCache.getValue(storage.getTbId());
 					prebuf.append("insert into table_summary ( ");
-					prebuf.append("bizId,tableName,wfId,title,createdUserId,createdUserName,createdOrgId,createdOrgName,curUserId,curUserName,createdDate,modifiedDate,status,action ");
+					prebuf.append("bizId,tbId,tableName,wfId,title,createdUserId,createdUserName,createdOrgId,createdOrgName,curUserId,curUserName,createdDate,modifiedDate,status,action ");
 					prebuf.append(" ) ");
 					prebuf.append(" values (");
 					prebuf.append(bizId);
+					prebuf.append(",");
+					prebuf.append(storage.getTbId());
 					prebuf.append(",'");
 					prebuf.append(storage.getTableName());
 					prebuf.append("',");
@@ -126,9 +131,8 @@ public class WFMySQLExecutor implements SQLExecutor {
 	}
 
 	@Override
-	public void save(String sql) {
-		// TODO Auto-generated method stub
-		
+	public int execute(String sql) {
+		return this.jdbcTemplate.update(sql);		
 	}
 
 	@Override
@@ -229,7 +233,7 @@ public class WFMySQLExecutor implements SQLExecutor {
 		if(scope != null && ((String)scope).equals("workflow")) return queryWorkflowAll(storage);
 		
 		List<Map<String,Object>> rs = this.query("select count(*) as total from " + storage.getTableName() +
-				" a inner join table_summary b on b.bizId = a.Id where b.createdUserId = "+storage.getUser().getUserId() +
+				" a inner join table_summary b on b.bizId = a.Id where b.tbId = "+storage.getTbId() +" and b.createdUserId = "+storage.getUser().getUserId() +
 				" and b.tableName = '"+ storage.getTableName()+"'");
 		if(rs.size() > 0) {
 			return Long.parseLong(rs.get(0).get("TOTAL").toString());
@@ -272,8 +276,9 @@ public class WFMySQLExecutor implements SQLExecutor {
 		buf.append(storage.getTableName());
 		buf.append(" a ");
 		buf.append(" inner join table_summary b on a.Id = b.bizId ");
-		buf.append(" where b.tableName = '"+ storage.getTableName()+"'" );
+		buf.append(" where b.tbId = "+storage.getTbId() +" and b.tableName = '"+ storage.getTableName()+"'" );
 		buf.append(" and b.createdUserId = " + storage.getUser().getUserId());
+		buf.append(" order by a.ID");
 		if(parameters!=null && parameters.size() > 0){
 			
 		}
@@ -323,5 +328,96 @@ public class WFMySQLExecutor implements SQLExecutor {
 		List<Map<String,Object>> rs = this.query(buf.toString());	
 		if(rs.size() > 0) return rs.get(0);
 		return null;
+	}
+
+	@Override
+	public void migrateComments(Long bizId, Long tbId, String tableName,WorkflowUser user) {
+		List<Map<String,Object>> fields = this.query(""
+				+ " select b.fieldName from table_element a "
+				+ " left join element_library b on a.emId = b.emId "
+				+ " where a.tbId = "+tbId
+				+ " and a.newFieldType = '审批意见'");
+		if(fields != null){
+			String fieldNames = "";
+			String express = "";
+			for(Map<String,Object> field : fields){
+				for(Map.Entry<String,Object> item : field.entrySet()){
+					fieldNames += item.getValue().toString() + ",";
+					express += item.getValue() + " = null ,";
+				}
+			}
+			if(fieldNames.length()>0) fieldNames = fieldNames.substring(0,fieldNames.length()-1);
+			if(express.length()>0) express = express.substring(0,express.length()-1);
+			List<Map<String,Object>> fieldValues = this.query("select "+fieldNames+" from "+tableName+" where id="+bizId);
+			if(fieldValues != null && fieldValues.size() > 0){
+				int idx = 0;
+				for(Map.Entry<String,Object> fieldValue : fieldValues.get(0).entrySet()){
+					if(fieldValue.getValue() != null){
+						idx = this.execute(" insert into workflow_comment(tbId,bizId,fieldName,remark,remarkDate,userId,userName) "
+								+ " values("+tbId+","+bizId+",'"+fieldValue.getKey()+"','"+fieldValue.getValue().toString()+"',"
+										+ " '"+this.getDate()+"',"+user.getUnitId()+",'"+user.getUserName()+"')");
+						if(idx <= 0) return;
+					}
+				}
+				if(idx > 0) this.execute("update "+tableName +" set "+express+" where id ="+bizId);
+			}
+		}		
+	}
+	
+	
+	@Override
+	public Long queryAll(Long userId) {
+		if(userId == null) return 0l;
+		
+		List<Map<String,Object>> rs = this.query("select count(*) as total from table_summary a where a.createdUserId = "+ userId );
+		if(rs.size() > 0) {
+			return Long.parseLong(rs.get(0).get("TOTAL").toString());
+		}
+		return 0l;
+	}
+
+	@Override
+	public List<Map<String, Object>> queryPage(Long userId,Long pageNumber,Long pageSize) {
+		if(pageNumber == null) pageNumber = 1l;		
+		StringBuilder buf = new StringBuilder();
+		buf.append("select * from table_summary a ");
+		buf.append(" where a.createdUserId = " + userId);
+		buf.append(" order by a.ID");		
+		buf.append(" limit ");
+		buf.append(pageNumber-1);
+		buf.append(" , ");
+		buf.append(pageNumber);
+		return this.query(buf.toString());
+	}
+
+	@Override
+	public Long queryWorkflowAll(Long userId) {
+		if(userId == null) return 0l;
+		
+		List<Map<String,Object>> rs = this.query("select count(*) as total from table_summary a where a.createdUserId = "+ userId );
+		if(rs.size() > 0) {
+			return Long.parseLong(rs.get(0).get("TOTAL").toString());
+		}
+		return 0l;
+	}
+	
+	private String getDate(){		
+		SimpleDateFormat formatter = new SimpleDateFormat ("yyyy-MM-dd HH:mm:ss"); 
+		return formatter.format(new Date());
+	}
+
+	@Override
+	public List<Map<String, Object>> queryWorkflowPage(Long userId,
+			Long pageNumber, Long pageSize) {
+		if(pageNumber == null) pageNumber = 1l;		
+		StringBuilder buf = new StringBuilder();
+		buf.append("select * from table_summary a ");
+		buf.append(" where a.curUserId = " + userId);
+		buf.append(" order by a.ID");		
+		buf.append(" limit ");
+		buf.append(pageNumber-1);
+		buf.append(" , ");
+		buf.append(pageNumber);
+		return this.query(buf.toString());
 	}
 }

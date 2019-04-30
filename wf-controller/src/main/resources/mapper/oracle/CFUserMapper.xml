@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.ideal.cf.repository.UserMapper">
+    <resultMap id="user" type="cn.ideal.cf.model.CFUser" autoMapping="true" />        
+     
+    <select id="findUsers" resultMap="user">
+        SELECT su.userId,su.realName,su.currentOrgName,so1.orgName,su.currentOrgId from sys_user su 
+        inner join sys_org so on su.currentOrgId = so.orgId
+        inner join sys_org so1 on so.belongedOrgId = so1.orgId  
+        where su.realName like '%'||#{userName}||'%' 
+    </select>
+    
+</mapper>

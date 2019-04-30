@@ -387,7 +387,7 @@ public class RichFlowChatServiceImpl implements FlowChatService {
 				FlowChatNode node = tree[i][j];
 				if(node == null) continue;
 				if(node.getStyle().equals("user")){
-					buf.append("<img src='/img/wf_btn4.PNG' style='position: absolute;top: "+node.getTop()+"px;left: "+(node.getLeft()+20)+"px;'>");					
+					buf.append("<div class='circle-text' style='background:green;position: absolute;top: "+node.getTop()+"px;left: "+(node.getLeft()+20)+"px;' onclick=\"showPos(event,0,'','')\"><font style='font-size:15px'>&nbsp;创建&nbsp;</font></div>");					
 				}
 				if(node.getStyle().equals("node")){
 					buf.append("<div class='circle-text' style='z-index:1;position: absolute;top: "+(node.getTop())+"px;left: "+(node.getLeft()-3)+"px;' onclick=\"showPos(event,"+node.getNodeId()+",'"+node.getNodeName()+"','"+node.getStatus()+"')\"><font style='font-size:15px'>&nbsp;"+node.getNodeName()+"	&nbsp;</font></div>");					
@@ -456,13 +456,13 @@ public class RichFlowChatServiceImpl implements FlowChatService {
 				FlowChatNode node = tree[i][j];
 				if(node == null) continue;
 				if(node.getStyle().equals("user")){
-					buf.append("<img src='/img/wf_btn4.PNG' style='position: absolute;top: "+node.getTop()+"px;left: "+(node.getLeft()+20)+"px;'>");					
+					buf.append("<div class='circle-text' style='background:green;position: absolute;top: "+node.getTop()+"px;left: "+(node.getLeft()+20)+"px;'><font style='font-size:15px'>&nbsp;创建&nbsp;</font></div>");					
 				}
 				if(node.getStyle().equals("node")){
 					if(node.getPassed() == null) classCss = "circle-text";
 					else if(node.getPassed().equals("passed")) classCss = "circle-green-text";
 					else if(node.getPassed().equals("passing")) classCss = "circle-blue-text";
-					buf.append("<div class='"+classCss+"' style='position: absolute;top: "+(node.getTop())+"px;left: "+(node.getLeft()-3)+"px;' onclick=\"showPos(event,"+node.getNodeId()+",'"+node.getNodeName()+"','"+node.getStatus()+"')\"><font style='font-size:15px'>&nbsp;"+node.getNodeName()+"	&nbsp;</font></div>");					
+					buf.append("<div class='"+classCss+"' style='position: absolute;top: "+(node.getTop())+"px;left: "+(node.getLeft()-3)+"px;' ><font style='font-size:15px'>&nbsp;"+node.getNodeName()+"	&nbsp;</font></div>");					
 				}
 				this.setPostion(node.getrPositions(),buf);
 				this.setPostion(node.getlPositions(),buf);

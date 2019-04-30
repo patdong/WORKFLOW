@@ -27,9 +27,9 @@ public interface TableService extends PageService<TableBrief> {
 	
 	TableElement findTableElement(Long tbId, Long emId);
 	
-	boolean moveUp(Long tbId, Long id);
+	boolean moveUp(Long tbId, Long id,String scope);
 	
-	boolean moveDown(Long tbId, Long id);
+	boolean moveDown(Long tbId, Long id,String scope);
 	
 	boolean updateTableElementSeq(TableElement obj);
 	
@@ -49,7 +49,7 @@ public interface TableService extends PageService<TableBrief> {
 	
 	List<TableElement> findTableAllElementsOnNode(Long wfId, Long nodeId,Long tbId);
 	
-	boolean setTableFieldsOnNode(Long wfId, Long nodeId, Long[] ids);
+	boolean setTableFieldsOnNode(Long wfId, Long nodeId, List<TableElement> teLst);
 	
 	boolean setStatus(Long tbId, boolean status);
 		

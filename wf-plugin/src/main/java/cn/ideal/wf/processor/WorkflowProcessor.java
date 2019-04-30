@@ -23,11 +23,11 @@ import cn.ideal.wf.model.WorkflowBrief;
 import cn.ideal.wf.model.WorkflowNode;
 import cn.ideal.wf.model.WorkflowTableBrief;
 import cn.ideal.wf.model.WorkflowUser;
-import cn.ideal.wf.service.PlatformService;
 import cn.ideal.wf.service.WorkflowBriefService;
 import cn.ideal.wf.service.WorkflowFlowService;
 import cn.ideal.wf.service.WorkflowNodeService;
 import cn.ideal.wf.service.WorkflowTableService;
+import cn.ideal.wf.service.impl.JdbcSQLExecutor;
 
 @Service
 public class WorkflowProcessor extends Utils implements Processor {
@@ -40,10 +40,9 @@ public class WorkflowProcessor extends Utils implements Processor {
     @Autowired
     private WorkflowTableService workflowTableService;
     @Autowired
-    private PlatformService platformService;
-    @Autowired
     private ApplicationContext appContext;
-   
+    @Autowired
+	private JdbcSQLExecutor jdbcSQLExecutor;
     
     @Value("${workflow.user.scope}")
     private String userScope;
@@ -59,6 +58,9 @@ public class WorkflowProcessor extends Utils implements Processor {
 	public boolean doAction(Long tbId, Long bizId, WorkflowUser wfu) throws Exception {
 		boolean res = true;
 		WorkflowTableBrief wftb = TableBriefCache.getValue(tbId);
+		//判断是否有审批意见需要迁移
+		jdbcSQLExecutor.migrateComments(bizId, tbId, wftb.getName(), wfu);
+		
 		WorkflowBrief wfb = workflowBriefService.findDoingFlow(bizId,wftb.getWfId());
 		WorkflowAction action = new WorkflowAction();
 		//判断是否已经创建了流程，未创建则先创建再流转
@@ -71,7 +73,7 @@ public class WorkflowProcessor extends Utils implements Processor {
 		}
 		
 		//支持平台演示和实际运用两种方式获得续办用户
-		List<WorkflowUser> wfuLst = null;
+		List<WorkflowUser> wfuLst = new ArrayList<WorkflowUser>();
 		if(("dev").equals(userScope)){
 			WorkflowUser user = new WorkflowUser(1l,1l);
 			user.setUserName("admin");
@@ -98,6 +100,8 @@ public class WorkflowProcessor extends Utils implements Processor {
 	public boolean doAction(Long tbId, Long bizId, WorkflowUser wfu,Long nodeId) throws Exception {
 		boolean res = true;
 		WorkflowTableBrief wftb = TableBriefCache.getValue(tbId);
+		//判断是否有审批意见需要迁移
+		jdbcSQLExecutor.migrateComments(bizId, tbId, wftb.getName(), wfu);
 		WorkflowBrief wfb = workflowBriefService.findDoingFlow(bizId,wftb.getWfId());
 		WorkflowNode node = workflowNodeService.findNode(nodeId);
 		WorkflowAction action = null;
@@ -135,6 +139,8 @@ public class WorkflowProcessor extends Utils implements Processor {
 	public boolean doAction(Long tbId, Long bizId, WorkflowUser wfu,Long nodeId, WorkflowUser... nextWfu) throws Exception {
 		boolean res = true;
 		WorkflowTableBrief wftb = TableBriefCache.getValue(tbId);
+		//判断是否有审批意见需要迁移
+		jdbcSQLExecutor.migrateComments(bizId, tbId, wftb.getName(), wfu);
 		WorkflowBrief wfb = workflowBriefService.findDoingFlow(bizId,wftb.getWfId());
 		WorkflowNode node = workflowNodeService.findNode(nodeId);
 		WorkflowAction action = null;
@@ -168,6 +174,8 @@ public class WorkflowProcessor extends Utils implements Processor {
 
 	@Override
 	public String findNodeName(Long wfId, Long bizId) {
+		if(bizId == null) return WFConstants.WF_NODE_STRAT;
+		if(wfId == null) return null;
 		WorkflowBrief wfb = workflowBriefService.find(bizId,wfId);
 		if(wfb == null) return WFConstants.WF_NODE_STRAT;
 		else if(wfb.getFinishedDate() != null) return null;
@@ -179,6 +187,9 @@ public class WorkflowProcessor extends Utils implements Processor {
 	public boolean doButton(Long tbId, Long bizId, WorkflowUser wfu,String buttonName) throws Exception {
 		boolean res = true;
 		WorkflowTableBrief wftb = TableBriefCache.getValue(tbId);
+		//判断是否有审批意见需要迁移
+		jdbcSQLExecutor.migrateComments(bizId, tbId, wftb.getName(), wfu);
+		
 		WorkflowBrief wfb = workflowBriefService.findDoingFlow(bizId,wftb.getWfId());
 		//判断是否已经创建了流程，未创建则先创建再流转
 		if(wfb == null){
@@ -186,12 +197,11 @@ public class WorkflowProcessor extends Utils implements Processor {
 		}
 		
 		//支持平台演示和实际运用两种方式获得续办用户
-		List<WorkflowUser> wfuLst = null;
+		List<WorkflowUser> wfuLst = new ArrayList<WorkflowUser>();
 		if(("dev").equals(userScope)){
 			WorkflowUser user = new WorkflowUser(1l,1l);
 			user.setUserName("admin");
-			user.setUnitName("平台");
-			wfuLst = new ArrayList<WorkflowUser>();
+			user.setUnitName("平台");			
 			wfuLst.add(user);
 		}		
 		Object obj = appContext.getBean(buttonName);

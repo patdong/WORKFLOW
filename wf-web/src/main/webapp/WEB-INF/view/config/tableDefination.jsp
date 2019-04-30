@@ -70,7 +70,7 @@
   function moveUp(id){
 	  $.ajax({
 		  type: 'GET',
-		  url: "/tb/moveup/${tbId}/"+id,		  
+		  url: "/tb/moveup/${tbId}/"+id+"/"+gscope,		  
 		  dataType: 'json',
 		  success: function(data){
 			  location.href="/tb/tabledefination/${tbId}?scope="+gscope+"&fieldsetting="+gfieldsetting;
@@ -85,7 +85,7 @@
   function moveDown(id){
 	  $.ajax({
 		  type: 'GET',
-		  url: "/tb/movedown/${tbId}/"+id,		  
+		  url: "/tb/movedown/${tbId}/"+id+"/"+gscope,		  
 		  dataType: 'json',
 		  success: function(data){
 			  location.href="/tb/tabledefination/${tbId}?scope="+gscope+"&fieldsetting="+gfieldsetting;
@@ -597,8 +597,8 @@
          </div>	      	     
     </header>
     <hr style="margin-top: .5rem; margin-bottom: .5rem;border-top: 1px solid #0c4219;"></hr>    
-    <div style="height:70%">	    
-	    <div style="padding: 0px 13px 0px;height: 100%;overflow-y: auto;" >
+    <div>	    
+	    <div style="padding: 0px 13px 0px;height: 300px;overflow-y: auto;" >
 			<form id="lstForm" class="navbar-form navbar-left" method="get" action="">			
 				<c:forEach items="${tbList}" varStatus="i" var="element" >
 					<p style="margin-bottom: 0.1rem;"><input type="checkbox" id="lstId" name="lstId" value="${element.emId}-${element.tbId}" <c:if test="${element.list eq '有效' }">checked</c:if>><span style="font-size:0.8rem">&nbsp;${element.labelName}</span></p>
@@ -611,7 +611,7 @@
 		    	<button class="btn btn-lg btn-primary-dialog " style="margin-right:20px;padding-left:1px;" onclick="setList();">保存</button>
 		    </div>
 	    </div> 	
-	 </div>    
+	</div>    
 </div>
 
 
@@ -652,6 +652,7 @@
 			        <option>单选框</option>
 			        <option>多选框</option>
 			        <option>文本框</option>
+			        <option>审批意见</option>
 			        <option>标签</option>
 			        <option>组件</option>
 			        <option>子表</option>

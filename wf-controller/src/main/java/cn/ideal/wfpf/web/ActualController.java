@@ -168,15 +168,20 @@ public class ActualController{
 	@PostMapping(value={"/doaction/{tbId}/{bizId}"})
 	public ModelAndView doaction(@PathVariable Long tbId, @PathVariable Long bizId, HttpServletRequest request) throws Exception{
 		ModelAndView mav = new ModelAndView("redirect:/app/list/"+tbId+"/1");	
-		wfProcessor.doAction(tbId, bizId, platformService.getWorkflowUser(request));
-		
+		Long id = businessProcessor.save(request, tbId, bizId);
+		if(id > 0){
+			wfProcessor.doAction(tbId, bizId, platformService.getWorkflowUser(request));
+		}
 		return mav;
 	}
 	
 	@PostMapping(value={"/doaction/{tbId}/{bizId}/{nodeId}"})
 	public ModelAndView doaction(@PathVariable Long tbId, @PathVariable Long bizId,@PathVariable Long nodeId, HttpServletRequest request) throws Exception{
-		ModelAndView mav = new ModelAndView("redirect:/app/list/"+tbId+"/1");	
-		wfProcessor.doAction(tbId, bizId, platformService.getWorkflowUser(request), nodeId);		
+		ModelAndView mav = new ModelAndView("redirect:/app/list/"+tbId+"/1");
+		Long id = businessProcessor.save(request, tbId, bizId);
+		if(id > 0){
+			wfProcessor.doAction(tbId, bizId, platformService.getWorkflowUser(request), nodeId);
+		}
 		return mav;
 	}
 	/**

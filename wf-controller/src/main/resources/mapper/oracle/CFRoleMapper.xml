@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.ideal.cf.repository.RoleMapper">
+    <resultMap id="role" type="cn.ideal.cf.model.CFRole" autoMapping="true" />        
+     
+    <select id="findRoles" resultMap="role">
+        SELECT * from sys_role 
+         where roleStatus = 1
+    </select>
+</mapper>

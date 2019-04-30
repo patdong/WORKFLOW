@@ -58,6 +58,8 @@ public interface WorkflowTableService {
 	
 	List<WorkflowTableElement> findTableAllElements(Long tbId,String scope);
 	
+	List<WorkflowTableElement> findTableAllElements(Long tbId,String scope,Long wfId, String nodeName);
+	
 	WorkflowTableLayout findTableLayoutWithScope(Long tbId, String scope);
 	
 	WorkflowTableBrief findSubTable(Long tbId, String scope);

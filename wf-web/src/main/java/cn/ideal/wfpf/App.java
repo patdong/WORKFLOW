@@ -7,8 +7,8 @@ import org.springframework.boot.web.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
-@ComponentScan(basePackages={"cn.ideal.wfpf", "cn.ideal.wf"})
-@MapperScan(basePackages={"cn.ideal.wfpf.dao","cn.ideal.wf.dao"})
+@ComponentScan(basePackages={"cn.ideal.wfpf", "cn.ideal.wf","cn.ideal.cf"})
+@MapperScan(basePackages={"cn.ideal.wfpf.dao","cn.ideal.wf.dao","cn.ideal.cf.repository"})
 public class App extends SpringBootServletInitializer {
 
 	public static void main(String[] args) throws Exception {

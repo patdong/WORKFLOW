@@ -44,18 +44,20 @@ public class StorageAnalyzer implements Analyzer{
 		
 		for(WorkflowTableBrief tb : wftbs){			
 			String[] ids = request.getParameterValues(tb.getName()+"_ID");
-			for(int i=0;i<ids.length;i++){
-				fields = tableService.findTableFieldNames(tb.getTbId());
-				//增加关键字的字段-隐藏字段
-				fields.add("ID");
-				keyVal = new HashMap<String,String>();
-				for(String field : fields){
-					keyVal.put(field,request.getParameterValues(tb.getName()+"_"+field)[i]);
+			if(ids != null){
+				for(int i=0;i<ids.length;i++){
+					fields = tableService.findTableFieldNames(tb.getTbId());
+					//增加关键字的字段-隐藏字段
+					fields.add("ID");
+					keyVal = new HashMap<String,String>();
+					for(String field : fields){
+						keyVal.put(field,request.getParameterValues(tb.getName()+"_"+field)[i]);
+					}
+					//过滤掉空记录
+					if(isEmptyRecord(keyVal)){
+						if(!StringUtils.isEmpty(keyVal.get("ID"))) storage.getsIds(tb.getName()).add(Long.parseLong(keyVal.get("ID")));
+					}else sFields.add(keyVal);
 				}
-				//过滤掉空记录
-				if(isEmptyRecord(keyVal)){
-					if(!StringUtils.isEmpty(keyVal.get("ID"))) storage.getsIds(tb.getName()).add(Long.parseLong(keyVal.get("ID")));
-				}else sFields.add(keyVal);
 			}
 			storage.setsFields(tb.getName(), sFields);
 		}

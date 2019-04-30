@@ -115,7 +115,8 @@ public class OracleExecutor implements SQLExecutor {
 
 	@Override
 	public void dropTable(String tableName) throws Exception {
-		this.executeSql(oracleCreator.dropTable(tableName));		
+		this.executeSql(oracleCreator.dropTable(tableName));	
+		this.executeSql(oracleCreator.dropSequence(tableName));	
 	}
 	
 	@Override

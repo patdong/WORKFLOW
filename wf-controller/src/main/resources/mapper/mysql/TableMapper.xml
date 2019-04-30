@@ -168,7 +168,8 @@
 			   rowes=#{rowes},
 			   cols=#{cols},
 			   width=#{width},
-			   stbId=#{stbId}
+			   stbId=#{stbId},
+			   emId=#{emId}
 		<where>		
 		      id=#{id}		
 		</where>				
@@ -273,8 +274,8 @@
 	
 	<!-- 获取流程节点设置的字段 -->
 	<select id="findTableAllElementsOnNode" resultMap="tableelement" parameterType="java.util.Map">
-		select a.* from table_element a
-		 inner join workflow b on b.tbId = a.tbId
+		select a.*,c.required from table_element a
+		 inner join table_brief b on b.tbId = a.tbId 
 		 inner join workflow_table_element c on b.wfId = c.wfId and a.id=c.id
 		 where a.tbId = #{tbId}
 		   and b.wfId = #{wfId}

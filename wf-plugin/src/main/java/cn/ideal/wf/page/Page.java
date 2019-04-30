@@ -17,8 +17,10 @@ public class Page<E> {
 	private List<E> pageList;              //页面记录集
 	private Long curFirstRecord;           //当前页的首记录
 	private String url;                    //请求路径
+	private Long total;                    //记录总数
 	
 	public Page(Long recordNumber, Long pageNumber){
+		this.total = recordNumber;
 		if(pageSize.intValue() == 0l) return;
 		if(pageNumber <= 0) pageNumber = 1l;
 		curPage = pageNumber;
@@ -82,6 +84,12 @@ public class Page<E> {
 	}
 	public void setUrl(String url) {
 		this.url = url;
+	}
+	public Long getTotal() {
+		return total;
+	}
+	public void setTotal(Long total) {
+		this.total = total;
 	}
 	
 	

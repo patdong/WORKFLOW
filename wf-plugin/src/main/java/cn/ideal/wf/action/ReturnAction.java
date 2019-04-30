@@ -30,7 +30,7 @@ public class ReturnAction implements Action {
 		boolean res = true;
 		WorkflowFlow wff = workflowFlowService.findPrevFlow(bizId, wfId);
 		
-		if(users == null){
+		if(users == null || users.length == 0){
 			List<WorkflowUser> wfuLst = workflowFlowService.findWorkflowUsers(wff.getFlowId());
 			users = wfuLst.toArray(new WorkflowUser[wfuLst.size()]);
 		}
@@ -38,7 +38,8 @@ public class ReturnAction implements Action {
 		if(res){
 			String curUserName = "";
 			for(WorkflowUser item : users) curUserName += item.getUserName() + ",";	
-			WorkflowTableSummary wfts = new WorkflowTableSummary();	
+			WorkflowTableSummary wfts = new WorkflowTableSummary();
+			if(users.length > 0) wfts.setCurUserId(users[0].getUserId());
 			wfts.setCurUserName(curUserName);
 			wfts.setModifiedDate(new Date());
 			//任何动作都反应在action字段上

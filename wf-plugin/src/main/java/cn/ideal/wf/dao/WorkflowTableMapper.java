@@ -53,6 +53,8 @@ public interface WorkflowTableMapper {
 	 */
 	List<WorkflowTableElement> findTableAllElements(@Param("tbId") Long tbId,@Param("scope") String scope);
 	
+	List<WorkflowTableElement> findTableAllElementsWithWorkflow(@Param("tbId") Long tbId,@Param("scope") String scope,@Param("wfId") Long wfId,@Param("nodeName") String nodeName);
+	
 	WorkflowTableLayout findTableLayoutWithScope(@Param("tbId") Long tbId,@Param("scope") String scope);
 	
 	List<WorkflowTableLayout> findTableLayout(Long tbId);	

@@ -99,13 +99,19 @@ public class NodeServiceImpl implements NodeService {
 		int idx = nodeMapper.update(node);
 		if(idx > 0 ) {
 			node.setCreatedDate(new Date());
-			if(node.getUsers() != null && node.getUsers().size() > 0) {
+			if(node.getuType() != null){
 				nodeMapper.deleteUser(node.getNodeId());
-				nodeMapper.saveUser(node);
-			}
-			if(node.getRole() != null && node.getRole().getRoleId() != null) {
 				nodeMapper.deleteRole(node.getNodeId());
-				nodeMapper.saveRole(node);
+			}
+			if(node.getuType().equals("用户")){
+				if(node.getUsers() != null && node.getUsers().size() > 0) {				
+					nodeMapper.saveUser(node);
+				}
+			}
+			if(node.getuType().equals("角色")){
+				if(node.getRole() != null && node.getRole().getRoleId() != null) {				
+					nodeMapper.saveRole(node);
+				}
 			}
 			
 			if(node.getButtons() != null && node.getButtons().size() > 0) {

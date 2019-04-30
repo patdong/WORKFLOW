@@ -30,7 +30,8 @@ public class EndAction implements Action {
 			WorkflowTableSummary wfts = new WorkflowTableSummary();	
 			wfts.setModifiedDate(new Date());
 			//任何动作都反应在action字段上
-			wfts.setAction(WFConstants.WF_ACTION_END);	
+			wfts.setAction(WFConstants.WF_ACTION_END);
+			wfts.setFinishedDate(new Date());
 			wfts.setBizId(bizId);
 			wfts.setWfId(wfId);
 			res = workflowTableService.synchTableSummary(wfts);

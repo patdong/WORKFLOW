@@ -1,71 +1,81 @@
 package cn.ideal.wf.cache;
 
-/**
- * 工作流缓存
- * @author 郭佟燕
- * @version 2.0
- */
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.core.annotation.Order;
-import org.springframework.data.redis.core.HashOperations;
-import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
 
 import cn.ideal.wf.model.Workflow;
 import cn.ideal.wf.service.WorkflowWFService;
 
-@Component
-@Order(value=2)
-public class WorkflowCache implements CommandLineRunner {
-	private Logger logger = LoggerFactory.getLogger(this.getClass());
-	private static final String WF_KEY = "WF";
-	@Autowired
-    private RedisTemplate<String,Object> redisTemplate;	 
-	@Autowired
-    private WorkflowWFService workflowWFService;
-	
-	public static HashOperations<String, Long, Workflow> hashWorkflow;
-	
-	@Override
-	public void run(String... args) throws Exception {		
-		logger.info("启动时数据加载");
-		hashWorkflow = redisTemplate.opsForHash();
-		List<Workflow> wfs = workflowWFService.findHavingBindTable();
-		for(Workflow wf : wfs){
-			hashWorkflow.put(WF_KEY, wf.getWfId(), wf);
-		}
+@Component("WorkflowCache1")
+public class WorkflowCache implements ApplicationContextAware{
+	private static Map<Long, Workflow> hashWorkflow;
+	private static ApplicationContext context;
 
+    public static ApplicationContext getApplicationContext() {
+        return context;
+    }
+    @Override
+    public void setApplicationContext(ApplicationContext ac)throws BeansException {
+        context = ac;
+    }
+	
+	public static void init() {	
+		WorkflowWFService workflowWFService = context.getBean(WorkflowWFService.class);
+		
+		List<Workflow> wfs = workflowWFService.findHavingBindTable();
+		hashWorkflow = new HashMap<Long, Workflow>();
+		for(Workflow wf : wfs){
+			hashWorkflow.put(wf.getWfId(), wf);
+		}
+			
 	}
 	
 	public static Workflow getValue(Long wfId){
-		return hashWorkflow.get(WF_KEY, wfId);		
+		if(hashWorkflow == null) {
+			init();
+		}
+		return hashWorkflow.get(wfId);		
 	}
 	
 	public static Map<Long,Workflow> getAll(){
-		return hashWorkflow.entries(WF_KEY);
+		if(hashWorkflow == null) {
+			init();
+		}
+		return hashWorkflow;
 	}
 	
 	public static void save(Workflow wf) {
-		hashWorkflow.put(WF_KEY, wf.getWfId(), wf);
+		if(hashWorkflow == null) {
+			init();
+		}
+		hashWorkflow.put(wf.getWfId(), wf);
 	}
 
 	public static void update(Workflow wf) {
-		hashWorkflow.put(WF_KEY, wf.getWfId(), wf);
+		if(hashWorkflow == null) {
+			init();
+		}
+		hashWorkflow.put(wf.getWfId(), wf);
 	}
  
 	public static void delete(Long wfId) {
-		hashWorkflow.delete(WF_KEY, wfId);
+		if(hashWorkflow == null) {
+			init();
+		}
+		hashWorkflow.remove(wfId);
 	}
 	
 	public static void put(Workflow wf){
-		hashWorkflow.put(WF_KEY, wf.getWfId(), wf);
+		if(hashWorkflow == null) {
+			init();
+		}
+		hashWorkflow.put(wf.getWfId(), wf);
 	}
 
 }
-

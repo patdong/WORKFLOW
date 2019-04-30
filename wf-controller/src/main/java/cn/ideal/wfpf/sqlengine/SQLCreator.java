@@ -24,6 +24,8 @@ public interface SQLCreator {
 	
 	String dropTable(String tableName);
 	
+	String dropSequence(String tableName);
+	
 	String getComment(String tableName,String fieldName,String comment);
 	
 }

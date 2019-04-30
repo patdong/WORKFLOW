@@ -21,7 +21,7 @@ public interface PlatformService {
 	 * @param orgId
 	 * @return
 	 */
-	List<WorkflowUser> findUsersByRoleIdAndOrgId(Long roleId, Long orgId);
+	List<WorkflowUser> findUsersByRoleIdAndOrgId(Long roleId, Long orgId,Long senderId);
 	
 	
 	/**

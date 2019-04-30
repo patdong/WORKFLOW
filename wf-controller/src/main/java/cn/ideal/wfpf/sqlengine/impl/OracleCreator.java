@@ -68,4 +68,9 @@ public class OracleCreator implements SQLCreator {
 		return "CREATE SEQUENCE sq_"+tableName+" START WITH 1 INCREMENT BY 1 MAXVALUE 1E27 MINVALUE 1 NOCYCLE NOCACHE ORDER";		
 	}
 
+	@Override
+	public String dropSequence(String tableName) {
+		return "DROP SEQUENCE sq_"+ tableName;		
+	}
+
 }

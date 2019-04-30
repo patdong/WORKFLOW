@@ -55,6 +55,7 @@ public class WFPFWorkflow implements Serializable {
 	}
 	public void setTbLst(List<TableBrief> tbLst) {
 		this.tbLst = tbLst;
+		if(tbLst.size() > 0) this.tbId = tbLst.get(0).getTbId();
 	}
 	
 	

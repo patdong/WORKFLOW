@@ -36,7 +36,8 @@ public class WorkflowTableElement implements Serializable{
 	private Object dataValue;
 	private Long stbId;
 	private String tableName;
-	
+	private String required;
+	private boolean readOnly = false;
 	
 	public WorkflowTableElement(){}
 	
@@ -201,6 +202,22 @@ public class WorkflowTableElement implements Serializable{
 	}
 	public void setTableName(String tableName) {
 		this.tableName = tableName;
+	}
+
+	public String getRequired() {
+		return required;
+	}
+
+	public void setRequired(String required) {
+		this.required = required;
+	}
+
+	public boolean isReadOnly() {
+		return readOnly;
+	}
+
+	public void setReadOnly(boolean readOnly) {
+		this.readOnly = readOnly;
 	}	
 	
 }

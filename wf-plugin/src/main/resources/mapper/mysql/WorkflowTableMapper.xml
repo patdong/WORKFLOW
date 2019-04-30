@@ -31,6 +31,10 @@
 		  left join element_library b on a.emId = b.emId 
 		 where a.tbId = #{tbId}		 
 		   and a.newFieldType not in ( '标签','子表','组件','列表')
+		union all
+		select a.newhiddenfieldName as fieldName from table_element a		  
+		 where a.tbId = #{tbId}		 
+		   and a.newhiddenfieldName is not null
 		 union all
 		select b.fieldName from table_element a
 		  left join element_library b on a.emId = b.emId 
@@ -50,6 +54,9 @@
 		update table_summary set 			
 			modifiedDate=#{modifiedDate},
 			action=#{action}
+			<if test="curUserId != null">
+			,curUserId=#{curUserId}
+			</if>
 			<if test="curUserName != null">
 			,curUserName=#{curUserName}
 			</if>
@@ -74,10 +81,23 @@
 	</select>
 	
 	<select id="findTableAllElements" resultMap="wftableelement" parameterType="java.util.Map">
-		select c.name as tableName,a.*,b.labelName,b.fieldName from table_element a
-		 left join element_library b on a.emId = b.emId 
+		select c.name as tableName,1 as readOnly,a.*,b.labelName,b.fieldName from table_element a
+		 left join element_library b on a.emId = b.emId		 
 		 inner join table_brief c on c.tbId = a.tbId 
 		 where a.tbId = #{tbId}
+		 <if test="scope != null">
+		   and a.scope = #{scope}
+		 </if> 
+		 order by a.seq
+	</select>
+	
+	<select id="findTableAllElementsWithWorkflow" resultMap="wftableelement" parameterType="java.util.Map">
+		select c.name as tableName,(case when d.id is not null then 0 else 1 end) as readOnly,
+     		   d.required,a.*,b.labelName,b.fieldName from table_element a
+		 left join element_library b on a.emId = b.emId
+		 left join workflow_table_element d on d.id = a.id and d.wfId = #{wfId} and d.nodeName = #{nodeName}		
+		 inner join table_brief c on c.tbId = a.tbId 
+		 where a.tbId = #{tbId}		      		   
 		 <if test="scope != null">
 		   and a.scope = #{scope}
 		 </if> 
@@ -91,7 +111,7 @@
 	
 	<select id="findTableLayout" resultMap="wftablelayout" parameterType="java.util.Map">
 		select * from table_layout 
-		 where tbId=#{tbId}
+		 where tbId=#{tbId} order by scope desc 
 	</select>
 	
 	<select id="findByWfId" resultMap="wftablebrief" parameterType="java.lang.Long">
@@ -106,6 +126,6 @@
 	</select>
 		
 	<select id="findAllBlindTable" resultMap="wftablebrief" >
-		select * from table_brief where wfId is not null and status = '有效'
+		select * from table_brief where wfId is not null and status = '有效' and template = '表'
 	</select>	
 </mapper>

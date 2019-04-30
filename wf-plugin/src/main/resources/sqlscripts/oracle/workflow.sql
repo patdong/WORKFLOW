@@ -2,7 +2,7 @@ DROP TABLE element_library;
 DROP SEQUENCE sq_emId;
 CREATE TABLE element_library (
   emId NUMBER NOT NULL ,
-  labelName varchar2(20) NOT NULL ,
+  labelName varchar2(100) NOT NULL ,
   fieldName varchar2(45) NOT NULL ,
   hiddenFieldName varchar2(45) DEFAULT NULL ,
   functionName varchar2(45) DEFAULT NULL ,
@@ -48,7 +48,7 @@ CREATE TABLE table_brief (
   tbId NUMBER NOT NULL,
   name varchar(30) DEFAULT NULL,
   tableName varchar(50) DEFAULT NULL,
-  template varchar(45) DEFAULT 'bootstrap' NOT NULL,
+  template varchar(45) DEFAULT '表体' NOT NULL,
   cols NUMBER DEFAULT NULL ,
   status varchar(10) NOT NULL ,
   wfId NUMBER NULL,
@@ -85,7 +85,7 @@ CREATE TABLE table_element (
   id NUMBER NOT NULL,
   tbId NUMBER NOT NULL,
   emId NUMBER NULL,
-  newLabelName varchar2(30) DEFAULT NULL ,
+  newLabelName varchar2(100) DEFAULT NULL ,
   newFunctionName varchar2(50) DEFAULT NULL ,
   functionBelongTo varchar2(10) DEFAULT NULL ,
   newHiddenFieldName varchar2(50) DEFAULT NULL ,
@@ -137,6 +137,7 @@ CREATE SEQUENCE sq_id START WITH 1 INCREMENT BY 1 MAXVALUE 1E27 MINVALUE 1 NOCYC
 DROP TABLE table_summary;
 CREATE TABLE table_summary (
   bizId NUMBER NOT NULL ,
+  tbId NUMBER NOT NULL ,
   tableName varchar2(30) NOT NULL,
   wfId NUMBER NOT NULL ,
   title varchar2(100) NOT NULL ,
@@ -150,9 +151,10 @@ CREATE TABLE table_summary (
   modifiedDate DATE DEFAULT NULL ,
   finishedDate DATE DEFAULT NULL ,
   status varchar2(10) NOT NULL ,
-  action varchar2(10) DEFAULT NULL 
+  action varchar2(20) DEFAULT NULL 
 );
 COMMENT ON COLUMN table_summary.bizId IS '业务编号';
+COMMENT ON COLUMN table_summary.tbId IS '表单编号';
 COMMENT ON COLUMN table_summary.tableName IS '业务表名';
 COMMENT ON COLUMN table_summary.wfId IS '流程编号';
 COMMENT ON COLUMN table_summary.title IS '业务名称';
@@ -255,7 +257,7 @@ DROP SEQUENCE sq_flowId;
 CREATE TABLE workflow_flow (
   flowId NUMBER NOT NULL ,
   flowParentId NUMBER DEFAULT NULL,
-  nodeName varchar2(10) NOT NULL ,
+  nodeName varchar2(20) NOT NULL ,
   actionName varchar2(10) DEFAULT NULL,
   status varchar2(10) NOT NULL ,
   createdDate DATE NOT NULL ,
@@ -402,8 +404,30 @@ DROP TABLE workflow_table_element;
 CREATE TABLE workflow_table_element (
   wfId NUMBER NOT NULL,
   nodeId NUMBER NOT NULL,
-  emId NUMBER NOT NULL
+  nodeName varchar2(10) NOT NULL,
+  id NUMBER NOT NULL,
+  required varchar2(5) NULL
 );
+
+DROP TABLE workflow_comment;
+CREATE TABLE workflow_comment (
+  tbId NUMBER NOT NULL,
+  bizId NUMBER NOT NULL,
+  fieldName varchar2(20) NOT NULL,
+  remark varchar2(200) NOT NULL,
+  remarkDate varchar2(20) NOT NULL,
+  userId NUMBER NOT NULL,
+  userName varchar2(20) not null
+);
+
+COMMENT ON COLUMN workflow_comment.tbId IS '表单编号';
+COMMENT ON COLUMN workflow_comment.bizId IS '业务数据编号';
+COMMENT ON COLUMN workflow_comment.fieldName IS '字段名称';
+COMMENT ON COLUMN workflow_comment.remark IS '审批意见';
+COMMENT ON COLUMN workflow_comment.remarkDate IS '审批时间';
+COMMENT ON COLUMN workflow_comment.userId IS '审批人';
+COMMENT ON COLUMN workflow_comment.userName IS '审批人';
+
 
 INSERT INTO element_library VALUES 
 (1,'文件上传','fileName','h_fileId','openFile()','有效',sysdate,'系统级','输入框','String','',100,NULL);

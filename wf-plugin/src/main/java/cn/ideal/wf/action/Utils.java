@@ -31,18 +31,18 @@ public abstract class Utils {
 	 * @return
 	 * @throws Exception
 	 */
-	public List<WorkflowUser> findUsersForNode(WorkflowNode node) throws Exception{
+	public List<WorkflowUser> findUsersForNode(WorkflowNode node,Long senderId) throws Exception{
 		if(node == null) return null;
 		List<WorkflowUser> wfuLst = null;
 			
-		switch(node.getuType()){			
+		switch(node.getuType()){
 			case WFConstants.WF_NODE_TYPE_USER:
 				if(node.getUsers() == null)  throw new Exception("没有办理人无法创建流程");	
 				wfuLst = new ArrayList<WorkflowUser>(node.getUsers());									
 				break;
 			case WFConstants.WF_NODE_TYPE_ROLE:
 				if(node.getRole() == null) throw new Exception("没有设置角色无法创建流程");
-				wfuLst = platformService.findUsersByRoleIdAndOrgId(node.getRole().getRoleId(), node.getRole().getUnitId());												
+				wfuLst = platformService.findUsersByRoleIdAndOrgId(node.getRole().getRoleId(), node.getRole().getUnitId(),senderId);												
 				break;
 		}
 		

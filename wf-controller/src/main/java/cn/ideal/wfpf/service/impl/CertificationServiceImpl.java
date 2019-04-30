@@ -12,9 +12,14 @@ import java.util.Map;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import cn.ideal.cf.model.CFOrg;
+import cn.ideal.cf.service.OrgService;
+import cn.ideal.cf.service.RoleService;
+import cn.ideal.cf.service.UserService;
 import cn.ideal.wfpf.model.CertificationOrg;
 import cn.ideal.wfpf.model.CertificationRole;
 import cn.ideal.wfpf.model.CertificationUser;
@@ -29,13 +34,21 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class CertificationServiceImpl implements CertificationService {
 	@Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;
-
+	@Autowired
+	private OrgService orgService;
+	@Autowired
+	private UserService userService;
+	@Autowired
+	private RoleService roleService;
+	
+	@Value("${restful.url}")
+	private String restfulurl;
 	@Override
 	public User findUser(String username) {
 		User user = new User();
 		user.setId(1l);
 		user.setUsername("admin");
-		user.setPassword("1");
+		user.setPassword("p@ssw0rd");
 		user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
 		Role role = new Role();
 		role.setId(1l);
@@ -48,7 +61,20 @@ public class CertificationServiceImpl implements CertificationService {
 
 	@Override
 	public List<CertificationUser> findUsers(String username) throws Exception{		
-		String url = "http://localhost:8081/certification/findusers?username=";
+		List<cn.ideal.cf.model.CFUser> users = userService.findUsers(username);
+		List<CertificationUser> cfusers = new ArrayList<CertificationUser>();
+		for(cn.ideal.cf.model.CFUser user : users){
+			CertificationUser cfuser = new CertificationUser();
+			cfuser.setUserId(user.getUserId());
+			cfuser.setUserName(user.getRealName());
+			cfuser.setCurrentOrgName(user.getCurrentOrgName());
+			cfuser.setOrgName(user.getOrgName());
+			cfuser.setCurrentOrgId(user.getCurrentOrgId());
+        	cfusers.add(cfuser);
+		}
+		
+		/*
+		String url = restfulurl+"/certification/findusers?username=";
 		String params = URLEncoder.encode(username,"UTF-8");
 		URL certification = new URL(url+params);
         URLConnection cf = certification.openConnection();
@@ -71,13 +97,24 @@ public class CertificationServiceImpl implements CertificationService {
         }
             
         in.close();
-
-		return users;
+	*/
+		return cfusers;
 	}
 
 	@Override
 	public List<CertificationOrg> findOrgs(String orgname) throws Exception {
-		String url = "http://localhost:8081/certification/findorgs?orgname=";
+		List<CFOrg> orgs = orgService.findOrgs(orgname);
+		List<CertificationOrg> cforgs = new ArrayList<CertificationOrg>();
+		for(CFOrg org : orgs){
+			CertificationOrg cforg = new CertificationOrg();
+			cforg.setOrgId(org.getOrgId());        		
+			cforg.setCurrentOrgName(org.getCurrentOrgName());
+			cforg.setOrgName(org.getOrgName());
+        	cforgs.add(cforg);
+		}
+		
+		/*
+		String url = restfulurl+"/certification/findorgs?orgname=";
 		String params = URLEncoder.encode(orgname,"UTF-8");
 		URL certification = new URL(url+params);
         URLConnection cf = certification.openConnection();
@@ -98,13 +135,25 @@ public class CertificationServiceImpl implements CertificationService {
         }
             
         in.close();
-
-		return orgs;
+		*/
+		return cforgs;
 	}
 
 	@Override
 	public List<CertificationRole> findRoles() throws Exception {
-		String url = "http://localhost:8081/certification/findroles";		
+		List<cn.ideal.cf.model.CFRole> roles = roleService.findRoles();
+		List<CertificationRole> cfroles = new ArrayList<CertificationRole>();
+		for(cn.ideal.cf.model.CFRole role :roles){
+			CertificationRole cfrole = new CertificationRole();
+			cfrole.setRoleId(role.getRoleId());        		
+			cfrole.setRoleName(role.getRoleName());        		
+    		cfroles.add(cfrole);
+		}
+		
+		/*
+		
+		
+		String url = restfulurl+"/certification/findroles";		
 		URL certification = new URL(url);
         URLConnection cf = certification.openConnection();
         BufferedReader in = new BufferedReader(new InputStreamReader(cf.getInputStream()));
@@ -123,8 +172,9 @@ public class CertificationServiceImpl implements CertificationService {
         }
             
         in.close();
-
-		return roles;
+		*/
+		
+		return cfroles;
 	}
 
 }
