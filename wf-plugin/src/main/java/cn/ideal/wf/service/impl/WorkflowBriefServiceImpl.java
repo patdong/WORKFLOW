@@ -94,5 +94,12 @@ public class WorkflowBriefServiceImpl implements WorkflowBriefService{
 	public WorkflowBrief findDoingFlow(Long bizId,Long wfId) {
 		return workflowBriefMapper.findDoingFlow(bizId,wfId);
 	}
+
+	@Override
+	public boolean updateDispatchedUser(WorkflowBrief wfb) {
+		int idx = workflowBriefMapper.updateDispatchedUser(wfb);
+		if(idx > 0) return true;
+		return false;
+	}
 	
 }

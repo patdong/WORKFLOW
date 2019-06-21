@@ -19,6 +19,7 @@ public class Storage {
 	private String tableName;                                                         //查询主表名
 	private Long wfId;                                                                //流程编号
 	private Long tbId;                                                                //表单编号
+	private Long defId;                                                               //用户自定义编号
 	private Map<String,String> fields;                                                //入库的字段集合
 	private Map<String,List<Map<String,String>>> sFields;                             //入库的子表字段集合
 	private Map<String,List<Long>> sIds;                                              //要删除的子表关键字集合
@@ -109,6 +110,12 @@ public class Storage {
 	}
 	public void setTbId(Long tbId) {
 		this.tbId = tbId;
+	}
+	public Long getDefId() {
+		return defId;
+	}
+	public void setDefId(Long defId) {
+		this.defId = defId;
 	}
 	
 }

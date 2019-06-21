@@ -16,7 +16,8 @@ public class Workflow implements Serializable {
 	private String wfName;
 	private Long tbId;
 	private String status;
-	private Date createdDate;	
+	private Date createdDate;
+	private String type;
 	
 	private List<WorkflowTableBrief> wftableBrief;
 	
@@ -55,6 +56,12 @@ public class Workflow implements Serializable {
 	}
 	public void setWftableBrief(List<WorkflowTableBrief> wftableBrief) {
 		this.wftableBrief = wftableBrief;
+	}
+	public String getType() {
+		return type;
+	}
+	public void setType(String type) {
+		this.type = type;
 	}
 	
 	

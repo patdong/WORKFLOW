@@ -6,6 +6,8 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import cn.ideal.wf.data.analyzer.Storage;
 import cn.ideal.wf.jdbc.dao.SQLConnector;
@@ -17,15 +19,15 @@ public class JdbcSQLExecutor {
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
 		
-		
+	@Transactional(propagation=Propagation.REQUIRED,rollbackFor={java.lang.RuntimeException.class,java.lang.Exception.class})	
 	public void save(String sql) {
 		SQLConnector.getSQLExecutor().execute(sql);
 	}
-
+	@Transactional(propagation=Propagation.REQUIRED,rollbackFor={java.lang.RuntimeException.class,java.lang.Exception.class})
 	public Map<String, Object> save(Storage storage) {
 		return SQLConnector.getSQLExecutor().save(storage);
 	}
-
+	@Transactional(propagation=Propagation.REQUIRED,rollbackFor={java.lang.RuntimeException.class,java.lang.Exception.class})
 	public Map<String, Object> update(Storage storage) {
 		return SQLConnector.getSQLExecutor().update(storage);
 	}
@@ -72,5 +74,21 @@ public class JdbcSQLExecutor {
 	
 	public List<Map<String, Object>> queryWorkflowPage(Long userId,Long pageNumber,Long pageSize){
 		return SQLConnector.getSQLExecutor().queryWorkflowPage(userId, pageNumber,pageSize);
+	}
+	
+	public Long queryWorkedflowAll(Long userId){
+		return SQLConnector.getSQLExecutor().queryWorkedflowAll(userId);
+	}
+	
+	public List<Map<String, Object>> queryWorkedflowPage(Long userId,Long pageNumber,Long pageSize){
+		return SQLConnector.getSQLExecutor().queryWorkedflowPage(userId, pageNumber,pageSize);
+	}
+	
+	public Long queryWorkedflowAll(){
+		return SQLConnector.getSQLExecutor().queryWorkedflowAll();
+	}
+	
+	public List<Map<String, Object>> queryWorkedflowPage(Long pageNumber,Long pageSize){
+		return SQLConnector.getSQLExecutor().queryWorkedflowPage(pageNumber,pageSize);
 	}
 }

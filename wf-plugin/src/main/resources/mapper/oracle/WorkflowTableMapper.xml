@@ -5,6 +5,7 @@
 	<resultMap id="wftableelement" type="cn.ideal.wf.model.WorkflowTableElement" />
 	<resultMap id="wftablesummary" type="cn.ideal.wf.model.WorkflowTableSummary" />				
 	<resultMap id="wftablelayout" type="cn.ideal.wf.model.WorkflowTableLayout" />
+	<resultMap id="wftableuserdefination" type="cn.ideal.wf.model.WorkflowTableUserDefination" />
 	
 	<select id="find" resultMap="wftablebrief" parameterType="java.lang.Long">
 		select * from table_brief where tbId=#{tbId}
@@ -104,6 +105,37 @@
 		 order by a.seq
 	</select>
 	
+	<!-- 根据流程找到可编辑的表单元素  todo -->
+	<select id="findTableAllEditableElementsWithWorkflow" resultMap="wftableelement" parameterType="java.util.Map">
+		select b.fieldName from table_element a
+		  left join element_library b on a.emId = b.emId 
+		 where a.tbId = #{tbId}		 
+		   and a.newFieldType not in ( '标签','子表','组件','列表')
+		union all
+		select a.newhiddenfieldName as fieldName from table_element a		  
+		 where a.tbId = #{tbId}		 
+		   and a.newhiddenfieldName is not null
+		 union all
+		select b.fieldName from table_element a
+		  left join element_library b on a.emId = b.emId 
+		 where a.tbId in (select stbId from table_element where tbId = #{tbId} and newFieldType ='组件')
+		   and a.newFieldType not in ( '标签','子表','组件','列表')
+		
+		
+		
+		
+		select c.name as tableName,(case when d.id is not null then 0 else 1 end) as readOnly,
+     		   d.required,a.*,b.labelName,b.fieldName from table_element a
+		 left join element_library b on a.emId = b.emId
+		 left join workflow_table_element d on d.id = a.id and d.wfId = #{wfId} and d.nodeName = #{nodeName}		
+		 inner join table_brief c on c.tbId = a.tbId 
+		 where a.tbId = #{tbId}		      		   
+		 <if test="scope != null">
+		   and a.scope = #{scope}
+		 </if> 
+		 order by a.seq
+	</select>
+	
 	<select id="findTableLayoutWithScope" resultMap="wftablelayout" parameterType="java.util.Map">
 		select * from table_layout 
 		 where tbId=#{tbId} and scope=#{scope}
@@ -111,7 +143,7 @@
 	
 	<select id="findTableLayout" resultMap="wftablelayout" parameterType="java.util.Map">
 		select * from table_layout 
-		 where tbId=#{tbId} order by scope desc 
+		 where tbId=#{tbId} and scope in ('表头','表体','表尾')
 	</select>
 	
 	<select id="findByWfId" resultMap="wftablebrief" parameterType="java.lang.Long">
@@ -126,6 +158,138 @@
 	</select>
 	
 	<select id="findAllBlindTable" resultMap="wftablebrief" >
-		select * from table_brief where status = '有效' and template = '表'
-	</select>	
+		select * from table_brief where status = '有效' and template = '表' and tableName is not null
+	</select>
+		
+	<select id="findTableSummary" resultMap="wftablesummary" parameterType="java.util.Map">
+		select * from table_summary where tbId = #{tbId} and bizId = #{bizId}
+	</select>
+		
+	<!-- 获得被业务分类的表单 -->
+	<select id="findAllSortedTable" resultMap="wftablebrief" >
+		select a.templateName,a.tableName,a.tbId from table_brief a
+		 inner join table_biz_template b on a.templateName = b.templateName
+		 where a.templateName is not null 
+		 group by a.templateName,a.tableName,a.tbId,b.tempId
+		 order by b.tempId
+	</select>
+	
+	<insert id="saveTableUserDefination" parameterType="cn.ideal.wf.model.WorkflowTableUserDefination">
+		<selectKey resultType="java.lang.Long" keyProperty="defId" order="BEFORE">
+			select sq_defId.nextval from dual
+		</selectKey>		
+		insert into table_user_defination(
+			defId,tbId,wfId,userId,tableName,type,createdDate,notification1,notification2,notification3,action1,action2,action3
+		)
+		values(
+			#{defId},
+			#{tbId},
+			#{wfId},
+			#{userId},
+			#{tableName,jdbcType=VARCHAR},
+			#{type,jdbcType=VARCHAR},
+			#{createdDate,jdbcType=TIMESTAMP},
+			#{notification1,jdbcType=VARCHAR},			
+			#{notification2,jdbcType=VARCHAR},
+			#{notification3,jdbcType=VARCHAR},
+			#{action1,jdbcType=VARCHAR},
+			#{action2,jdbcType=VARCHAR},
+			#{action3,jdbcType=VARCHAR}
+		)
+	</insert>
+	
+	<update id="updateTableUserDefination" parameterType="cn.ideal.wf.model.WorkflowTableUserDefination">		
+		update table_user_defination
+			set wfId = #{wfId},			
+			notification1 = #{notification1,jdbcType=VARCHAR},
+			notification2 = #{notification2,jdbcType=VARCHAR},
+			notification3 = #{notification3,jdbcType=VARCHAR},
+			action1 = #{action1,jdbcType=VARCHAR},
+			action2 = #{action2,jdbcType=VARCHAR},
+			action3 = #{action3,jdbcType=VARCHAR}
+		where defId = #{defId}
+	</update>
+	
+	<select id="findDefinationTableBrief" resultMap="wftablebrief" parameterType="java.util.Map">
+		select a.tbid,a.name,b.tablename,a.template,a.cols,a.status,a.createddate,a.templatename,b.wfid,b.defId
+		  from table_brief a
+          inner join table_user_defination b on a.tbid = b.tbid and b.wfid = #{wfId}
+		 where a.tbId = #{tbId}
+	</select>
+	
+	<select id="findDefinationTableBriefByDefId" resultMap="wftablebrief" parameterType="java.lang.Long">
+		select a.tbid,a.name,b.tablename,a.template,a.cols,a.status,a.createddate,a.templatename,b.wfid,b.defId
+		  from table_brief a
+          inner join table_user_defination b on a.tbid = b.tbid and b.defId = #{defId}		
+	</select>
+	
+	<select id="findByIds" resultMap="wftablebrief" parameterType="java.util.Map">
+		select * from table_brief where tbId=#{tbId} 		
+		<if test="wfId != null">
+		   and wfId = #{wfId}
+		</if>
+	</select>
+	
+	<select id="findDefinations" resultMap="wftableuserdefination" parameterType="java.util.Map">
+		select a.*
+		  from table_user_defination a
+         where a.type = #{type}
+            and a.tbId = #{tbId}	
+         	<if test="type != '默认'">
+         	and a.userId = #{userId}
+         	</if>
+	</select>
+	
+	<select id="findDefination" resultMap="wftableuserdefination" parameterType="java.lang.Long">
+		select a.*
+		  from table_user_defination a
+         where a.defId = #{defId}	
+	</select>
+	
+	<update id="deleteTableSummary" parameterType="java.lang.Long">
+		update table_summary set status='无效' where summaryId=#{summaryId}
+	</update>
+	
+	<update id="updateCurrentUser" parameterType="cn.ideal.wf.model.WorkflowTableSummary">
+		update table_summary set 			
+			curUserId= #{curUserId,jdbcType=DECIMAL},
+			curUserName= #{curUserName,jdbcType=VARCHAR}
+		<where>		
+			wfId =#{wfId,jdbcType=DECIMAL}
+		and	bizId = #{bizId,jdbcType=DECIMAL}
+		and	curUserId = #{oldCurUserId,jdbcType=DECIMAL}		
+		</where>				
+	</update>
+	
+	<insert id="setAuthority" parameterType="java.util.List">
+		{call
+			declare
+			begin			
+			<foreach collection="list" item="item" index="index" separator="">			
+				insert into table_authority(
+					tbIds,tbNames,userId,createdDate
+				)
+				values			
+				(					
+					#{item.tbIds,jdbcType=VARCHAR},
+					#{item.tbNames,jdbcType=VARCHAR},
+					#{item.userId,jdbcType=DECIMAL},					
+					#{item.createdDate,jdbcType=TIMESTAMP}
+				);
+			</foreach>
+		 end
+		}
+	</insert>
+	
+	<delete id="deleteAuthority" parameterType="java.lang.Long">
+		delete from table_authority where userId=#{userId}
+	</delete>
+	
+	<select id="findAuthorities" resultType="java.util.Map" >
+		select * from table_authority 	
+	</select>
+	
+	<select id="findAuthority" resultType="java.util.Map" parameterType="java.lang.Long">
+		select userId,tbIds,tbNames from table_authority where userId=#{userId}	
+	</select>
 </mapper>

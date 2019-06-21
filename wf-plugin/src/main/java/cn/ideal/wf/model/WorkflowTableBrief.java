@@ -18,6 +18,8 @@ public class WorkflowTableBrief implements Serializable{
 	private Long cols;
 	private String status;
 	private Date createdDate;
+	private String templateName;
+	private Long defId;
 	
 	public Long getTbId() {
 		return tbId;
@@ -66,6 +68,18 @@ public class WorkflowTableBrief implements Serializable{
 	}
 	public void setWfId(Long wfId) {
 		this.wfId = wfId;
+	}
+	public String getTemplateName() {
+		return templateName;
+	}
+	public void setTemplateName(String templateName) {
+		this.templateName = templateName;
+	}
+	public Long getDefId() {
+		return defId;
+	}
+	public void setDefId(Long defId) {
+		this.defId = defId;
 	}
 	
 }

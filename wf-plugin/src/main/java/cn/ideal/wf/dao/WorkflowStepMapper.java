@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import cn.ideal.wf.model.WorkflowStep;
 
@@ -35,4 +36,7 @@ public interface WorkflowStepMapper {
 	List<WorkflowStep> findAllByFlowId(Long flowId);
 	
 	int setWorkflowStepUser(WorkflowStep workflowStep);
+	
+	List<WorkflowStep> findUNFinshedWrokflowStep(@Param("bizId") Long bizId, @Param("wfId") Long wfId);
+
 }

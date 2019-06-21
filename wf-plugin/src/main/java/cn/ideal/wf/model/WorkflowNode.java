@@ -21,6 +21,7 @@ public class WorkflowNode implements Serializable{
 	private WorkflowRole role;
 	private Collection<WorkflowUser> users;	
 	private WorkflowAction action;                               //节点行为
+	private List<WorkflowAction> buttons;                                //节点按钮
 	private String status;
 	private Date createdDate;
 	private Date modifiedDate;
@@ -30,7 +31,8 @@ public class WorkflowNode implements Serializable{
 	private String passed;                                       //节点是否已经流转到
 	private List<WorkflowNode> preNodes;                         //前置节点
 	private List<WorkflowNode> sufNodes;                         //后置节点
-
+    private String type;                                         //节点关联类型
+    
 	public WorkflowNode(){}
 	public WorkflowNode(Long nodeId){
 		this.setNodeId(nodeId);
@@ -138,6 +140,20 @@ public class WorkflowNode implements Serializable{
 	}
 	public void setAction(WorkflowAction action) {
 		this.action = action;
+	}
+	
+	public List<WorkflowAction> getButtons() {
+		return buttons;
+	}
+	public void setButtons(List<WorkflowAction> buttons) {
+		this.buttons = buttons;
+	}
+	
+	public String getType() {
+		return type;
+	}
+	public void setType(String type) {
+		this.type = type;
 	}
 	
 	public int hashCode() {

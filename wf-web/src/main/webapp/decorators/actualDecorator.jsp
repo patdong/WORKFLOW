@@ -10,15 +10,17 @@
 <script type="text/javascript" src="${pageContext.request.contextPath }/js/jquery.validate.min.js"></script>
 <script type="text/javascript" src="${pageContext.request.contextPath }/js/jquery-ui.js"></script>
 <script type="text/javascript" src="${pageContext.request.contextPath }/js/bootstrap.min.js"></script>
-<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<!-- <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script> -->
 <script type="text/javascript" src="${pageContext.request.contextPath }/js/laydate.js"></script>
 <script type="text/javascript" src="${pageContext.request.contextPath }/js/wfpf.js"></script>
 <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath }/css/bootstrap.min.css" />
 <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath }/css/sys.css" />
 <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath }/css/plugin.css" />
 <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath }/css/arrow.css" />
+<link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath }/css/table.css" />
 <!-- jquery 弹出dialog -->
-<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath }/css/jquery-ui.css" />
+<!-- <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">-->
 </head>
 <script type="text/javascript">
 </script>

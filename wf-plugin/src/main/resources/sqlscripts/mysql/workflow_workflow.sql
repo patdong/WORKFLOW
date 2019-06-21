@@ -28,8 +28,9 @@ CREATE TABLE `workflow` (
   `tbId` int(11) DEFAULT NULL COMMENT '表单编号',
   `status` varchar(10) NOT NULL,
   `createdDate` datetime NOT NULL,
+  `type` varchar(10) NOT NULL COMMENT '流程类型：系统级、自定义级',
   PRIMARY KEY (`wfId`)
-) ENGINE=InnoDB AUTO_INCREMENT=28 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='工作流';
+) ENGINE=InnoDB AUTO_INCREMENT=30 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='工作流';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -41,4 +42,4 @@ CREATE TABLE `workflow` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-03-18  8:53:35
+-- Dump completed on 2019-06-21 11:32:02

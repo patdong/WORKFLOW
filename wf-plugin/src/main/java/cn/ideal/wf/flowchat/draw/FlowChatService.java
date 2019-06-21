@@ -6,8 +6,8 @@ package cn.ideal.wf.flowchat.draw;
  * @version 2.0
  */
 
-public interface FlowChatService {
-
+public interface FlowChatService {	
+	
 	StringBuffer draw(Long wfId);
 	
 	StringBuffer draw(Long wfId,Long bizId);

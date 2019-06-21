@@ -39,4 +39,6 @@ public interface WorkflowBriefService {
 	boolean unFrozenFlowBrief(Long bizId,Long wfId);
 	
 	WorkflowBrief findDoingFlow(Long bizId,Long wfId);
+	
+	boolean updateDispatchedUser(WorkflowBrief wfb);
 }

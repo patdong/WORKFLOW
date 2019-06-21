@@ -19,4 +19,6 @@ public interface WorkflowBriefMapper {
 	int updateStatusFlowBrief(WorkflowBrief wfb);
 	
 	WorkflowBrief findDoingFlow(@Param("bizId") Long bizId,@Param("wfId") Long wfId);
+	
+	int updateDispatchedUser(WorkflowBrief wfb);
 }

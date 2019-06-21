@@ -27,7 +27,7 @@ public interface SQLExecutor {
 	
 	List<Map<String,Object>> queryPage(Storage storage);
 	
-	List<Map<String,Object>> queryWorkflowPage(Storage storage);
+	List<Map<String,Object>> queryWorkflowPage(Storage storage);	
 	
 	Map<String,Object> query(Storage storage);
 	
@@ -40,4 +40,12 @@ public interface SQLExecutor {
 	Long queryWorkflowAll(Long userId);
 	
 	List<Map<String, Object>> queryWorkflowPage(Long userId,Long pageNumber,Long pageSize);
+	
+	Long queryWorkedflowAll(Long userId);
+	
+	List<Map<String, Object>> queryWorkedflowPage(Long userId,Long pageNumber,Long pageSize);
+	
+	Long queryWorkedflowAll();
+	
+	List<Map<String, Object>> queryWorkedflowPage(Long pageNumber,Long pageSize);
 }

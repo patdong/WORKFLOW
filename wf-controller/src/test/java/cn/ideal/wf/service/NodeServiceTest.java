@@ -18,6 +18,6 @@ public class NodeServiceTest extends TestCase{
 	private WorkflowNodeService nodeService;
 	@Test
 	public void testTree() {
-			
+		
 	}
 }

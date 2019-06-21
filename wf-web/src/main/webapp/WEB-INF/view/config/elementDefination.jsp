@@ -35,7 +35,7 @@
 		        	<option value="String">字符串</option>
 			        <option value="Date">日期</option>		       
 		        </select>       
-		        <label >操作方式：</label>
+		        <label >元素模型：</label>
 			    <select name="fieldType" id="fieldType" class="form-control-one-line" style="width:25%">
 			        <option value="输入框" <c:if test="${element.fieldType eq '输入框' }"> selected </c:if>>输入框</option>
 			        <option value="下拉框" <c:if test="${element.fieldType eq '下拉框' }"> selected </c:if>>下拉框</option>

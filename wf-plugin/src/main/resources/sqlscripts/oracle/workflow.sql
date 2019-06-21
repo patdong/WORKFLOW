@@ -42,6 +42,17 @@ CREATE TABLE sys_configuration (
 );
 ALTER TABLE sys_configuration ADD (CONSTRAINT name_PK PRIMARY KEY (name));
 
+DROP TABLE table_biz_template;
+CREATE TABLE table_biz_template (
+  tempId NUMBER NOT NULL,  
+  templateName varchar2(50) NOT NULL,
+  note varchar2(50) NULL
+);
+
+COMMENT ON COLUMN table_biz_template.tempId IS '业务模板编号';
+COMMENT ON COLUMN table_biz_template.templateName IS '业务模板名称';
+COMMENT ON COLUMN table_biz_template.note IS '备注';
+
 DROP TABLE table_brief;
 DROP SEQUENCE sq_tbId;
 CREATE TABLE table_brief (
@@ -52,7 +63,8 @@ CREATE TABLE table_brief (
   cols NUMBER DEFAULT NULL ,
   status varchar(10) NOT NULL ,
   wfId NUMBER NULL,
-  createdDate DATE NOT NULL
+  createdDate DATE NOT NULL,
+  templateName varchar2(50) NULL
 );
 COMMENT ON COLUMN table_brief.tbId IS '表单编号';
 COMMENT ON COLUMN table_brief.name IS '表单外名称';
@@ -62,6 +74,7 @@ COMMENT ON COLUMN table_brief.cols IS '表单列数';
 COMMENT ON COLUMN table_brief.status IS '表单状态';
 COMMENT ON COLUMN table_brief.wfId IS '流程编号';
 COMMENT ON COLUMN table_brief.createdDate IS '表单创建时间';
+COMMENT ON COLUMN table_brief.templateName IS '业务模板名称';
 
 ALTER TABLE table_brief ADD (CONSTRAINT tbId_PK PRIMARY KEY (tbId));
 CREATE SEQUENCE sq_tbId START WITH 1 INCREMENT BY 1 MAXVALUE 1E27 MINVALUE 1 NOCYCLE NOCACHE ORDER;
@@ -136,6 +149,7 @@ CREATE SEQUENCE sq_id START WITH 1 INCREMENT BY 1 MAXVALUE 1E27 MINVALUE 1 NOCYC
 
 DROP TABLE table_summary;
 CREATE TABLE table_summary (
+  summaryId NUMBER NOT NULL,
   bizId NUMBER NOT NULL ,
   tbId NUMBER NOT NULL ,
   tableName varchar2(30) NOT NULL,
@@ -153,6 +167,7 @@ CREATE TABLE table_summary (
   status varchar2(10) NOT NULL ,
   action varchar2(20) DEFAULT NULL 
 );
+COMMENT ON COLUMN table_summary.summaryId IS '概述编号';
 COMMENT ON COLUMN table_summary.bizId IS '业务编号';
 COMMENT ON COLUMN table_summary.tbId IS '表单编号';
 COMMENT ON COLUMN table_summary.tableName IS '业务表名';
@@ -169,6 +184,10 @@ COMMENT ON COLUMN table_summary.modifiedDate IS '业务修改时间';
 COMMENT ON COLUMN table_summary.finishedDate IS '业务完成时间';
 COMMENT ON COLUMN table_summary.status IS '业务办理状态';
 COMMENT ON COLUMN table_summary.action IS '业务触发事件';
+
+ALTER TABLE table_summary ADD (CONSTRAINT summaryId_PK PRIMARY KEY (summaryId));
+CREATE SEQUENCE sq_summaryId START WITH 1 INCREMENT BY 1 MAXVALUE 1E27 MINVALUE 1 NOCYCLE NOCACHE ORDER;
+
 
 DROP TABLE table_keys;
 CREATE TABLE table_keys (
@@ -428,6 +447,45 @@ COMMENT ON COLUMN workflow_comment.remarkDate IS '审批时间';
 COMMENT ON COLUMN workflow_comment.userId IS '审批人';
 COMMENT ON COLUMN workflow_comment.userName IS '审批人';
 
+DROP TABLE table_user_defination;
+CREATE TABLE table_user_defination (
+  defId number not null,
+  tbId number NOT NULL,
+  wfId number NOT NULL ,
+  userId number NOT NULL ,
+  createdDate DATE NOT NULL ,
+  tableName VARCHAR2(50) NOT NULL ,
+  notification1 VARCHAR2(10) NULL ,
+  notification2 VARCHAR2(10) NULL ,
+  notification3 VARCHAR2(10) NULL ,
+  action1 VARCHAR2(10) NULL ,
+  action2 VARCHAR2(10) NULL ,
+  action3 VARCHAR2(10) NULL );
+
+COMMENT ON COLUMN table_user_defination.defId IS '自定义编号';
+COMMENT ON COLUMN table_user_defination.tbId IS '表单编号';
+COMMENT ON COLUMN table_user_defination.wfId IS '流程编号';
+COMMENT ON COLUMN table_user_defination.userId IS '自定义用户编号';
+COMMENT ON COLUMN table_user_defination.createdDate IS '创建时间';
+COMMENT ON COLUMN table_user_defination.tableName IS '表单名称';
+COMMENT ON COLUMN table_user_defination.notification1 IS '提醒方式1';
+COMMENT ON COLUMN table_user_defination.notification2 IS '提醒方式2';
+COMMENT ON COLUMN table_user_defination.notification3 IS '提醒方式3';
+COMMENT ON COLUMN table_user_defination.action1 IS '协同操作1';
+COMMENT ON COLUMN table_user_defination.action2 IS '协同操作2';
+COMMENT ON COLUMN table_user_defination.action3 IS '协同操作3';
+
+ALTER TABLE table_user_defination ADD (CONSTRAINT defId_PK PRIMARY KEY (defId));
+CREATE SEQUENCE sq_defId START WITH 100 INCREMENT BY 1 MAXVALUE 1E27 MINVALUE 1 NOCYCLE NOCACHE ORDER;
+
+CREATE TABLE table_authority (
+  tbId INT NOT NULL,
+  userId INT NOT NULL ,
+  createdDate timestamp NOT NULL
+);
+COMMENT ON COLUMN table_authority.tbId IS '业务表单授权'; 
+COMMENT ON COLUMN table_authority.userId is '业务表单编号';
+COMMENT ON COLUMN table_authority.createdDate is '用户编号';
 
 INSERT INTO element_library VALUES 
 (1,'文件上传','fileName','h_fileId','openFile()','有效',sysdate,'系统级','输入框','String','',100,NULL);
@@ -483,3 +541,9 @@ INSERT INTO workflow_action VALUES
 INSERT INTO workflow_action VALUES 
 (8,'退回到创建人','ReturnToCreatorAction','行为','有效',sysdate);
 
+
+INSERT INTO table_biz_template VALUES(1,'财务类',null);
+INSERT INTO table_biz_template VALUES(2,'车辆类',null);
+INSERT INTO table_biz_template VALUES(3,'人事类',null);
+INSERT INTO table_biz_template VALUES(4,'请假类',null);
+INSERT INTO table_biz_template VALUES(5,'活动类',null);

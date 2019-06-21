@@ -12,6 +12,7 @@ import java.util.Map;
 import cn.ideal.wf.model.WorkflowAction;
 import cn.ideal.wf.model.WorkflowBrief;
 import cn.ideal.wf.model.WorkflowNode;
+import cn.ideal.wf.model.WorkflowTableSummary;
 
 public class PageModel extends Model{
 	private Long bizId;                            //当前业务编号，初始为空		
@@ -23,6 +24,10 @@ public class PageModel extends Model{
 	
 	private String table;                          //表单绘制
 	private String flowChat;                       //流程图
+	
+	private List<WorkflowNode> nodes;              //指定流程下的所有节点
+	
+	private WorkflowTableSummary wfts;             //当前业务概要信息
 	
 	public Long getBizId() {
 		return bizId;
@@ -97,6 +102,22 @@ public class PageModel extends Model{
 
 	public void setTable(String table) {
 		this.table = table;
+	}
+
+	public List<WorkflowNode> getNodes() {
+		return nodes;
+	}
+
+	public void setNodes(List<WorkflowNode> nodes) {
+		this.nodes = nodes;
+	}
+
+	public WorkflowTableSummary getWfts() {
+		return wfts;
+	}
+
+	public void setWfts(WorkflowTableSummary wfts) {
+		this.wfts = wfts;
 	}
 
 	

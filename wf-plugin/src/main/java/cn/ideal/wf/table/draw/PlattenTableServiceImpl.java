@@ -26,26 +26,22 @@ public class PlattenTableServiceImpl implements PureTableService {
 	public StringBuffer draw(Long tbId) {
 		StringBuffer sb = new StringBuffer();
 		WorkflowTableBrief tb = workflowTableService.find(tbId);
-		//获得当前办理节点名称
-		String nodeName = workflowProcessor.findNodeName(tb.getWfId(), null);
+		
 		//表单名称
 		String tableName = (tb.getTableName()==null)?"":tb.getTableName();
-		sb.append("<label style='text-align:center;width:100%;font-size:30px;'>"+tableName+"</label>");	
+		sb.append("<label class='table-caption'>"+tableName+"</label>");	
 		//表单内容
 		List<WorkflowTableLayout> layouts = workflowTableService.findTableLayout(tbId);
-		if(layouts == null || layouts.size() == 0) return null;
-		//主表关键字
-		sb.append("<input type='hidden' name='bizId' value='' />");
-		if(tb.getWfId() != null) sb.append("<input type='hidden' name='wfId' value="+tb.getWfId()+" />");
+		if(layouts == null || layouts.size() == 0) return null;		
 		String border = "0";
 		for(WorkflowTableLayout tl : layouts){
 			if(tl.getScope().equals("表体")) border = "1" ;
 			else border = "0" ;
-			Object[][] tesary = packTableElements(tbId,tl.getScope(),tl.getCols(),tb.getWfId(),nodeName);
+			Object[][] tesary = packTableElements(tbId,tl.getScope(),tl.getCols(),tb.getWfId(),null);
 			int percent = 100/tl.getCols().intValue();
-			sb.append("<table border='"+border+"' style='width:100%'>\n");		
+			sb.append("<table border='"+border+"' class='table-width'>\n");		
 			for(int i=0;i<tesary.length-1;i++){
-				sb.append("<tr style='height:50px'>\n");
+				sb.append("<tr class='table-tr'>\n");
 				for(int j=0;j<tesary[i].length;j++){
 					if(tesary[i][j] == null){
 						sb.append("<td>\n");					
@@ -54,10 +50,10 @@ public class PlattenTableServiceImpl implements PureTableService {
 						if(tesary[i][j] instanceof WorkflowTableElement){
 							WorkflowTableElement obj = (WorkflowTableElement)tesary[i][j];
 							String style = null;
-							if(obj.getNewFieldType().equals("标签")) style="text-align: right;font-size:15px";
-							else style="text-align: left;padding-left:5px;font-size:15px";
-							sb.append("<td colspan="+obj.getCols()+" rowspan="+obj.getRowes()+" style='"+style+";width:"+percent+"%;'>\n");
-							sb.append(drawTableElement(obj,tb.getName(),null,tb.getWfId(),nodeName));											
+							if(obj.getNewFieldType().equals("标签")) style="table-label";
+							else style="table-unlabel";
+							sb.append("<td colspan="+obj.getCols()+" rowspan="+obj.getRowes()+" class='"+style+"'  style='width:"+percent+"%;'>\n");
+							sb.append(drawTableElement(obj,tb.getName(),null,tb.getWfId(),null));											
 							sb.append("</td>\n");
 						}					
 					}
@@ -80,9 +76,9 @@ public class PlattenTableServiceImpl implements PureTableService {
 		Object[][] tesary = packTableElements(tbId,scope,layout.getCols(),null,null);
 		
 		StringBuffer sb = new StringBuffer();
-		sb.append("<table border='1' style='width:100%'>\n");
+		sb.append("<table border='1' class='table-width'>\n");
 		for(int i=0;i<tesary.length;i++){
-			sb.append("<tr style='height:50px'>\n");
+			sb.append("<tr class='table-tr'>\n");
 			for(int j=0;j<tesary[i].length;j++){
 				if(tesary[i][j] == null){
 					sb.append("<td>\n");
@@ -93,7 +89,7 @@ public class PlattenTableServiceImpl implements PureTableService {
 						WorkflowTableElement obj = (WorkflowTableElement)tesary[i][j];
 						sb.append("<td colspan="+obj.getCols()+" rowspan="+obj.getRowes()+">\n");
 						if(setting) sb.append("<span id='btn-up' class='btn-edit-pointer' onclick=\"showPos(event,'"+obj.getId()+"');\" title='编辑'>⤧</span>\n");
-						sb.append("<label style='color:gray;font-size:0.8rem;'>["+obj.getNewLabelName()+"]</label>");
+						sb.append("<label class='table-conf-label'>["+obj.getNewLabelName()+"]</label>");
 						sb.append(drawTableElement(obj,null,null,null,null));						
 						sb.append("</td>\n");
 					}					
@@ -103,39 +99,55 @@ public class PlattenTableServiceImpl implements PureTableService {
 		}
 		sb.append("</table>\n");		
 		WorkflowTableBrief stb = workflowTableService.findSubTable(tbId, scope);
-		if(stb != null) sb.append("<br><span style='margin-right:98%;font-size:1.5rem;color:green;border:1px solid;border-color:green;cursor:pointer;background-color: #8aea8a;' title='关联子表["+stb.getTableName()+"]' onclick=\"$('#subTable-div').show();\">⟰</span>\n");
-		else if(scope.equals("表体")) sb.append("<br><span style='margin-right:98%;font-size:1.5rem;color:#adb90e;border:1px solid;border-color:#b8bb5f;cursor:pointer;' title='增加子表' onclick=\"$('#subTable-div').show();\">⟰</span>\n");
+		if(stb != null) sb.append("<br><span class='table-out-bef-conf-sub' title='关联子表["+stb.getTableName()+"]' onclick=\"$('#subTable-div').show();\">⟰</span>\n");
+		else if(scope.equals("表体")) sb.append("<br><span class='table-out-af-conf-sub' title='增加子表' onclick=\"$('#subTable-div').show();\">⟰</span>\n");
 		return sb;
 	}
 
-	
+	//如果是新流程，则使用默认的流程对表单的定义
 	@Override
-	public StringBuffer draw(Long tbId, Long bizId) {
-		if(bizId == null) return draw(tbId);
+	public StringBuffer draw(Long tbId, Long wfId, Long defId, Long bizId) {
 		StringBuffer sb = new StringBuffer();
-		WorkflowTableBrief tb = workflowTableService.find(tbId);	
+		WorkflowTableBrief tb = null;
+		if(defId != null) tb = workflowTableService.findDefinationTableBrief(defId);
+		if(tb == null) tb = workflowTableService.findDefinationTableBrief(tbId, wfId);
+		//默认的流程对表单定义
+		if(tb == null) tb = workflowTableService.findByIds(tbId, wfId);	
+		
 		//获得当前办理节点名称
-		String nodeName = workflowProcessor.findNodeName(tb.getWfId(), bizId);
+		String nodeName = workflowProcessor.findNodeName(wfId, bizId,null);
+		
 		//获得业务数据
 		List<Map<String,Object>> res = SQLConnector.getSQLExecutor().query("select * from "+tb.getName()+" where id = "+bizId);
-		Map<String,Object> resMap = res.get(0);
+		Map<String,Object> resMap = null;
+		if(res != null && res.size() > 0) resMap = res.get(0);
 		
 		//表单名称
 		String tableName = (tb.getTableName()==null)?"":tb.getTableName();
-		sb.append("<label style='text-align:center;width:100%;font-size:30px;'>"+tableName+"</label>");	
+		sb.append("<label class='table-caption'>"+tableName+"</label>");
+		
 		//表单内容
 		List<WorkflowTableLayout> layouts = workflowTableService.findTableLayout(tbId);
 		if(layouts == null || layouts.size() == 0) return null;
-		//主表关键字		
-		sb.append("<input type='hidden' name='bizId' value="+bizId+" />");
-		//流程编号
-		if(tb.getWfId() != null) sb.append("<input type='hidden' name='wfId' value="+tb.getWfId()+" />");
+		
+		//主表关键字
+		sb.append("<input type='hidden' id='tbId' name='tbId' value="+tbId+" />");
+		if(bizId == null) sb.append("<input type='hidden' id='bizId' name='bizId' value='' />");
+		else sb.append("<input type='hidden' id='bizId' name='bizId' value="+bizId+" />");		
+		if(wfId == null) sb.append("<input type='hidden' id='wfId' name='wfId' value='' />");
+		else sb.append("<input type='hidden' id='wfId' name='wfId' value="+wfId+" />");
+		if(defId == null) sb.append("<input type='hidden' id='defId' name='defId' value='' />");
+		else sb.append("<input type='hidden' id='defId' name='defId' value="+defId+" />");
+		
+		//寻找默认流程为了获得表单字段的信息
+		WorkflowTableBrief deftb = workflowTableService.find(tbId);
+		
 		for(WorkflowTableLayout tl : layouts){
-			Object[][] tesary = packTableElements(tbId,tl.getScope(),tl.getCols(),tb.getWfId(),nodeName);	
+			Object[][] tesary = packTableElements(tbId,tl.getScope(),tl.getCols(),deftb.getWfId(),nodeName);	
 			int percent = 100/tl.getCols().intValue();
-			sb.append("<table border='1' style='width:100%'>\n");		
+			sb.append("<table border='1' class='table-width'>\n");
 			for(int i=0;i<tesary.length-1;i++){
-				sb.append("<tr style='height:40px'>\n");
+				sb.append("<tr class='table-tr'>\n");
 				for(int j=0;j<tesary[i].length;j++){
 					if(tesary[i][j] == null){
 						sb.append("<td>\n");					
@@ -144,10 +156,10 @@ public class PlattenTableServiceImpl implements PureTableService {
 						if(tesary[i][j] instanceof WorkflowTableElement){
 							WorkflowTableElement obj = (WorkflowTableElement)tesary[i][j];
 							String style = null;
-							if(obj.getNewFieldType().equals("标签")) style="text-align: right;font-size:15px";
-							else style="text-align: left;padding-left:5px;font-size:15px";
-							sb.append("<td colspan="+obj.getCols()+" rowspan="+obj.getRowes()+" style='"+style+";width:"+percent+";'>\n");	
-							sb.append(drawTableElement(obj,tb.getName(),resMap,tb.getWfId(),nodeName));												
+							if(obj.getNewFieldType().equals("标签")) style="table-label";
+							else style="table-unlabel";
+							sb.append("<td colspan="+obj.getCols()+" rowspan="+obj.getRowes()+" class='"+style+"' style='width:"+percent+"%;'>\n");	
+							sb.append(drawTableElement(obj,tb.getName(),resMap,deftb.getWfId(),nodeName));												
 							sb.append("</td>\n");
 						}					
 					}
@@ -156,7 +168,7 @@ public class PlattenTableServiceImpl implements PureTableService {
 			}		
 			sb.append("</table><br>\n");	
 			if(tl.getScope().equals("表体")){
-				StringBuffer ssb = drawSubTable(tl.getStbId(),5,bizId,tb.getWfId(),nodeName);
+				StringBuffer ssb = drawSubTable(tl.getStbId(),5,bizId,deftb.getWfId(),nodeName);
 				if(ssb != null) sb.append(ssb.toString());
 			}
 		}
@@ -256,32 +268,33 @@ public class PlattenTableServiceImpl implements PureTableService {
 			if(em.getNewFieldType().equals("标签")) labels.add(em);
 			if(!em.getNewFieldType().equals("标签")) ems.add(em);			
 		}
-		
-		
+				
 		StringBuffer sb = new StringBuffer();
-		sb.append("<span style='font-weight:bold;font-size:18px;cursor:pointer;' onclick=\"addsubitem('"+tb.getName()+"')\"> + </span>\n");
-		sb.append("<span style='font-weight:bold;font-size:18px;cursor:pointer;' onclick=\"delsubitem('"+tb.getName()+"')\"> - </span>\n");
-		sb.append("<table border='1' style='width:100%' id='"+tb.getName()+"'>\n");
-		sb.append("<tr style='height:35px;background-color:#e6e8e1;'>\n");
-		sb.append("<td style='text-align: center;font-size:15px;width:5%'>选择</td>\n");
+		sb.append("<span class='table-sub-tr-plus' onclick=\"addsubitem('"+tb.getName()+"')\"> + </span>\n");
+		sb.append("<span class='table-sub-tr-plus' onclick=\"delsubitem('"+tb.getName()+"')\"> - </span>\n");
+		sb.append("<table border='1' class='table-width' id='"+tb.getName()+"'>\n");
+		sb.append("<tr class='table-sub-tr-head'>\n");
+		sb.append("<td class='table-sub-td-checkbox-center'>选择</td>\n");
 		for(WorkflowTableElement obj : labels){
-			sb.append("<td style='text-align: center;font-size:15px;width:"+100/labels.size()+"%'>"+obj.getNewLabelName()+"</td>\n");
+			sb.append("<td class='table-sub-td-text-center' style='width:"+100/labels.size()+"%'>"+obj.getNewLabelName()+"</td>\n");
 		}
 		sb.append("</tr>\n");
 
-		List<Map<String,Object>> res = SQLConnector.getSQLExecutor().query("select * from "+tb.getName()+" where id in (select skey from table_keys where zkey= "+bizId+") order by id");
+		List<Map<String,Object>> res = null;
+		if(bizId != null) res = SQLConnector.getSQLExecutor().query("select * from "+tb.getName()+" where id in (select skey from table_keys where zkey= "+bizId+" and stablename='"+tb.getName()+"') order by id");
 		Map<String,Object> resMap = null;
 		for(int i=0;i<rows;i++){
-			sb.append("<tr style='height:35px'>\n");
+			sb.append("<tr class='table-sub-tr'>\n");
 			//赋值：
-			if(res.size() > i ) resMap = res.get(i);
+			if(res != null && res.size() > i ) resMap = res.get(i);
 			else resMap = null;
+			
 			//定义主键作为隐藏项
 			String sId = "";
 			if(resMap != null) sId = resMap.get("ID").toString();
-			sb.append("<td style='text-align: left;padding-left:5px;font-size:15px;'><input type='checkbox' name='"+tb.getName()+"_check'></td>\n");
+			sb.append("<td class='table-sub-td-text-left'><input type='checkbox' name='"+tb.getName()+"_check'></td>\n");
 			for(WorkflowTableElement obj : ems){				
-				sb.append("<td style='text-align:left;padding-left:5px;font-size:15px'>\n");
+				sb.append("<td class='table-sub-td-text-left'>\n");
 				sb.append(drawTableElement(obj,tb.getName(),resMap,wfId,nodeName));								
 				sb.append("</td>\n");					
 			}	
@@ -306,10 +319,10 @@ public class PlattenTableServiceImpl implements PureTableService {
 		List<WorkflowTableElement> tes = workflowTableService.findTableAllElements(stbId,scope);
 		
 		StringBuffer sb = new StringBuffer();
-		sb.append("<table border='0' style='width:100%'>\n");		
-		sb.append("<tr style='height:35px'>\n");
+		sb.append("<table border='0' class='table-width'>\n");		
+		sb.append("<tr class='table-sub-tr'>\n");
 		for(WorkflowTableElement obj : tes){			
-			sb.append("<td colspan="+obj.getCols()+" rowspan="+obj.getRowes()+" style='text-align:left;padding-left:5px;font-size:15px'>\n");
+			sb.append("<td colspan="+obj.getCols()+" rowspan="+obj.getRowes()+" class='table-sub-td-text-left'>\n");
 			sb.append(drawTableElement(obj,tbName,resMap,null,null));							
 			sb.append("</td>\n");					
 			}
@@ -336,52 +349,71 @@ public class PlattenTableServiceImpl implements PureTableService {
 			else sb.append(obj.getNewLabelName()+"\n");
 			break;
 		case "输入框":
-			if(value != null)sb.append("<input class='input-02' type='text' name='"+pre+obj.getFieldName()+"' value='"+value+"' style='"+width+"' "+readOnly+">\n");
-			else sb.append("<input class='input-02' type='text' name='"+pre+obj.getFieldName()+"' value='' "+required+" style='"+width+"' "+readOnly+">\n");
+			if(value == null) value = "";
+			sb.append("<input class='input-02' type='text' id='"+pre+obj.getFieldName()+"' name='"+pre+obj.getFieldName()+"' value='"+value+"' "+required+" style='"+width+"' "+readOnly+">");			
+			if(!readOnly.equals("readOnly")){
+				if(obj.getNewFunctionName() != null){
+					String funcName = obj.getNewFunctionName();
+					if(obj.getNewHiddenFieldName()!=null) funcName = funcName.replace(obj.getNewHiddenFieldName(), pre+obj.getNewHiddenFieldName());
+					else funcName = funcName.replace(obj.getFieldName(), pre+obj.getFieldName());
+					sb.append("<span class='img-cursor' onclick=\""+funcName+"\">✍</span>");
+				}
+			}
 			break;
 		case "下拉框":
 			String selected = "";
 			if(!StringUtils.isEmpty(readOnly))readOnly = "disabled";
-			sb.append("<select class='input-01' name='"+pre+obj.getFieldName()+"' "+required+">\n");
+			if(readOnly.equals("disabled")){
+				sb.append("<input type='hidden' id='"+pre+obj.getFieldName()+"' name='"+pre+obj.getFieldName()+"' value='"+value+"'>\n");
+				sb.append("<select class='input-01' "+required+" "+readOnly+">\n");
+			}else{
+				sb.append("<select class='input-01' id='"+pre+obj.getFieldName()+"' name='"+pre+obj.getFieldName()+"' "+required+">\n");
+			}
 			sb.append("<option value=''>请选择</option>");
-			for(String content : obj.getNewDataContent().split(",")){
-				selected = "";
-				if(value != null && value.equals(content)) selected = "selected";
-				sb.append("<option "+selected+" "+readOnly+" value='"+content+"'>"+content+"</option>\n");
+			if(obj.getNewDataContent() != null){
+				for(String content : obj.getNewDataContent().split(",")){
+					selected = "";
+					if(value != null && value.equals(content)) selected = "selected";
+					sb.append("<option "+selected+"  value='"+content+"'>"+content+"</option>\n");
+				}
 			}
 			sb.append("</select>");
 			break;
 		case "多选框":
 			String checkboxchecked = "";
 			if(!StringUtils.isEmpty(readOnly))readOnly = "disabled";
-			for(String content : obj.getNewDataContent().split(",")){
-				checkboxchecked = "";
-				if(value != null && value.toString().contains(content)) checkboxchecked = "checked";
-				sb.append("<input type='checkbox' name='"+pre+obj.getFieldName()+"' "+checkboxchecked+" value='"+content+"' "+readOnly+">");
-				sb.append(content +"\n");
+			if(obj.getNewDataContent() != null){
+				for(String content : obj.getNewDataContent().split(",")){
+					checkboxchecked = "";
+					if(value != null && value.toString().contains(content)) checkboxchecked = "checked";
+					sb.append("<input type='checkbox' id='"+pre+obj.getFieldName()+"' name='"+pre+obj.getFieldName()+"' "+checkboxchecked+" value='"+content+"' "+readOnly+">");
+					sb.append(content +"\n");
+				}
 			}
 			break;
 		case "单选框":
 			String radiochecked = "";
 			if(!StringUtils.isEmpty(readOnly))readOnly = "disabled";
 			int i=0;
-			for(String content : obj.getNewDataContent().split(",")){				
-				if(value != null ){
-					radiochecked = "";
-					if(value.equals(content)) radiochecked = "checked";					
-				}else{					
-					if(i==0) radiochecked = "checked";
-					else radiochecked="";
+			if(obj.getNewDataContent() != null){
+				for(String content : obj.getNewDataContent().split(",")){				
+					if(value != null ){
+						radiochecked = "";
+						if(value.equals(content)) radiochecked = "checked";					
+					}else{					
+						if(i==0) radiochecked = "checked";
+						else radiochecked="";
+					}
+					
+					sb.append("<input type='radio' id='"+pre+obj.getFieldName()+"' name='"+pre+obj.getFieldName()+"' "+radiochecked+" value='"+content+"' "+readOnly+">");
+					sb.append(content +"\n");
+					i++;
 				}
-				
-				sb.append("<input type='radio' name='"+pre+obj.getFieldName()+"' "+radiochecked+" value='"+content+"' "+readOnly+">");
-				sb.append(content +"\n");
-				i++;
 			}
 			break;
 		case "文本框":
-			if(value != null) sb.append("<textarea class='input-03' name='"+pre+obj.getFieldName()+"' style='"+width+"' rows=8 "+readOnly+">"+value+"</textarea>\n");
-			else sb.append("<textarea class='input-03' name='"+pre+obj.getFieldName()+"' "+required+" style='"+width+"' rows=8 "+readOnly+"></textarea>\n");
+			if(value == null) value = "";
+			sb.append("<textarea class='input-03' id='"+pre+obj.getFieldName()+"' name='"+pre+obj.getFieldName()+"' "+required+" style='"+width+"' rows=8 "+readOnly+">"+value+"</textarea>\n");			
 			break;
 		case "审批意见":
 			if(resMap != null){
@@ -394,9 +426,43 @@ public class PlattenTableServiceImpl implements PureTableService {
 				sb.append("</div>");
 			}
 			if(readOnly.equals("")){
-				if(value != null) sb.append("<textarea class='input-03' name='"+pre+obj.getFieldName()+"' style='"+width+"' rows=8 >"+value+"</textarea>\n");
-				else sb.append("<textarea class='input-03' name='"+pre+obj.getFieldName()+"' "+required+" style='"+width+"' rows=8 ></textarea>\n");
+				if(value == null) value = "";
+				sb.append("<textarea class='input-03' id='"+pre+obj.getFieldName()+"' name='"+pre+obj.getFieldName()+"' "+required+" style='"+width+"' rows=8 >"+value+"</textarea>\n");				
 			}
+			break;
+		case "日期":	
+			if(value == null) value = "";
+			sb.append("<input class='input-02' type='text' id='"+pre+obj.getFieldName()+"' name='"+pre+obj.getFieldName()+"' value='"+value+"' "+required+" style='"+width+"' "+readOnly+" >");			
+			if(!readOnly.equals("readOnly")){
+				sb.append("<script>laydate.render({elem: '#"+pre+obj.getFieldName()+"',theme: '#3d80d3'});</script>");
+			}
+			break;
+		case "文件":
+			if(!readOnly.equals("readOnly")){
+				sb.append("<span class='img-cursor' onclick=\"getFj('"+pre+obj.getNewHiddenFieldName()+"','"+pre+obj.getFieldName()+"')\" >✍</span>");
+			}			
+			Object value2 = resMap != null ? resMap.get(obj.getNewHiddenFieldName()):null;
+			if(value == null) value = "";
+			if(value2 == null) value2 = "";
+			sb.append("<ol class='tags' id='"+pre+obj.getFieldName()+"Desc' >");
+			String[] names = value.toString().split(",");
+			String[] ids = value2.toString().split(",");
+			for(int p=0;p<ids.length;p++){
+				if(!StringUtils.isEmpty(ids[p])){
+					if(names[p].indexOf("]") <= 0) continue;
+					String imgName = names[p].substring(1,names[p].indexOf("]"));
+					String imgFileName = names[p].substring(names[p].indexOf("]")+1);
+					if(!readOnly.equals("readOnly")){
+						sb.append("<li class='img-garbage' id='" + ids[p] + "'>" +imgName);					
+						sb.append("<span onclick=\"removeFj(this,'"+pre+obj.getNewHiddenFieldName()+"','"+pre+obj.getFieldName()+"')\" class='img-cursor'>✘</span>");
+						sb.append("</li>");	
+					}else{
+						sb.append(imgName+"<a href='/file/"+imgFileName+"/download' class='img-cursor'>⬇️</a>&nbsp;&nbsp;");
+					}					
+				}
+			}
+			sb.append("</ol>");			
+			sb.append("<input type='hidden' id='"+pre+obj.getFieldName()+"' name='"+pre+obj.getFieldName()+"' value='"+value+"'/>");
 			break;
 		case "子表":	
 			Long bizId = null;
@@ -415,7 +481,7 @@ public class PlattenTableServiceImpl implements PureTableService {
 		if(obj.getNewHiddenFieldName() != null){
 			value="";
 			if(resMap != null && resMap.get(obj.getNewHiddenFieldName()) != null) value = resMap.get(obj.getNewHiddenFieldName());
-			sb.append("<input type=hidden name='"+pre+obj.getNewHiddenFieldName()+"' value='"+value+"'>");
+			sb.append("<input type='hidden' id='"+pre+obj.getNewHiddenFieldName()+"' name='"+pre+obj.getNewHiddenFieldName()+"' value='"+value+"'>");
 		}
 		return sb.toString();
 	}

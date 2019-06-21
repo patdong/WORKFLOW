@@ -25,7 +25,7 @@ DROP TABLE IF EXISTS `workflow_flow`;
 CREATE TABLE `workflow_flow` (
   `flowId` int(11) NOT NULL AUTO_INCREMENT COMMENT '流程序号',
   `flowParentId` int(11) DEFAULT NULL COMMENT '流程父序号',
-  `nodeName` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '节点名称',
+  `nodeName` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '节点名称',
   `actionName` varchar(10) DEFAULT NULL,
   `status` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '状态',
   `createdDate` datetime NOT NULL COMMENT '收到时间',
@@ -34,7 +34,7 @@ CREATE TABLE `workflow_flow` (
   `bizId` int(11) NOT NULL COMMENT '业务序号',
   `wfId` int(11) NOT NULL COMMENT '流程编号',
   PRIMARY KEY (`flowId`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=77 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=97 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -46,4 +46,4 @@ CREATE TABLE `workflow_flow` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-03-18  8:53:41
+-- Dump completed on 2019-06-21 11:32:01

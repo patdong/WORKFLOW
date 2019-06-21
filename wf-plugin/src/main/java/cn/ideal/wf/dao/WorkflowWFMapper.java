@@ -13,4 +13,5 @@ public interface WorkflowWFMapper {
 		
 	List<Workflow> findHavingBindTable();
 
+	int save(Workflow obj);
 }

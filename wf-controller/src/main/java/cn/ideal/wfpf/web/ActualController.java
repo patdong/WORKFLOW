@@ -52,15 +52,7 @@ public class ActualController{
 	 * 获取指定业务列表信息
 	 * 此方法是采用流程驱动方式
 	 */
-	/*@GetMapping(value={"/list/{tbId}/{scope}/{pageNumber}","/list/{tbId}/{pageNumber}"})
-    public ModelAndView getList(@PathVariable Long tbId,@PathVariable Long pageNumber,@PathVariable Optional<String> scope, HttpServletRequest request) {
-		ModelAndView mav = new ModelAndView("app/list");
-		String selectedScope = null;
-		if(scope.isPresent()) selectedScope = scope.get();
-		ListModel listModel = businessProcessor.getListModel(tbId, pageNumber, selectedScope, request);
-		mav.addObject("model", listModel);
-        return mav;
-    }*/	
+	
 	@GetMapping(value={"/list/{tbId}/{pageNumber}"})
     public ModelAndView getList(@PathVariable Long tbId,@PathVariable Long pageNumber, HttpServletRequest request) {
 		ModelAndView mav = new ModelAndView("app/list");
@@ -85,30 +77,20 @@ public class ActualController{
 	 * @param request
 	 * @return
 	 */
-	/*@GetMapping(value={"/showtable/{tbId}/{bizId}","/showtable/{tbId}"})
-    public ModelAndView showTable(@PathVariable Long tbId, @PathVariable Optional<Long> bizId, HttpServletRequest request) {
-		ModelAndView mav = new ModelAndView("app/table");
-		Long bId = null;
-		if(bizId.isPresent()) bId = bizId.get();
-		PageModel pageModel = businessProcessor.getPageModel(tbId, bId);		
-		
-		mav.addObject("model",pageModel);
-        return mav;
-    }*/
 	
 	@GetMapping(value={"/showtable/{tbId}/{bizId}"})
     public ModelAndView showTable(@PathVariable Long tbId, @PathVariable Long bizId, HttpServletRequest request) {
 		ModelAndView mav = new ModelAndView("app/table");		
-		PageModel pageModel = businessProcessor.getPageModel(tbId, bizId);		
+		PageModel pageModel = businessProcessor.getPageModel(request,tbId,bizId);		
 		
 		mav.addObject("model",pageModel);
         return mav;
     }
 	
-	@GetMapping(value={"/showtable/{tbId}"})
-    public ModelAndView showTable(@PathVariable Long tbId, HttpServletRequest request) {
+	@GetMapping(value={"/showinittable/{tbId}/{wfId}"})
+    public ModelAndView showIntTable(@PathVariable Long tbId, @PathVariable Long wfId, HttpServletRequest request) {
 		ModelAndView mav = new ModelAndView("app/table");
-		PageModel pageModel = businessProcessor.getPageModel(tbId, null);		
+		PageModel pageModel = businessProcessor.getInitPageModel(request,tbId, wfId,null);		
 		
 		mav.addObject("model",pageModel);
         return mav;
@@ -123,27 +105,18 @@ public class ActualController{
 	 * @return
 	 * @throws Exception
 	 */
-	/*@PostMapping(value={"/save/{tbId}","/save/{tbId}/{bizId}"})
-	public ModelAndView saveTableData(@PathVariable Long tbId, @PathVariable Optional<Long> bizId,HttpServletRequest request) throws Exception{		
-		Long bId = null;
-		if(bizId.isPresent()) bId = bizId.get();
-		Long id = businessProcessor.save(request, tbId, bId);
-		ModelAndView mav = new ModelAndView("redirect:/app/showtable/"+tbId+"/"+id);
-		return mav;
-	}*/
-	@PostMapping(value={"/save/{tbId}"})
-	public ModelAndView saveTableData(@PathVariable Long tbId,HttpServletRequest request) throws Exception{		
-		Long bId = null;
-		
-		Long id = businessProcessor.save(request, tbId, bId);
-		ModelAndView mav = new ModelAndView("redirect:/app/showtable/"+tbId+"/"+id);
+	
+	@PostMapping(value={"/save/{tbId}/{wfId}"})
+	public ModelAndView saveTableData(@PathVariable Long tbId,@PathVariable Long wfId,HttpServletRequest request) throws Exception{		
+		Long bizId = businessProcessor.save(request, tbId, wfId);
+		ModelAndView mav = new ModelAndView("redirect:/app/showtable/"+tbId+"/"+bizId);
 		return mav;
 	}
 	
-	@PostMapping(value={"/save/{tbId}/{bizId}"})
-	public ModelAndView saveTableData(@PathVariable Long tbId, @PathVariable Long bizId,HttpServletRequest request) throws Exception{				
-		Long id = businessProcessor.save(request, tbId, bizId);
-		ModelAndView mav = new ModelAndView("redirect:/app/showtable/"+tbId+"/"+id);
+	@PostMapping(value={"/update/{tbId}/{bizId}"})
+	public ModelAndView updateTableData(@PathVariable Long tbId,@PathVariable Long bizId,HttpServletRequest request) throws Exception{				
+		bizId = businessProcessor.update(request, tbId,bizId);
+		ModelAndView mav = new ModelAndView("redirect:/app/showtable/"+tbId+"/"+bizId);
 		return mav;
 	}
 	
@@ -155,20 +128,11 @@ public class ActualController{
 	 * @return
 	 * @throws Exception
 	 */
-	/*@PostMapping(value={"/doaction/{tbId}/{bizId}","/doaction/{tbId}/{bizId}/{nodeId}"})
-	public ModelAndView doaction(@PathVariable Long tbId, @PathVariable Long bizId,@PathVariable Optional<Long> nodeId, HttpServletRequest request) throws Exception{
-		ModelAndView mav = new ModelAndView("redirect:/app/list/"+tbId+"/1");	
-		if(nodeId.isPresent()){			
-			wfProcessor.doAction(tbId, bizId, platformService.getWorkflowUser(request), nodeId.get());
-		}else wfProcessor.doAction(tbId, bizId, platformService.getWorkflowUser(request));
-		
-		return mav;
-	}*/
 	
 	@PostMapping(value={"/doaction/{tbId}/{bizId}"})
 	public ModelAndView doaction(@PathVariable Long tbId, @PathVariable Long bizId, HttpServletRequest request) throws Exception{
 		ModelAndView mav = new ModelAndView("redirect:/app/list/"+tbId+"/1");	
-		Long id = businessProcessor.save(request, tbId, bizId);
+		Long id = businessProcessor.update(request, tbId, bizId);
 		if(id > 0){
 			wfProcessor.doAction(tbId, bizId, platformService.getWorkflowUser(request));
 		}
@@ -178,7 +142,7 @@ public class ActualController{
 	@PostMapping(value={"/doaction/{tbId}/{bizId}/{nodeId}"})
 	public ModelAndView doaction(@PathVariable Long tbId, @PathVariable Long bizId,@PathVariable Long nodeId, HttpServletRequest request) throws Exception{
 		ModelAndView mav = new ModelAndView("redirect:/app/list/"+tbId+"/1");
-		Long id = businessProcessor.save(request, tbId, bizId);
+		Long id = businessProcessor.update(request, tbId, bizId);
 		if(id > 0){
 			wfProcessor.doAction(tbId, bizId, platformService.getWorkflowUser(request), nodeId);
 		}

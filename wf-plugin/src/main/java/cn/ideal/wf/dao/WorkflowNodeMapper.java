@@ -17,7 +17,7 @@ public interface WorkflowNodeMapper {
 	
 	List<WorkflowUser> findNodeUsers(Long nodeId);
 	
-	List<WorkflowUser> findNodeUsersByNodeName(String nodeName);
+	List<WorkflowUser> findNodeUsersByNodeName(@Param("nodeName") String nodeName,@Param("wfId") Long wfId);
 
 	List<WorkflowNode> findAll(Long wfId);
 	
@@ -28,5 +28,17 @@ public interface WorkflowNodeMapper {
 	List<WorkflowAction> findButtonsByNodeName(@Param("nodeName") String nodeName, @Param("wfId") Long wfId);
 	
 	List<FlowChatNode> findAllForFlowChat(long wfId);
+	
+	int save(WorkflowNode wfn);
+	
+	int saveNodeNodes(WorkflowNode wfn);
+	
+	int saveNodeAction(WorkflowNode wfn);
+	
+	int saveNodeButton(WorkflowNode wfn);
+	
+	int saveUser(WorkflowNode wfn);
+	
+	int saveRole(WorkflowNode wfn);
 
 }

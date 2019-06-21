@@ -30,14 +30,14 @@ CREATE TABLE `element_library` (
   `functionName` varchar(45) DEFAULT NULL COMMENT '元素方法名称',
   `status` varchar(10) NOT NULL COMMENT '状态',
   `createdDate` datetime NOT NULL COMMENT '创建时间',
-  `level` varchar(10) NOT NULL COMMENT '级别（系统级、自定义）',
+  `grade` varchar(10) NOT NULL COMMENT '级别（系统级、自定义）',
   `fieldType` varchar(10) NOT NULL DEFAULT '输入框' COMMENT '字段类型',
   `fieldDataType` varchar(10) NOT NULL DEFAULT '字符串' COMMENT '字段数据类型',
   `dataContent` varchar(100) DEFAULT NULL COMMENT '值关联表值（适用于下拉框、多选框）',
   `length` int(11) DEFAULT NULL COMMENT '字段长度，仅对字符串类型有效',
   `functionBelongTo` varchar(10) DEFAULT NULL COMMENT '方法隶属于标签或元素',
   PRIMARY KEY (`emId`)
-) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='元素库';
+) ENGINE=InnoDB AUTO_INCREMENT=45 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='元素库';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -49,4 +49,4 @@ CREATE TABLE `element_library` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-03-18  8:53:42
+-- Dump completed on 2019-06-21 11:32:13

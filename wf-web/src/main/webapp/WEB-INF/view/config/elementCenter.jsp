@@ -62,7 +62,7 @@ function setEmLabelName(event){
               <th>#序列</th>
               <th>标签名称</th>
               <th>字段名称</th>
-              <th>自带隐藏变量</th>
+              <th>隐式字段</th>
               <th>绑定方法</th>
               <th>有效性</th>
               <th>级别</th>

@@ -20,4 +20,30 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+  <build>
+  	 
+  	 <plugins>
+         <plugin>
+             <groupId>org.apache.maven.plugins</groupId>             
+             <artifactId>maven-antrun-plugin</artifactId>
+			 <executions>
+		         <execution>
+		            <phase>process-classes</phase>
+		            <goals>
+		                <goal>run</goal>
+		            </goals>
+		         </execution>
+		     </executions>
+             <configuration>
+                 <source>1.7</source>
+                 <target>1.7</target>
+                 <tasks>
+                 	<!-- 如果应用系统已经用了redis，那么删除redis的配置实例，否则产生冲突系统无法正常启用 -->
+		            <delete dir="target/classes/cn/ideal/wf/cache/redis/conf"/>
+		        </tasks>
+             </configuration>             
+         </plugin>
+     	</plugins>
+      
+  </build>
 </project>

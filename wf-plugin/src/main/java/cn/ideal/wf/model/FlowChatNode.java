@@ -5,6 +5,7 @@ package cn.ideal.wf.model;
  * @version 2.0
  */
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.List;
 
 public class FlowChatNode implements Serializable{
@@ -31,6 +32,9 @@ public class FlowChatNode implements Serializable{
 	private Position[][] dPositions;
 	private int left;
 	private int top;
+	
+	private WorkflowRole role;
+	private Collection<WorkflowUser> users;
 	
 	public FlowChatNode(){}
 	public FlowChatNode(Long nodeId){
@@ -148,6 +152,33 @@ public class FlowChatNode implements Serializable{
 	}
 	public void setStatus(String status) {
 		this.status = status;
+	}
+	
+	public WorkflowRole getRole() {
+		return role;
+	}
+	public void setRole(WorkflowRole role) {
+		this.role = role;
+	}
+	public Collection<WorkflowUser> getUsers() {
+		return users;
+	}
+	public void setUsers(Collection<WorkflowUser> users) {
+		this.users = users;
+	}
+	
+	public String getUserstoString(){
+		String user = "";
+		if(this.users != null){
+			user = "[";
+			for(WorkflowUser ur : this.users){
+				user += ur.getUserName()+",";
+			}
+			if(user.length() > 1) user = user.substring(0,user.length()-1);
+			user += "]";
+		}
+		
+		return user;
 	}
 	public int hashCode() {
 		return nodeId.intValue();

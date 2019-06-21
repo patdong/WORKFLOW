@@ -11,15 +11,27 @@ import org.springframework.util.StringUtils;
 
 import cn.ideal.wf.common.WFConstants;
 import cn.ideal.wf.dao.WorkflowStepMapper;
+import cn.ideal.wf.model.WorkflowBrief;
+import cn.ideal.wf.model.WorkflowFlow;
 import cn.ideal.wf.model.WorkflowStep;
+import cn.ideal.wf.model.WorkflowTableSummary;
 import cn.ideal.wf.model.WorkflowUser;
+import cn.ideal.wf.service.WorkflowBriefService;
+import cn.ideal.wf.service.WorkflowFlowService;
 import cn.ideal.wf.service.WorkflowStepService;
+import cn.ideal.wf.service.WorkflowTableService;
 
 @Service
 public class WorkflowStepServiceImpl implements WorkflowStepService{
 
 	@Autowired
 	private WorkflowStepMapper workflowStepMapper;
+	@Autowired
+	private WorkflowBriefService workflowBriefService;
+	@Autowired
+	private WorkflowTableService workflowTableService;
+	@Autowired
+	private WorkflowFlowService workflowFlowService;
 	
 	@Override
 	public WorkflowStep addFlowStep(WorkflowStep workflowStep) {
@@ -45,9 +57,10 @@ public class WorkflowStepServiceImpl implements WorkflowStepService{
 	}
 
 	@Override
-	public WorkflowStep findWrokflowStep(Long bizId, WorkflowUser user) {
+	public WorkflowStep findWrokflowStep(Long bizId, Long wfId,WorkflowUser user) {
 		Map<String,Object> conds = new HashMap<String,Object>();
 		conds.put("bizId", bizId);
+		conds.put("wfId", wfId);
 		conds.put("userId", user.getUserId());
 		conds.put("unitId",user.getUnitId());		
 		
@@ -70,15 +83,37 @@ public class WorkflowStepServiceImpl implements WorkflowStepService{
 	}
 
 	@Override
-	public boolean setWorkflowStepUser(Long stepId, WorkflowUser user) {
+	public boolean setWorkflowStepUser(Long stepId, WorkflowUser user) {		
+		WorkflowStep oldWfs = this.find(stepId);		
 		WorkflowStep wfs = new WorkflowStep(null,stepId);
 		wfs.setDispatchUserId(user.getUserId());
 		wfs.setDispatchUserName(user.getUserName());
 		wfs.setUnitId(user.getUnitId());
 		wfs.setUnitName(user.getUnitName());
-		int idx = workflowStepMapper.setWorkflowStepUser(wfs);
 		
-		if(idx > 0) return true;
+		//更新流程步骤表
+		int idx = workflowStepMapper.setWorkflowStepUser(wfs);		
+		if(idx > 0) {
+			if(oldWfs != null) {
+				//更新流程概述表
+				WorkflowBrief wfb = new WorkflowBrief();
+				wfb.setStepId(stepId);
+				wfb.setOldDispatchUserId(","+oldWfs.getDispatchUserId()+",");
+				wfb.setDispatchUserId(","+user.getUserId()+",");
+				workflowBriefService.updateDispatchedUser(wfb);
+				
+				//更新业务概述表
+				WorkflowTableSummary wfts = new WorkflowTableSummary();
+				WorkflowFlow wff = workflowFlowService.findFlow(oldWfs.getFlowId());
+				wfts.setCurUserId(user.getUserId());
+				wfts.setCurUserName(user.getUserName());
+				wfts.setOldCurUserId(oldWfs.getDispatchUserId());
+				wfts.setBizId(wff.getBizId());
+				wfts.setWfId(wff.getWfId());
+				workflowTableService.updateCurrentUser(wfts);
+			}			
+			return true;			
+		}
 		return false;
 	}
 
@@ -103,12 +138,18 @@ public class WorkflowStepServiceImpl implements WorkflowStepService{
 	}
 
 	@Override
-	public WorkflowStep findWrokflowStep(Long bizId, String nodeName) {
+	public WorkflowStep findWrokflowStep(Long bizId, Long wfId,String nodeName) {
 		Map<String,Object> conds = new HashMap<String,Object>();
 		conds.put("bizId", bizId);
+		conds.put("wfId", wfId);
 		conds.put("nodeName", nodeName);
 		
 		return workflowStepMapper.findWrokflowStep(conds);
+	}
+
+	@Override
+	public List<WorkflowStep> findUNFinshedWrokflowStep(Long bizId, Long wfId) {
+		return workflowStepMapper.findUNFinshedWrokflowStep(bizId, wfId);
 	}
 
 }

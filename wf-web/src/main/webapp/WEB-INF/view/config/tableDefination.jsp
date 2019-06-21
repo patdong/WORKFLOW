@@ -35,6 +35,7 @@
 	  $("#tscope").val("${scope}");
 	  //设置模板
 	  $("#template").val("${brief.template}");
+	  changeTemplate();
 	  //下拉框选择操作 - 角色选择
 	  $('#subTbId-ul li').on('click', function(){
 	    $('#subTbId-btn').text($(this).text());    	
@@ -143,15 +144,13 @@
 		  var ems = ${tbems};
 		  $.each(ems,function(key,element){
 			  if(element.id == id){
-				  setElement(element);
-				  $("#fieldName").prop("readonly", true);
+				  setElement(element);				  
 				  $("#saveEm").html('保存');
 			  }
 		  });
 	  }else{
 		  $("#myForm")[0].reset();
-		  $("#element-name").text('');
-		  $("#fieldName").prop("readonly", false);
+		  $("#element-name").text('');		  
 		  $("#saveEm").html('新增');
 		  $("#id").val(""); 
 	  }
@@ -439,7 +438,7 @@
     		  dataType: 'json',
     		  success: function(data){	 
     			  if(data){
-    				  if(template=="组建"){
+    				  if(template=="组件"){
     					  $('#db1').hide();
     					  $('#db2').hide();
     					  $('#dbcheck').hide();
@@ -637,13 +636,13 @@
 		        <label >元素名称：</label>
 		        <input name="newLabelName" id="newLabelName" class="form-control-one-line mx-sm-2" required autofocus style="width:25%"/>
 		        <label >字段名称：</label>
-		        <input name="fieldName" id="fieldName" class="form-control-one-line" readOnly style="width:25%"/>
+		        <input name="fieldName" id="fieldName" class="form-control-one-line" style="width:25%"/>
 		    </div>
 		  	<div class="form-group-dialog">	    		       
 		        <label>字段类型：</label>
 		        <select name="newFieldDataType" id="newFieldDataType" class="form-control-one-line mx-sm-2" style="width:25%" > 
 		        	<option value="String">字符串</option>
-			        <option value="Date">日期</option>		       
+			        <option value="String">日期</option>		       
 		        </select>       
 		        <label >元素模型：</label>
 			    <select name="newFieldType" id="newFieldType" class="form-control-one-line" required style="width:25%" onChange="changeNewFieldType();">
@@ -652,6 +651,9 @@
 			        <option>单选框</option>
 			        <option>多选框</option>
 			        <option>文本框</option>
+			        <option>日期</option>
+			        <option>文件</option>
+			        <option>图片</option>
 			        <option>审批意见</option>
 			        <option>标签</option>
 			        <option>组件</option>

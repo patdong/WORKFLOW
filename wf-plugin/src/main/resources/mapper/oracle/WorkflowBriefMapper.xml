@@ -73,4 +73,12 @@
 		and wfId = #{wfId,jdbcType=DECIMAL}			
 		</where>				
 	</update>
+	
+	<update id="updateDispatchedUser" parameterType="cn.ideal.wf.model.WorkflowBrief">
+		update workflow_brief set 			
+			dispatchUserId=replace(dispatchUserId,#{oldDispatchUserId,jdbcType=VARCHAR},#{dispatchUserId,jdbcType=VARCHAR})
+		<where>		
+			stepId=#{stepId,jdbcType=DECIMAL}		
+		</where>				
+	</update>
 </mapper>

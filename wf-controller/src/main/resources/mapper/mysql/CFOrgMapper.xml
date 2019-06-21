@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.ideal.cf.repository.OrgMapper">
+    <resultMap id="org" type="cn.ideal.cf.model.CFOrg" autoMapping="true" />        
+     
+    <select id="findOrgs" resultMap="org">
+        select * from sys_org
+    </select>
+    
+</mapper>

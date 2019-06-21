@@ -31,12 +31,12 @@ public interface WorkflowStepService {
 	/**
 	 * 获得指定用户的操作流程
 	 */
-	WorkflowStep findWrokflowStep(Long bizId,WorkflowUser user);
+	WorkflowStep findWrokflowStep(Long bizId,Long wfId,WorkflowUser user);
 	
 	/**
 	 * 获得指定用户的操作流程
 	 */
-	WorkflowStep findWrokflowStep(Long bizId,String nodeName);
+	WorkflowStep findWrokflowStep(Long bizId, Long wfId, String nodeName);
 	
 	/**
 	 * 获取指定业务的所有流程操作记录
@@ -48,4 +48,7 @@ public interface WorkflowStepService {
 	List<WorkflowStep> findAllByFlowId(Long flowId);
 	
 	boolean setWorkflowStepUser(Long stepId, WorkflowUser user);
+	
+	List<WorkflowStep> findUNFinshedWrokflowStep(Long bizId, Long wfId);
+
 }

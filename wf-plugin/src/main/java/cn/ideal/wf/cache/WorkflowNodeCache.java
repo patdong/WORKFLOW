@@ -17,10 +17,10 @@ import cn.ideal.wf.service.WorkflowWFService;
 
 @Component("WorkflowNodeCache1")
 public class WorkflowNodeCache implements ApplicationContextAware{
-	private static Map<Long, List<WorkflowNode>> hashWorkflowNode = null;
-	private static ApplicationContext context;
+	private Map<Long, List<WorkflowNode>> hashWorkflowNode = null;
+	private ApplicationContext context;
 
-    public static ApplicationContext getApplicationContext() {
+    public ApplicationContext getApplicationContext() {
         return context;
     }
     @Override
@@ -28,7 +28,8 @@ public class WorkflowNodeCache implements ApplicationContextAware{
         context = ac;
     }
     
-	public static void init() {
+	private void init() {
+		System.out.println("内存加载流程节点数据");
 		WorkflowNodeService workflowNodeService = context.getBean(WorkflowNodeService.class);
 		WorkflowWFService workflowWFService = context.getBean(WorkflowWFService.class);
 		
@@ -41,42 +42,42 @@ public class WorkflowNodeCache implements ApplicationContextAware{
 		
 	}
 	
-	public static List<WorkflowNode> getValue(Long wfId){
+	public List<WorkflowNode> getValue(Long wfId){
 		if(hashWorkflowNode == null) {
 			init();
 		}
 		return hashWorkflowNode.get( wfId);
 	}
 	
-	public static Map<Long,List<WorkflowNode>> getAll(){
+	public Map<Long,List<WorkflowNode>> getAll(){
 		if(hashWorkflowNode == null) {
 			init();
 		}
 		return hashWorkflowNode;
 	}
 	
-	public static void save(List<WorkflowNode> wfns,Long wfId) {
+	public void save(List<WorkflowNode> wfns,Long wfId) {
 		if(hashWorkflowNode == null) {
 			init();
 		}
 		hashWorkflowNode.put(wfId, wfns);
 	}
 
-	public static void update(List<WorkflowNode> wfns,Long wfId) {
+	public void update(List<WorkflowNode> wfns,Long wfId) {
 		if(hashWorkflowNode == null) {
 			init();
 		}
 		hashWorkflowNode.put(wfId, wfns);
 	}
  
-	public static void delete(Long wfId) {
+	public void delete(Long wfId) {
 		if(hashWorkflowNode == null) {
 			init();
 		}
 		hashWorkflowNode.remove(wfId);
 	}
 
-	public static WorkflowNode getFirstNode(Long wfId){
+	public WorkflowNode getFirstNode(Long wfId){
 		if(hashWorkflowNode == null) {
 			init();
 		}
@@ -89,7 +90,7 @@ public class WorkflowNodeCache implements ApplicationContextAware{
 		return null;
 	}
 	
-	public static List<WorkflowNode> getNextNode(String curNodeName,Long wfId){
+	public List<WorkflowNode> getNextNode(String curNodeName,Long wfId){
 		if(hashWorkflowNode == null) {
 			init();
 		}

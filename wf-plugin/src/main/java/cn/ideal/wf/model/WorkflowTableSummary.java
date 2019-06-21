@@ -6,8 +6,11 @@ import java.util.Date;
 public class WorkflowTableSummary implements Serializable{
 
 	private static final long serialVersionUID = -8754844461503568953L;
+	private Long summaryId;
 	private Long bizId;
+	private Long tbId;
 	private Long wfId;
+	private Long defId;
 	private String title;
 	private Long createdUserId;
 	private String createdUserName;
@@ -20,6 +23,14 @@ public class WorkflowTableSummary implements Serializable{
 	private Date modifiedDate;
 	private String status;
 	private String action;
+	private Long oldCurUserId;
+	
+	public Long getSummaryId() {
+		return summaryId;
+	}
+	public void setSummaryId(Long summaryId) {
+		this.summaryId = summaryId;
+	}
 	public Long getBizId() {
 		return bizId;
 	}
@@ -104,7 +115,24 @@ public class WorkflowTableSummary implements Serializable{
 	public void setAction(String action) {
 		this.action = action;
 	}
-	
-	
+	public Long getTbId() {
+		return tbId;
+	}
+	public void setTbId(Long tbId) {
+		this.tbId = tbId;
+	}
+	public Long getDefId() {
+		return defId;
+	}
+	public void setDefId(Long defId) {
+		this.defId = defId;
+	}
+	public Long getOldCurUserId() {
+		return oldCurUserId;
+	}
+	public void setOldCurUserId(Long oldCurUserId) {
+		this.oldCurUserId = oldCurUserId;
+	}
+
 	
 }

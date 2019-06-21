@@ -15,4 +15,5 @@ public interface WorkflowWFService{
 	
 	List<Workflow> findHavingBindTable();	
 
+	Workflow save(Workflow obj);
 }

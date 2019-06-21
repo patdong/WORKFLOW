@@ -2,6 +2,7 @@ package cn.ideal.wfpf.service;
 
 import java.util.List;
 
+import cn.ideal.wfpf.model.TableBizTemplate;
 import cn.ideal.wfpf.model.TableBrief;
 import cn.ideal.wfpf.model.TableElement;
 
@@ -72,4 +73,6 @@ public interface TableService extends PageService<TableBrief> {
 	boolean removeBinding(Long tbId);
 	
 	boolean dropTable(Long tbId) throws Exception;
+	
+	List<TableBizTemplate> findBizTemplates();
 }

@@ -53,6 +53,6 @@ public interface Processor {
 	 */
 	boolean doButton(Long tbId, Long bizId, WorkflowUser wfu,String buttonName) throws Exception;
 	
-	String findNodeName(Long tbId,Long bizId);
+	String findNodeName(Long tbId,Long bizId,WorkflowUser wfu);
 	
 }

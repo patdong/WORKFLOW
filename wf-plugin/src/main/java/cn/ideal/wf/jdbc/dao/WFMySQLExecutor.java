@@ -15,16 +15,18 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import cn.ideal.wf.cache.factory.TableBriefCacheFactory;
 import cn.ideal.wf.data.analyzer.Storage;
 import cn.ideal.wf.model.WorkflowTableBrief;
 import cn.ideal.wf.model.WorkflowUser;
-import cn.ideal.wf.cache.TableBriefCache;
 
 
 @Service("WFMYSQLExecutor")
 public class WFMySQLExecutor implements SQLExecutor {
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
+	@Autowired
+	private TableBriefCacheFactory tableBriefCacheFactory;
 	@Override
 	public Map<String,Object> save(Storage storage) {
 		//判断执行sql的表是否存在
@@ -53,9 +55,9 @@ public class WFMySQLExecutor implements SQLExecutor {
 					BigInteger bizId = (BigInteger)maxId.get("ID");
 					//保存业务关联主表
 					prebuf.setLength(0);
-					WorkflowTableBrief tb = TableBriefCache.getValue(storage.getTbId());
+					WorkflowTableBrief tb = tableBriefCacheFactory.getValue(storage.getTbId());
 					prebuf.append("insert into table_summary ( ");
-					prebuf.append("bizId,tbId,tableName,wfId,title,createdUserId,createdUserName,createdOrgId,createdOrgName,curUserId,curUserName,createdDate,modifiedDate,status,action ");
+					prebuf.append("bizId,tbId,tableName,wfId,defId,title,createdUserId,createdUserName,createdOrgId,createdOrgName,curUserId,curUserName,createdDate,modifiedDate,status,action ");
 					prebuf.append(" ) ");
 					prebuf.append(" values (");
 					prebuf.append(bizId);
@@ -65,6 +67,8 @@ public class WFMySQLExecutor implements SQLExecutor {
 					prebuf.append(storage.getTableName());
 					prebuf.append("',");
 					prebuf.append(storage.getWfId());
+					prebuf.append(",");
+					prebuf.append(storage.getDefId());
 					prebuf.append(",'");
 					prebuf.append(tb.getTableName());
 					prebuf.append("',");
@@ -91,34 +95,36 @@ public class WFMySQLExecutor implements SQLExecutor {
 					int id = jdbcTemplate.update(prebuf.toString());
 					if(id > 0){	
 						//保存子表数据
-						for(String stbname : storage.getsFields().keySet()){
-							for(Map<String,String> fields :storage.getsFields(stbname)){
-								prebuf.setLength(0);
-								sufbuf.setLength(0);
-								prebuf.append("insert into "+stbname +"(");
-								sufbuf.append(" values (");
-								for(String field : fields.keySet()){	
-									if(!field.equals("ID")){
-										prebuf.append(field);
-										prebuf.append(",");
-										//TO-DO:根据不同的字段类型做特殊处理
-										sufbuf.append("'"+fields.get(field)+"'");
-										sufbuf.append(",");
-									}						
-								}
-								prebuf.setLength(prebuf.length()-1);
-								sufbuf.setLength(sufbuf.length()-1);
-								prebuf.append(")");
-								sufbuf.append(")");
-								jdbcTemplate.update(prebuf.toString() + sufbuf.toString());
-								//保存主表和子表关系
-								maxId = jdbcTemplate.queryForMap("select last_insert_id() as ID" );
-								if(maxId != null) {
-									jdbcTemplate.update("insert into table_keys(tableName,zkey,stableName,skey) values('"+storage.getTableName()+"',"+bizId+",'"+stbname+"',"+maxId.get("ID")+")");
+						if(storage.getsFields() != null){
+							for(String stbname : storage.getsFields().keySet()){
+								for(Map<String,String> fields :storage.getsFields(stbname)){
+									prebuf.setLength(0);
+									sufbuf.setLength(0);
+									prebuf.append("insert into "+stbname +"(");
+									sufbuf.append(" values (");
+									for(String field : fields.keySet()){	
+										if(!field.equals("ID")){
+											prebuf.append(field);
+											prebuf.append(",");
+											//TO-DO:根据不同的字段类型做特殊处理
+											sufbuf.append("'"+fields.get(field)+"'");
+											sufbuf.append(",");
+										}						
+									}
+									prebuf.setLength(prebuf.length()-1);
+									sufbuf.setLength(sufbuf.length()-1);
+									prebuf.append(")");
+									sufbuf.append(")");
+									jdbcTemplate.update(prebuf.toString() + sufbuf.toString());
+									//保存主表和子表关系
+									maxId = jdbcTemplate.queryForMap("select last_insert_id() as ID" );
+									if(maxId != null) {
+										jdbcTemplate.update("insert into table_keys(tableName,zkey,stableName,skey) values('"+storage.getTableName()+"',"+bizId+",'"+stbname+"',"+maxId.get("ID")+")");
+									}
 								}
 							}
 						}
-						return jdbcTemplate.queryForMap("select * from " + storage.getTableName() + " where id = "+ bizId);
+						return jdbcTemplate.queryForMap("select a.*,b.summaryId,b.tbId,b.wfId from " + storage.getTableName() + " a inner join table_summary b on a.id=b.bizId and b.tbId="+storage.getTbId()+" where a.id = "+ bizId);
 					}
 				}
 			}			
@@ -162,58 +168,59 @@ public class WFMySQLExecutor implements SQLExecutor {
 			int id = jdbcTemplate.update(prebuf.toString());
 			if(id > 0){
 				//保存子表数据
-				for(String stbname : storage.getsFields().keySet()){
-					for(Map<String,String> fields :storage.getsFields(stbname)){
-						prebuf.setLength(0);
-						sufbuf.setLength(0);
-						if(StringUtils.isEmpty(fields.get("ID"))){
-							prebuf.append("insert into "+stbname +"(");
-							sufbuf.append(" values (");
-							for(String field : fields.keySet()){
-								if(!field.equals("ID")){
-									prebuf.append(field);
-									prebuf.append(",");
-									//TO-DO:根据不同的字段类型做特殊处理
-									sufbuf.append("'"+fields.get(field)+"'");
-									sufbuf.append(",");
+				if(storage.getsFields() != null){
+					for(String stbname : storage.getsFields().keySet()){
+						for(Map<String,String> fields :storage.getsFields(stbname)){
+							prebuf.setLength(0);
+							sufbuf.setLength(0);
+							if(StringUtils.isEmpty(fields.get("ID"))){
+								prebuf.append("insert into "+stbname +"(");
+								sufbuf.append(" values (");
+								for(String field : fields.keySet()){
+									if(!field.equals("ID")){
+										prebuf.append(field);
+										prebuf.append(",");
+										//TO-DO:根据不同的字段类型做特殊处理
+										sufbuf.append("'"+fields.get(field)+"'");
+										sufbuf.append(",");
+									}
 								}
-							}
-							prebuf.setLength(prebuf.length()-1);
-							sufbuf.setLength(sufbuf.length()-1);
-							prebuf.append(")");
-							sufbuf.append(")");
-							jdbcTemplate.update(prebuf.toString() + sufbuf.toString());
-							Map<String,Object> maxId = jdbcTemplate.queryForMap("select last_insert_id() as ID" );
-							if(maxId != null) {
-								jdbcTemplate.update("insert into table_keys(tableName,zkey,stableName,skey) values('"+storage.getTableName()+"',"+storage.getBizId()+",'"+stbname+"',"+maxId.get("ID")+")");
-							}
-						}else{
-							prebuf.append("update "+stbname );
-							prebuf.append(" set ");
-							for(String field : fields.keySet()){
-								if(!field.equals("ID")){
-									prebuf.append(field);
-									prebuf.append(" = ");
-									//TO-DO:根据不同的字段类型做特殊处理
-									prebuf.append("'"+fields.get(field)+"'");
-									prebuf.append(",");
+								prebuf.setLength(prebuf.length()-1);
+								sufbuf.setLength(sufbuf.length()-1);
+								prebuf.append(")");
+								sufbuf.append(")");
+								jdbcTemplate.update(prebuf.toString() + sufbuf.toString());
+								Map<String,Object> maxId = jdbcTemplate.queryForMap("select last_insert_id() as ID" );
+								if(maxId != null) {
+									jdbcTemplate.update("insert into table_keys(tableName,zkey,stableName,skey) values('"+storage.getTableName()+"',"+storage.getBizId()+",'"+stbname+"',"+maxId.get("ID")+")");
 								}
+							}else{
+								prebuf.append("update "+stbname );
+								prebuf.append(" set ");
+								for(String field : fields.keySet()){
+									if(!field.equals("ID")){
+										prebuf.append(field);
+										prebuf.append(" = ");
+										//TO-DO:根据不同的字段类型做特殊处理
+										prebuf.append("'"+fields.get(field)+"'");
+										prebuf.append(",");
+									}
+								}
+								prebuf.setLength(prebuf.length()-1);
+								prebuf.append(" where Id = ");
+								prebuf.append(fields.get("ID"));
+								jdbcTemplate.update(prebuf.toString() + sufbuf.toString());
 							}
-							prebuf.setLength(prebuf.length()-1);
-							prebuf.append(" where Id = ");
-							prebuf.append(fields.get("ID"));
-							jdbcTemplate.update(prebuf.toString() + sufbuf.toString());
+							
 						}
 						
-					}
-					
-					//删除清空的子表记录
-					for(Long key : storage.getsIds(stbname)){
-						jdbcTemplate.update("delete from " + stbname + " where ID = "+ key);
+						//删除清空的子表记录
+						for(Long key : storage.getsIds(stbname)){
+							jdbcTemplate.update("delete from " + stbname + " where ID = "+ key);
+						}
 					}
 				}
-				
-				return jdbcTemplate.queryForMap("select * from " + storage.getTableName() + " where id = "+ storage.getBizId());
+				return jdbcTemplate.queryForMap("select a.*,b.summaryId,b.tbId,b.wfId from " + storage.getTableName() + " a inner join table_summary b on a.id=b.bizId and b.tbId="+storage.getTbId()+" where a.id = "+ storage.getBizId());
 			}
 						
 		}catch(Exception e){
@@ -268,8 +275,7 @@ public class WFMySQLExecutor implements SQLExecutor {
 	public List<Map<String,Object>> queryPage(Storage storage){
 		
 		Object scope = storage.getParameters().get("scope");
-		if(scope != null && ((String)scope).equals("workflow")) return queryWorkflowPage(storage);
-		
+		if(scope != null && ((String)scope).equals("workflow")) return queryWorkflowPage(storage);		
 		Map<String,Object> parameters = storage.getParameters();
 		StringBuilder buf = new StringBuilder();
 		buf.append("select * from " );
@@ -337,7 +343,7 @@ public class WFMySQLExecutor implements SQLExecutor {
 				+ " left join element_library b on a.emId = b.emId "
 				+ " where a.tbId = "+tbId
 				+ " and a.newFieldType = '审批意见'");
-		if(fields != null){
+		if(fields != null && fields.size() > 0){
 			String fieldNames = "";
 			String express = "";
 			for(Map<String,Object> field : fields){
@@ -381,8 +387,8 @@ public class WFMySQLExecutor implements SQLExecutor {
 		if(pageNumber == null) pageNumber = 1l;		
 		StringBuilder buf = new StringBuilder();
 		buf.append("select * from table_summary a ");
-		buf.append(" where a.createdUserId = " + userId);
-		buf.append(" order by a.ID");		
+		buf.append(" where a.createdUserId = " + userId +" and a.status='有效'");
+		buf.append(" order by a.createddate ");		
 		buf.append(" limit ");
 		buf.append(pageNumber-1);
 		buf.append(" , ");
@@ -394,7 +400,10 @@ public class WFMySQLExecutor implements SQLExecutor {
 	public Long queryWorkflowAll(Long userId) {
 		if(userId == null) return 0l;
 		
-		List<Map<String,Object>> rs = this.query("select count(*) as total from table_summary a where a.createdUserId = "+ userId );
+		List<Map<String,Object>> rs = this.query("select count(*) as total from table_summary a "
+				+ "inner join workflow_brief b on b.wfId = a.wfId and a.bizId=b.bizId "
+				+ "where a.curUserId = "+ userId +"  and a.status='有效' "
+						+ "and b.finishedDate is null");
 		if(rs.size() > 0) {
 			return Long.parseLong(rs.get(0).get("TOTAL").toString());
 		}
@@ -407,13 +416,77 @@ public class WFMySQLExecutor implements SQLExecutor {
 	}
 
 	@Override
-	public List<Map<String, Object>> queryWorkflowPage(Long userId,
-			Long pageNumber, Long pageSize) {
+	public List<Map<String, Object>> queryWorkflowPage(Long userId, Long pageNumber, Long pageSize) {
 		if(pageNumber == null) pageNumber = 1l;		
 		StringBuilder buf = new StringBuilder();
-		buf.append("select * from table_summary a ");
-		buf.append(" where a.curUserId = " + userId);
-		buf.append(" order by a.ID");		
+		buf.append("select a.* from " );		
+		buf.append(" table_summary a ");
+		buf.append(" inner join workflow_brief b on b.wfId = a.wfId and a.bizId=b.bizId ");
+		buf.append(" where ");
+		buf.append(" a.curUserId = " + userId +" and a.status='有效' ");
+		buf.append(" and b.finishedDate is null");
+		buf.append(" order by a.createddate ");		
+		buf.append(" limit ");
+		buf.append(pageNumber-1);
+		buf.append(" , ");
+		buf.append(pageNumber);
+		return this.query(buf.toString());
+	}
+
+	@Override
+	public Long queryWorkedflowAll(Long userId) {
+		if(userId == null) return 0l;
+		
+		List<Map<String,Object>> rs = this.query(
+				  "select count(*) as total from table_summary a "
+				+ "inner join (select * from workflow_flow b where b.flowid in "
+				+ "(select flowid from workflow_step c where c.dispatchuserid = "+ userId 
+				+ " and c.finishedDate is not null ) "
+                + ") d on a.wfid = d.wfid and a.bizId=d.bizId and a.status='有效'");
+		if(rs.size() > 0) {
+			return Long.parseLong(rs.get(0).get("TOTAL").toString());
+		}
+		return 0l;
+	}
+
+	@Override
+	public List<Map<String, Object>> queryWorkedflowPage(Long userId,Long pageNumber, Long pageSize) {
+		if(pageNumber == null) pageNumber = 1l;		
+		StringBuilder buf = new StringBuilder();
+		buf.append("select a.* from " );		
+		buf.append(" table_summary a ");
+		buf.append(" inner join (select * from workflow_flow b where b.flowid in ");
+		buf.append(" (select flowid from workflow_step c where c.dispatchuserid = "+ userId);
+		buf.append("  and c.finishedDate is not null )" );
+		buf.append(" ) d on a.wfid = d.wfid and a.bizId=d.bizId and a.status='有效'");
+		buf.append(" order by a.createddate ");	
+		buf.append(" limit ");
+		buf.append(pageNumber-1);
+		buf.append(" , ");
+		buf.append(pageNumber);
+		return this.query(buf.toString());
+	}
+
+	@Override
+	public Long queryWorkedflowAll() {
+		List<Map<String,Object>> rs = this.query("select count(*) as total from table_summary a "
+				+ "inner join (select * from workflow_flow b where b.finishedDate is null "
+                + " and b.nodename !='创建') d on a.wfid = d.wfid and a.bizId=d.bizId and a.status='有效'");
+		if(rs.size() > 0) {
+			return Long.parseLong(rs.get(0).get("TOTAL").toString());
+		}
+		return 0l;
+	}
+
+	@Override
+	public List<Map<String, Object>> queryWorkedflowPage(Long pageNumber,Long pageSize) {
+		if(pageNumber == null) pageNumber = 1l;		
+		StringBuilder buf = new StringBuilder();
+		buf.append("select a.* from " );		
+		buf.append(" table_summary a ");
+		buf.append(" inner join (select * from workflow_flow b where b.finishedDate is null " );
+		buf.append(" and b.nodename !='创建') d on a.wfid = d.wfid and a.bizId=d.bizId and a.status='有效'");
+		buf.append(" order by a.createddate ");
 		buf.append(" limit ");
 		buf.append(pageNumber-1);
 		buf.append(" , ");

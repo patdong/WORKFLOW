@@ -26,7 +26,7 @@ CREATE TABLE `workflow_node_action` (
   `nodeId` int(11) NOT NULL COMMENT '节点编号',
   `actionCodeName` varchar(45) NOT NULL COMMENT '流程操作',
   `type` varchar(10) NOT NULL COMMENT '操作类型',
-  `createdDATE` datetime NOT NULL
+  `createdDate` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='节点行为操作表';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -39,4 +39,4 @@ CREATE TABLE `workflow_node_action` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-03-18  8:53:38
+-- Dump completed on 2019-06-21 11:32:09

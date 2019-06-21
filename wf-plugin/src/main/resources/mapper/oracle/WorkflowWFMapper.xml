@@ -9,4 +9,20 @@
 		select * from workflow a
 		where a.wfId in (select wfId from table_brief where wfId is not null)
 	</select>
+	
+	<insert id="save" parameterType="cn.ideal.wf.model.Workflow">
+		<selectKey resultType="java.lang.Long" keyProperty="wfId" order="BEFORE">
+			select sq_wfId.nextval from dual
+		</selectKey>
+		insert into workflow(
+			wfId,wfName,status,createdDate,type
+		)
+		values(
+			#{wfId},
+			#{wfName,jdbcType=VARCHAR},			
+			#{status,jdbcType=VARCHAR},
+			#{createdDate,jdbcType=TIMESTAMP},
+			#{type,jdbcType=VARCHAR}
+		)
+	</insert>
 </mapper>

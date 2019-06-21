@@ -9,6 +9,7 @@
 		<association property="layout" column="tbId" select="findTableLayout" />
 	</resultMap>
 	<resultMap id="tableelement" type="cn.ideal.wfpf.model.TableElement" />			
+	<resultMap id="tablebiztemplate" type="cn.ideal.wfpf.model.TableBizTemplate" />	
 	
 	<select id="findAll" resultMap="tablebrief">
 		select * from table_brief 
@@ -37,7 +38,7 @@
 	<select id="findTableLayout" resultType="cn.ideal.wfpf.model.TableLayout" parameterType="java.lang.Long">
 		select a.*,b.tableName as stableName from table_layout a 
 		left join table_brief b on b.tbId = a.stbId
-		where a.tbId=#{tbId}
+		where a.tbId=#{tbId} and a.scope in ('表头','表体','表尾')
 	</select>
 	
 	<select id="findTableLayoutWithScope" resultType="cn.ideal.wfpf.model.TableLayout" parameterType="java.util.Map">
@@ -89,6 +90,9 @@
 			</if>
 			<if test="wfId != null">
 				wfId=#{wfId}
+			</if>
+			<if test="templateName != null">
+				templateName=#{templateName}
 			</if>				
 		<where>		
 			tbId=#{tbId,jdbcType=DECIMAL}			
@@ -431,4 +435,8 @@
 			tbId=#{tbId}			
 		</where>				
 	</update>
+	
+	<select id="findAllBizTemplates" resultMap="tablebiztemplate">
+		select * from table_biz_template 
+	</select>
 </mapper>

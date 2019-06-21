@@ -18,6 +18,7 @@ import cn.ideal.wfpf.dao.TableMapper;
 import cn.ideal.wfpf.model.Element;
 import cn.ideal.wfpf.model.Node;
 import cn.ideal.wfpf.model.Page;
+import cn.ideal.wfpf.model.TableBizTemplate;
 import cn.ideal.wfpf.model.TableBrief;
 import cn.ideal.wfpf.model.TableElement;
 import cn.ideal.wfpf.model.TableLayout;
@@ -582,6 +583,12 @@ public class TableServiceImpl implements TableService {
 			throw e;
 		}
 				
+	}
+
+
+	@Override
+	public List<TableBizTemplate> findBizTemplates() {
+		return tableMapper.findAllBizTemplates();
 	}
 
 }

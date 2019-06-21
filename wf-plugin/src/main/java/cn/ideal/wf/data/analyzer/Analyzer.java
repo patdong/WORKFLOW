@@ -10,5 +10,5 @@ import javax.servlet.http.HttpServletRequest;
  */
 public interface Analyzer {
 
-	Storage dataAnalyze(HttpServletRequest request, Long wfId) throws Exception;
+	Storage dataAnalyze(HttpServletRequest request, Long tbId,Long wfId) throws Exception;
 }

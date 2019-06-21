@@ -23,6 +23,7 @@ public class WorkflowBrief implements Serializable{
 	private Long wfId;
 	private String actionName;
 	private String status;
+	private String oldDispatchUserId;
 	
 	public Long getBizId() {
 		return bizId;
@@ -97,6 +98,12 @@ public class WorkflowBrief implements Serializable{
 	}
 	public void setStatus(String status) {
 		this.status = status;
+	}
+	public String getOldDispatchUserId() {
+		return oldDispatchUserId;
+	}
+	public void setOldDispatchUserId(String oldDispatchUserId) {
+		this.oldDispatchUserId = oldDispatchUserId;
 	}
 	
 	

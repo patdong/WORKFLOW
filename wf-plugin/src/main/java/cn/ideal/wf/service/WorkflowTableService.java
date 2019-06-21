@@ -13,6 +13,7 @@ import cn.ideal.wf.model.WorkflowTableBrief;
 import cn.ideal.wf.model.WorkflowTableElement;
 import cn.ideal.wf.model.WorkflowTableLayout;
 import cn.ideal.wf.model.WorkflowTableSummary;
+import cn.ideal.wf.model.WorkflowTableUserDefination;
 
 
 public interface WorkflowTableService {
@@ -45,6 +46,8 @@ public interface WorkflowTableService {
 	 */
 	boolean endTableSummary(WorkflowTableSummary wfts);
 	
+	
+	WorkflowTableSummary findTableSummary(Long tbId,Long bizId);
 	/**
 	 * 根据指定的主表获得旗下的所有子表
 	 * @param tbId
@@ -63,4 +66,35 @@ public interface WorkflowTableService {
 	WorkflowTableLayout findTableLayoutWithScope(Long tbId, String scope);
 	
 	WorkflowTableBrief findSubTable(Long tbId, String scope);
+	
+	/**
+	 * 获得被业务分类的所有表单
+	 * @return
+	 */
+	List<WorkflowTableBrief> findAllSortedTable();
+	
+	WorkflowTableUserDefination saveTableUserDefination(WorkflowTableUserDefination def);
+	
+	WorkflowTableUserDefination updateTableUserDefination(WorkflowTableUserDefination def);
+	
+	WorkflowTableBrief findDefinationTableBrief(Long tbId, Long wfId);
+	
+	WorkflowTableBrief findByIds(Long tbId, Long wfId);
+	
+	WorkflowTableBrief findDefinationTableBrief(Long defId);
+	
+	List<WorkflowTableUserDefination> findDefinations(Long userId, String type, Long tbId);
+	
+	WorkflowTableUserDefination findDefination(Long defId);
+	
+	boolean deleteTableSummary(Long summaryId);
+	
+	boolean updateCurrentUser(WorkflowTableSummary wfts);
+	
+	boolean setAuthority(String tbIds, String[] userIds);
+	
+	List<Map<String,Object>> findAuthorities();
+	
+	Map<String,Object> findAuthority(Long userId);
+
 }

@@ -8,9 +8,12 @@
 		<association property="preNodes" column="nodeId" select="findPreNode" />
 		<association property="sufNodes" column="nodeId" select="findSufNode" />
 		<association property="action" column="nodeId" select="findAction" />
+		<association property="buttons" column="nodeId" select="findButtons" />
 	</resultMap>
 	<resultMap id="flowchatnode" type="cn.ideal.wf.model.FlowChatNode" >
-		<id column="nodeId" property="nodeId" jdbcType="NUMERIC" />		
+		<id column="nodeId" property="nodeId" jdbcType="NUMERIC" />
+		<association property="role" column="nodeId" select="findRole" />
+		<association property="users" column="nodeId" select="findUsers" />	
 		<association property="preNodes" column="nodeId" select="findFlowChatPreNode" />
 		<association property="sufNodes" column="nodeId" select="findFlowChatSufNode" />
 	</resultMap>			
@@ -39,10 +42,11 @@
 				 )
 	</select>
 	
-	<select id="findNodeUsersByNodeName" resultType="cn.ideal.wf.model.WorkflowUser" parameterType="java.lang.String">
+	<select id="findNodeUsersByNodeName" resultType="cn.ideal.wf.model.WorkflowUser" parameterType="java.util.Map">
 			select * from workflow_node_user where nodeId in 
 				(select nodeId from workflow_node 
 				  where nodeName =#{nodeName}
+				    and wfId = #{wfId}
 				    and uType = '用户'
 				 )
 	</select>	
@@ -80,7 +84,7 @@
 	
 	<!-- 获取前置节点 -->
 	<select id="findPreNode" resultType="cn.ideal.wf.model.WorkflowNode" parameterType="java.lang.Long">
-		select n.* from workflow_node n
+		select n.*,a.type from workflow_node n
 		inner join workflow_node_nodes a on n.nodeId = a.nodeId 
 		 where a.suf_nodeId = #{nodeId}
 		   and n.status != '无效'
@@ -88,7 +92,7 @@
 	
 	<!-- 获取后置节点 -->
 	<select id="findSufNode" resultType="cn.ideal.wf.model.WorkflowNode" parameterType="java.lang.Long">
-		select n.* from workflow_node n
+		select n.*,a.type from workflow_node n
 		inner join workflow_node_nodes a on a.suf_nodeId = n.nodeId 
 		 where a.nodeId = #{nodeId}
 		   and n.status != '无效'
@@ -97,7 +101,7 @@
 	<!-- 获取流程图前置节点 -->
 	<select id="findFlowChatPreNode" resultType="cn.ideal.wf.model.FlowChatNode" parameterType="java.lang.Long">
 		select n.* from workflow_node n
-		inner join workflow_node_nodes a on n.nodeId = a.nodeId and a.type='直接连接'
+		inner join workflow_node_nodes a on n.nodeId = a.nodeId 
 		 where a.suf_nodeId = #{nodeId}
 		   and n.status != '无效'
 	</select>
@@ -105,7 +109,7 @@
 	<!-- 获取流程图后置节点 -->
 	<select id="findFlowChatSufNode" resultType="cn.ideal.wf.model.FlowChatNode" parameterType="java.lang.Long">
 		select n.* from workflow_node n
-		inner join workflow_node_nodes a on a.suf_nodeId = n.nodeId and a.type='直接连接'
+		inner join workflow_node_nodes a on a.suf_nodeId = n.nodeId 
 		 where a.nodeId = #{nodeId}
 		   and n.status != '无效'
 	</select>
@@ -134,4 +138,102 @@
 		   and c.wfId = #{wfId}
 		   and b.type= '行为'
 	</select>
+	
+	<insert id="save" parameterType="cn.ideal.wf.model.WorkflowNode">
+		<selectKey resultType="java.lang.Long" keyProperty="nodeId" order="BEFORE">
+			select sq_nodeId.nextval from dual
+		</selectKey>
+		insert into workflow_node(
+			nodeId,nodename,timeLimit,uType,nType,status,createdDate,modifiedDate,wfId
+		)
+		values(
+			#{nodeId},
+			#{nodeName,jdbcType=VARCHAR},
+			#{timeLimit,jdbcType=DECIMAL},
+			#{uType,jdbcType=VARCHAR},
+			#{nType,jdbcType=VARCHAR},
+			#{status,jdbcType=VARCHAR},
+			#{createdDate,jdbcType=TIMESTAMP},
+			#{modifiedDate,jdbcType=TIMESTAMP},
+			#{wfId,jdbcType=DECIMAL}
+		)
+	</insert>
+	
+	<insert id="saveNodeNodes" parameterType="cn.ideal.wf.model.WorkflowNode">
+		insert into workflow_node_nodes(
+			nodeId,suf_nodeId,type,createdDate
+		)
+		values
+		<foreach collection="sufNodes" item="item" index="index" separator=",">				
+		(
+			#{nodeId,jdbcType=DECIMAL},
+			#{item.nodeId,jdbcType=DECIMAL},
+			#{item.type,jdbcType=VARCHAR},			
+			#{createdDate,jdbcType=DECIMAL}
+		)
+		</foreach>
+	
+	</insert>
+	
+	<!-- 保存节点按钮 -->
+	<insert id="saveNodeAction" parameterType="cn.ideal.wf.model.WorkflowNode">
+		insert into workflow_node_action(
+			nodeId,actionCodeName,type,createdDate
+		)
+		values(
+			#{nodeId},
+			#{action.actionCodeName},
+			'流程',		
+			#{createdDate}
+		)
+		
+	</insert>
+		
+	<!-- 保存节点按钮 -->
+	<insert id="saveNodeButton" parameterType="cn.ideal.wf.model.WorkflowNode">
+		insert into workflow_node_action(
+			nodeId,actionCodeName,type,createdDate
+		)
+		values
+		<foreach collection="buttons" item="item" index="index" separator=",">				
+		(
+			#{nodeId},
+			#{item.actionCodeName},
+			'行为',		
+			#{createdDate}
+		)
+		</foreach>		
+	</insert>
+	
+	<insert id="saveUser" parameterType="cn.ideal.wf.model.WorkflowNode">
+		insert into workflow_node_user(
+			nodeId,userId,userName,unitId,unitName,createdDate
+		)
+		values
+		<foreach collection="users" item="item" index="index" separator=",">				
+		(
+			#{nodeId,jdbcType=DECIMAL},
+			#{item.userId,jdbcType=DECIMAL},
+			#{item.userName,jdbcType=VARCHAR},
+			#{item.unitId,jdbcType=DECIMAL},
+			#{item.unitName,jdbcType=VARCHAR},
+			#{createdDate,jdbcType=DECIMAL}
+		)
+		</foreach>
+	
+	</insert>
+	
+	<insert id="saveRole" parameterType="cn.ideal.wf.model.WorkflowNode">
+		insert into workflow_node_role(
+			nodeId,roleId,roleName,unitId,unitName,createdDate
+		)
+		values(
+			#{nodeId,jdbcType=DECIMAL},
+			#{role.roleId,jdbcType=DECIMAL},
+			#{role.roleName,jdbcType=VARCHAR},
+			#{org.unitId,jdbcType=DECIMAL},
+			#{org.unitName,jdbcType=VARCHAR},
+			#{createdDate,jdbcType=DECIMAL}
+		)
+	</insert>
 </mapper>

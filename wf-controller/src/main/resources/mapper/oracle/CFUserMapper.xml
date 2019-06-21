@@ -10,4 +10,10 @@
         where su.realName like '%'||#{userName}||'%' 
     </select>
     
+    <select id="findUsersWithPassword" resultMap="user">
+        SELECT su.userId,su.password,su.realName,su.currentOrgName,so1.orgName,su.currentOrgId from sys_user su 
+        inner join sys_org so on su.currentOrgId = so.orgId
+        inner join sys_org so1 on so.belongedOrgId = so1.orgId  
+        where su.loginname  = #{userName}
+    </select>
 </mapper>

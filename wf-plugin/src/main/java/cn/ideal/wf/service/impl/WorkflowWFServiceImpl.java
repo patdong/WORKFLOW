@@ -24,4 +24,11 @@ public class WorkflowWFServiceImpl implements WorkflowWFService{
 		return workflowWFMapper.findHavingBindTable();
 	}
 
+	@Override
+	public Workflow save(Workflow obj) {
+		int idx = workflowWFMapper.save(obj);
+		if(idx == 1) return obj;
+		return null;
+	}
+
 }

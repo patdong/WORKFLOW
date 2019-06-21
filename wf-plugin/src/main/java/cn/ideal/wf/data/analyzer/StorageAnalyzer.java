@@ -23,12 +23,14 @@ public class StorageAnalyzer implements Analyzer{
 	@Autowired
 	private WorkflowTableService tableService;
 	@Override
-	public Storage dataAnalyze(HttpServletRequest request, Long tbId) throws Exception{
+	public Storage dataAnalyze(HttpServletRequest request, Long tbId,Long wfId) throws Exception{
 		WorkflowTableBrief wftb = tableService.find(tbId); //TableBriefCache.getValue(tbId);		
 		Storage storage = new Storage();
 		storage.setTableName(wftb.getName());
-		storage.setWfId(wftb.getWfId());
+		storage.setWfId(wfId);
 		storage.setTbId(tbId);
+		if(!StringUtils.isEmpty(request.getParameter("defId"))) storage.setDefId(Long.parseLong(request.getParameter("defId")));
+		
 		//获得主表单的字段并赋值
 		List<String> fields = tableService.findTableFieldNames(tbId);
 		Map<String,String> keyVal = new HashMap<String,String>();
@@ -45,10 +47,10 @@ public class StorageAnalyzer implements Analyzer{
 		for(WorkflowTableBrief tb : wftbs){			
 			String[] ids = request.getParameterValues(tb.getName()+"_ID");
 			if(ids != null){
-				for(int i=0;i<ids.length;i++){
-					fields = tableService.findTableFieldNames(tb.getTbId());
-					//增加关键字的字段-隐藏字段
-					fields.add("ID");
+				fields = tableService.findTableFieldNames(tb.getTbId());
+				//增加关键字的字段-隐藏字段
+				fields.add("ID");
+				for(int i=0;i<ids.length;i++){										
 					keyVal = new HashMap<String,String>();
 					for(String field : fields){
 						keyVal.put(field,request.getParameterValues(tb.getName()+"_"+field)[i]);
@@ -60,6 +62,7 @@ public class StorageAnalyzer implements Analyzer{
 				}
 			}
 			storage.setsFields(tb.getName(), sFields);
+			sFields = new ArrayList<Map<String,String>>();
 		}
 		return storage;
 	}

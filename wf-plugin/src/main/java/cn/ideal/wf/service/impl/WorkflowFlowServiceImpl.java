@@ -222,13 +222,13 @@ public class WorkflowFlowServiceImpl implements WorkflowFlowService{
 
 	private WorkflowFlow addFlow(WorkflowFlow workflow, WorkflowUser... users) throws Exception {
 		WorkflowFlow wf = this.addFlow(workflow);
-		if(users == null){
-			List<WorkflowUser> wfus = workflowNodeService.findNodeUsers(workflow.getNodeName());
+		if(users == null || users.length == 0){
+			List<WorkflowUser> wfus = workflowNodeService.findNodeUsers(workflow.getNodeName(),wf.getWfId());
 			if(wfus == null || wfus.size() == 0) throw new Exception("没有办理人无法创建流程");
 			else users = wfus.toArray(new WorkflowUser[wfus.size()]);
 		}
 		
-		if(users == null) throw new Exception("没有办理人无法创建流程");
+		if(users == null || users.length == 0) throw new Exception("没有办理人无法创建流程");
 		
 		Long i=0l;	
 		String dispatchUserId = ",";

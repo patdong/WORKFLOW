@@ -9,6 +9,7 @@
 		<association property="layout" column="tbId" select="findTableLayout" />
 	</resultMap>
 	<resultMap id="tableelement" type="cn.ideal.wfpf.model.TableElement" />			
+	<resultMap id="tablebiztemplate" type="cn.ideal.wfpf.model.TableBizTemplate" />		
 	
 	<select id="findAll" resultMap="tablebrief">
 		select * from table_brief 
@@ -77,6 +78,9 @@
 			</if>
 			<if test="wfId != null">
 				wfId=#{wfId}
+			</if>
+			<if test="templateName != null">
+				templateName=#{templateName}
 			</if>				
 		<where>		
 			tbId=#{tbId}			
@@ -287,14 +291,16 @@
 	<insert id="saveTableElementOnNode" parameterType="java.util.Map">
 		delete from workflow_table_element where wfId = #{wfId} and nodeId = #{nodeId};
 		insert into workflow_table_element(
-			wfId,nodeId,id
+			wfId,nodeId,nodeName,id,required
 		)
 		values
-		<foreach collection="ids" item="item" index="index" separator=",">				
+		<foreach collection="teLst" item="item" index="index" separator=",">				
 		(
 			#{wfId},
 			#{nodeId},
-			#{item}
+			#{nodeName},
+			#{item.id},
+			#{item.required}
 		)
 		</foreach>
 	</insert>
@@ -396,4 +402,7 @@
 		</where>				
 	</update>
 		
+	<select id="findAllBizTemplates" resultMap="tablebiztemplate">
+		select * from table_biz_template 
+	</select>
 </mapper>

@@ -24,7 +24,7 @@ public class ParameterAnalyzer implements Analyzer {
     private WorkflowTableService workflowTableService;
 	
 	@Override
-	public Storage dataAnalyze(HttpServletRequest request, Long tbId) throws Exception{
+	public Storage dataAnalyze(HttpServletRequest request, Long tbId,Long wfId) throws Exception{
 		//TO-DO 此方法还没写完
 		WorkflowTableBrief wftb = workflowTableService.find(tbId);	    
 		Storage storage = new Storage();

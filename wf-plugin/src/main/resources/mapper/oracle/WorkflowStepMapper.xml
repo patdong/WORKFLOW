@@ -76,6 +76,7 @@
 		select wfs.* from workflow_step wfs
 		inner join workflow_flow wf on wf.flowId = wfs.flowId
 		where wf.bizId = #{bizId,jdbcType=DECIMAL}
+		  and wf.wfId = #{wfId,jdbcTyp=DECIMAL}
 		  <if test="nodeName != null">
 		  and wf.nodeName = #{nodeName,jdbcType=VARCHAR}
 		  </if>
@@ -87,5 +88,16 @@
 		  </if>
 		order by createdDate desc
 		limit 1
+	</select>
+	
+	<!-- 获取未完成的流程 -->
+	<select id="findUNFinshedWrokflowStep" resultMap="workflowstep" parameterType="java.util.Map">
+		select wfs.*,wf.nodeName from workflow_step wfs
+		inner join workflow_flow wf on wf.flowId = wfs.flowId
+		where wf.bizId = #{bizId,jdbcType=DECIMAL}
+		  and wf.wfId = #{wfId,jdbcType=DECIMAL}
+		  and wfs.finishedDate is null
+		order by wfs.createdDate desc
+		
 	</select>
 </mapper>

@@ -142,6 +142,27 @@ function setBinging(){
    	});
 }
 
+//设置业务模板绑定
+function setTemplate(){
+      var templateName = $('input[name=tempId]:checked').val();
+      var tbId = $("#tbId").val();      
+     	$.ajax({
+   		  type: 'GET',
+   		  url: "/tb/settemplate/"+tbId,
+   		  data: {templateName:templateName},	  
+   		  dataType: 'json',
+   		  success: function(data){
+   			  if(data){
+   				$('#template-binding').hide(); 
+   				$("#tmp-"+tbId).text("已设置");
+   				location.href="/tb/tablecenter/"+${page.curPage};		  
+   			  }			  
+   		  },
+   		  error: function(XMLHttpRequest, textStatus, errorThrown){
+   			  console.warn(XMLHttpRequest.responseText);			  
+   		  }
+   	});
+}
 //取消流程绑定
 function removeBinding(tbId){	        
      	$.ajax({
@@ -176,6 +197,7 @@ function removeBinding(tbId){
               <th>#序列</th>
               <th>表单名称</th>
               <th>模板</th>
+              <th>业务分类</th>
               <th>流程绑定</th>
               <th>库表名称</th>
               <th>已入生产</th>
@@ -191,11 +213,19 @@ function removeBinding(tbId){
           			<td>${table.template}</td>
           			<td>
           				<c:if test="${table.template eq '表'}">
-          				<span class="small-btn" style="background-color:#16e81d;" onclick="showPos(event,${table.tbId },'workflow-binding')">&nbsp;✓&nbsp;</span>
+          				<span class="small-btn" style="background-color:#acceaa;font-weight: bold;" onclick="showPos(event,${table.tbId },'template-binding')">&nbsp;✓&nbsp;</span>          				
+          				<span id="tmp-${table.tbId }">			
+          					${table.templateName}          					          			
+          				</span>
+          				</c:if>
+					</td>
+          			<td>
+          				<c:if test="${table.template eq '表'}">
+          				<span class="small-btn" style="background-color:#e0efe1;font-weight: bold;" onclick="showPos(event,${table.tbId },'workflow-binding')">&nbsp;✓&nbsp;</span>
           				<span id="tb-${table.tbId }">          					
 	          				<c:if test="${!empty table.wfId }">
 	          					${table.wf.wfName}
-	          					<span class="small-btn" style="background-color:#ce6634;margin-left:3px;" onclick="removeBinding(${table.tbId })">&nbsp;✘&nbsp;</span>
+	          					<span class="small-btn" style="background-color:#e8de5b;margin-left:3px;font-weight: bold;" onclick="removeBinding(${table.tbId })">&nbsp;✘&nbsp;</span>
 	          				</c:if>
           				</span> 
           				</c:if>         				
@@ -278,6 +308,27 @@ function removeBinding(tbId){
 		<c:forEach items="${wfLst }" var="workflow">
 			<p style="margin-bottom: 0rem;">
 				<input type="radio" id="wfId" name="wfId" value="${workflow.wfId}" class="form-element" onclick="setBinging();">${workflow.wfName}
+			</p>
+		</c:forEach>
+		<hr></hr>        
+	</div>    
+</div> 
+
+<!-- 业务模板绑定 -->
+<div id="template-binding" class="popup-width" style="display:none;width:20%">
+	<header>	      
+         <div class="form-inline mt-2 mt-md-0" style="padding: 6px 10px 0px;" >
+          	<label>业务模板绑定设置</label>
+         </div>
+         <div style="position: absolute;top: 1px;right: 15px;">
+         	<span class="badge badge-secondary badge-pill" style="background-color:#46a70a;cursor:pointer;" onclick="$('#template-binding').hide();">×</span>
+         </div>	      	     
+    </header>
+    <hr style="margin-top: .5rem; margin-bottom: .5rem;"></hr>
+    <div style="padding: 0px 13px 0px; height: 200px;overflow-y: auto;">		
+		<c:forEach items="${templateLst }" var="template">
+			<p style="margin-bottom: 0rem;">
+				<input type="radio" id="tempId" name="tempId" value="${template.templateName}" class="form-element" onclick="setTemplate();">${template.templateName}
 			</p>
 		</c:forEach>
 		<hr></hr>        

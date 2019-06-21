@@ -176,13 +176,13 @@ public class RichFlowChatServiceImpl implements FlowChatService {
 		int h=0;
 		int d=0;
 		///////////////////////////////////////////////////////////////////////////////
-		int rowHeight=80,colWidth=90;     //行高，列宽定义
+		int rowHeight=90,colWidth=120;     //行高，列宽定义
 		int pixelX=6,pixelY=10+offset;   //其实（x,y）象素位置
-		int arrowWidth=70,arrowHeight=1; //水平或垂直箭头的宽度，长度定义
-		int halfHeight=45;               //转弯箭头处水平宽度为整个列宽度的一半
-		int arrowPixelY=20;              //水平箭头的象素差距
+		int arrowWidth=100,arrowHeight=1; //水平或垂直箭头的宽度，长度定义
+		int halfHeight=60;               //转弯箭头处水平宽度为整个列宽度的一半
+		int arrowPixelY=25;              //水平箭头的象素差距
 		int deltaWidth=0;                //垂直位置间方向线的间距，0为重叠。
-		int gapHeight=40;                //垂直位置一行的除节点外的高度差
+		int gapHeight=50;                //垂直位置一行的除节点外的高度差
 		//////////////////////////////////////////////////////////////////////////////
 		//对矩阵树填值
 		for(FlowChatNode node: nodes){			
@@ -390,7 +390,10 @@ public class RichFlowChatServiceImpl implements FlowChatService {
 					buf.append("<div class='circle-text' style='background:green;position: absolute;top: "+node.getTop()+"px;left: "+(node.getLeft()+20)+"px;' onclick=\"showPos(event,0,'','')\"><font style='font-size:15px'>&nbsp;创建&nbsp;</font></div>");					
 				}
 				if(node.getStyle().equals("node")){
-					buf.append("<div class='circle-text' style='z-index:1;position: absolute;top: "+(node.getTop())+"px;left: "+(node.getLeft()-3)+"px;' onclick=\"showPos(event,"+node.getNodeId()+",'"+node.getNodeName()+"','"+node.getStatus()+"')\"><font style='font-size:15px'>&nbsp;"+node.getNodeName()+"	&nbsp;</font></div>");					
+					buf.append("<div class='circle-text' style='z-index:1;position: absolute;top: "+(node.getTop())+"px;left: "+(node.getLeft()-3)+"px;' onclick=\"showPos(event,"+node.getNodeId()+",'"+node.getNodeName()+"','"+node.getStatus()+"')\"><font style='font-size:15px'>&nbsp;"+node.getNodeName()+"	&nbsp;</font>");
+					if(node.getRole() != null) buf.append("<hr class='circle-hr'></hr><span style='font-size:14px;cursor:pointer' title='"+node.getRole().getRoleName()+"'>角色</span>");
+					if(node.getUsers() != null && node.getUsers().size() > 0) buf.append("<hr class='circle-hr'></hr><span style='font-size:14px;cursor:pointer;' title='"+node.getUserstoString()+"'>用户</span>");
+					buf.append("</div>");					
 				}
 				this.setPostion(node.getrPositions(),buf);
 				this.setPostion(node.getlPositions(),buf);
@@ -442,7 +445,7 @@ public class RichFlowChatServiceImpl implements FlowChatService {
 	@Override
 	public StringBuffer draw(Long wfId, Long bizId) {
 		if(wfId == null) return new StringBuffer();
-		if(bizId == null) return draw(wfId);
+		if(bizId == null) return drawnosetting(wfId);
 		
 		offset=50;
 		FlowChatNode[][] tree = this.decorateNodeTree(wfId,bizId);
@@ -462,7 +465,45 @@ public class RichFlowChatServiceImpl implements FlowChatService {
 					if(node.getPassed() == null) classCss = "circle-text";
 					else if(node.getPassed().equals("passed")) classCss = "circle-green-text";
 					else if(node.getPassed().equals("passing")) classCss = "circle-blue-text";
-					buf.append("<div class='"+classCss+"' style='position: absolute;top: "+(node.getTop())+"px;left: "+(node.getLeft()-3)+"px;' ><font style='font-size:15px'>&nbsp;"+node.getNodeName()+"	&nbsp;</font></div>");					
+					buf.append("<div class='"+classCss+"' style='position: absolute;top: "+(node.getTop())+"px;left: "+(node.getLeft()-3)+"px;' ><font style='font-size:15px'>&nbsp;"+node.getNodeName()+"	&nbsp;</font>");
+					if(node.getRole() != null) buf.append("<hr class='circle-hr'></hr><span style='font-size:14px;cursor:pointer' title='"+node.getRole().getRoleName()+"'>角色</span>");
+					if(node.getUsers() != null && node.getUsers().size() > 0) buf.append("<hr class='circle-hr'></hr><span style='font-size:14px;cursor:pointer;' title='"+node.getUserstoString()+"'>用户</span>");
+					buf.append("</div>");
+				}
+				this.setPostion(node.getrPositions(),buf);
+				this.setPostion(node.getlPositions(),buf);
+				this.setPostion(node.getdPositions(),buf);
+				this.setPostion(node.getuPositions(),buf);				
+			}
+		}
+		buf.append("</div>");
+		return buf;
+	}
+	
+	/**
+	 * 仅显示流程图，没有配置功能
+	 * @param wfId
+	 * @return
+	 */
+	private StringBuffer drawnosetting(Long wfId) {
+		if(wfId == null) return new StringBuffer();
+		offset=0;
+		FlowChatNode[][] tree = this.decorateNodeTree(wfId,null);
+		
+		StringBuffer buf = new StringBuffer();
+		buf.append("<div style='display:inline-block;position:absoult;'>");
+		for(int i=0;i<tree.length;i++){			
+			for(int j=0;j<tree[0].length;j++){
+				FlowChatNode node = tree[i][j];
+				if(node == null) continue;
+				if(node.getStyle().equals("user")){
+					buf.append("<div class='circle-text' style='background:green;position: absolute;top: "+node.getTop()+"px;left: "+(node.getLeft()+20)+"px;' ><font style='font-size:15px'>&nbsp;创建&nbsp;</font></div>");					
+				}
+				if(node.getStyle().equals("node")){
+					buf.append("<div class='circle-text' style='z-index:1;position: absolute;top: "+(node.getTop())+"px;left: "+(node.getLeft()-3)+"px;' ><font style='font-size:15px'>&nbsp;"+node.getNodeName()+"	&nbsp;</font>");
+					if(node.getRole() != null) buf.append("<hr class='circle-hr'></hr><span style='font-size:14px;cursor:pointer' title='"+node.getRole().getRoleName()+"'>角色</span>");
+					if(node.getUsers() != null && node.getUsers().size() > 0) buf.append("<hr class='circle-hr'></hr><span style='font-size:14px;cursor:pointer;' title='"+node.getUserstoString()+"'>用户</span>");
+					buf.append("</div>");					
 				}
 				this.setPostion(node.getrPositions(),buf);
 				this.setPostion(node.getlPositions(),buf);

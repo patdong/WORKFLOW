@@ -78,7 +78,7 @@ public class PassAction extends Utils implements Action{
 			return true;
 		}
 			
-		if(users == null) {	
+		if(users == null || users.length == 0) {	
 			WorkflowFlow wff = workflowFlowService.findSenderFlow(bizId, wfId);
 			Long senderId = null;
 			if(wff != null) {

@@ -65,6 +65,7 @@ public class TbConfigurationController {
         page.setUrl("/tb/tablecenter");
         mav.addObject("page",page);
         mav.addObject("wfLst", wfService.findAll());
+        mav.addObject("templateLst", tableService.findBizTemplates());
         return mav;
     }
 	
@@ -387,5 +388,20 @@ public class TbConfigurationController {
 		}
 		
 		return fmsg;
+    }
+	
+	
+	/**
+	 * 设置业务模板绑定
+	 * */
+	@GetMapping("/settemplate/{tbId}")
+    public @ResponseBody boolean settemplate(@PathVariable Long tbId, @RequestParam("templateName") String templateName, HttpServletRequest request) {	
+		TableBrief tb = new TableBrief();
+		tb.setTemplateName(templateName);
+		tb.setTbId(tbId);
+        tb = tableService.updateTableBrief(tb);
+        
+        if(tb != null) return true;
+        return false;
     }
 }

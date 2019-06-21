@@ -16,7 +16,7 @@ public class TableBrief {
 	private Long tbId;
 	private String name;
 	private String tableName;
-	private String template;
+	private String template;          //表单样式类型
 	private Long cols;
 	private String status;
 	private Date createdDate;
@@ -24,6 +24,7 @@ public class TableBrief {
 	private List<TableLayout> layout;
 	private Long wfId;
 	private WFPFWorkflow wf;
+	private String templateName;      //业务模板名称
 	
 	public Long getTbId() {
 		return tbId;
@@ -90,6 +91,12 @@ public class TableBrief {
 	}
 	public void setWfId(Long wfId) {
 		this.wfId = wfId;
+	}
+	public String getTemplateName() {
+		return templateName;
+	}
+	public void setTemplateName(String templateName) {
+		this.templateName = templateName;
 	}
 	
 }

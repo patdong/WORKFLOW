@@ -6,10 +6,13 @@ package cn.ideal.wf.service;
  * @version 2.0
  */
 import java.util.List;
+import java.util.Map;
 
 import cn.ideal.wf.model.FlowChatNode;
+import cn.ideal.wf.model.Workflow;
 import cn.ideal.wf.model.WorkflowAction;
 import cn.ideal.wf.model.WorkflowNode;
+import cn.ideal.wf.model.WorkflowRole;
 import cn.ideal.wf.model.WorkflowUser;
 
 public interface WorkflowNodeService {
@@ -32,7 +35,7 @@ public interface WorkflowNodeService {
 	/**
 	 * 获得指定节点的下一个操作人集
 	 */
-	List<WorkflowUser> findNodeUsers(String nodeName); 
+	List<WorkflowUser> findNodeUsers(String nodeName,Long wfId); 
 	
 	
 	WorkflowNode save(WorkflowNode node);
@@ -66,4 +69,11 @@ public interface WorkflowNodeService {
 	 * @return
 	 */
 	List<FlowChatNode> findAllForFlowChat(long wfId);
+	
+	/**
+	 * 克隆一份新的流程节点
+	 * @param wfId
+	 * @return
+	 */
+	Workflow clone(Long wfId,Map<Long,List<WorkflowUser>> users, Map<Long,WorkflowRole> roles);
 }

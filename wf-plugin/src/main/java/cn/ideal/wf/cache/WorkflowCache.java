@@ -14,10 +14,10 @@ import cn.ideal.wf.service.WorkflowWFService;
 
 @Component("WorkflowCache1")
 public class WorkflowCache implements ApplicationContextAware{
-	private static Map<Long, Workflow> hashWorkflow;
-	private static ApplicationContext context;
+	private Map<Long, Workflow> hashWorkflow;
+	private ApplicationContext context;
 
-    public static ApplicationContext getApplicationContext() {
+    public ApplicationContext getApplicationContext() {
         return context;
     }
     @Override
@@ -25,7 +25,8 @@ public class WorkflowCache implements ApplicationContextAware{
         context = ac;
     }
 	
-	public static void init() {	
+	private void init() {	
+		System.out.println("内存加载流程数据");
 		WorkflowWFService workflowWFService = context.getBean(WorkflowWFService.class);
 		
 		List<Workflow> wfs = workflowWFService.findHavingBindTable();
@@ -36,42 +37,42 @@ public class WorkflowCache implements ApplicationContextAware{
 			
 	}
 	
-	public static Workflow getValue(Long wfId){
+	public Workflow getValue(Long wfId){
 		if(hashWorkflow == null) {
 			init();
 		}
 		return hashWorkflow.get(wfId);		
 	}
 	
-	public static Map<Long,Workflow> getAll(){
+	public Map<Long,Workflow> getAll(){
 		if(hashWorkflow == null) {
 			init();
 		}
 		return hashWorkflow;
 	}
 	
-	public static void save(Workflow wf) {
+	public void save(Workflow wf) {
 		if(hashWorkflow == null) {
 			init();
 		}
 		hashWorkflow.put(wf.getWfId(), wf);
 	}
 
-	public static void update(Workflow wf) {
+	public void update(Workflow wf) {
 		if(hashWorkflow == null) {
 			init();
 		}
 		hashWorkflow.put(wf.getWfId(), wf);
 	}
  
-	public static void delete(Long wfId) {
+	public void delete(Long wfId) {
 		if(hashWorkflow == null) {
 			init();
 		}
 		hashWorkflow.remove(wfId);
 	}
 	
-	public static void put(Workflow wf){
+	public void put(Workflow wf){
 		if(hashWorkflow == null) {
 			init();
 		}

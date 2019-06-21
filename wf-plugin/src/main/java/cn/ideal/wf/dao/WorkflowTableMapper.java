@@ -1,6 +1,7 @@
 package cn.ideal.wf.dao;
 
 import java.util.List;
+import java.util.Map;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -9,6 +10,7 @@ import cn.ideal.wf.model.WorkflowTableBrief;
 import cn.ideal.wf.model.WorkflowTableElement;
 import cn.ideal.wf.model.WorkflowTableLayout;
 import cn.ideal.wf.model.WorkflowTableSummary;
+import cn.ideal.wf.model.WorkflowTableUserDefination;
 
 @Mapper
 public interface WorkflowTableMapper {
@@ -38,6 +40,13 @@ public interface WorkflowTableMapper {
 	int endTableSummary(WorkflowTableSummary wfts);
 	
 	/**
+	 * 获得业务附表信息
+	 * @param summaryId
+	 * @return
+	 */
+	WorkflowTableSummary findTableSummary(@Param("tbId") Long tbId, @Param("bizId") Long bizId);
+	
+	/**
 	 * 获得子表
 	 * @param tbId
 	 * @param scope
@@ -62,4 +71,48 @@ public interface WorkflowTableMapper {
 	List<WorkflowTableBrief> findAllSubTables(Long tbId); 
 	
 	List<WorkflowTableBrief> findAllBlindTable();
+	
+	/**
+	 * 获得被业务分类的表单
+	 * @return
+	 */
+	List<WorkflowTableBrief> findAllSortedTable();
+	
+	int saveTableUserDefination(WorkflowTableUserDefination def);
+	
+	int updateTableUserDefination(WorkflowTableUserDefination def);
+	
+	/**
+	 * 获得用户自定义的表单信息
+	 * @param tbId
+	 * @param wfId
+	 * @return
+	 */
+	WorkflowTableBrief findDefinationTableBrief(@Param("tbId") Long tbId,@Param("wfId") Long wfId);
+	
+	WorkflowTableBrief findDefinationTableBriefByDefId(@Param("defId") Long defId);
+	
+	WorkflowTableBrief findByIds(@Param("tbId") Long tbId,@Param("wfId") Long wfId);
+	
+	/**
+	 * 获取指定用户定义的自定义业务表单信息
+	 * @param userId
+	 * @param type
+	 * @return
+	 */
+	List<WorkflowTableUserDefination> findDefinations(@Param("userId") Long userId, @Param("type") String type, @Param("tbId") Long tbId);
+	
+	WorkflowTableUserDefination findDefination(Long defId);
+	
+	int deleteTableSummary(Long summaryId);
+	
+	int updateCurrentUser(WorkflowTableSummary wfts);
+	
+	int setAuthority(List<Map<String,Object>> auth);
+	
+	void deleteAuthority(Long userId);
+	
+	List<Map<String,Object>> findAuthorities();
+	
+	Map<String,Object> findAuthority(Long userId);
 }

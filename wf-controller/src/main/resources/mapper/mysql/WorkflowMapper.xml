@@ -8,12 +8,13 @@
 	
 	<insert id="save" useGeneratedKeys="true" keyProperty="wfId" parameterType="cn.ideal.wfpf.model.WFPFWorkflow">
 		insert into workflow(
-			wfName,status,createdDate
+			wfName,status,createdDate,type
 		)
 		values(
 			#{wfName},			
 			#{status},
-			#{createdDate}
+			#{createdDate},
+			'系统级'
 		)
 	</insert>
 		
@@ -38,7 +39,7 @@
 	</update>
 	
 	<select id="findAPage" resultMap="wfpfworkflow" parameterType="java.util.Map">
-		select * from workflow	order by wfId 
+		select * from workflow	where type = '系统级' order by wfId 
 		<if test="recordNumber != null ">
 			LIMIT #{recordNumber},#{pageSize}
 		</if>	
@@ -49,7 +50,7 @@
 	</select>
 	
 	<select id="findAll" resultType="cn.ideal.wfpf.model.WFPFWorkflow">
-		select * from workflow			
+		select * from workflow where wfName is not null	and type = '系统级'	
 	</select>
 		
 	<select id="findAllBlindTable" resultType="cn.ideal.wfpf.model.WFPFWorkflow">

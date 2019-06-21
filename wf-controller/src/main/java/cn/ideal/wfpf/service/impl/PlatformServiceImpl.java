@@ -26,6 +26,7 @@ public class PlatformServiceImpl implements PlatformService{
 
 	@Override
 	public WorkflowUser getWorkflowUser(HttpServletRequest request) {
+		if(request == null) return null;
 		WorkflowUser wfUser = new WorkflowUser();
 		Object principal = request.getUserPrincipal();
 		if (principal instanceof UsernamePasswordAuthenticationToken) {

@@ -1,0 +1,108 @@
+/*table.css 风格仅为表单提供服务*/
+/*表单表体*/
+.table-caption {
+	text-align:center;
+	width:100%;
+	font-size:30px;	
+}
+/*主表单宽度*/
+.table-width {
+	width:100%;	
+}
+/*主表单行高*/
+.table-tr {
+	height:50px;	
+}
+/*表单标签*/
+.table-label {
+	text-align: right;
+	font-size:15px;
+}
+
+/*表单非标签*/
+.table-unlabel {
+	text-align: left;
+	padding-left:5px;
+	font-size:15px;
+}
+
+/*表单*/
+.table-conf-label {
+	color:gray;
+	font-size:0.8rem;
+}
+
+/*主表单外配置前子表单*/
+.table-out-bef-conf-sub {
+	margin-right:98%;
+	font-size:1.5rem;
+	color:green;
+	border:1px solid;
+	border-color:green;
+	cursor:pointer;
+	background-color:#8aea8a;
+}
+
+/*主表单外配置后子表单*/
+.table-out-af-conf-sub {
+	margin-right:98%;
+	font-size:1.5rem;
+	color:#adb90e;
+	border:1px solid;
+	border-color:#b8bb5f;
+	cursor:pointer;
+}
+
+/*主表单内子表行+*/
+.table-sub-tr-plus {
+	font-weight:bold;
+	font-size:18px;
+	cursor:pointer;
+}
+
+/*主表单内子表行头*/
+.table-sub-tr-head {
+	height:35px;
+	background-color:#e6e8e1;
+}
+
+/*主表单内子表行高*/
+.table-sub-tr {
+	height:35px;
+}
+
+/*主表单内子表勾选列*/
+.table-sub-td-checkbox-center {
+	text-align:center;
+	font-size:15px;
+	width:5%;
+}
+
+/*主表单内子表内列文字*/
+.table-sub-td-text-center {
+	text-align:center;
+	font-size:15px;
+}
+
+/*主表单内子表内列文字*/
+.table-sub-td-text-left {
+	text-align:left;
+	padding-left:5px;
+	font-size:15px;
+}
+
+/*页面图标带点击事件*/
+.img-cursor{
+	cursor:pointer;
+	font-weight:bold;
+}
+
+/*文件上传的删除*/
+.img-garbage{
+	display: block;
+	float: left;
+	margin: 10px
+}
+
+
+

@@ -1,14 +1,7 @@
-/**
- * 获得日期
- * @param fieldName
- */
-function getDate(fieldName){
-	laydate.render({
-        elem: '#'+fieldName,
-		theme: '#3d80d3'
-    });
-}
 
+function getFj(fjId, fjName) {
+	alert("请在第三方业务系统定义文件上传功能！");
+}
 /**
  * 为子表增加一个新的空行
  * @param tableId

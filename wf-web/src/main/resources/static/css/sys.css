@@ -185,9 +185,9 @@ code {
 
 .circle-text {
 	display: table-cell;
-	height: 40px; /*change this and the width
+	height: 50px; /*change this and the width
 	for the size of your initial circle*/
-	width: 90px;
+	width: 120px;
 	text-align: center;
 	vertical-align: middle;
 	border-radius: 50%;
@@ -201,9 +201,9 @@ code {
 
 .circle-green-text {
 	display: table-cell;
-	height: 40px; /*change this and the width
+	height: 50px; /*change this and the width
 	for the size of your initial circle*/
-	width: 80px;
+	width: 120px;
 	text-align: center;
 	vertical-align: middle;
 	border-radius: 50%;
@@ -217,9 +217,9 @@ code {
 
 .circle-blue-text {
 	display: table-cell;
-	height: 40px; /*change this and the width
+	height: 50px; /*change this and the width
 	for the size of your initial circle*/
-	width: 80px;
+	width: 120px;
 	text-align: center;
 	vertical-align: middle;
 	border-radius: 50%;
@@ -232,9 +232,9 @@ code {
 } 
 .circle-dotted-text {
 	display: table-cell;
-	height: 40px; /*change this and the width
+	height: 50px; /*change this and the width
 	for the size of your initial circle*/
-	width: 80px;
+	width: 120px;
 	text-align: center;
 	vertical-align: middle;
 	border-radius: 50%;
@@ -596,4 +596,11 @@ code {
 
 .error {
 	color:#FF0000;	
+}
+
+.circle-hr {
+	margin-top: .2rem;
+    margin-bottom: .2rem;
+	border-color: white;
+    width: 60%;
 }

@@ -25,7 +25,9 @@ DROP TABLE IF EXISTS `workflow_table_element`;
 CREATE TABLE `workflow_table_element` (
   `wfId` int(11) NOT NULL,
   `nodeId` int(11) NOT NULL,
-  `emId` int(11) NOT NULL
+  `id` int(11) NOT NULL,
+  `required` varchar(5) DEFAULT NULL COMMENT '必输项',
+  `nodeName` varchar(45) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='字段在不同节点的显示';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -38,4 +40,4 @@ CREATE TABLE `workflow_table_element` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-03-18  8:53:41
+-- Dump completed on 2019-06-21 11:32:11

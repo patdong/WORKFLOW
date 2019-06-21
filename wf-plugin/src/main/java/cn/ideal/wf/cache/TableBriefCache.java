@@ -11,22 +11,24 @@ import org.springframework.stereotype.Component;
 
 import cn.ideal.wf.model.WorkflowTableBrief;
 import cn.ideal.wf.service.WorkflowTableService;
+
 @Component("TableBriefCache1")
 public class TableBriefCache implements ApplicationContextAware{
+	
+	private Map<Long, WorkflowTableBrief> hashTableBrief;
+	private ApplicationContext context;
 
-	private static Map<Long, WorkflowTableBrief> hashTableBrief;
-	private static ApplicationContext context;
-
-    public static ApplicationContext getApplicationContext() {
+    public ApplicationContext getApplicationContext() {
         return context;
     }
     @Override
     public void setApplicationContext(ApplicationContext ac)throws BeansException {
         context = ac;
-    }
+    }	
 	
-	
-	public static void init()  {
+	private void init()  {
+		System.out.println("内存加载表单数据");
+		
 		WorkflowTableService tbService = context.getBean(WorkflowTableService.class);
 		
 		List<WorkflowTableBrief> wftbs = tbService.findAll();
@@ -36,7 +38,7 @@ public class TableBriefCache implements ApplicationContextAware{
 		}		
 	}
 	
-	public static WorkflowTableBrief getValue(Long tbId){
+	public WorkflowTableBrief getValue(Long tbId){
 		if(hashTableBrief == null) {
 			init();
 		}
@@ -44,35 +46,35 @@ public class TableBriefCache implements ApplicationContextAware{
 		return hashTableBrief.get(tbId);
 	}
 	
-	public static Map<Long,WorkflowTableBrief> getAll(){
+	public Map<Long,WorkflowTableBrief> getAll(){
 		if(hashTableBrief == null) {
 			init();
 		}
 		return hashTableBrief;
 	}
 	
-	public static void save(WorkflowTableBrief wftb) {
+	public void save(WorkflowTableBrief wftb) {
 		if(hashTableBrief == null) {
 			init();
 		}
 		hashTableBrief.put(wftb.getTbId(), wftb);
 	}
 
-	public static void update(WorkflowTableBrief wftb) {
+	public void update(WorkflowTableBrief wftb) {
 		if(hashTableBrief == null) {
 			init();
 		}
 		hashTableBrief.put(wftb.getTbId(), wftb);
 	}
  
-	public static void delete(Long wfId) {
+	public void delete(Long wfId) {
 		if(hashTableBrief == null) {
 			init();
 		}
 		hashTableBrief.remove(wfId);
 	}
 	
-	public static void put(WorkflowTableBrief wftb){
+	public void put(WorkflowTableBrief wftb){
 		if(hashTableBrief == null) {
 			init();
 		}

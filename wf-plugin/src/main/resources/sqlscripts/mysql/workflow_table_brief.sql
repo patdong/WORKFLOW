@@ -26,12 +26,14 @@ CREATE TABLE `table_brief` (
   `tbId` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(30) DEFAULT NULL COMMENT '表单外名称',
   `tableName` varchar(50) DEFAULT NULL COMMENT '表单内名称',
-  `template` varchar(45) NOT NULL DEFAULT 'bootstrap' COMMENT '表单格式：表单式，bootstrap式',
+  `template` varchar(45) NOT NULL DEFAULT '表' COMMENT '表单格式：表，子表，组件',
   `cols` int(11) DEFAULT NULL COMMENT '表单列数',
   `status` varchar(10) NOT NULL COMMENT '表单状态',
   `createdDate` datetime NOT NULL COMMENT '表单创建时间',
+  `wfId` int(11) DEFAULT NULL COMMENT '流程编号',
+  `templateName` varchar(50) DEFAULT NULL COMMENT '业务模板类型名称',
   PRIMARY KEY (`tbId`)
-) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='表单概述';
+) ENGINE=InnoDB AUTO_INCREMENT=37 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='表单概述';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -43,4 +45,4 @@ CREATE TABLE `table_brief` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-03-18  8:53:40
+-- Dump completed on 2019-06-21 11:32:10

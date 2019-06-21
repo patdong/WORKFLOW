@@ -11,13 +11,14 @@
 			select sq_wfId.nextval from dual
 		</selectKey>
 		insert into workflow(
-			wfId,wfName,status,createdDate
+			wfId,wfName,status,createdDate,type
 		)
 		values(
 			#{wfId},
 			#{wfName,jdbcType=VARCHAR},			
 			#{status,jdbcType=VARCHAR},
-			#{createdDate,jdbcType=TIMESTAMP}
+			#{createdDate,jdbcType=TIMESTAMP},
+			'系统级'
 		)
 	</insert>
 		
@@ -48,7 +49,7 @@
 			   SELECT a.*, rownum rn
 			   FROM (
 		</if>
-			      select * from workflow order by wfId
+			      select * from workflow where type = '系统级' order by wfId
 		<if test="recordLastNumber != null">
 			   )a
 			   WHERE rownum <![CDATA[ <= ]]>  #{recordLastNumber}
@@ -62,7 +63,7 @@
 	</select>
 	
 	<select id="findAll" resultType="cn.ideal.wfpf.model.WFPFWorkflow">
-		select * from workflow			
+		select * from workflow where wfName is not null	and type = '系统级'	
 	</select>
 		
 	<select id="findAllBlindTable" resultType="cn.ideal.wfpf.model.WFPFWorkflow">

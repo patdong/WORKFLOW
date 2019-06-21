@@ -5,6 +5,7 @@ import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import cn.ideal.wfpf.model.TableBizTemplate;
 import cn.ideal.wfpf.model.TableBrief;
 import cn.ideal.wfpf.model.TableElement;
 import cn.ideal.wfpf.model.TableLayout;
@@ -82,4 +83,6 @@ public interface TableMapper {
 	int removeBinding(Long tbId);
 	
 	int updateTableBriefToNull(TableBrief tb);
+	
+	List<TableBizTemplate> findAllBizTemplates();
 }

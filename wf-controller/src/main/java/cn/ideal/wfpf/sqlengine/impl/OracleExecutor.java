@@ -122,7 +122,9 @@ public class OracleExecutor implements SQLExecutor {
 	@Override
 	public void rename(String tableName, String oldTableName) throws Exception {		
 		try{
-			jdbcTemplate.execute("ALTER TABLE "+oldTableName+" TO "+tableName);
+			this.executeSql("ALTER TABLE "+oldTableName+" RENAME TO "+tableName);
+			this.executeSql(oracleCreator.dropSequence(oldTableName));	
+			this.executeSql(oracleCreator.setSequence(tableName,primaryKey));
 		}catch(Exception e){
 			throw e;
 		}

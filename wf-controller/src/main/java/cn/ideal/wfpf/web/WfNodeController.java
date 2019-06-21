@@ -93,7 +93,7 @@ public class WfNodeController {
 		preNode.setNodeId(Long.parseLong(request.getParameter("nodeNodeId")));
 		preNodes.add(preNode);
 		node.setPreNodes(preNodes);
-		node.setType("直接连接");
+		node.setType("间接连接");
 		node = nodeService.saveNodeNode(node);
         return new ModelAndView("redirect:/wf/workflowdefination/"+wfId);
     }

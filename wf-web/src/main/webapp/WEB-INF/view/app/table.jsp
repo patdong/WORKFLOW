@@ -8,8 +8,8 @@
     	//必输项的默认提示信息：
         $.validator.messages.required = "此项为必输项！";
     	
-    	if("${model.bizId}" == "") $("#myForm").attr("action","/app/save/${model.wftb.tbId}");
-    	else $("#myForm").attr("action","/app/save/${model.wftb.tbId}/${model.bizId}");    	
+    	if("${model.bizId}" == "") $("#myForm").attr("action","/app/save/${model.wftb.tbId}/${model.wftb.wfId}");
+    	else $("#myForm").attr("action","/app/update/${model.wftb.tbId}/${model.bizId}");       	
     	$("#myForm").submit();
     }
     //表单重置
