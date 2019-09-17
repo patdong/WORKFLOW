@@ -62,13 +62,13 @@ public class OracleExecutor implements SQLExecutor {
 				for(TableElement te : tbemLst){
 					if(te.getNewFieldDataType() != null){
 						if(te.getNewFieldDataType().equals("String")){
-							strBuilder.append(oracleCreator.createVarchar(te.getFieldName(), Boolean.parseBoolean(te.getConstraint()), te.getNewLength(),te.getNewLabelName()));
+							strBuilder.append(oracleCreator.createVarchar(te.getNewFieldName(), Boolean.parseBoolean(te.getConstraint()), te.getNewLength(),te.getNewLabelName()));
 							strBuilder.append(",");
 						}else if(te.getNewFieldDataType().equals("DateTime")){
-							strBuilder.append(oracleCreator.createDateTime(te.getFieldName(), Boolean.parseBoolean(te.getConstraint()), te.getNewLabelName()));
+							strBuilder.append(oracleCreator.createDateTime(te.getNewFieldName(), Boolean.parseBoolean(te.getConstraint()), te.getNewLabelName()));
 							strBuilder.append(",");
 						}else if(te.getNewFieldDataType().equals("Int")){
-							strBuilder.append(oracleCreator.createInt(te.getFieldName(), Boolean.parseBoolean(te.getConstraint()), te.getNewLabelName()));
+							strBuilder.append(oracleCreator.createInt(te.getNewFieldName(), Boolean.parseBoolean(te.getConstraint()), te.getNewLabelName()));
 							strBuilder.append(",");
 						}						
 					}
@@ -82,7 +82,7 @@ public class OracleExecutor implements SQLExecutor {
 				strBuilder.setLength(0);
 				for(TableElement te : tbemLst){
 					if(te.getNewFieldDataType() != null){						
-						strBuilder.append(oracleCreator.getComment(tableName,te.getFieldName(),te.getNewLabelName()));														
+						strBuilder.append(oracleCreator.getComment(tableName,te.getNewFieldName(),te.getNewLabelName()));														
 					}
 					if(!StringUtils.isEmpty(te.getNewHiddenFieldName())){
 						strBuilder.append(oracleCreator.getComment(tableName,te.getNewHiddenFieldName(),te.getNewLabelName()+"隐藏项"));				

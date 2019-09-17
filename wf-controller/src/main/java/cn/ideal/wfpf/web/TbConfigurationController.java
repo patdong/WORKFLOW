@@ -1,10 +1,11 @@
 package cn.ideal.wfpf.web;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -35,7 +36,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @Controller
 @RequestMapping("/tb")
 public class TbConfigurationController {
-
+	private static final Logger LOGGER = LoggerFactory.getLogger(TbConfigurationController.class);
 	@Autowired
 	private TableService tableService;
 	@Autowired
@@ -49,7 +50,8 @@ public class TbConfigurationController {
 	 * 表单管理中心
 	 * */
 	@GetMapping("/tablecenter")
-    public ModelAndView enterTableCenter(ModelMap map, HttpServletRequest request) {		
+    public ModelAndView enterTableCenter(ModelMap map, HttpServletRequest request) {
+		LOGGER.info("===========表单管理中心===========");
         return new ModelAndView("redirect:/tb/tablecenter/1");
     }
 	
@@ -79,7 +81,7 @@ public class TbConfigurationController {
     		HttpServletRequest request) {
 		ModelAndView mav = new ModelAndView("config/tableDefination");
 		scope = (scope.equals(""))?"表体":scope;
-		mav.addObject("emList",elementService.findValidAllWithTable(tbId,scope));
+		mav.addObject("emList",elementService.findValidAll());
 		
 		try {
 			List<TableElement> te = tableService.findTableAllElements(tbId,scope);			
@@ -129,16 +131,8 @@ public class TbConfigurationController {
 	@GetMapping("/savecheckedelements/{tbId}")
     public @ResponseBody boolean savecheckedelements(@PathVariable Long tbId,
     		@RequestParam("checkedIds[]") Long[] emId,
-    		@RequestParam("scope") String scope,HttpServletRequest request) {	
-		TableElement[] te = new TableElement[emId.length];
-		for(int i=0;i<emId.length; i++){
-			TableElement telement = new TableElement();			
-			telement.setEmId(emId[i]);
-			telement.setTbId(tbId);			
-			telement.setScope(scope);			
-			te[i] = telement;
-		}
-		return tableService.saveTableElement(te);        
+    		@RequestParam("scope") String scope,HttpServletRequest request) {		
+		return tableService.saveTableElement(tbId,scope,emId);        
     }
 	
 	/**
@@ -183,15 +177,9 @@ public class TbConfigurationController {
 	 */
 	@GetMapping("/setlist/{tbId}")
     public @ResponseBody boolean setList(@PathVariable Long tbId,
-    		@RequestParam("checkedIds[]") String[] emtdIds,HttpServletRequest request) {
-		List<Long> emIds = new ArrayList<Long>();
-		List<Long> newEmIds = new ArrayList<Long>();
-		for(String id :emtdIds){
-			String[] key = id.split("-");
-			if(key.length == 2) emIds.add(Long.parseLong(key[0]));
-			else newEmIds.add(Long.parseLong(key[0]));
-		}
-		return tableService.updateTableElementList(tbId,emIds.toArray(new Long[emIds.size()]),newEmIds.toArray(new Long[newEmIds.size()]));
+    		@RequestParam("checkedIds[]") Long[] ids,HttpServletRequest request) {
+		
+		return tableService.updateTableElementList(tbId,ids);
 		
     }	
 	

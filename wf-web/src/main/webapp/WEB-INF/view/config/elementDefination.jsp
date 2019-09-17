@@ -5,7 +5,7 @@
 		<div id="left" style="padding:0em;margin:0px">
 		  	<div >
 		  		<h1 class="mt-5">元素定义
-		  			<span class="small-btn" style="background:#42a288;font-weight:bold;color: #ffc107;" onclick="location.href='/em/elementcenter'">&nbsp;⬅&nbsp;</span>
+		  			<span class="small-btn" style="background:#42a288;font-weight:bold;color: #ffc107;" onclick="location.href='${path}/em/elementcenter'">&nbsp;⬅&nbsp;</span>
 		  		</h1>	  		   		    
 		  	</div>
 		</div>	
@@ -18,7 +18,7 @@
 	</div>
 	<div class="line"></div>
 	<div style="margin-top: 3%;">
-		<form id="myForm" class="" method="post" modelAttribute="element" action="/em/saveElement">
+		<form id="myForm" class="" method="post" modelAttribute="element" action="${path}/em/saveElement">
 			
 			<!-- hidden项是本页面两个form公用项  不可轻易做变更！ -->
 			

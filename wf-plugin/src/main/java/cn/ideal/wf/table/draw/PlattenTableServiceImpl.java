@@ -342,7 +342,7 @@ public class PlattenTableServiceImpl implements PureTableService {
 		if(obj.getWidth() != null) width = "width:"+obj.getWidth()+"%";
 		if(obj.getRequired() != null && obj.getRequired().equals("是")) required = "required";
 		if(tbName != null) pre = tbName+"_";
-		Object value = resMap != null ? resMap.get(obj.getFieldName()):null;		
+		Object value = resMap != null ? resMap.get(obj.getNewFieldName()):null;		
 		switch(obj.getNewFieldType()) {
 		case "标签":
 			if(!obj.getNewLabelName().equals("&nbsp;"))sb.append("<label style='padding-right:5px;'> " + obj.getNewLabelName()+"：</label>\n");
@@ -350,12 +350,12 @@ public class PlattenTableServiceImpl implements PureTableService {
 			break;
 		case "输入框":
 			if(value == null) value = "";
-			sb.append("<input class='input-02' type='text' id='"+pre+obj.getFieldName()+"' name='"+pre+obj.getFieldName()+"' value='"+value+"' "+required+" style='"+width+"' "+readOnly+">");			
+			sb.append("<input class='input-02' type='text' id='"+pre+obj.getNewFieldName()+"' name='"+pre+obj.getNewFieldName()+"' value='"+value+"' "+required+" style='"+width+"' "+readOnly+">");			
 			if(!readOnly.equals("readOnly")){
 				if(obj.getNewFunctionName() != null){
 					String funcName = obj.getNewFunctionName();
 					if(obj.getNewHiddenFieldName()!=null) funcName = funcName.replace(obj.getNewHiddenFieldName(), pre+obj.getNewHiddenFieldName());
-					else funcName = funcName.replace(obj.getFieldName(), pre+obj.getFieldName());
+					else funcName = funcName.replace(obj.getNewFieldName(), pre+obj.getNewFieldName());
 					sb.append("<span class='img-cursor' onclick=\""+funcName+"\">✍</span>");
 				}
 			}
@@ -364,10 +364,10 @@ public class PlattenTableServiceImpl implements PureTableService {
 			String selected = "";
 			if(!StringUtils.isEmpty(readOnly))readOnly = "disabled";
 			if(readOnly.equals("disabled")){
-				sb.append("<input type='hidden' id='"+pre+obj.getFieldName()+"' name='"+pre+obj.getFieldName()+"' value='"+value+"'>\n");
+				sb.append("<input type='hidden' id='"+pre+obj.getNewFieldName()+"' name='"+pre+obj.getNewFieldName()+"' value='"+value+"'>\n");
 				sb.append("<select class='input-01' "+required+" "+readOnly+">\n");
 			}else{
-				sb.append("<select class='input-01' id='"+pre+obj.getFieldName()+"' name='"+pre+obj.getFieldName()+"' "+required+">\n");
+				sb.append("<select class='input-01' id='"+pre+obj.getNewFieldName()+"' name='"+pre+obj.getNewFieldName()+"' "+required+">\n");
 			}
 			sb.append("<option value=''>请选择</option>");
 			if(obj.getNewDataContent() != null){
@@ -386,7 +386,7 @@ public class PlattenTableServiceImpl implements PureTableService {
 				for(String content : obj.getNewDataContent().split(",")){
 					checkboxchecked = "";
 					if(value != null && value.toString().contains(content)) checkboxchecked = "checked";
-					sb.append("<input type='checkbox' id='"+pre+obj.getFieldName()+"' name='"+pre+obj.getFieldName()+"' "+checkboxchecked+" value='"+content+"' "+readOnly+">");
+					sb.append("<input type='checkbox' id='"+pre+obj.getNewFieldName()+"' name='"+pre+obj.getNewFieldName()+"' "+checkboxchecked+" value='"+content+"' "+readOnly+">");
 					sb.append(content +"\n");
 				}
 			}
@@ -405,7 +405,7 @@ public class PlattenTableServiceImpl implements PureTableService {
 						else radiochecked="";
 					}
 					
-					sb.append("<input type='radio' id='"+pre+obj.getFieldName()+"' name='"+pre+obj.getFieldName()+"' "+radiochecked+" value='"+content+"' "+readOnly+">");
+					sb.append("<input type='radio' id='"+pre+obj.getNewFieldName()+"' name='"+pre+obj.getNewFieldName()+"' "+radiochecked+" value='"+content+"' "+readOnly+">");
 					sb.append(content +"\n");
 					i++;
 				}
@@ -413,11 +413,11 @@ public class PlattenTableServiceImpl implements PureTableService {
 			break;
 		case "文本框":
 			if(value == null) value = "";
-			sb.append("<textarea class='input-03' id='"+pre+obj.getFieldName()+"' name='"+pre+obj.getFieldName()+"' "+required+" style='"+width+"' rows=8 "+readOnly+">"+value+"</textarea>\n");			
+			sb.append("<textarea class='input-03' id='"+pre+obj.getNewFieldName()+"' name='"+pre+obj.getNewFieldName()+"' "+required+" style='"+width+"' rows=8 "+readOnly+">"+value+"</textarea>\n");			
 			break;
 		case "审批意见":
 			if(resMap != null){
-				List<Map<String,Object>> res = SQLConnector.getSQLExecutor().query("select * from workflow_comment where fieldName ='"+obj.getFieldName().toUpperCase()+"' and tbId = "+obj.getTbId()+" and bizId = "+resMap.get("ID"));
+				List<Map<String,Object>> res = SQLConnector.getSQLExecutor().query("select * from workflow_comment where fieldName ='"+obj.getNewFieldName().toUpperCase()+"' and tbId = "+obj.getTbId()+" and bizId = "+resMap.get("ID"));
 				sb.append("<div style='position:relative;height:150px'>");
 				for(Map<String,Object> comments : res){						
 					sb.append("<span style='padding-left:5px;'>"+comments.get("remark")+"</span><p>");
@@ -427,24 +427,24 @@ public class PlattenTableServiceImpl implements PureTableService {
 			}
 			if(readOnly.equals("")){
 				if(value == null) value = "";
-				sb.append("<textarea class='input-03' id='"+pre+obj.getFieldName()+"' name='"+pre+obj.getFieldName()+"' "+required+" style='"+width+"' rows=8 >"+value+"</textarea>\n");				
+				sb.append("<textarea class='input-03' id='"+pre+obj.getNewFieldName()+"' name='"+pre+obj.getNewFieldName()+"' "+required+" style='"+width+"' rows=8 >"+value+"</textarea>\n");				
 			}
 			break;
 		case "日期":	
 			if(value == null) value = "";
-			sb.append("<input class='input-02' type='text' id='"+pre+obj.getFieldName()+"' name='"+pre+obj.getFieldName()+"' value='"+value+"' "+required+" style='"+width+"' "+readOnly+" >");			
+			sb.append("<input class='input-02' type='text' id='"+pre+obj.getNewFieldName()+"' name='"+pre+obj.getNewFieldName()+"' value='"+value+"' "+required+" style='"+width+"' "+readOnly+" >");			
 			if(!readOnly.equals("readOnly")){
-				sb.append("<script>laydate.render({elem: '#"+pre+obj.getFieldName()+"',theme: '#3d80d3'});</script>");
+				sb.append("<script>laydate.render({elem: '#"+pre+obj.getNewFieldName()+"',theme: '#3d80d3'});</script>");
 			}
 			break;
 		case "文件":
 			if(!readOnly.equals("readOnly")){
-				sb.append("<span class='img-cursor' onclick=\"getFj('"+pre+obj.getNewHiddenFieldName()+"','"+pre+obj.getFieldName()+"')\" >✍</span>");
+				sb.append("<span class='img-cursor' onclick=\"getFj('"+pre+obj.getNewHiddenFieldName()+"','"+pre+obj.getNewFieldName()+"')\" >✍</span>");
 			}			
 			Object value2 = resMap != null ? resMap.get(obj.getNewHiddenFieldName()):null;
 			if(value == null) value = "";
 			if(value2 == null) value2 = "";
-			sb.append("<ol class='tags' id='"+pre+obj.getFieldName()+"Desc' >");
+			sb.append("<ol class='tags' id='"+pre+obj.getNewFieldName()+"Desc' >");
 			String[] names = value.toString().split(",");
 			String[] ids = value2.toString().split(",");
 			for(int p=0;p<ids.length;p++){
@@ -454,7 +454,7 @@ public class PlattenTableServiceImpl implements PureTableService {
 					String imgFileName = names[p].substring(names[p].indexOf("]")+1);
 					if(!readOnly.equals("readOnly")){
 						sb.append("<li class='img-garbage' id='" + ids[p] + "'>" +imgName);					
-						sb.append("<span onclick=\"removeFj(this,'"+pre+obj.getNewHiddenFieldName()+"','"+pre+obj.getFieldName()+"')\" class='img-cursor'>✘</span>");
+						sb.append("<span onclick=\"removeFj(this,'"+pre+obj.getNewHiddenFieldName()+"','"+pre+obj.getNewFieldName()+"')\" class='img-cursor'>✘</span>");
 						sb.append("</li>");	
 					}else{
 						sb.append(imgName+"<a href='/file/"+imgFileName+"/download' class='img-cursor'>⬇️</a>&nbsp;&nbsp;");
@@ -462,7 +462,7 @@ public class PlattenTableServiceImpl implements PureTableService {
 				}
 			}
 			sb.append("</ol>");			
-			sb.append("<input type='hidden' id='"+pre+obj.getFieldName()+"' name='"+pre+obj.getFieldName()+"' value='"+value+"'/>");
+			sb.append("<input type='hidden' id='"+pre+obj.getNewFieldName()+"' name='"+pre+obj.getNewFieldName()+"' value='"+value+"'/>");
 			break;
 		case "子表":	
 			Long bizId = null;

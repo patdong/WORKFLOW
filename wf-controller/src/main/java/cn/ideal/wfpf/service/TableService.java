@@ -14,7 +14,7 @@ public interface TableService extends PageService<TableBrief> {
 	
 	TableElement saveTableElement(TableElement obj);
 	
-	boolean saveTableElement(TableElement[] objs);
+	boolean saveTableElement(Long tbId, String scope, Long[] emIds);
 	
 	List<TableBrief> findAllWithTableName();
 	
@@ -26,7 +26,7 @@ public interface TableService extends PageService<TableBrief> {
 	
 	List<TableElement> findTableAllElementsWithListLevelElements(Long tbId);
 	
-	TableElement findTableElement(Long tbId, Long emId);
+	TableElement findTableElement(Long id);
 	
 	boolean moveUp(Long tbId, Long id,String scope);
 	
@@ -40,7 +40,7 @@ public interface TableService extends PageService<TableBrief> {
 	
 	TableBrief updateTableBrief(TableBrief obj);
 	
-	boolean updateTableElementList(Long tbId, Long[] emIds,Long[] newEmIds);
+	boolean updateTableElementList(Long tbId, Long[] ids);
 	
 	List<TableElement> findElementsOnList(Long tbId);
 	

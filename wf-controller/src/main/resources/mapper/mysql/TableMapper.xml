@@ -97,14 +97,14 @@
 	
 	<insert id="saveTableElement" useGeneratedKeys="true" keyProperty="id" parameterType="cn.ideal.wfpf.model.TableElement">
 		insert into table_element(
-			tbId,emId,newLabelName,newFunctionName,functionBelongTo,rowes,cols,width,scope,seq,newHiddenFieldName,
+			tbId,newLabelName,newFieldName,newFunctionName,functionBelongTo,rowes,cols,width,scope,seq,newHiddenFieldName,
 			newDataContent,newFieldType,newFieldDataType,newLength,defaultValue,defaultValueFrom,list,stbId,createdDate
 		)
 		values		
 		(
 			#{tbId},
-			#{emId},
 			#{newLabelName},
+			#{newFieldName},
 			#{newFunctionName},
 			#{functionBelongTo},
 			#{rowes},
@@ -127,15 +127,15 @@
 	
 	<insert id="saveBatchTableElement" useGeneratedKeys="true" keyProperty="id" parameterType="java.util.List">
 		insert into table_element(
-			tbId,emId,newLabelName,newFunctionName,functionBelongTo,rowes,cols,width,scope,seq,newHiddenFieldName,
+			tbId,newLabelName,newFieldName,newFunctionName,functionBelongTo,rowes,cols,width,scope,seq,newHiddenFieldName,
 			newDataContent,newFieldType,newFieldDataType,newLength,defaultValue,defaultValueFrom,list,stbId,createdDate
 		)
 		values
 		<foreach collection="list" item="item" index="index" separator=",">				
 		(
 			#{item.tbId},
-			#{item.emId},
 			#{item.newLabelName},
+			#{item.newFieldName},
 			#{item.newFunctionName},
 			#{item.functionBelongTo},
 			#{item.rowes},
@@ -160,6 +160,7 @@
 	<update id="updateTableElement" parameterType="cn.ideal.wfpf.model.TableElement">
 		update table_element set 			
 			   newLabelName=#{newLabelName},
+			   newFieldName=#{newFieldName},
 			   newFunctionName=#{newFunctionName},
 			   functionBelongTo=#{functionBelongTo},
 			   newHiddenFieldName=#{newHiddenFieldName},
@@ -172,8 +173,7 @@
 			   rowes=#{rowes},
 			   cols=#{cols},
 			   width=#{width},
-			   stbId=#{stbId},
-			   emId=#{emId}
+			   stbId=#{stbId}
 		<where>		
 		      id=#{id}		
 		</where>				
@@ -202,8 +202,7 @@
 	</delete>
 	
 	<select id="findTableAllElements" resultMap="tableelement" parameterType="java.util.Map">
-		select a.*,b.labelName,b.fieldName from table_element a
-		 left join element_library b on a.emId = b.emId 
+		select a.* from table_element a		
 		 where a.tbId = #{tbId}
 		 <if test="scope != null">
 		   and a.scope = #{scope}
@@ -213,22 +212,29 @@
 	
 	<!-- 用于流程节点上字段的配置、所有列表可操作字段 -->
 	<select id="findTableAllFields" resultMap="tableelement" parameterType="java.lang.Long">
-		select a.*,b.labelName,b.fieldName from table_element a
-		 left join element_library b on a.emId = b.emId 
-		 where a.tbId = #{tbId}		 
-		   and a.newFieldType not in ( '标签','子表','列表')
-		 order by a.seq		 
+		select * from(
+			select a.*  from table_element a			 
+			 where a.tbId = #{tbId}		 
+			   and a.newFieldType not in ( '标签','子表','组件','列表')
+			union all
+			 select a.*  from table_element a			
+			 where a.tbId in (select stbId from table_element where tbId = #{tbId} and newFieldType ='子表')
+				and a.newFieldType not in ( '标签','子表','组件','列表')
+			union all
+			 select a.*  from table_element a			
+			 where a.tbId in (select stbId from table_element where tbId = #{tbId} and newFieldType ='组件')
+				and a.newFieldType not in ( '标签','子表','组件','列表')
+			) t
+		 order by seq	 
 	</select>
 	
 	<!-- 用于数据库字段检测 -->
 	<select id="findTableFieldsToDBCheck" resultMap="tableelement" parameterType="java.lang.Long">
-		select a.*,b.labelName,b.fieldName from table_element a
-		 left join element_library b on a.emId = b.emId 
+		select a.* from table_element a		
 		 where a.tbId = #{tbId}		 
 		   and a.newFieldType not in ( '标签','子表','组件','列表')
 		 union all
-		 select a.*,b.labelName,b.fieldName from table_element a
-		 left join element_library b on a.emId = b.emId 
+		 select a.* from table_element a		 
 		 where a.tbId in (select stbId from table_element where tbId = #{tbId} and newFieldType ='组件')
 			and a.newFieldType not in ( '标签','子表','组件','列表')
 	</select>
@@ -236,7 +242,6 @@
 	<select id="findTableElement" resultMap="tableelement" parameterType="java.util.Map">
 		select a.* from table_element a
 		 where a.tbId = #{tbId} 
-		   and a.emId = #{emId}
 	</select>
 	
 	<update id="updateTableElementList" parameterType="java.util.Map">
@@ -244,8 +249,8 @@
 			   list='有效'
 		<where>		
 		      tbId=#{tbId}
-		  and emId in
-          <foreach collection="emIds" item="item" index="index" open="(" close=")"  separator=",">
+		  and id in
+          <foreach collection="ids" item="item" index="index" open="(" close=")"  separator=",">
               ${item}
           </foreach>			
 		</where>				
@@ -271,9 +276,9 @@
 	</select>	
 	
 	<select id="findTableListLevelElements" resultMap="tableelement" parameterType="java.lang.Long">
-		select b.emId,b.labelName,b.fieldName from element_library b
-		 where b.grade='列表级' 
-		   and b.emId not in (select emId from table_element where tbId = #{tbId} and emid is not null)
+		select a.* from table_element a
+		 where a.tbId = #{tbId}
+		   and a.newFieldType not in ( '标签','子表','组件','列表') 		  
 	</select>
 	
 	<!-- 获取流程节点设置的字段 -->

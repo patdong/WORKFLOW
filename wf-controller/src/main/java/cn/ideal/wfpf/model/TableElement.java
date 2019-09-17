@@ -14,6 +14,7 @@ public class TableElement {
 	private Long tbId;
 	private Long emId;
 	private String newLabelName;
+	private String newFieldName;
 	private String NewFunctionName;
 	private String functionBelongTo;
 	private String NewHiddenFieldName;
@@ -35,8 +36,6 @@ public class TableElement {
 	private Date createdDate;
 	private Long stbId;
 	
-	private String labelName;
-	private String fieldName;
 	private boolean readOnly = false;
 	private String required = "否";
 	
@@ -63,6 +62,12 @@ public class TableElement {
 	}
 	public void setNewLabelName(String newLabelName) {
 		this.newLabelName = newLabelName;
+	}
+	public String getNewFieldName() {
+		return newFieldName;
+	}
+	public void setNewFieldName(String newFieldName) {
+		this.newFieldName = newFieldName;
 	}
 	public String getNewFunctionName() {
 		return NewFunctionName;
@@ -142,18 +147,7 @@ public class TableElement {
 	public void setCreatedDate(Date createdDate) {
 		this.createdDate = createdDate;
 	}
-	public String getLabelName() {
-		return labelName;
-	}
-	public void setLabelName(String labelName) {
-		this.labelName = labelName;
-	}
-	public String getFieldName() {
-		return fieldName;
-	}
-	public void setFieldName(String fieldName) {
-		this.fieldName = fieldName;
-	}
+	
 	public String getList() {
 		return list;
 	}

@@ -25,8 +25,8 @@ DROP TABLE IF EXISTS `table_element`;
 CREATE TABLE `table_element` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `tbId` int(11) NOT NULL COMMENT '表单编号',
-  `emId` int(11) DEFAULT NULL COMMENT '元素编号',
   `newLabelName` varchar(100) DEFAULT NULL COMMENT '字段标签名称',
+  `newFieldName` varchar(100) DEFAULT NULL COMMENT '字段名称名称',
   `newFunctionName` varchar(50) DEFAULT NULL COMMENT '事件名称',
   `functionBelongTo` varchar(10) DEFAULT NULL COMMENT '事件方法所属（标签或元素）',
   `newHiddenFieldName` varchar(50) DEFAULT NULL COMMENT '隐藏项',

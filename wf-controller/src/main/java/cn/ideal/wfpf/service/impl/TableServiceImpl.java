@@ -97,34 +97,37 @@ public class TableServiceImpl implements TableService {
 
 	@Override
 	@Transactional(propagation=Propagation.REQUIRED)
-	public boolean saveTableElement(TableElement[] objs) {
+	public boolean saveTableElement(Long tbId, String scope, Long[] emIds) {
 		List<TableElement> teLst = new ArrayList<TableElement>();
-		if(objs == null || objs.length == 0) return true;
-		Long seq = tableMapper.findMaxSeq(objs[0].getTbId());
+		if(emIds == null || emIds.length == 0) return true;
+		Long seq = tableMapper.findMaxSeq(tbId);
 		if(seq == null) seq = 0l;
 		
-		for(TableElement te : objs){
-			TableElement item = this.findTableElement(te.getTbId(),te.getEmId());
-			if(item == null) {
-				Element em = elementService.find(te.getEmId());
+		for(Long emId : emIds){
+			Element em = elementService.find(emId);
+			if(em != null) {				
 				//标签
 				TableElement label = new TableElement();
-				label.setTbId(te.getTbId());
+				label.setTbId(tbId);
 				label.setNewLabelName(em.getLabelName());				
 				label.setNewFieldType("标签");
-				label.setScope(te.getScope());
+				label.setScope(scope);
 				label.setList("无效");
 				label.setSeq(++seq);
 				label.setCreatedDate(new Date());
 				teLst.add(label);
 				//字段
+				TableElement te = new TableElement();
+				te.setTbId(tbId);
 				te.setNewLabelName(em.getLabelName());
+				te.setNewFieldName(em.getFieldName());
 				te.setNewFunctionName(em.getFunctionName());
 				te.setNewHiddenFieldName(em.getHiddenFieldName());
 				te.setNewDataContent(em.getDataContent());
 				te.setNewFieldType(em.getFieldType());
 				te.setNewFieldDataType(em.getFieldDataType());
 				te.setNewLength(em.getLength());
+				te.setScope(scope);
 				te.setList("无效");
 				te.setSeq(++seq);
 				te.setCreatedDate(new Date());
@@ -143,8 +146,8 @@ public class TableServiceImpl implements TableService {
 	}
 
 	@Override
-	public TableElement findTableElement(Long tbId, Long emId) {
-		return tableMapper.findTableElement(tbId, emId);
+	public TableElement findTableElement(Long id) {
+		return tableMapper.findTableElement(id);
 	}
 
 	@Override
@@ -231,36 +234,10 @@ public class TableServiceImpl implements TableService {
 	
 	@Override
 	@Transactional(propagation=Propagation.REQUIRED)
-	public boolean updateTableElementList(Long tbId, Long[] emIds,Long[] newEmIds) {
+	public boolean updateTableElementList(Long tbId, Long[] ids) {
 		tableMapper.resetTableElementList(tbId);
-		int idx = tableMapper.updateTableElementList(tbId,emIds);
-		if(idx > 0 && newEmIds.length > 0) {			
-			List<TableElement> teLst = new ArrayList<TableElement>();
-			for(Long id : newEmIds){
-				Long seq = 99l;
-				Element em = elementService.find(id);
-				TableElement te = new TableElement();
-				te.setTbId(tbId);
-				te.setEmId(em.getEmId());
-				te.setNewLabelName(em.getLabelName());
-				te.setNewFunctionName(em.getFunctionName());
-				te.setNewHiddenFieldName(em.getHiddenFieldName());
-				te.setNewDataContent(em.getDataContent());
-				te.setNewFieldType(em.getFieldType());
-				te.setNewFieldDataType(em.getFieldDataType());
-				te.setNewLength(em.getLength());
-				te.setScope("列表");
-				te.setSeq(seq);
-				te.setList("有效");
-				te.setStatus("有效");
-				te.setCreatedDate(new Date());
-				teLst.add(te);
-				seq++;
-				
-			}			
-			idx = tableMapper.saveBatchTableElement(teLst);			
-			return true;
-		}
+		int idx = tableMapper.updateTableElementList(tbId,ids);
+		if(idx > 0 ) return true;
 		return false;
 	}
 
@@ -305,7 +282,7 @@ public class TableServiceImpl implements TableService {
 	@Override
 	public List<TableElement> findTableAllElementsWithListLevelElements(Long tbId) {
 		List<TableElement> tes = tableMapper.findTableAllFields(tbId);
-		tes.addAll(tableMapper.findTableListLevelElements(tbId));
+		//tes.addAll(tableMapper.findTableListLevelElements(tbId));
 		return tes;
 	}
 
@@ -320,44 +297,18 @@ public class TableServiceImpl implements TableService {
 		if(valAry.length == 2){
 			obj.setNewFieldDataType(valAry[1]);
 			obj.setStbId(Long.parseLong(valAry[0]));
-		}
-		Element em = new Element();		
-		if(!(StringUtils.isEmpty(obj.getFieldName()) || obj.getNewFieldType().contains("标签") || obj.getNewFieldType().contains("子表") || obj.getNewFieldType().contains("组件"))){				
-			if(obj.getEmId() == null){
-				em.setCreatedDate(new Date());
-				em.setDataContent(obj.getNewDataContent());
-				em.setFieldDataType(obj.getNewFieldDataType());
-				em.setFieldName(obj.getFieldName());
-				em.setFieldType(obj.getNewFieldType());
-				em.setFunctionBelongTo(obj.getFunctionBelongTo());
-				em.setFunctionName(obj.getNewFunctionName());
-				em.setGrade("自定义");
-				em.setHiddenFieldName(obj.getNewHiddenFieldName());
-				em.setLabelName(obj.getNewLabelName());
-				em.setLength(obj.getNewLength());
-				em = elementService.save(em);
-			}else{
-				em.setFieldName(obj.getFieldName());
-				em.setEmId(obj.getEmId());
-				em.setLabelName(obj.getNewLabelName());
-				em.setHiddenFieldName(obj.getNewHiddenFieldName());
-				em.setFunctionName(obj.getNewFunctionName());
-				em.setFieldType(obj.getNewFieldType());
-				em.setFieldDataType(obj.getNewFieldDataType());
-				em.setDataContent(obj.getNewDataContent());
-				em.setLength(obj.getNewLength());
-				em = elementService.update(em);
-			}
-			obj.setEmId(em.getEmId());
 		}		
-		if(obj.getId() == null) {			
+						
+		if(obj.getId() == null){
 			Long seq = tableMapper.findMaxSeq(obj.getTbId());
 			if(seq == null) seq = 0l;
 			obj.setSeq(seq+1);
-			obj.setCreatedDate(new Date());			
+			obj.setCreatedDate(new Date());					
 			idx = tableMapper.saveTableElement(obj);
-		}
-		else idx = tableMapper.updateTableElement(obj);
+		}else{				
+			idx = tableMapper.updateTableElement(obj);
+		}			
+			
 		if(idx > 0) return true;
 		return false;
 	}	

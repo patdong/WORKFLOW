@@ -22,9 +22,7 @@ public class Element {
 	private String fieldDataType;
 	private String dataContent;
 	private Long length;
-	private String functionBelongTo;
-	
-	private Long tbId;
+	private String functionBelongTo;	
 	
 	public Long getEmId() {
 		return emId;
@@ -74,13 +72,7 @@ public class Element {
 	}
 	public void setGrade(String grade) {
 		this.grade = grade;
-	}
-	public Long getTbId() {
-		return tbId;
-	}
-	public void setTbId(Long tbId) {
-		this.tbId = tbId;
-	}
+	}	
 	public String getFieldType() {
 		return fieldType;
 	}

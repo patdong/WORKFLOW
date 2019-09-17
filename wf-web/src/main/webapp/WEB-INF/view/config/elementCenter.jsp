@@ -30,7 +30,7 @@ function setEmLabelName(event){
         if($.trim(wfName) != ""){
         	$.ajax({
       		  type: 'GET',
-      		  url: "/wf/setWfName/"+wfId,
+      		  url: "${path}/wf/setWfName/"+wfId,
       		  data: {wfName:wfName},			  
       		  dataType: 'json',
       		  success: function(data){
@@ -51,7 +51,7 @@ function setEmLabelName(event){
 	<div id="content">			  
 	  	<span class="mt-5" style="font-size: 2.5rem;">元素库</span>	  		   		    
 	  	<div style="padding:0em;float:right;padding-top:2%;">
-	     	<span class="big-btn" onclick="location.href='/em/newelement'">新建</span>	     	
+	     	<span class="big-btn" onclick="location.href='${path}/em/newelement'">新建</span>	     	
 	  	</div>			
 	</div>
 	<div class="line"></div>
@@ -71,7 +71,7 @@ function setEmLabelName(event){
           <tbody>
           	<c:forEach items="${page.pageList}" varStatus="i" var="element" >
           		<tr>
-          			<td><a href="/em/elementdefination/${element.emId}">#${element.emId }</a></td>
+          			<td><a href="${path}/em/elementdefination/${element.emId}">#${element.emId }</a></td>
           			<td><span class="small-btn" style="background-color:#42a288;" onclick="showPos(event,${element.emId },'em-labelname')" >&nbsp;✒&nbsp;</span>${element.labelName }</td>
           			<td><span class="small-btn" style="background-color:#ce6634" onclick="showPos(event,${element.emId },'em-fieldname')">&nbsp;❒&nbsp;</span>${element.fieldName}</td>
           			<td><span class="small-btn" style="background-color:#bbb8b6" onclick="showPos(event,${element.emId },'em-hiddenname')">&nbsp;❒&nbsp;</span>${element.hiddenFieldName }</td>

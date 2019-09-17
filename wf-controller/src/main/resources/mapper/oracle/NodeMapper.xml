@@ -153,7 +153,7 @@
 	<!-- 获取前置节点 -->
 	<select id="findPreNode" resultType="cn.ideal.wfpf.model.Node" parameterType="java.lang.Long">
 		select n.* from workflow_node n
-		inner join workflow_node_nodes a on n.nodeId = a.nodeId and a.type='直接连接'
+		inner join workflow_node_nodes a on n.nodeId = a.nodeId
 		 where a.suf_nodeId = #{nodeId}
 		   and n.status != '无效'
 	</select>
@@ -161,7 +161,7 @@
 	<!-- 获取后置节点 -->
 	<select id="findSufNode" resultType="cn.ideal.wfpf.model.Node" parameterType="java.lang.Long">
 		select n.* from workflow_node n
-		inner join workflow_node_nodes a on a.suf_nodeId = n.nodeId and a.type='直接连接'
+		inner join workflow_node_nodes a on a.suf_nodeId = n.nodeId
 		 where a.nodeId = #{nodeId}
 		   and n.status != '无效'
 	</select>
@@ -239,7 +239,7 @@
 	</delete>	
 	
 	<delete id="deleteNodeNode" parameterType="java.util.Map">
-		delete from workflow_node_nodes where nodeId = #{nodeId} and suf_nodeId = #{sufNodeId} and type='直接连接'
+		delete from workflow_node_nodes where nodeId = #{nodeId} and suf_nodeId = #{sufNodeId} 
 	</delete>
 	
 	<update id="delegation" parameterType="java.util.Map">
@@ -249,7 +249,7 @@
 	</update>
 	
 	<delete id="deleteNodeLinks" parameterType="java.util.Map">
-		delete from workflow_node_nodes where nodeId = #{nodeId} and type='直接连接' and suf_nodeId not in 
+		delete from workflow_node_nodes where nodeId = #{nodeId} and suf_nodeId not in 
 		<foreach collection="linkNodeIds" item="item" index="index" open="(" close=")"  separator=",">
                 '${item}'
         </foreach>

@@ -38,7 +38,7 @@ function setTableName(event){
         if($.trim(tableName) != ""){
         	$.ajax({
       		  type: 'GET',
-      		  url: "/tb/setTableName/"+tbId,
+      		  url: "${path}/tb/setTableName/"+tbId,
       		  data: {tableName:tableName},			  
       		  dataType: 'json',
       		  success: function(data){
@@ -59,10 +59,10 @@ function setTableName(event){
 function startup(wfId){	        
  	$.ajax({
 		  type: 'GET',
-		  url: "/tb/startup/"+wfId,			  
+		  url: "${path}/tb/startup/"+wfId,			  
 		  dataType: 'json',
 		  success: function(data){
-			  location.href="/tb/tablecenter/"+${page.curPage};		  
+			  location.href="${path}/tb/tablecenter/"+${page.curPage};		  
 		  },
 		  error: function(XMLHttpRequest, textStatus, errorThrown){
 			  console.warn(XMLHttpRequest.responseText);			  
@@ -74,10 +74,10 @@ function startup(wfId){
 function shutdown(wfId){	        
  	$.ajax({
 		  type: 'GET',
-		  url: "/tb/shutdown/"+wfId,			  
+		  url: "${path}/tb/shutdown/"+wfId,			  
 		  dataType: 'json',
 		  success: function(data){
-			  location.href="/tb/tablecenter/"+${page.curPage};		  
+			  location.href="${path}/tb/tablecenter/"+${page.curPage};		  
 		  },
 		  error: function(XMLHttpRequest, textStatus, errorThrown){
 			  console.warn(XMLHttpRequest.responseText);			  
@@ -94,10 +94,10 @@ function removeConfirm(tbId){
 function remove(){
 	$.ajax({
 		  type: 'GET',
-		  url: "/tb/remove/"+gtbId,			  
+		  url: "${path}/tb/remove/"+gtbId,			  
 		  dataType: 'json',
 		  success: function(data){
-			  location.href="/tb/tablecenter/"+${page.curPage};		  
+			  location.href="${path}/tb/tablecenter/"+${page.curPage};		  
 		  },
 		  error: function(XMLHttpRequest, textStatus, errorThrown){
 			  console.warn(XMLHttpRequest.responseText);			  
@@ -109,10 +109,10 @@ function remove(){
 function copy(tbId){
 	$.ajax({
 		  type: 'GET',
-		  url: "/tb/copy/"+tbId,			  
+		  url: "${path}/tb/copy/"+tbId,			  
 		  dataType: 'json',
 		  success: function(data){
-			  location.href="/tb/tablecenter/"+${page.curPage};		  
+			  location.href="${path}/tb/tablecenter/"+${page.curPage};		  
 		  },
 		  error: function(XMLHttpRequest, textStatus, errorThrown){
 			  console.warn(XMLHttpRequest.responseText);			  
@@ -126,14 +126,14 @@ function setBinging(){
       var tbId = $("#tbId").val();      
      	$.ajax({
    		  type: 'GET',
-   		  url: "/tb/setbinding/"+tbId,
+   		  url: "${path}/tb/setbinding/"+tbId,
    		  data: {wfId:wfId},			  
    		  dataType: 'json',
    		  success: function(data){
    			  if(data){
    				$('#workflow-binding').hide(); 
    				$("#tb-"+tbId).text("已绑定");
-   				location.href="/tb/tablecenter/"+${page.curPage};		  
+   				location.href="${path}/tb/tablecenter/"+${page.curPage};		  
    			  }			  
    		  },
    		  error: function(XMLHttpRequest, textStatus, errorThrown){
@@ -148,14 +148,14 @@ function setTemplate(){
       var tbId = $("#tbId").val();      
      	$.ajax({
    		  type: 'GET',
-   		  url: "/tb/settemplate/"+tbId,
+   		  url: "${path}/tb/settemplate/"+tbId,
    		  data: {templateName:templateName},	  
    		  dataType: 'json',
    		  success: function(data){
    			  if(data){
    				$('#template-binding').hide(); 
    				$("#tmp-"+tbId).text("已设置");
-   				location.href="/tb/tablecenter/"+${page.curPage};		  
+   				location.href="${path}/tb/tablecenter/"+${page.curPage};		  
    			  }			  
    		  },
    		  error: function(XMLHttpRequest, textStatus, errorThrown){
@@ -167,12 +167,12 @@ function setTemplate(){
 function removeBinding(tbId){	        
      	$.ajax({
    		  type: 'GET',
-   		  url: "/tb/removebinding/"+tbId,			  
+   		  url: "${path}/tb/removebinding/"+tbId,			  
    		  dataType: 'json',
    		  success: function(data){
    			  if(data){   				
    				$("#tb-"+tbId).text("");
-   				location.href="/tb/tablecenter/"+${page.curPage};		  
+   				location.href="${path}/tb/tablecenter/"+${page.curPage};		  
    			  }			  
    		  },
    		  error: function(XMLHttpRequest, textStatus, errorThrown){
@@ -185,7 +185,7 @@ function removeBinding(tbId){
 	<div id="content">
 		<span class="mt-5" style="font-size: 2.5rem;">表单管理</span>	  		   		    
 	  	<div style="padding:0em;float:right;padding-top:2%;">
-	     	<span class="big-btn" onclick="location.href='/tb/newtablebrief'">新建</span>	
+	     	<span class="big-btn" onclick="location.href='${path}/tb/newtablebrief'">新建</span>	
 	     	<!-- <span class="big-btn" style="background-color:#5dca0a" onclick="location.href='/tb/newtablebrief'">导入</span> -->
 	  	</div>			
 	</div>
@@ -208,7 +208,7 @@ function removeBinding(tbId){
           <tbody>
           	<c:forEach items="${page.pageList}" varStatus="i" var="table" >
           		<tr>
-          			<td><a href="/tb/tabledefination/${table.tbId}">#${table.tbId }</a></td>
+          			<td><a href="${path}/tb/tabledefination/${table.tbId}">#${table.tbId }</a></td>
           			<td><span class="small-btn" style="background-color:#42a288;" onclick="showPos(event,${table.tbId },'table-name')" >&nbsp;✒&nbsp;</span><span id="${table.tbId }">${table.tableName }</span></td>
           			<td>${table.template}</td>
           			<td>

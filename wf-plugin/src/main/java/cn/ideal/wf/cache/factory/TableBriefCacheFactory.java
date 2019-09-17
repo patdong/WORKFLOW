@@ -14,6 +14,8 @@ public class TableBriefCacheFactory {
 	private cn.ideal.wf.cache.redis.TableBriefCache redisCache;
 	@Autowired
 	private cn.ideal.wf.cache.TableBriefCache memoryCache;
+	@Autowired
+	private cn.ideal.wf.service.WorkflowTableService wfTableService;
 	@Value("${data.memory.cache}")
 	boolean dataMemoryCache;
 	
@@ -22,7 +24,7 @@ public class TableBriefCacheFactory {
 			if(redisCache.isCacheAvaliable()) return redisCache.getValue(tbId);
 			return memoryCache.getValue(tbId);
 		}
-		return null;
+		return wfTableService.find(tbId);
 	}
 	
 	public Map<Long,WorkflowTableBrief> getAll(){

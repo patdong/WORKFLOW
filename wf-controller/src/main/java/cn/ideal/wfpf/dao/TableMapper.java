@@ -33,7 +33,7 @@ public interface TableMapper {
 	
 	List<TableElement> findTableAllFields(@Param("tbId") Long tbId);
 	
-	TableElement findTableElement(@Param("tbId") Long tbId, @Param("emId") Long emId);
+	TableElement findTableElement(@Param("id") Long id);
 	
 	int updateTableElementSeq(TableElement obj);
 	
@@ -41,7 +41,7 @@ public interface TableMapper {
 	
 	void deleteTableElementByTbId(@Param("tbId") Long tbId);
 	
-	int updateTableElementList(@Param("tbId") Long tbId,@Param("emIds") Long[]  emIds);
+	int updateTableElementList(@Param("tbId") Long tbId,@Param("ids") Long[]  ids);
 	
 	int resetTableElementList(Long tbId);
 	

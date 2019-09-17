@@ -6,6 +6,8 @@ package cn.ideal.wf.processor;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
@@ -32,6 +34,8 @@ import cn.ideal.wf.service.impl.JdbcSQLExecutor;
 
 @Service
 public class WorkflowProcessor extends Utils implements Processor {
+	private static final Logger LOGGER = LoggerFactory.getLogger(WorkflowProcessor.class);
+
 	@Autowired
     private WorkflowFlowService workflowFlowService;
 	@Autowired
@@ -59,6 +63,7 @@ public class WorkflowProcessor extends Utils implements Processor {
 	@Override
 	@Transactional(propagation=Propagation.REQUIRED,rollbackFor={java.lang.RuntimeException.class,java.lang.Exception.class})
 	public boolean doAction(Long tbId, Long bizId, WorkflowUser wfu) throws Exception {
+		LOGGER.info("================流程推进===============");
 		boolean res = true;
 		WorkflowTableSummary wftbSummary = workflowTableService.findTableSummary(tbId, bizId);		
 		WorkflowTableBrief wftb = workflowTableService.findDefinationTableBrief(tbId, wftbSummary.getWfId());

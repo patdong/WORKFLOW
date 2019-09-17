@@ -37,7 +37,7 @@ function setWfName(event){
         if($.trim(wfName) != ""){
         	$.ajax({
       		  type: 'GET',
-      		  url: "/wf/setWfName/"+wfId,
+      		  url: "${path}/wf/setWfName/"+wfId,
       		  data: {wfName:wfName},			  
       		  dataType: 'json',
       		  success: function(data){
@@ -60,14 +60,14 @@ function setBinging(){
       var wfId = $("#wfId").val();      
      	$.ajax({
    		  type: 'GET',
-   		  url: "/wf/setbinding/"+wfId,
+   		  url: "${path}/wf/setbinding/"+wfId,
    		  data: {tbId:tbId},			  
    		  dataType: 'json',
    		  success: function(data){
    			  if(data){
    				$('#workflow-binding').hide(); 
    				$("#tb-"+wfId).text("已绑定");
-   				location.href="/wf/workflowcenter/"+${page.curPage};
+   				location.href="${path}/wf/workflowcenter/"+${page.curPage};
    			  }			  
    		  },
    		  error: function(XMLHttpRequest, textStatus, errorThrown){
@@ -80,12 +80,12 @@ function setBinging(){
 function removeBinding(wfId){	        
      	$.ajax({
    		  type: 'GET',
-   		  url: "/wf/removebinding/"+wfId,			  
+   		  url: "${path}/wf/removebinding/"+wfId,			  
    		  dataType: 'json',
    		  success: function(data){
    			  if(data){   				
    				$("#tb-"+wfId).text("");
-   				location.href="/wf/workflowcenter/"+${page.curPage};
+   				location.href="${path}/wf/workflowcenter/"+${page.curPage};
    			  }			  
    		  },
    		  error: function(XMLHttpRequest, textStatus, errorThrown){
@@ -98,10 +98,10 @@ function removeBinding(wfId){
 function startup(wfId){	        
  	$.ajax({
 		  type: 'GET',
-		  url: "/wf/startup/"+wfId,			  
+		  url: "${path}/wf/startup/"+wfId,			  
 		  dataType: 'json',
 		  success: function(data){
-			  location.href="/wf/workflowcenter/"+${page.curPage};		  
+			  location.href="${path}/wf/workflowcenter/"+${page.curPage};		  
 		  },
 		  error: function(XMLHttpRequest, textStatus, errorThrown){
 			  console.warn(XMLHttpRequest.responseText);			  
@@ -113,10 +113,10 @@ function startup(wfId){
 function shutdown(wfId){	        
  	$.ajax({
 		  type: 'GET',
-		  url: "/wf/shutdown/"+wfId,			  
+		  url: "${path}/wf/shutdown/"+wfId,			  
 		  dataType: 'json',
 		  success: function(data){
-			  location.href="/wf/workflowcenter/"+${page.curPage};		  
+			  location.href="${path}/wf/workflowcenter/"+${page.curPage};		  
 		  },
 		  error: function(XMLHttpRequest, textStatus, errorThrown){
 			  console.warn(XMLHttpRequest.responseText);			  
@@ -133,10 +133,10 @@ function removeConfirm(wfId){
 function remove(){
 	$.ajax({
 		  type: 'GET',
-		  url: "/wf/remove/"+gwfId,			  
+		  url: "${path}/wf/remove/"+gwfId,			  
 		  dataType: 'json',
 		  success: function(data){
-			  location.href="/wf/workflowcenter/"+${page.curPage};		  
+			  location.href="${path}/wf/workflowcenter/"+${page.curPage};		  
 		  },
 		  error: function(XMLHttpRequest, textStatus, errorThrown){
 			  console.warn(XMLHttpRequest.responseText);			  
@@ -166,7 +166,7 @@ function remove(){
           <tbody>
           	<c:forEach items="${page.pageList}" varStatus="i" var="workflow" >
           		<tr>
-          			<td><a href="/wf/workflowdefination/${workflow.wfId}">#${workflow.wfId }</a></td>
+          			<td><a href="${path}/wf/workflowdefination/${workflow.wfId}">#${workflow.wfId }</a></td>
           			<td><span class="small-btn" style="background-color:#42a288;" onclick="showPos(event,${workflow.wfId },'workflow-name')" >&nbsp;✒&nbsp;</span><span id="${workflow.wfId }">${workflow.wfName }</span></td>
           			<td>          			
           				<c:forEach items="${workflow.tbLst}" varStatus="idx" step="1" var="tb" >          					

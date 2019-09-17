@@ -368,8 +368,7 @@ public class WFOracleExecutor implements SQLExecutor {
 	@Override
 	public void migrateComments(Long bizId, Long tbId, String tableName,WorkflowUser user) {
 		List<Map<String,Object>> fields = this.query(""
-				+ " select b.fieldName from table_element a "
-				+ " left join element_library b on a.emId = b.emId "
+				+ " select a.newfieldName from table_element a "
 				+ " where a.tbId = "+tbId
 				+ " and a.newFieldType = '审批意见'");
 		if(fields != null && fields.size() > 0){

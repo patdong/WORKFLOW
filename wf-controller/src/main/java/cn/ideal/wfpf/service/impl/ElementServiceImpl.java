@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 import cn.ideal.wfpf.dao.ElementMapper;
 import cn.ideal.wfpf.model.Element;
@@ -59,16 +58,5 @@ public class ElementServiceImpl implements ElementService{
 	@Override
 	public List<Element> findValidAll() {
 		return elementMapper.findValidAll();
-	}
-
-	@Override
-	public List<Element> findValidAllWithTable(Long tbId) {
-		return elementMapper.findValidAllWithTable(tbId,null);
-	}
-
-	@Override
-	public List<Element> findValidAllWithTable(Long tbId, String scope) {
-		if(StringUtils.isEmpty(scope)) scope = "表体";
-		return elementMapper.findValidAllWithTable(tbId,scope);
 	}
 }

@@ -13,9 +13,8 @@ public class WorkflowTableElement implements Serializable{
 	private Long id;
 	private Long tbId;
 	private Long emId;
-	private String labelName;
-	private String fieldName;
 	private String newLabelName;
+	private String newFieldName;
 	private String newFunctionName;
 	private String functionBelongTo;
 	private String newHiddenFieldName;
@@ -42,7 +41,7 @@ public class WorkflowTableElement implements Serializable{
 	public WorkflowTableElement(){}
 	
 	public WorkflowTableElement(String labelName,String dataValue){
-		this.labelName = labelName;
+		this.newLabelName = labelName;
 		this.dataValue = dataValue;
 	}
 		
@@ -64,24 +63,22 @@ public class WorkflowTableElement implements Serializable{
 	public void setEmId(Long emId) {
 		this.emId = emId;
 	}
-	public String getLabelName() {
-		return labelName;
-	}
-	public void setLabelName(String labelName) {
-		this.labelName = labelName;
-	}
-	public String getFieldName() {
-		return fieldName;
-	}
-	public void setFieldName(String fieldName) {
-		this.fieldName = fieldName;
-	}
+	
 	public String getNewLabelName() {
 		return newLabelName;
 	}
 	public void setNewLabelName(String newLabelName) {
 		this.newLabelName = newLabelName;
 	}
+	
+	public String getNewFieldName() {
+		return newFieldName;
+	}
+
+	public void setNewFieldName(String newFieldName) {
+		this.newFieldName = newFieldName;
+	}
+
 	public String getNewFunctionName() {
 		return newFunctionName;
 	}

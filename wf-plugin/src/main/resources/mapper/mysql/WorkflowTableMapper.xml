@@ -16,20 +16,17 @@
 	</select>
 	
 	<select id="findTableFields" resultMap="wftableelement" parameterType="java.lang.Long">
-		select a.*,b.fieldName from table_element a
-		  left join element_library b on a.emId = b.emId 
+		select a.* from table_element a		
 		 where a.tbId = #{tbId}		 
 		   and a.newFieldType not in ( '标签','子表','组件')
 		 union all
-		select a.*,b.fieldName from table_element a
-		  left join element_library b on a.emId = b.emId 
+		select a.* from table_element a		 
 		 where a.tbId in (select stbId from table_element where tbId = #{tbId} and newFieldType ='组件')
 		   and a.newFieldType not in ( '标签','子表','组件','列表')
 	</select>	
 	
 	<select id="findTableFieldNames" resultType="java.lang.String" parameterType="java.lang.Long">
-		select b.fieldName from table_element a
-		  left join element_library b on a.emId = b.emId 
+		select a.newfieldName from table_element a		  
 		 where a.tbId = #{tbId}		 
 		   and a.newFieldType not in ( '标签','子表','组件','列表')
 		union all
@@ -37,15 +34,13 @@
 		 where a.tbId = #{tbId}		 
 		   and a.newhiddenfieldName is not null and length(a.newhiddenfieldName) > 0
 		 union all
-		select b.fieldName from table_element a
-		  left join element_library b on a.emId = b.emId 
+		select a.newfieldName from table_element a		  
 		 where a.tbId in (select stbId from table_element where tbId = #{tbId} and newFieldType ='组件')
 		   and a.newFieldType not in ( '标签','子表','组件','列表')
 	</select>	
 	
 	<select id="findElementsOnList" resultMap="wftableelement" parameterType="java.lang.Long">
-		select a.* ,b.fieldName from table_element a
-		inner join element_library b on a.emId = b.emId
+		select a.* from table_element a		
 		 where a.tbId = #{tbId} 
 		   and a.list = '有效'
 	  order by seq
@@ -82,8 +77,7 @@
 	</select>
 	
 	<select id="findTableAllElements" resultMap="wftableelement" parameterType="java.util.Map">
-		select c.name as tableName,1 as readOnly,a.*,b.labelName,b.fieldName from table_element a
-		 left join element_library b on a.emId = b.emId		 
+		select c.name as tableName,1 as readOnly,a.* from table_element a		 	
 		 inner join table_brief c on c.tbId = a.tbId 
 		 where a.tbId = #{tbId}
 		 <if test="scope != null">
@@ -94,8 +88,7 @@
 	
 	<select id="findTableAllElementsWithWorkflow" resultMap="wftableelement" parameterType="java.util.Map">
 		select c.name as tableName,(case when d.id is not null then 0 else 1 end) as readOnly,
-     		   d.required,a.*,b.labelName,b.fieldName from table_element a
-		 left join element_library b on a.emId = b.emId
+     		   d.required,a.* from table_element a		
 		 left join workflow_table_element d on d.id = a.id and d.wfId = #{wfId} and d.nodeName = #{nodeName}		
 		 inner join table_brief c on c.tbId = a.tbId 
 		 where a.tbId = #{tbId}		      		   

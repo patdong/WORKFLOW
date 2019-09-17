@@ -9,13 +9,13 @@
   	//根据下拉框的选择获取列表信息
     function findList(){
     	var scope = $("#selOperation").val();
-    	location.href="/app/list/${model.wftb.tbId}/"+scope+"/1";
+    	location.href="${path}/app/list/${model.wftb.tbId}/"+scope+"/1";
     }
 </script>
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
   <h1 class="h2">${model.wftb.tableName }</h1>  
   <div class="btn-toolbar mb-2 mb-md-0">  	   
-    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="location.href='/app/showinittable/${model.wftb.tbId}/${model.wftb.wfId}'">新建</button>
+    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="location.href='${path}/app/showinittable/${model.wftb.tbId}/${model.wftb.wfId}'">新建</button>
     <button type="button" class="btn btn-sm btn-outline-secondary">生成Excel</button>&nbsp;
     <select id="selOperation" onchange="findList();">
     	<option>办理列表</option>
@@ -42,7 +42,7 @@
     <tbody>   
       <c:forEach items="${model.page.pageList}"  var="item" >
       	<tr>
-      		<td><a href="/app/showtable/${model.wftb.tbId}/${item['Id']}">#${item['Id']}</a></td>
+      		<td><a href="${path}/app/showtable/${model.wftb.tbId}/${item['Id']}">#${item['Id']}</a></td>
 	      	<c:forEach items="${item}" var="map" > 	      	    		     	
 	   			<c:forEach items="${model.tableList}"  var="tableElement" >	   				   			
 	       		<c:if test="${tableElement.fieldName eq map.key || fn:toLowerCase(tableElement.fieldName) eq map.key  || fn:toUpperCase(tableElement.fieldName) eq map.key}">		       		       	

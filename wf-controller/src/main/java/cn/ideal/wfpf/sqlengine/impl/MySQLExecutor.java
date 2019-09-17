@@ -65,13 +65,13 @@ public class MySQLExecutor implements SQLExecutor {
 				for(TableElement te : tbemLst){
 					if(te.getNewFieldDataType() != null){
 						if(te.getNewFieldDataType().equals("String")){
-							strBuilder.append(mySQLCreator.createVarchar(te.getFieldName(), Boolean.parseBoolean(te.getConstraint()), te.getNewLength(),te.getNewLabelName()));
+							strBuilder.append(mySQLCreator.createVarchar(te.getNewFieldName(), Boolean.parseBoolean(te.getConstraint()), te.getNewLength(),te.getNewLabelName()));
 							strBuilder.append(",");
 						}else if(te.getNewFieldDataType().equals("DateTime")){
-							strBuilder.append(mySQLCreator.createDateTime(te.getFieldName(), Boolean.parseBoolean(te.getConstraint()), te.getNewLabelName()));
+							strBuilder.append(mySQLCreator.createDateTime(te.getNewFieldName(), Boolean.parseBoolean(te.getConstraint()), te.getNewLabelName()));
 							strBuilder.append(",");
 						}else if(te.getNewFieldDataType().equals("Int")){
-							strBuilder.append(mySQLCreator.createInt(te.getFieldName(), Boolean.parseBoolean(te.getConstraint()), te.getNewLabelName()));
+							strBuilder.append(mySQLCreator.createInt(te.getNewFieldName(), Boolean.parseBoolean(te.getConstraint()), te.getNewLabelName()));
 							strBuilder.append(",");
 						}						
 					}

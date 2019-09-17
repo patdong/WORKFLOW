@@ -6,12 +6,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
 <title>Work Flow Configuration</title>
-<script type="text/javascript" src="${pageContext.request.contextPath }/js/jquery-3.3.1.min.js"></script>
-<script type="text/javascript" src="${pageContext.request.contextPath }/js/jquery.validate.min.js"></script>
-<script type="text/javascript" src="${pageContext.request.contextPath }/js/jquery-ui.js"></script>
-<script type="text/javascript" src="${pageContext.request.contextPath }/js/bootstrap.min.js"></script>
-<link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath }/css/bootstrap.min.css" />
-<link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath }/css/sys.css" />
+<script type="text/javascript" src="${path}/js/jquery-3.3.1.min.js"></script>
+<script type="text/javascript" src="${path}/js/jquery.validate.min.js"></script>
+<script type="text/javascript" src="${path}/js/jquery-ui.js"></script>
+<script type="text/javascript" src="${path}/js/bootstrap.min.js"></script>
+<link rel="stylesheet" type="text/css" href="${path}/css/bootstrap.min.css" />
+<link rel="stylesheet" type="text/css" href="${path}/css/sys.css" />
 </head>
 <body style="background:;">
 	<div style="position: absolute;width: 30%;margin-left: 35%;top: 15%;font-size: 1.95rem;">
@@ -19,7 +19,7 @@
 		<span style="color:#7b7070;font-weight: bold;font-size:18px;">2.0</span>
 	</div>	
     <div class="container" style="width:30%; text-align:center;border:2px solid gray;margin-top:10%;box-shadow: 3px 4px 4px #6f6c6a;" >
-	<form:form class="login-centered" modelAttribute="userForm" method="post" action="/login">
+	<form:form class="login-centered" modelAttribute="userForm" method="post" action="${path}/login">
         <h2 class="form-signin-heading" style="color:#7b7070;">登陆</h2>
         <label for="inputEmail" class="sr-only">授权账号</label>
         <form:input path="username" class="form-control required autofocus" placeholder="授权账号"  />

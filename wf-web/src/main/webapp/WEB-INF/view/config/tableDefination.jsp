@@ -54,11 +54,11 @@
     	  })
 		  $.ajax({
 			  type: 'GET',
-			  url: "/tb/savecheckedelements/${tbId}",
+			  url: "${path}/tb/savecheckedelements/${tbId}",
 			  data:{checkedIds:checkedIds,scope:gscope},
 			  dataType: 'json',
 			  success: function(data){
-				  location.href="/tb/tabledefination/${tbId}?scope="+gscope+"&fieldsetting="+gfieldsetting;
+				  location.href="${path}/tb/tabledefination/${tbId}?scope="+gscope+"&fieldsetting="+gfieldsetting;
 			  },
 			  error: function(XMLHttpRequest, textStatus, errorThrown){
 				  console.warn(XMLHttpRequest.responseText);		  
@@ -71,10 +71,10 @@
   function moveUp(id){
 	  $.ajax({
 		  type: 'GET',
-		  url: "/tb/moveup/${tbId}/"+id+"/"+gscope,		  
+		  url: "${path}/tb/moveup/${tbId}/"+id+"/"+gscope,		  
 		  dataType: 'json',
 		  success: function(data){
-			  location.href="/tb/tabledefination/${tbId}?scope="+gscope+"&fieldsetting="+gfieldsetting;
+			  location.href="${path}/tb/tabledefination/${tbId}?scope="+gscope+"&fieldsetting="+gfieldsetting;
 		  },
 		  error: function(XMLHttpRequest, textStatus, errorThrown){
 			  console.warn(XMLHttpRequest.responseText);		  
@@ -86,10 +86,10 @@
   function moveDown(id){
 	  $.ajax({
 		  type: 'GET',
-		  url: "/tb/movedown/${tbId}/"+id+"/"+gscope,		  
+		  url: "${path}/tb/movedown/${tbId}/"+id+"/"+gscope,		  
 		  dataType: 'json',
 		  success: function(data){
-			  location.href="/tb/tabledefination/${tbId}?scope="+gscope+"&fieldsetting="+gfieldsetting;
+			  location.href="${path}/tb/tabledefination/${tbId}?scope="+gscope+"&fieldsetting="+gfieldsetting;
 		  },
 		  error: function(XMLHttpRequest, textStatus, errorThrown){
 			  console.warn(XMLHttpRequest.responseText);		  
@@ -100,17 +100,17 @@
   //根据选中的不同位置刷新表单元素
   function fresh(scope){
 	  gscope = scope;
-	  location.href="/tb/tabledefination/${tbId}?scope="+gscope+"&fieldsetting="+gfieldsetting;
+	  location.href="${path}/tb/tabledefination/${tbId}?scope="+gscope+"&fieldsetting="+gfieldsetting;
   }
   
   //删除表单中的元素
   function remove(id){
 	  $.ajax({
 		  type: 'GET',
-		  url: "/tb/remove/${tbId}/"+id,		  
+		  url: "${path}/tb/remove/${tbId}/"+id,		  
 		  dataType: 'json',
 		  success: function(data){
-			  location.href="/tb/tabledefination/${tbId}?scope="+gscope+"&fieldsetting="+gfieldsetting;
+			  location.href="${path}/tb/tabledefination/${tbId}?scope="+gscope+"&fieldsetting="+gfieldsetting;
 		  },
 		  error: function(XMLHttpRequest, textStatus, errorThrown){
 			  console.warn(XMLHttpRequest.responseText);		  
@@ -161,7 +161,7 @@
 	  $("#id").val(element.id); 
 	  $("#element-name").text(element.newLabelName);
 	  $("#newLabelName").val(element.newLabelName);
-	  $("#fieldName").val(element.fieldName);	  
+	  $("#newFieldName").val(element.newFieldName);	  
 	  $("#newFieldDataType").val(element.newFieldDataType);
 	  $("#newFieldType").val(element.newFieldType);
 	  $("#rowes").val(element.rowes);
@@ -186,7 +186,7 @@
 	        if($.trim(tableName) != ""){
 	        	$.ajax({
 	      		  type: 'GET',
-	      		  url: "/tb/setTableName/"+tbId,
+	      		  url: "${path}/tb/setTableName/"+tbId,
 	      		  data: {tableName:tableName},			  
 	      		  dataType: 'json',
 	      		  success: function(data){	      			  		 
@@ -219,11 +219,11 @@
 	  
 	  $.ajax({
 		  type: 'GET',
-		  url: "/tb/savelayout/${tbId}",
+		  url: "${path}/tb/savelayout/${tbId}",
 		  data:{headCols:headCols,bodyCols:bodyCols,footCols:footCols},
 		  dataType: 'json',
 		  success: function(data){
-			  location.href="/tb/tabledefination/${tbId}?scope="+gscope+"&fieldsetting="+gfieldsetting;
+			  location.href="${path}/tb/tabledefination/${tbId}?scope="+gscope+"&fieldsetting="+gfieldsetting;
 		  },
 		  error: function(XMLHttpRequest, textStatus, errorThrown){
 			  console.warn(XMLHttpRequest.responseText);		  
@@ -249,12 +249,12 @@
    	  })
 	  $.ajax({
 		  type: 'GET',
-		  url: "/tb/setlist/${tbId}",
+		  url: "${path}/tb/setlist/${tbId}",
 		  data:{checkedIds:checkedIds},
 		  dataType: 'json',
 		  success: function(data){
 			  $("#lst-div").hide();
-			  location.href="/tb/tabledefination/${tbId}?scope="+gscope+"&fieldsetting="+gfieldsetting;
+			  location.href="${path}/tb/tabledefination/${tbId}?scope="+gscope+"&fieldsetting="+gfieldsetting;
 		  },
 		  error: function(XMLHttpRequest, textStatus, errorThrown){
 			  console.warn(XMLHttpRequest.responseText);		  
@@ -270,13 +270,13 @@
 	  }else{		  
 		  $.ajax({
 			  type: 'GET',
-			  url: "/tb/createtable/${tbId}",
+			  url: "${path}/tb/createtable/${tbId}",
 			  data:{tbName:tbName},
 			  dataType: 'json',
 			  success: function(data){
 				  if(data.code == '1'){					
 					  $('#tbname-dialog').hide();	
-					  location.href="/tb/tabledefination/${tbId}?scope="+gscope+"&fieldsetting="+gfieldsetting;
+					  location.href="${path}/tb/tabledefination/${tbId}?scope="+gscope+"&fieldsetting="+gfieldsetting;
 				  }
 				  if(data.code == '0'){
 					  $('#alert-dialog').show();
@@ -304,11 +304,11 @@
   function dropTable(){
 	  $.ajax({
 		  type: 'GET',
-		  url: "/tb/droptable/${tbId}",			  
+		  url: "${path}/tb/droptable/${tbId}",			  
 		  dataType: 'json',
 		  success: function(data){
 			  if(data.code == '1'){				  
-				  location.href="/tb/tabledefination/${tbId}?scope="+gscope+"&fieldsetting="+gfieldsetting;
+				  location.href="${path}/tb/tabledefination/${tbId}?scope="+gscope+"&fieldsetting="+gfieldsetting;
 			  }
 			  if(data.code == '0'){
 				  $('#alert-dialog').show();
@@ -324,7 +324,7 @@
   function checkTableScheme(){		  
 	  $.ajax({
 		  type: 'GET',
-		  url: "/tb/getTableScheme/${tbId}",		  			 
+		  url: "${path}/tb/getTableScheme/${tbId}",		  			 
 		  dataType: 'json',
 		  success: function(data){
 			  var li;
@@ -332,11 +332,11 @@
 			  $("#scheme-lst").empty();
 			  $.each(data,function (index, element) {
 			      li = "<tr>";
-			      if(element.fieldName==null){
+			      if(element.newFieldName==null){
 			      	li += "<td><span style='color:red;font-weight:bold;'>❗<span></td>"; 	
 			      	alarm = true;
 			      }else{
-			    	  li += "<td>"+element.fieldName+"</td>"
+			    	  li += "<td>"+element.newFieldName+"</td>"
 			      }
 			      if(element.newLabelName==null){
 			      	li += "<td><span style='color:red;'>❗<span></td>"; 
@@ -376,18 +376,18 @@
   //切换表单的展示范围
   function changeScope(){
 	  scope = $("#tscope").val();
-	  location.href="/tb/tabledefination/${tbId}?scope="+scope+"&fieldsetting="+gfieldsetting;
+	  location.href="${path}/tb/tabledefination/${tbId}?scope="+scope+"&fieldsetting="+gfieldsetting;
   }
   
   //设置子表
   function setSubTable(){      
 	  $.ajax({
 		  type: 'GET',
-		  url: "/tb/setSubTable/${tbId}/"+$("#subTbId").val()+"/"+$("#tscope").val(),
+		  url: "${path}/tb/setSubTable/${tbId}/"+$("#subTbId").val()+"/"+$("#tscope").val(),
 		  dataType: 'json',
 		  success: function(data){
 			  $("#subTable-div").hide();
-			  location.href="/tb/tabledefination/${tbId}?scope="+gscope+"&fieldsetting="+gfieldsetting;
+			  location.href="${path}/tb/tabledefination/${tbId}?scope="+gscope+"&fieldsetting="+gfieldsetting;
 		  },
 		  error: function(XMLHttpRequest, textStatus, errorThrown){
 			  console.warn(XMLHttpRequest.responseText);		  
@@ -399,7 +399,7 @@
   function redraw(){
 	  $.ajax({
 		  type: 'GET',
-		  url: "/tb/redraw/${tbId}/"+$("#tscope").val()+"/"+gfieldsetting,
+		  url: "${path}/tb/redraw/${tbId}/"+$("#tscope").val()+"/"+gfieldsetting,
 		  dataType: 'json',
 		  success: function(data){
 			  $("#table-container").empty();
@@ -414,7 +414,7 @@
   function review(){	  
 	  $.ajax({
 		  type: 'GET',
-		  url: "/tb/review/${tbId}",
+		  url: "${path}/tb/review/${tbId}",
 		  dataType: 'json',
 		  success: function(data){			  
 			  $("#table-reviewer").empty();
@@ -433,7 +433,7 @@
       if($.trim(template) != ""){
       	$.ajax({
     		  type: 'GET',
-    		  url: "/tb/setTemplate/${tbId}",
+    		  url: "${path}/tb/setTemplate/${tbId}",
     		  data: {template:template},			  
     		  dataType: 'json',
     		  success: function(data){	 
@@ -462,7 +462,7 @@
 	  if(newFieldType == '组件' || newFieldType == '子表'){
 		  $.ajax({
     		  type: 'GET',
-    		  url: "/tb/getPlugIns",
+    		  url: "${path}/tb/getPlugIns",
     		  data: {newFieldType:newFieldType},			  
     		  dataType: 'json',
     		  success: function(data){	 
@@ -490,7 +490,7 @@
 <div style="padding:0em;margin:0px;padding-top: 1.4%;">
   	<div style="background:#f8f9fa;">
   		<span class="mt-5" style="font-size: 1.35rem;margin-left:2%">表单定义 </span>
-  		<span class="small-btn" style="background:#42a288;font-weight:bold;color: #ffc107;" onclick="location.href='/tb/tablecenter'">&nbsp;⬅&nbsp;</span>  		  		
+  		<span class="small-btn" style="background:#42a288;font-weight:bold;color: #ffc107;" onclick="location.href='${path}/tb/tablecenter'">&nbsp;⬅&nbsp;</span>  		  		
   		<span style="margin-left:2%;"><span style="color:#71d2f1">❒</span>模板&nbsp;<select style="font-size:.78rem;" id="template" onchange="changeTemplate();"><option value="表">表</option><option value="子表">子表</option><option value="组件">组件</option></select></span>
   		<span style="margin-left:0.3%;">|</span>
   		<span style="margin-left:0.3%;cursor:pointer;" onclick="$('#setting-div').show();"><span style="color:#0c8e2a;">❆</span>布局 </span> 
@@ -501,14 +501,14 @@
   		<span style="margin-left:0.3%;cursor:pointer;" onclick="showFieldSetting();" id="fieldsetting"><span style="color: #90790a;">⤧</span>编辑</span>
   		<span style="margin-left:0.3%;">|</span>   		
   		<c:if test="${empty brief.name }" > 		
-			<span id="db1" style="cursor:pointer;" title="生成库表数据" onclick="createTable();"><img src="/img/wf_btn12.PNG"></span>
+			<span id="db1" style="cursor:pointer;" title="生成库表数据" onclick="createTable();"><img src="${path}/img/wf_btn12.PNG"></span>
 		</c:if>
 		<c:if test="${!empty brief.name }" > 		
-			<span id="db2" style="cursor:pointer;" title="重构库表数据" onclick="createTable();"><img src="/img/wf_btn13.PNG"></span>
-			<span style="cursor:pointer;" title="重命名" onclick="renameTable();"><img src="/img/wf_btn18.PNG"></span>
-			<span style="cursor:pointer;" title="删除表" onclick="dropTableConfirm();"><img src="/img/wf_btn19.PNG"></span>
+			<span id="db2" style="cursor:pointer;" title="重构库表数据" onclick="createTable();"><img src="${path}/img/wf_btn13.PNG"></span>
+			<span style="cursor:pointer;" title="重命名" onclick="renameTable();"><img src="${path}/img/wf_btn18.PNG"></span>
+			<span style="cursor:pointer;" title="删除表" onclick="dropTableConfirm();"><img src="${path}/img/wf_btn19.PNG"></span>
 		</c:if> 
-		<span id="dbcheck" style="cursor:pointer;" title="库表检测" onclick="checkTableScheme();"><img src="/img/wf_btn15.PNG"></span>		
+		<span id="dbcheck" style="cursor:pointer;" title="库表检测" onclick="checkTableScheme();"><img src="${path}/img/wf_btn15.PNG"></span>		
   		<span style="margin-left:0.3%;">|</span> 
   		<div style="float: right; margin-right: 24%;margin-top: 8px;" > 
   			<span style="cursor:pointer;" onclick="$('#brief-div').show();"><span style="font-weight:bold;color:RED">➿</span> |</span> 				  		
@@ -559,7 +559,7 @@
 	    <div style="padding: 0px 13px 0px;height: 100%;overflow-y: auto;" id="ems-body">
 			<form id="emsForm" class="navbar-form navbar-left" method="get" action="">			
 				<c:forEach items="${emList}" varStatus="i" var="element" >
-					<p style="margin-bottom: 0.1rem;"><input type="checkbox" id="orgemId" name="orgemId" value="${element.emId}" <c:if test="${! empty element.tbId }">checked</c:if>><span style="font-size:0.8rem">&nbsp;${element.labelName}</span></p>
+					<p style="margin-bottom: 0.1rem;"><input type="checkbox" id="orgemId" name="orgemId" value="${element.emId}" ><span style="font-size:0.8rem">&nbsp;${element.labelName}</span></p>
 				</c:forEach>			        			  
 		   </form>	  	
 		</div>			 
@@ -600,7 +600,7 @@
 	    <div style="padding: 0px 13px 0px;height: 300px;overflow-y: auto;" >
 			<form id="lstForm" class="navbar-form navbar-left" method="get" action="">			
 				<c:forEach items="${tbList}" varStatus="i" var="element" >
-					<p style="margin-bottom: 0.1rem;"><input type="checkbox" id="lstId" name="lstId" value="${element.emId}-${element.tbId}" <c:if test="${element.list eq '有效' }">checked</c:if>><span style="font-size:0.8rem">&nbsp;${element.labelName}</span></p>
+					<p style="margin-bottom: 0.1rem;"><input type="checkbox" id="lstId" name="lstId" value="${element.id}" <c:if test="${element.list eq '有效' }">checked</c:if>><span style="font-size:0.8rem">&nbsp;${element.newLabelName}</span></p>
 				</c:forEach>			        			  
 		   </form>	  	
 		</div>			 			
@@ -626,7 +626,7 @@
     </header>
     <hr ></hr>
     <div style="padding: 0px 13px 0px;">
-		<form id="myForm" class="" method="post" modelAttribute="element" action="/tb/saveElement/${tbId}">
+		<form id="myForm" class="" method="post" modelAttribute="element" action="${path}/tb/saveElement/${tbId}">
 			
 			<!-- hidden项是本页面两个form公用项  不可轻易做变更！ -->
 			
@@ -636,7 +636,7 @@
 		        <label >元素名称：</label>
 		        <input name="newLabelName" id="newLabelName" class="form-control-one-line mx-sm-2" required autofocus style="width:25%"/>
 		        <label >字段名称：</label>
-		        <input name="fieldName" id="fieldName" class="form-control-one-line" style="width:25%"/>
+		        <input name="newFieldName" id="newFieldName" class="form-control-one-line" style="width:25%"/>
 		    </div>
 		  	<div class="form-group-dialog">	    		       
 		        <label>字段类型：</label>

@@ -97,8 +97,8 @@ DROP SEQUENCE sq_id;
 CREATE TABLE table_element (
   id NUMBER NOT NULL,
   tbId NUMBER NOT NULL,
-  emId NUMBER NULL,
   newLabelName varchar2(100) DEFAULT NULL ,
+  newFieldName varchar2(100) DEFAULT NULL ,
   newFunctionName varchar2(50) DEFAULT NULL ,
   functionBelongTo varchar2(10) DEFAULT NULL ,
   newHiddenFieldName varchar2(50) DEFAULT NULL ,
@@ -122,8 +122,8 @@ CREATE TABLE table_element (
 );
 COMMENT ON COLUMN table_element.id IS '表单元素编号';
 COMMENT ON COLUMN table_element.tbId IS '表单编号';
-COMMENT ON COLUMN table_element.emId IS '元素编号';
 COMMENT ON COLUMN table_element.newLabelName IS '字段标签名称';
+COMMENT ON COLUMN table_element.newFieldName IS '字段名称名称';
 COMMENT ON COLUMN table_element.newFunctionName IS '事件名称';
 COMMENT ON COLUMN table_element.functionBelongTo IS '事件方法所属（标签或元素）';
 COMMENT ON COLUMN table_element.newHiddenFieldName IS '隐藏项';

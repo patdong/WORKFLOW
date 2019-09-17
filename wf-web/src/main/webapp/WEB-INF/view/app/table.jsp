@@ -8,8 +8,8 @@
     	//必输项的默认提示信息：
         $.validator.messages.required = "此项为必输项！";
     	
-    	if("${model.bizId}" == "") $("#myForm").attr("action","/app/save/${model.wftb.tbId}/${model.wftb.wfId}");
-    	else $("#myForm").attr("action","/app/update/${model.wftb.tbId}/${model.bizId}");       	
+    	if("${model.bizId}" == "") $("#myForm").attr("action","${path}/app/save/${model.wftb.tbId}/${model.wftb.wfId}");
+    	else $("#myForm").attr("action","${path}/app/update/${model.wftb.tbId}/${model.bizId}");       	
     	$("#myForm").submit();
     }
     //表单重置
@@ -21,7 +21,7 @@
     function doAction(){
     	var nextNodeSize = "${model.nextNodeSize}";
     	if(nextNodeSize <= 1){
-	    	$("#myForm").attr("action","/app/doaction/${model.wftb.tbId}/${model.bizId}");
+	    	$("#myForm").attr("action","${path}/app/doaction/${model.wftb.tbId}/${model.bizId}");
 	    	$("#myForm").submit();
     	}else{
     		//弹出节点选择框
@@ -36,19 +36,19 @@
   	
   	//指定流程节点提交
     function doFixedAction(nodeId){
-    	$("#myForm").attr("action","/app/doaction/${model.wftb.tbId}/${model.bizId}/"+nodeId);
+    	$("#myForm").attr("action","${path}/app/doaction/${model.wftb.tbId}/${model.bizId}/"+nodeId);
     	$("#myForm").submit();    	
     }
   
   	//流程按钮操作
   	function doButton(buttonName){
-  		$("#myForm").attr("action","/app/dobutton/${model.wftb.tbId}/${model.bizId}/"+buttonName);
+  		$("#myForm").attr("action","${path}/app/dobutton/${model.wftb.tbId}/${model.bizId}/"+buttonName);
     	$("#myForm").submit();
   	}
 </script> 	
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
   <h1 class="h2">
-  	<label onclick="location.href='/app/list/${model.wftb.tbId}/1'" style="cursor:pointer;color:#dc3545;">⇦</label>
+  	<label onclick="location.href='${path}/app/list/${model.wftb.tbId}/1'" style="cursor:pointer;color:#dc3545;">⇦</label>
   	✍  	
   </h1>
   <div class="btn-toolbar mb-2 mb-md-0">

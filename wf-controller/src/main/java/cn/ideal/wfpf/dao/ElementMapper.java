@@ -22,7 +22,5 @@ public interface ElementMapper {
 
 	List<Element> findValidAll();
 	
-	List<Element> findValidAllWithTable(@Param("tbId") Long tbId,@Param("scope") String scope);
-	
 	List<Element> findAPage(@Param("recordNumber") Long recordNumber,@Param("recordLastNumber") Long recordLastNumber,@Param("pageSize") Long  pageSize);	
 }

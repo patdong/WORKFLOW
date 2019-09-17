@@ -89,7 +89,7 @@
 	  var orgName = $("#orgName").val();
 	  $.ajax({
 		  type: 'GET',
-		  url: "/wf/selectOrgs",
+		  url: "${path}/wf/selectOrgs",
 		  data: {orgName:orgName},			  
 		  dataType: 'json',
 		  success: function(data){
@@ -309,9 +309,9 @@
 	  }	
 	  var url = "";
 	  if(linkNodeIds == "") {
-		  url = '/wfnode/delNodeLink/'+clickedNodeId;
+		  url = '${path}/wfnode/delNodeLink/'+clickedNodeId;
 	  }else{
-		  url = '/wfnode/delNodeLink/'+clickedNodeId+'/'+linkNodeIds;
+		  url = '${path}/wfnode/delNodeLink/'+clickedNodeId+'/'+linkNodeIds;
 	  }
 	  $("#link-div").hide();
 	  $.ajax({
@@ -319,7 +319,7 @@
 		  url: url,
 		  dataType: 'json',
 		  success: function(data){
-			  location.href="/wf/workflowdefination/"+$("#wfId").val();
+			  location.href="${path}/wf/workflowdefination/"+$("#wfId").val();
 		  },
 		  error: function(XMLHttpRequest, textStatus, errorThrown){
 			  console.warn(XMLHttpRequest.responseText);		  
@@ -352,14 +352,14 @@
 	  $("#confirm-dialog").dialog("close");
 	  var delegationNodeId = $("#delegationNodeId").val();
 	  var url = "";
-	  if(delegationNodeId == "" || typeof(delegationNodeId) == 'undefined') url="/wfnode/delNode/"+clickedNodeId;
-	  else url="/wfnode/delNode/"+clickedNodeId+"/"+delegationNodeId;
+	  if(delegationNodeId == "" || typeof(delegationNodeId) == 'undefined') url="${path}/wfnode/delNode/"+clickedNodeId;
+	  else url="${path}/wfnode/delNode/"+clickedNodeId+"/"+delegationNodeId;
 	  $.ajax({
 		  type: 'GET',
 		  url: url,
 		  dataType: 'json',
 		  success: function(data){
-			  location.href="/wf/workflowdefination/"+$("#wfId").val();
+			  location.href="${path}/wf/workflowdefination/"+$("#wfId").val();
 		  },
 		  error: function(XMLHttpRequest, textStatus, errorThrown){
 			  console.warn(XMLHttpRequest.responseText);		  
@@ -371,10 +371,10 @@
   function frozenNode(){
 	  $.ajax({
 		  type: 'GET',
-		  url: "/wfnode/frozenNode/"+clickedNodeId,		  	 
+		  url: "${path}/wfnode/frozenNode/"+clickedNodeId,		  	 
 		  dataType: 'json',
 		  success: function(data){
-			  location.href="/wf/workflowdefination/"+$("#wfId").val();
+			  location.href="${path}/wf/workflowdefination/"+$("#wfId").val();
 		  },
 		  error: function(XMLHttpRequest, textStatus, errorThrown){
 			  console.warn(XMLHttpRequest.responseText);		  
@@ -386,10 +386,10 @@
   function unfrozenNode(){
 	  $.ajax({
 		  type: 'GET',
-		  url: "/wfnode/unfrozenNode/"+clickedNodeId,		  	 
+		  url: "${path}/wfnode/unfrozenNode/"+clickedNodeId,		  	 
 		  dataType: 'json',
 		  success: function(data){
-			  location.href="/wf/workflowdefination/"+$("#wfId").val();
+			  location.href="${path}/wf/workflowdefination/"+$("#wfId").val();
 		  },
 		  error: function(XMLHttpRequest, textStatus, errorThrown){
 			  console.warn(XMLHttpRequest.responseText);		  
@@ -405,7 +405,7 @@
 	        if($.trim(wfName) != ""){
 	        	$.ajax({
 	      		  type: 'GET',
-	      		  url: "/wf/setWfName/"+wfId,
+	      		  url: "${path}/wf/setWfName/"+wfId,
 	      		  data: {wfName:wfName},			  
 	      		  dataType: 'json',
 	      		  success: function(data){	      			  		 
@@ -501,7 +501,7 @@
 	  $("#nodeNodeId").val(clickedNodeId);
 	  $.ajax({
   		  type: 'GET',
-  		  url: "/wf/getsufnodes/"+clickedNodeId+"/"+wfId, 
+  		  url: "${path}/wf/getsufnodes/"+clickedNodeId+"/"+wfId, 
   		  dataType: 'json',
   		  success: function(data){ 
   			$("#sufNodeId").empty();
@@ -533,7 +533,7 @@
       $("#fields-lst").append(li);
 	  $.ajax({
   		  type: 'GET',
-  		  url: "/wf/gettableelements/"+wfId+"/"+clickedNodeId+"/"+tbId, 
+  		  url: "${path}/wf/gettableelements/"+wfId+"/"+clickedNodeId+"/"+tbId, 
   		  dataType: 'json',
   		  success: function(data){  			
   			var checked="";
@@ -577,7 +577,7 @@
 	  }
 	  $.ajax({
   		  type: 'GET',
-  		  url: "/wf/settableelements/"+wfId+"/"+clickedNodeId,
+  		  url: "${path}/wf/settableelements/"+wfId+"/"+clickedNodeId,
   		  data: {ids:ids,requiredIds:requiredIds},			  
   		  dataType: 'json',
   		  success: function(data){ 
@@ -594,7 +594,7 @@
 		<div style="padding:0em;margin:0px">
 		  	<div >
 		  		<h3 class="mt-5">流程定义 
-		  		 	<span class="small-btn" style="background:#42a288;font-weight:bold;color: #ffc107;" onclick="location.href='/wf/workflowcenter'">&nbsp;⬅&nbsp;</span>
+		  		 	<span class="small-btn" style="background:#42a288;font-weight:bold;color: #ffc107;" onclick="location.href='${path}/wf/workflowcenter'">&nbsp;⬅&nbsp;</span>
 		  		 	<input type="text" name="wfName" id="wfName" placeholder="流程名称"  style="text-align:center;font-size:1.5rem;width:30%" value="${wf.wfName }" onkeypress="setWfName(event);" />		  		 	
 		  		</h3>		  		  		   		    
 		  	</div>
@@ -886,7 +886,7 @@
 <div id="link-div" class="mask opacity" style="display:none">
 	<header>	      
          <div class="form-inline mt-2 mt-md-0" style="padding: 6px 10px 0px;" >
-           <label>选择需要取消的连接</label>
+           <label>选择需要取消的连接(<span style="color:red">把√去掉!  单连接此操作无效</span>)</label>
          </div>
          <div style="position: absolute;top: 1px;right: 15px;">
          	<span class="badge badge-secondary badge-pill" style="background-color:#46a70a;cursor:pointer;" onclick="$('#link-div').hide();">×</span>

@@ -35,8 +35,8 @@
 		         </execution>
 		     </executions>
              <configuration>
-                 <source>1.7</source>
-                 <target>1.7</target>
+                 <source>1.8</source>
+                 <target>1.8</target>
                  <tasks>
                  	<!-- 如果应用系统已经用了redis，那么删除redis的配置实例，否则产生冲突系统无法正常启用 -->
 		            <delete dir="target/classes/cn/ideal/wf/cache/redis/conf"/>

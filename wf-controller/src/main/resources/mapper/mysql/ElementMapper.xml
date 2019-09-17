@@ -56,20 +56,6 @@
 		 where status = '有效'
 	</select>
 	
-	<select id="findValidAllWithTable" resultMap="element" parameterType="java.util.Map">
-		select a.*,b.tbId from element_library a
-		inner join table_element b on a.emId = b.emId 
-		                         and b.tbId = #{tbId}
-		                         <if test="scope != null">
-		                         and b.scope = #{scope}
-		                         </if>
-		 where a.status = '有效'
-		 union all
-		 select a.*,null as tbId from element_library a
-		 where a.status = '有效'
-		   and a.emId not in (select emId from table_element b where b.tbId = #{tbId} and b.emId is not null)
-	</select>
-	
 	<select id="findAPage" resultMap="element" parameterType="java.util.Map">
 		select * from element_library order by emId 
 		<if test="recordNumber != null ">

@@ -479,7 +479,7 @@ public class BusinessProcessor {
 				List<Map<String,Object>> res = SQLConnector.getSQLExecutor().query("select * from "+wftb.getName()+" where id = "+bizId);
 				Map<String,Object> resMap = res.get(0);
 				for(WorkflowTableElement em : fieldsMap.get(tl.getScope()).get(0)){
-					if(em.getFieldName() != null) em.setDataValue(resMap.get(em.getFieldName()));
+					if(em.getNewFieldName() != null) em.setDataValue(resMap.get(em.getNewFieldName()));
 					if(em.getStbId() != null){
 						if(em.getStbId() != null){
 							if(bizId != null){
@@ -529,7 +529,7 @@ public class BusinessProcessor {
 			List<WorkflowTableElement> lst = wfTableService.findTableAllElements(stbId,null);
 			Map<String,Object> resMap = sres.get(i);
 			for(WorkflowTableElement em : lst){
-				if(em.getFieldName() != null) em.setDataValue(resMap.get(em.getFieldName()));
+				if(em.getNewFieldName() != null) em.setDataValue(resMap.get(em.getNewFieldName()));
 			}
 			WorkflowTableElement id = new WorkflowTableElement();
 			id.setDataValue(resMap.get("ID"));

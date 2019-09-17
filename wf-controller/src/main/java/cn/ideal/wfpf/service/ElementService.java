@@ -15,9 +15,5 @@ public interface ElementService extends PageService<Element> {
 	Element find(Long emId);
 	
 	List<Element> findValidAll();
-	
-	List<Element> findValidAllWithTable(Long tbId);
-	
-	List<Element> findValidAllWithTable(Long tbId,String scope);
 
 }
