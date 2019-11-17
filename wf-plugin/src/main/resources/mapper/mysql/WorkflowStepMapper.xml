@@ -72,6 +72,7 @@
 		select wfs.* from workflow_step wfs
 		inner join workflow_flow wf on wf.flowId = wfs.flowId
 		where wf.bizId = #{bizId}
+		  and wf.wfId = #{wfId,jdbcType=DECIMAL}
 		  <if test="nodeName != null">
 		  and wf.nodeName = #{nodeName}
 		  </if>
@@ -81,7 +82,7 @@
 		  <if test="unitId != null">
 		  and wfs.unitId = #{unitId}
 		  </if>
-		order by createdDate desc
+		order by wfs.createdDate desc
 		limit 1
 	</select>
 	
@@ -92,7 +93,31 @@
 		where wf.bizId = #{bizId,jdbcType=DECIMAL}
 		  and wf.wfId = #{wfId,jdbcType=DECIMAL}
 		  and wfs.finishedDate is null
-		order by wfs.createdDate desc
+		order by wfs.serial
 		
 	</select>
+	
+	<!-- 获取在办的流程 -->
+	<select id="findDoingflowStep" resultMap="workflowstep" parameterType="java.util.Map">
+		select wfs.*,wf.nodeName from workflow_step wfs
+		inner join workflow_flow wf on wf.flowId = wfs.flowId
+		where wf.bizId = #{bizId,jdbcType=DECIMAL}
+		  and wf.wfId = #{wfId,jdbcType=DECIMAL}
+		  <if test="userId != null">
+		  and wfs.dispatchUserId = #{userId,jdbcType=DECIMAL}
+		  </if>
+		  and wfs.finishedDate is null
+		  and wfs.status = '办理'
+		order by wfs.serial
+		
+	</select>
+	
+	<!-- 唤醒办理人员 流程-->	
+	<update id="wakeFlowStep" parameterType="java.lang.Long">
+		update workflow_step set 
+			status = '办理'
+		<where>						
+			stepId=#{stepId,jdbcType=DECIMAL}			
+		</where>				
+	</update>
 </mapper>

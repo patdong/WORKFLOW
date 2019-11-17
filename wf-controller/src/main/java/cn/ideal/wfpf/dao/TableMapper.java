@@ -85,4 +85,9 @@ public interface TableMapper {
 	int updateTableBriefToNull(TableBrief tb);
 	
 	List<TableBizTemplate> findAllBizTemplates();
+	
+	List<TableBrief> findByTableName(@Param("tbId")Long tbId, @Param("tableName") String tableName);
+	
+	List<TableBrief> findByAlias(@Param("tbId") Long tbId,@Param("alias") String alias);
+	
 }

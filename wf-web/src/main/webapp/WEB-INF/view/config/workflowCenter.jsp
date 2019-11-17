@@ -44,7 +44,9 @@ function setWfName(event){
       			  if(data){
       				$('#workflow-name').hide();	
       				$("#"+wfId).text(wfName);
-      			  }			  
+      			  }else{
+      				  alert("设置不成功!");
+      			  }		  
       		  },
       		  error: function(XMLHttpRequest, textStatus, errorThrown){
       			  console.warn(XMLHttpRequest.responseText);			  

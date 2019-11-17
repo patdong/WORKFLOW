@@ -11,7 +11,7 @@ public class PlatformServiceImpl implements PlatformService{
 	
 	
 	@Override
-	public List<WorkflowUser> findUsersByRoleIdAndOrgId(Long roleId, Long orgId,Long senderId) {
+	public List<WorkflowUser> getUsersByRoleIdAndOrgId(Long roleId, Long orgId,Long senderId) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -19,6 +19,12 @@ public class PlatformServiceImpl implements PlatformService{
 	@Override
 	public WorkflowUser getWorkflowUser(HttpServletRequest request) {
 		
+		return null;
+	}
+
+	@Override
+	public List<WorkflowUser> getWorkflowUsers(String userIds) {
+		// TODO Auto-generated method stub
 		return null;
 	}
 

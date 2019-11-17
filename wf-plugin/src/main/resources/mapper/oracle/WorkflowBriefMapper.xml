@@ -8,7 +8,7 @@
 	</select>
 		
 	<select id="find" resultMap="workflowbrief" parameterType="java.util.Map">
-		select * from workflow_brief where bizId=#{bizId,jdbcType=DECIMAL} and wfId = #{wfId,jdbcType=DECIMAL}
+		select * from workflow_brief where bizId=#{bizId,jdbcType=NULL} and wfId = #{wfId,jdbcType=NULL}
 	</select>
 	
 	<select id="findDoingFlow" resultMap="workflowbrief" parameterType="java.util.Map">

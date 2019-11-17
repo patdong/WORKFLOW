@@ -121,18 +121,13 @@
 	</select>
 	
 	<select id="findUsers" resultType="cn.ideal.wfpf.model.CertificationUser" parameterType="java.lang.Long">
-		select * from workflow_node_user
+		select userId,userName,unitId as currentOrgId, unitName as currentOrgName from workflow_node_user
 		 where nodeId = #{nodeId}
 	</select>
 	
-	<select id="findOrg" resultType="cn.ideal.wfpf.model.CertificationOrg" parameterType="java.lang.Long">
-		select distinct * from (
-			select unitId as orgId, unitName as orgName from workflow_node_user
-			 where nodeId = #{nodeId}
-			union 
-			select unitId as orgId, unitName as orgName from workflow_node_role
-			 where nodeId = #{nodeId}
-		 ) org
+	<select id="findOrg" resultType="cn.ideal.wfpf.model.CertificationOrg" parameterType="java.lang.Long">		
+		select unitId as orgId, unitName as orgName from workflow_node_role
+		 where nodeId = #{nodeId}		 
 	</select>
 	
 	<resultMap id="leaf" type="cn.ideal.wfpf.model.Node" >
@@ -148,24 +143,23 @@
 	
 	<!-- 获取前置节点 -->
 	<select id="findPreNode" resultType="cn.ideal.wfpf.model.Node" parameterType="java.lang.Long">
-		select n.* from workflow_node n
-		inner join workflow_node_nodes a on n.nodeId = a.nodeId
+		select n.*,a.necessary from workflow_node n
+		inner join workflow_node_nodes a on n.nodeId = a.nodeId 
 		 where a.suf_nodeId = #{nodeId}
 		   and n.status != '无效'
 	</select>
 	
 	<!-- 获取后置节点 -->
 	<select id="findSufNode" resultType="cn.ideal.wfpf.model.Node" parameterType="java.lang.Long">
-		select n.* from workflow_node n
-		inner join workflow_node_nodes a on a.suf_nodeId = n.nodeId
+		select n.*,a.necessary from workflow_node n
+		inner join workflow_node_nodes a on a.suf_nodeId = n.nodeId 
 		 where a.nodeId = #{nodeId}
 		   and n.status != '无效'
 	</select>
 	
 	<select id="findOneSufNode" resultType="cn.ideal.wfpf.model.Node" parameterType="java.util.Map">
 		select a.* from workflow_node_nodes a
-		 where a.nodeId = #{nodeId}
-		   and a.type='直接连接'
+		 where a.nodeId = #{nodeId}		
 		   and a.suf_nodeId = #{sufNodeId}
 	</select>
 	

@@ -48,9 +48,11 @@ public interface WorkflowFlowMapper {
 
 	List<WorkflowUser> findWorkflowUsers(Long flowId);
 	
-	List<WorkflowFlow> findWorkflowWithSteps(@Param("bizId") Long bizId,@Param("wfId") Long wfId);
+	List<WorkflowFlow> findAllWithSteps(@Param("bizId") Long bizId,@Param("wfId") Long wfId);
 	
 	WorkflowFlow findPrevFlow(@Param("bizId") Long bizId,@Param("wfId") Long wfId);
 	
-	WorkflowFlow findSenderFlow(@Param("bizId") Long bizId,@Param("wfId") Long wfId);
+	WorkflowFlow findCreatorFlow(@Param("bizId") Long bizId,@Param("wfId") Long wfId);
+		
+	List<WorkflowFlow> findWorkflowWithSteps(@Param("bizId") Long bizId,@Param("wfId") Long wfId,@Param("nodeName") String nodeName);
 }

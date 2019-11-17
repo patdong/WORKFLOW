@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.util.StringUtils;
@@ -42,6 +43,7 @@ public class TbConfigurationController {
 	@Autowired
 	private ElementService elementService;
 	@Autowired
+	@Qualifier("PlattenTableService")
 	private PureTableService plattenTableService;
 	@Autowired
 	private WorkflowService wfService;
@@ -84,18 +86,34 @@ public class TbConfigurationController {
 		mav.addObject("emList",elementService.findValidAll());
 		
 		try {
-			List<TableElement> te = tableService.findTableAllElements(tbId,scope);			
+			List<TableElement> te = tableService.findTableAllElements(tbId,scope);
+			for(TableElement item : te){
+				if(item.getNewFieldName() != null){
+					item.setNewFieldName(item.getNewFieldName().replace("f_", ""));
+				}
+			}
 			ObjectMapper mapper = new ObjectMapper();
 			mav.addObject("tbems",mapper.writeValueAsString(te));	
 			mav.addObject("tbemList",te);
+			//计算公式窗口所有字段
+			mav.addObject("tballems", tableService.findTableAllFields(tbId));
 		} catch (JsonProcessingException e) {			
 			e.printStackTrace();
 		}
 		TableBrief tb = tableService.find(tbId);		
 		for(TableLayout tl : tb.getLayout()){
-			if(tl.getScope().equals("表头")) mav.addObject("headCols",tl.getCols());  
-			if(tl.getScope().equals("表体")) mav.addObject("bodyCols",tl.getCols()); 
-			if(tl.getScope().equals("表尾")) mav.addObject("footCols",tl.getCols()); 
+			if(tl.getScope().equals("表头")) {
+				mav.addObject("headCols",tl.getCols());  
+				mav.addObject("headBorder",tl.getBorder());
+			}
+			if(tl.getScope().equals("表体")) {
+				mav.addObject("bodyCols",tl.getCols()); 
+				mav.addObject("bodyBorder",tl.getBorder());
+			}
+			if(tl.getScope().equals("表尾")) {
+				mav.addObject("footCols",tl.getCols()); 
+				mav.addObject("footBorder",tl.getBorder());
+			}
 			if(tl.getScope().equals(scope)) mav.addObject("layout", tl.getCols()+" 列");				
 		}
 		mav.addObject("layouts",tb.getLayout());
@@ -106,7 +124,7 @@ public class TbConfigurationController {
 		mav.addObject("scope",scope);
 		mav.addObject("fieldsetting",fieldsetting);
 		mav.addObject("tbList", tableService.findTableAllElementsWithListLevelElements(tbId));
-		mav.addObject("subTbs", tableService.findAllSubTables(tbId));
+		mav.addObject("subTbs", tableService.findAllSubTables(tbId));		
         return mav;
     }
 		
@@ -168,6 +186,15 @@ public class TbConfigurationController {
 	@GetMapping("/setTableName/{tbId}")
     public @ResponseBody boolean setTableName(@PathVariable Long tbId,@RequestParam("tableName") String tableName,HttpServletRequest request) {	
 		return tableService.setTableName(tbId,tableName);			
+    }
+	
+	/**
+	 * 
+	 * 保存表单别名
+	 */
+	@GetMapping("/setTableAlias/{tbId}")
+    public @ResponseBody boolean setTableAlias(@PathVariable Long tbId,@RequestParam("tableName") String tableName,HttpServletRequest request) {	
+		return tableService.setTableAlias(tbId,tableName);			
     }
 	
 	/**
@@ -258,13 +285,25 @@ public class TbConfigurationController {
 	
 	@GetMapping("/savelayout/{tbId}")
     public @ResponseBody boolean savelayout(@PathVariable Long tbId, HttpServletRequest request) {	
-		Long headCols = null;
-		Long bodyCols = null;
-		Long footCols = null;
-		if(!StringUtils.isEmpty(request.getParameter("headCols"))) headCols = Long.parseLong(request.getParameter("headCols"));
-		if(!StringUtils.isEmpty(request.getParameter("bodyCols"))) bodyCols = Long.parseLong(request.getParameter("bodyCols"));
-		if(!StringUtils.isEmpty(request.getParameter("footCols"))) footCols = Long.parseLong(request.getParameter("footCols"));
-		return tableService.saveLayout(tbId,headCols,bodyCols,footCols); 		
+		String[] head = null;
+		if(!StringUtils.isEmpty(request.getParameter("headCols"))) {
+			head = new String[2];
+			head[0] = request.getParameter("headCols");
+			head[1] = request.getParameter("headBorder");
+		}
+		String[] body = null;
+		if(!StringUtils.isEmpty(request.getParameter("bodyCols"))) {
+			body = new String[2];
+			body[0] = request.getParameter("bodyCols");
+			body[1] = request.getParameter("bodyBorder");
+		}
+		String[] foot = null;
+		if(!StringUtils.isEmpty(request.getParameter("footCols"))) {
+			foot = new String[2];
+			foot[0] = request.getParameter("footCols");
+			foot[1] = request.getParameter("footBorder");
+		}
+		return tableService.saveLayout(tbId,head,body,foot); 		
     }
 	
 	/**

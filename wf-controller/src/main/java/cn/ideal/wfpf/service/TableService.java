@@ -56,7 +56,7 @@ public interface TableService extends PageService<TableBrief> {
 		
 	boolean deleteTable(Long tbId);
 	
-	boolean saveLayout(Long tbId, Long headCols,Long bodyCols, Long footCols);
+	boolean saveLayout(Long tbId, String[] head, String[] body,String[] foot);
 	
 	List<TableElement> findTableAllFields(Long tbId);
 	
@@ -75,4 +75,6 @@ public interface TableService extends PageService<TableBrief> {
 	boolean dropTable(Long tbId) throws Exception;
 	
 	List<TableBizTemplate> findBizTemplates();
+	
+	boolean setTableAlias(Long tbId,String alias);
 }

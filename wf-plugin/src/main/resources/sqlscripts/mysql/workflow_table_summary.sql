@@ -32,7 +32,7 @@ CREATE TABLE `table_summary` (
   `createdUserName` varchar(45) NOT NULL COMMENT '业务创建人名称',
   `createdOrgId` int(11) NOT NULL COMMENT '业务创建人所在组织编号',
   `createdOrgName` varchar(45) NOT NULL COMMENT '业务创建人所在组织名称',
-  `curUserId` int(11) DEFAULT NULL COMMENT '当前办理人编号',
+  `curUserId` varchar(45) DEFAULT NULL COMMENT '当前办理人编号',
   `curUserName` varchar(45) DEFAULT NULL COMMENT '当前办理人名称',
   `createdDate` datetime NOT NULL COMMENT '业务创建时间',
   `modifiedDate` datetime DEFAULT NULL COMMENT '业务修改时间',
@@ -42,7 +42,7 @@ CREATE TABLE `table_summary` (
   `summaryId` int(11) NOT NULL AUTO_INCREMENT COMMENT '概述编号',
   `defId` int(11) DEFAULT NULL COMMENT '用户表单自定义',
   PRIMARY KEY (`summaryId`)
-) ENGINE=InnoDB AUTO_INCREMENT=42 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='业务概述表';
+) ENGINE=InnoDB AUTO_INCREMENT=49 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='业务概述表';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -54,4 +54,4 @@ CREATE TABLE `table_summary` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-06-21 11:32:03
+-- Dump completed on 2019-10-24 16:11:04

@@ -12,9 +12,10 @@ public class WorkflowTableElement implements Serializable{
 	private static final long serialVersionUID = 3936610182338053299L;
 	private Long id;
 	private Long tbId;
-	private Long emId;
 	private String newLabelName;
+	private String position;
 	private String newFieldName;
+	private String newUnit;
 	private String newFunctionName;
 	private String functionBelongTo;
 	private String newHiddenFieldName;
@@ -37,6 +38,7 @@ public class WorkflowTableElement implements Serializable{
 	private String tableName;
 	private String required;
 	private boolean readOnly = false;
+	private String defaultValue;
 	
 	public WorkflowTableElement(){}
 	
@@ -57,12 +59,6 @@ public class WorkflowTableElement implements Serializable{
 	public void setTbId(Long tbId) {
 		this.tbId = tbId;
 	}
-	public Long getEmId() {
-		return emId;
-	}
-	public void setEmId(Long emId) {
-		this.emId = emId;
-	}
 	
 	public String getNewLabelName() {
 		return newLabelName;
@@ -70,7 +66,6 @@ public class WorkflowTableElement implements Serializable{
 	public void setNewLabelName(String newLabelName) {
 		this.newLabelName = newLabelName;
 	}
-	
 	public String getNewFieldName() {
 		return newFieldName;
 	}
@@ -215,6 +210,30 @@ public class WorkflowTableElement implements Serializable{
 
 	public void setReadOnly(boolean readOnly) {
 		this.readOnly = readOnly;
+	}
+
+	public String getDefaultValue() {
+		return defaultValue;
+	}
+
+	public void setDefaultValue(String defaultValue) {
+		this.defaultValue = defaultValue;
+	}
+
+	public String getNewUnit() {
+		return newUnit;
+	}
+
+	public void setNewUnit(String newUnit) {
+		this.newUnit = newUnit;
+	}
+
+	public String getPosition() {
+		return position;
+	}
+
+	public void setPosition(String position) {
+		this.position = position;
 	}	
 	
 }

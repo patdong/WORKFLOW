@@ -9,6 +9,8 @@ package cn.ideal.wfpf.model;
 public class CertificationRole {
 	private Long roleId;
     private String roleName;
+    private String currentOrgName;     //用户隶属组织
+    private Long currentOrgId;
     
 	public Long getRoleId() {
 		return roleId;
@@ -22,6 +24,18 @@ public class CertificationRole {
 	public void setRoleName(String roleName) {
 		this.roleName = roleName;
 	}
-    
-    
+	public String getCurrentOrgName() {
+		return currentOrgName;
+	}
+	public void setCurrentOrgName(String currentOrgName) {
+		this.currentOrgName = currentOrgName;
+	}
+	public Long getCurrentOrgId() {
+		return currentOrgId;
+	}
+	public void setCurrentOrgId(Long currentOrgId) {
+		this.currentOrgId = currentOrgId;
+	}
+	
+	
 }

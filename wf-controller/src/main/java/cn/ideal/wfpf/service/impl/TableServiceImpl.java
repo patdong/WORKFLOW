@@ -67,6 +67,7 @@ public class TableServiceImpl implements TableService {
 			tl.setTbId(obj.getTbId());
 			tl.setCols(2l);
 			tl.setScope("表体");
+			tl.setBorder("是");
 			idx = tableMapper.saveTableLayout(tl);
 			if(idx == 1) return obj;
 		}
@@ -90,6 +91,8 @@ public class TableServiceImpl implements TableService {
 
 	@Override
 	public TableElement saveTableElement(TableElement obj) {
+		//为字段默认加上"f_"前缀，防止和数据库中的保留关键字产生冲突
+		obj.setNewFieldName("f_"+obj.getNewFieldName());
 		int idx = tableMapper.saveTableElement(obj);
 		if(idx == 1) return obj;
 		return null;
@@ -115,12 +118,14 @@ public class TableServiceImpl implements TableService {
 				label.setList("无效");
 				label.setSeq(++seq);
 				label.setCreatedDate(new Date());
+				label.setPosition("右");
 				teLst.add(label);
 				//字段
 				TableElement te = new TableElement();
 				te.setTbId(tbId);
 				te.setNewLabelName(em.getLabelName());
-				te.setNewFieldName(em.getFieldName());
+				//为字段默认加上"f_"前缀，防止和数据库中的保留关键字产生冲突
+				te.setNewFieldName("f_"+em.getFieldName());
 				te.setNewFunctionName(em.getFunctionName());
 				te.setNewHiddenFieldName(em.getHiddenFieldName());
 				te.setNewDataContent(em.getDataContent());
@@ -131,6 +136,7 @@ public class TableServiceImpl implements TableService {
 				te.setList("无效");
 				te.setSeq(++seq);
 				te.setCreatedDate(new Date());
+				te.setPosition("右");
 				teLst.add(te);
 			}
 		}
@@ -217,14 +223,35 @@ public class TableServiceImpl implements TableService {
 
 	@Override
 	public boolean setTableName(Long tbId,String tableName) {
+		if(tbId == null) return false;
+		List<TableBrief> tbs = tableMapper.findByTableName(tbId,tableName);
+		//重名不支持
+		if(tbs.size() > 0) return false;
+		TableBrief oldTb = this.find(tbId);
 		TableBrief tb = new TableBrief();
 		tb.setTbId(tbId);
 		tb.setTableName(tableName);
+		if(oldTb.getAlias() == null) tb.setAlias(tableName);
 		int idx = tableMapper.updateTableBrief(tb);
 		if(idx > 0) return true;
 		return false;
 	}
 
+	@Override
+	public boolean setTableAlias(Long tbId,String alias) {
+		if(tbId == null) return false;
+		List<TableBrief> tbs = tableMapper.findByAlias(tbId,alias);
+		//重名不支持
+		if(tbs.size() > 0) return false;
+		
+		TableBrief tb = new TableBrief();
+		tb.setTbId(tbId);
+		tb.setAlias(alias);
+		int idx = tableMapper.updateTableBrief(tb);
+		if(idx > 0) return true;
+		return false;
+	}
+	
 	@Override
 	public TableBrief updateTableBrief(TableBrief obj) {		
 		int idx = tableMapper.updateTableBrief(obj);
@@ -298,7 +325,8 @@ public class TableServiceImpl implements TableService {
 			obj.setNewFieldDataType(valAry[1]);
 			obj.setStbId(Long.parseLong(valAry[0]));
 		}		
-						
+		//为字段默认加上"f_"前缀，防止和数据库中的保留关键字产生冲突
+		obj.setNewFieldName("f_"+obj.getNewFieldName());				
 		if(obj.getId() == null){
 			Long seq = tableMapper.findMaxSeq(obj.getTbId());
 			if(seq == null) seq = 0l;
@@ -388,40 +416,43 @@ public class TableServiceImpl implements TableService {
 	 */
 	@Override
 	@Transactional(propagation=Propagation.REQUIRED,rollbackFor = Exception.class)
-	public boolean saveLayout(Long tbId, Long headCols, Long bodyCols,Long footCols) {		
+	public boolean saveLayout(Long tbId, String[] head, String[] body,String[] foot) {		
 		TableLayout tl = tableMapper.findLayout(tbId, "表头");
 		if(tl != null) tableMapper.deleteLayout(tbId, "表头");
-		if(headCols != null){			
+		if(head != null){			
 			if(tl == null) {
 				tl = new TableLayout();
 				tl.setScope("表头");
 				tl.setTbId(tbId);
 			}			
-			tl.setCols(headCols);						
+			tl.setCols(Long.parseLong(head[0]));	
+			tl.setBorder(head[1]);
 			tableMapper.saveTableLayout(tl);
 		}
 		
 		tl = tableMapper.findLayout(tbId, "表体");
 		if(tl != null) tableMapper.deleteLayout(tbId, "表体");
-		if(bodyCols != null){			
+		if(body != null){			
 			if(tl == null) {
 				tl = new TableLayout();
 				tl.setScope("表体");
 				tl.setTbId(tbId);
 			}			
-			tl.setCols(bodyCols);						
+			tl.setCols(Long.parseLong(body[0]));
+			tl.setBorder(body[1]);
 			tableMapper.saveTableLayout(tl);
 		}
 		
 		tl = tableMapper.findLayout(tbId, "表尾");
 		if(tl != null) tableMapper.deleteLayout(tbId, "表尾");
-		if(footCols != null){			
+		if(foot != null){			
 			if(tl == null) {
 				tl = new TableLayout();
 				tl.setScope("表尾");
 				tl.setTbId(tbId);
 			}			
-			tl.setCols(footCols);						
+			tl.setCols(Long.parseLong(foot[0]));
+			tl.setBorder(foot[1]);
 			tableMapper.saveTableLayout(tl);
 		}
 		

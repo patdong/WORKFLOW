@@ -14,7 +14,7 @@ public class TableLayout {
 	private Long cols;
 	private Long stbId;   //子表编号
 	private String stableName;
-	
+	private String border; //边框设置
 	
 	public Long getTbId() {
 		return tbId;
@@ -46,6 +46,12 @@ public class TableLayout {
 	}
 	public void setStableName(String stableName) {
 		this.stableName = stableName;
+	}
+	public String getBorder() {
+		return border;
+	}
+	public void setBorder(String border) {
+		this.border = border;
 	}
 	
 	

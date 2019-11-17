@@ -30,5 +30,7 @@ public interface NodeService {
 	
 	void deleteLink(Long nodeId, Long[] linkNodeIds);
 		
+	List<Node> findSufNode(Long nodeId);
 	
+	boolean setNecessaryNode(Long nodeId, Long sufNodeId);
 }

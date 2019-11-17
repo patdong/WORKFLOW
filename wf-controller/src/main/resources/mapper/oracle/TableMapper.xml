@@ -50,7 +50,7 @@
 			select sq_tbId.nextval from dual
 		</selectKey>
 		insert into table_brief(
-			tbId,name,tableName,status,template,createdDate
+			tbId,name,tableName,status,template,alias,createdDate
 		)
 		values(
 			#{tbId},
@@ -58,19 +58,21 @@
 			#{tableName,jdbcType=VARCHAR},			
 			#{status,jdbcType=VARCHAR},
 			#{template,jdbcType=VARCHAR},
+			#{alias,jdbcType=VARCHAR},
 			#{createdDate,jdbcType=TIMESTAMP}
 		)
 	</insert>
 	
 	<insert id="saveTableLayout"  parameterType="cn.ideal.wfpf.model.TableLayout">
 		insert into table_layout(
-			tbId,scope,cols,stbId
+			tbId,scope,cols,stbId,border
 		)
 		values(
 			#{tbId,jdbcType=DECIMAL},
 			#{scope,jdbcType=VARCHAR},
 			#{cols,jdbcType=DECIMAL},
-			#{stbId,jdbcType=DECIMAL}
+			#{stbId,jdbcType=DECIMAL},
+			#{border,jdbcType=DECIMAL}
 		)
 	</insert>
 	
@@ -93,7 +95,10 @@
 			</if>
 			<if test="templateName != null">
 				templateName=#{templateName}
-			</if>				
+			</if>
+			<if test="alias != null">
+				alias=#{alias,jdbcType=VARCHAR}
+			</if>					
 		<where>		
 			tbId=#{tbId,jdbcType=DECIMAL}			
 		</where>				
@@ -112,15 +117,17 @@
 			select sq_id.nextval from dual
 		</selectKey>
 		insert into table_element(
-			id,tbId,newLabelName,newFieldName,newFunctionName,functionBelongTo,rowes,cols,width,scope,seq,newHiddenFieldName,
-			newDataContent,newFieldType,newFieldDataType,newLength,defaultValue,defaultValueFrom,list,stbId,createdDate
+			id,tbId,newLabelName,position,newFieldName,newUnit,newFunctionName,functionBelongTo,rowes,cols,width,scope,seq,newHiddenFieldName,
+			newDataContent,newFieldType,newFieldDataType,newLength,defaultValue,defaultValueFrom,formula,list,stbId,createdDate
 		)
 		values		
 		(
 			#{id},
 			#{tbId,jdbcType=DECIMAL},
 			#{newLabelName,jdbcType=VARCHAR},
+			#{position,jdbcType=VARCHAR},
 			#{newFieldName,jdbcType=VARCHAR},
+			#{newUnit,jdbcType=VARCHAR},
 			#{newFunctionName,jdbcType=VARCHAR},
 			#{functionBelongTo,jdbcType=VARCHAR},
 			#{rowes,jdbcType=DECIMAL},
@@ -135,6 +142,7 @@
 			#{newLength,jdbcType=DECIMAL},
 			#{defaultValue,jdbcType=VARCHAR},
 			#{defaultValueFrom,jdbcType=VARCHAR},
+			#{formula,jdbcType=VARCHAR},
 			#{list,jdbcType=VARCHAR},
 			#{stbId,jdbcType=DECIMAL},
 			#{createdDate,jdbcType=TIMESTAMP}
@@ -148,15 +156,17 @@
 			
 			<foreach collection="list" item="item" index="index" separator="">			
 				insert into table_element(
-					id,tbId,newLabelName,newFieldName,newFunctionName,functionBelongTo,rowes,cols,width,scope,seq,newHiddenFieldName,
-					newDataContent,newFieldType,newFieldDataType,newLength,defaultValue,defaultValueFrom,list,stbId,createdDate
+					id,tbId,newLabelName,position,newFieldName,newUnit,newFunctionName,functionBelongTo,rowes,cols,width,scope,seq,newHiddenFieldName,
+					newDataContent,newFieldType,newFieldDataType,newLength,defaultValue,defaultValueFrom,formula,list,stbId,createdDate
 				)
 				values			
 				(
 					sq_id.nextval,
 					#{item.tbId,jdbcType=DECIMAL},
 					#{item.newLabelName,jdbcType=VARCHAR},
+					#{item.position,jdbcType=VARCHAR},
 					#{item.newFieldName,jdbcType=VARCHAR},
+					#{item.newUnit,jdbcType=VARCHAR},
 					#{item.newFunctionName,jdbcType=VARCHAR},
 					#{item.functionBelongTo,jdbcType=VARCHAR},
 					#{item.rowes,jdbcType=DECIMAL},
@@ -171,6 +181,7 @@
 					#{item.newLength,jdbcType=DECIMAL},
 					#{item.defaultValue,jdbcType=VARCHAR},
 					#{item.defaultValueFrom,jdbcType=VARCHAR},
+					#{item.formula,jdbcType=VARCHAR},
 					#{item.list,jdbcType=VARCHAR},
 					#{item.stbId,jdbcType=DECIMAL},
 					#{item.createdDate,jdbcType=TIMESTAMP}
@@ -184,7 +195,9 @@
 		update table_element set 			
 			   newLabelName=#{newLabelName,jdbcType=VARCHAR},
 			   newFieldName=#{newFieldName,jdbcType=VARCHAR},
+			   position=#{position,jdbcType=VARCHAR},
 			   newFunctionName=#{newFunctionName,jdbcType=VARCHAR},
+			   newUnit=#{newUnit,jdbcType=VARCHAR},
 			   functionBelongTo=#{functionBelongTo,jdbcType=VARCHAR},
 			   newHiddenFieldName=#{newHiddenFieldName,jdbcType=VARCHAR},
 			   newDataContent=#{newDataContent,jdbcType=VARCHAR},
@@ -193,11 +206,11 @@
 			   newLength=#{newLength,jdbcType=DECIMAL},
 			   defaultValue=#{defaultValue,jdbcType=VARCHAR},
 			   defaultValueFrom=#{defaultValueFrom,jdbcType=VARCHAR},
+			   formula=#{formula,jdbcType=VARCHAR},
 			   rowes=#{rowes,jdbcType=DECIMAL},
 			   cols=#{cols,jdbcType=DECIMAL},
 			   width=#{width,jdbcType=DECIMAL},
-			   stbId=#{stbId,jdbcType=DECIMAL},
-			   emId=#{emId,jdbcType=DECIMAL}
+			   stbId=#{stbId,jdbcType=DECIMAL}
 		<where>		
 		      id=#{id,jdbcType=DECIMAL}	
 		</where>				
@@ -237,15 +250,18 @@
 	<!-- 用于流程节点上字段的配置、所有列表可操作字段 -->
 	<select id="findTableAllFields" resultMap="tableelement" parameterType="java.lang.Long">
 		select * from(
-			select a.*  from table_element a			 
+			select a.*,b.name as tableName  from table_element a
+			inner join table_brief b on a.tbId = b.tbId			 
 			 where a.tbId = #{tbId}		 
 			   and a.newFieldType not in ( '标签','子表','组件','列表')
 			union all
-			 select a.*  from table_element a			
+			 select a.*,b.name as tableName from table_element a
+			 inner join table_brief b on a.tbId = b.tbId					
 			 where a.tbId in (select stbId from table_element where tbId = #{tbId} and newFieldType ='子表')
 				and a.newFieldType not in ( '标签','子表','组件','列表')
 			union all
-			 select a.*  from table_element a			
+			 select a.*,b.name as tableName  from table_element a
+			 inner join table_brief b on a.tbId = b.tbId					
 			 where a.tbId in (select stbId from table_element where tbId = #{tbId} and newFieldType ='组件')
 				and a.newFieldType not in ( '标签','子表','组件','列表')
 			) t
@@ -302,7 +318,7 @@
 	<select id="findTableListLevelElements" resultMap="tableelement" parameterType="java.lang.Long">
 		select a.* from table_element a
 		 where a.tbId = #{tbId}
-		   and a.newFieldType not in ( '标签','子表','组件','列表') 
+		   and a.newFieldType not in ( '标签','子表','列表')
 	</select>
 	
 	<!-- 获取流程节点设置的字段 -->
@@ -402,7 +418,7 @@
 	</select>	
 	
 	<select id="findTableBriefWithTemplate" resultMap="tablebrief" parameterType="java.lang.String">
-		select * from table_brief where template=#{template} and status = '有效'
+		select * from table_brief where template=#{template} and status = '有效' and name is not null
 	</select>
 	
 	<update id="removeBinding" parameterType="java.lang.Long">
@@ -437,5 +453,13 @@
 	
 	<select id="findAllBizTemplates" resultMap="tablebiztemplate">
 		select * from table_biz_template 
+	</select>
+	
+	<select id="findByTableName" resultMap="tablebrief" parameterType="java.lang.String">
+		select * from table_brief where tableName=#{tableName}
+	</select>
+	
+	<select id="findByAlias" resultMap="tablebrief" parameterType="java.lang.String">
+		select * from table_brief where alias=#{alias}
 	</select>
 </mapper>

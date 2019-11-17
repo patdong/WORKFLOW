@@ -26,7 +26,8 @@ CREATE TABLE `table_layout` (
   `tbId` int(11) NOT NULL,
   `scope` varchar(10) NOT NULL,
   `cols` int(11) NOT NULL,
-  `stbId` int(11) DEFAULT NULL COMMENT '子表编号'
+  `stbId` int(11) DEFAULT NULL COMMENT '子表编号',
+  `border` varchar(2) NOT NULL DEFAULT '是' COMMENT '是否有边框'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='表单格局设置';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -39,4 +40,4 @@ CREATE TABLE `table_layout` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-06-21 11:32:08
+-- Dump completed on 2019-10-24 16:11:03

@@ -210,7 +210,7 @@ public class WfConfigurationController {
 		List<TableElement> nodeElements = tableService.findTableAllElementsOnNode(wfId, nodeId, tbId);
 		for(TableElement element : elements){
 			for(TableElement nelement : nodeElements){
-				if(element.getEmId().equals(nelement.getEmId())) {
+				if(element.getId().equals(nelement.getId())) {
 					element.setReadOnly(true);
 					element.setRequired(nelement.getRequired());
 					break;
@@ -219,6 +219,43 @@ public class WfConfigurationController {
 		}
 		return elements;
     }
+	
+	/**
+	 * 获取本节点的后置节点
+	 * @param wfId
+	 * @param nodeId
+	 * @param tbId
+	 * @param request
+	 * @return
+	 */
+	@GetMapping("/getsufnodes/{nodeId}")
+    public @ResponseBody List<Node> getSufNodes(@PathVariable Long nodeId,HttpServletRequest request) {	
+		List<Node> nodes = nodeService.findSufNode(nodeId);
+		
+		return nodes;
+    }
+	
+	/**
+	 * 设置必经节点
+	 * @param sufNodeId
+	 * @param nodeId
+	 * @param request
+	 * @return
+	 */
+	@GetMapping("/setsufnode/{nodeId}/{sufNodeId}")
+    public @ResponseBody FMsg setSufNode(@PathVariable Long sufNodeId,@PathVariable Long nodeId,HttpServletRequest request) {
+		FMsg fmsg = null;
+		try{
+			boolean res = nodeService.setNecessaryNode(nodeId, sufNodeId);
+			fmsg = new FMsg(res);						
+		}catch(Exception e){
+			fmsg = new FMsg(FMsg.ERROR,e.getMessage());
+		}
+		
+		return fmsg;
+    }
+	
+	
 	
 	/**
 	 * 设置节点表字段是否可操作

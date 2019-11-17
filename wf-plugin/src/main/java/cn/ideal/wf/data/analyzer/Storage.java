@@ -27,7 +27,8 @@ public class Storage {
 	
 	private Long beginNumber;                                                         //查询的指定记录开始下标
 	private Long size = 10l;                                                          //查询的个数	
-	private Map<String,Object> parameters = new HashMap<String,Object>();             //查询条件集合
+	private Map<String,Map<String,Object>> parameters;                                //查询条件集合
+	private String scope;                                                             //查询范围：申请、审批
 	
 	public Long getBizId() {
 		return bizId;
@@ -62,12 +63,13 @@ public class Storage {
 	}
 	
 	public void setBeginNumberWithPageNumber(Long pageNumber){
-		this.beginNumber = (pageNumber-1) * size;
+		if(pageNumber == null) this.beginNumber = null;
+		else this.beginNumber = (pageNumber-1) * size;
 	}
-	public Map<String, Object> getParameters() {
+	public Map<String,Map<String,Object>> getParameters() {
 		return parameters;
 	}
-	public void setParameters(Map<String, Object> parameters) {
+	public void setParameters(Map<String,Map<String,Object>> parameters) {
 		this.parameters = parameters;
 	}
 	public WorkflowUser getUser() {
@@ -116,6 +118,12 @@ public class Storage {
 	}
 	public void setDefId(Long defId) {
 		this.defId = defId;
+	}
+	public String getScope() {
+		return scope;
+	}
+	public void setScope(String scope) {
+		this.scope = scope;
 	}
 	
 }

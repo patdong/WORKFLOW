@@ -6,7 +6,7 @@
 		<association property="role" column="nodeId" select="findRole" />
 		<association property="users" column="nodeId" select="findUsers" />
 		<association property="org" column="nodeId" select="findOrg" />
-		<association property="preNodes" column="nodeId" select="findPreNode" />
+		<association property="preNodes" column="nodeId" select="findPreNode" /> 
 		<association property="sufNodes" column="nodeId" select="findSufNode" />		
 		<association property="buttons" column="nodeId" select="findNodeButton" />
 		<association property="nodeAction" column="nodeId" select="findNodeAction" />
@@ -64,37 +64,39 @@
 	</update>
 	
 	<insert id="saveNodeNodes" parameterType="cn.ideal.wfpf.model.Node">
-		insert into workflow_node_nodes(
+		insert all
+		<foreach collection="preNodes" item="item" index="index" separator=",">
+		into workflow_node_nodes(
 			nodeId,suf_nodeId,type,createdDate
 		)
-		values
-		<foreach collection="preNodes" item="item" index="index" separator=",">				
+		values				
 		(
 			#{item.nodeId,jdbcType=DECIMAL},
 			#{nodeId,jdbcType=DECIMAL},
 			#{type,jdbcType=VARCHAR},			
-			#{createdDate,jdbcType=DECIMAL}
+			#{createdDate,jdbcType=TIMESTAMP}
 		)
 		</foreach>
-	
+		select 1 from dual
 	</insert>
 	
 	<insert id="saveUser" parameterType="cn.ideal.wfpf.model.Node">
-		insert into workflow_node_user(
+		insert all 
+		<foreach collection="users" item="item" index="index" separator=" ">
+		into workflow_node_user(
 			nodeId,userId,userName,unitId,unitName,createdDate
 		)
-		values
-		<foreach collection="users" item="item" index="index" separator=",">				
+		values					
 		(
 			#{nodeId,jdbcType=DECIMAL},
 			#{item.userId,jdbcType=DECIMAL},
 			#{item.userName,jdbcType=VARCHAR},
 			#{item.currentOrgId,jdbcType=DECIMAL},
 			#{item.currentOrgName,jdbcType=VARCHAR},
-			#{createdDate,jdbcType=DECIMAL}
+			#{createdDate,jdbcType=TIMESTAMP}
 		)
 		</foreach>
-	
+		select 1 from dual
 	</insert>
 	
 	<insert id="saveRole" parameterType="cn.ideal.wfpf.model.Node">
@@ -107,7 +109,7 @@
 			#{role.roleName,jdbcType=VARCHAR},
 			#{org.orgId,jdbcType=DECIMAL},
 			#{org.orgName,jdbcType=VARCHAR},
-			#{createdDate,jdbcType=DECIMAL}
+			#{createdDate,jdbcType=TIMESTAMP}
 		)
 	</insert>
 	
@@ -125,18 +127,13 @@
 	</select>
 	
 	<select id="findUsers" resultType="cn.ideal.wfpf.model.CertificationUser" parameterType="java.lang.Long">
-		select * from workflow_node_user
+		select userId,userName,unitId as currentOrgId, unitName as currentOrgName from workflow_node_user
 		 where nodeId = #{nodeId}
 	</select>
 	
 	<select id="findOrg" resultType="cn.ideal.wfpf.model.CertificationOrg" parameterType="java.lang.Long">
-		select distinct * from (
-			select unitId as orgId, unitName as orgName from workflow_node_user
-			 where nodeId = #{nodeId}
-			union 
-			select unitId as orgId, unitName as orgName from workflow_node_role
-			 where nodeId = #{nodeId}
-		 ) org
+		select unitId as orgId, unitName as orgName from workflow_node_role
+		 where nodeId = #{nodeId}
 	</select>
 	
 	<resultMap id="leaf" type="cn.ideal.wfpf.model.Node" >
@@ -153,7 +150,7 @@
 	<!-- 获取前置节点 -->
 	<select id="findPreNode" resultType="cn.ideal.wfpf.model.Node" parameterType="java.lang.Long">
 		select n.* from workflow_node n
-		inner join workflow_node_nodes a on n.nodeId = a.nodeId
+		inner join workflow_node_nodes a on n.nodeId = a.nodeId 
 		 where a.suf_nodeId = #{nodeId}
 		   and n.status != '无效'
 	</select>
@@ -161,7 +158,7 @@
 	<!-- 获取后置节点 -->
 	<select id="findSufNode" resultType="cn.ideal.wfpf.model.Node" parameterType="java.lang.Long">
 		select n.* from workflow_node n
-		inner join workflow_node_nodes a on a.suf_nodeId = n.nodeId
+		inner join workflow_node_nodes a on a.suf_nodeId = n.nodeId 
 		 where a.nodeId = #{nodeId}
 		   and n.status != '无效'
 	</select>
@@ -169,7 +166,6 @@
 	<select id="findOneSufNode" resultType="cn.ideal.wfpf.model.Node" parameterType="java.util.Map">
 		select a.* from workflow_node_nodes a
 		 where a.nodeId = #{nodeId}
-		   and a.type='直接连接'
 		   and a.suf_nodeId = #{sufNodeId}
 	</select>
 	
@@ -190,10 +186,10 @@
 			nodeId,actionCodeName,type,createdDate
 		)
 		values(
-			#{nodeId},
-			#{nodeAction.actionCodeName},
+			#{nodeId,jdbcType=DECIMAL},
+			#{nodeAction.actionCodeName,jdbcType=VARCHAR},
 			'流程',		
-			#{createdDate}
+			#{createdDate,jdbcType=TIMESTAMP}
 		)
 		
 	</insert>
@@ -201,18 +197,20 @@
 	
 	<!-- 保存节点按钮 -->
 	<insert id="saveNodeButton" parameterType="cn.ideal.wfpf.model.Node">
-		insert into workflow_node_action(
+		insert all 		
+		<foreach collection="buttons" item="item" index="index" separator=" ">	
+		into workflow_node_action(
 			nodeId,actionCodeName,type,createdDate
 		)
-		values
-		<foreach collection="buttons" item="item" index="index" separator=",">				
+		values			
 		(
-			#{nodeId},
-			#{item.actionCodeName},
+			#{nodeId,jdbcType=DECIMAL},
+			#{item.actionCodeName,jdbcType=VARCHAR},
 			'行为',		
-			#{createdDate}
+			#{createdDate,jdbcType=TIMESTAMP}
 		)
-		</foreach>		
+		</foreach>
+		select 1 from dual		
 	</insert>
 	
 	<select id="findNodeAction" resultType="cn.ideal.wfpf.model.Action" parameterType="java.lang.Long">
@@ -239,7 +237,7 @@
 	</delete>	
 	
 	<delete id="deleteNodeNode" parameterType="java.util.Map">
-		delete from workflow_node_nodes where nodeId = #{nodeId} and suf_nodeId = #{sufNodeId} 
+		delete from workflow_node_nodes where nodeId = #{nodeId} and suf_nodeId = #{sufNodeId}
 	</delete>
 	
 	<update id="delegation" parameterType="java.util.Map">
@@ -254,4 +252,12 @@
                 '${item}'
         </foreach>
 	</delete>
+	
+	<!-- 设置必经节点 -->
+	<update id="setNecessaryNode" parameterType="java.util.Map">
+		update workflow_node_nodes set
+			necessary = '是'
+		where nodeId = #{nodeId}
+		  and suf_nodeId = #{sufNodeId}
+	</update>
 </mapper>

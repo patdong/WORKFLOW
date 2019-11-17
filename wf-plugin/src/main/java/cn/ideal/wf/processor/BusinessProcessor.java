@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -22,6 +23,7 @@ import cn.ideal.wf.flowchat.draw.FlowChatService;
 import cn.ideal.wf.jdbc.dao.SQLConnector;
 import cn.ideal.wf.model.Workflow;
 import cn.ideal.wf.model.WorkflowBrief;
+import cn.ideal.wf.model.WorkflowFlow;
 import cn.ideal.wf.model.WorkflowNode;
 import cn.ideal.wf.model.WorkflowRole;
 import cn.ideal.wf.model.WorkflowStep;
@@ -68,7 +70,11 @@ public class BusinessProcessor {
 	@Qualifier("richFlowChatService")
 	private FlowChatService flowChatService;
 	@Autowired
+	@Qualifier("PlattenTableService")
 	private PureTableService plattenTableService;
+	@Autowired
+	@Qualifier("PrintTableService")
+	private PureTableService printTableService;
 	@Autowired
 	private JdbcSQLExecutor jdbcSQLExecutor;
 	@Autowired
@@ -83,29 +89,32 @@ public class BusinessProcessor {
 	 * @param selectedScope   列表下拉框选项
 	 * @return
 	 */
-	public ListModel getListModel(Long tbId, Long pageNumber,String selectedScope,HttpServletRequest request){
+	public ListModel getListModel(Long tbId, Long pageNumber,String scope,HttpServletRequest request) throws Exception{
 		ListModel listModel = new ListModel();		
-		try{
-			Storage storage = null;
-			storage = parameterAnalyzer.dataAnalyze(request, tbId,null);
-			storage.setUser(platformService.getWorkflowUser(request));
-			storage.setBeginNumberWithPageNumber(pageNumber);
-			//下拉列表处理
-			listModel.setScope("approve");
-			if(selectedScope != null){
-				storage.getParameters().put("scope", selectedScope);
-				listModel.setScope(selectedScope);
-			}
-			Long count = jdbcSQLExecutor.queryAll(storage);
-	        Page<Map<String,Object>> page = new Page<Map<String,Object>>(count,pageNumber);
-	        page.setPageList(jdbcSQLExecutor.queryPage(storage));
-	        page.setUrl("/app/list/"+tbId);
-	        listModel.setPage(page);
-	        
-	        listModel.setWftb(wfTableService.find(tbId));
-			listModel.setTableList(wfTableService.findElementsOnList(tbId));
-			listModel.setMenu(wfTableService.findAllBlindTable());
-			
+		
+		Storage storage = null;
+		storage = parameterAnalyzer.dataAnalyze(request, tbId,null,scope);			
+		storage.setBeginNumberWithPageNumber(pageNumber);
+		//下拉列表处理
+		listModel.setScope("apply");
+		if(scope != null){				
+			listModel.setScope(scope);
+		}
+		Long count = jdbcSQLExecutor.queryAll(storage);
+        Page<Map<String,Object>> page = new Page<Map<String,Object>>(count,pageNumber);
+        page.setPageList(jdbcSQLExecutor.queryPage(storage));	        
+        listModel.setPage(page);	        
+        listModel.setWftb(wfTableService.find(tbId));
+		listModel.setTableList(wfTableService.findElementsOnList(tbId));
+		listModel.setMenu(wfTableService.findAllBlindTable());
+					
+		return listModel;
+	}
+	
+	public ListModel getListModelOnList(Long tbId,HttpServletRequest request){
+		ListModel listModel = new ListModel();		
+		try{			
+			listModel.setTableList(wfTableService.findElementsOnList(tbId));						
 		}catch(Exception e){	
 			e.printStackTrace();
 		}
@@ -121,30 +130,29 @@ public class BusinessProcessor {
 	 * @param selectedScope   列表下拉框选项
 	 * @return
 	 */
-	public ListModel getListAll(Long pageNumber,Long pageSize,String selectedScope,HttpServletRequest request){
+	public ListModel getListAll(Long pageNumber,Long pageSize,String scope,Long tbId,Map<String,String> params,Map<String,String> orders,WorkflowUser user){
 		ListModel listModel = new ListModel();		
-		try{
-			WorkflowUser user = platformService.getWorkflowUser(request);
-			if(StringUtils.isEmpty(selectedScope) || selectedScope.equals("apply")){
-				Long count = jdbcSQLExecutor.queryAll(user.getUserId());
+		try{				
+			if(StringUtils.isEmpty(scope) || scope.equals("apply")){
+				Long count = jdbcSQLExecutor.queryAll(user.getUserId(),tbId,params,null);
 		        Page<Map<String,Object>> page = new Page<Map<String,Object>>(count,pageNumber);
-		        page.setPageList(jdbcSQLExecutor.queryPage(user.getUserId(),pageNumber,pageSize));
+		        page.setPageList(jdbcSQLExecutor.queryPage(user.getUserId(),tbId,params,orders,pageNumber,pageSize));
 		        listModel.setPage(page);
-			}else if(StringUtils.isEmpty(selectedScope) || selectedScope.equals("approve")){
-				Long count = jdbcSQLExecutor.queryWorkflowAll(user.getUserId());
+			}else if(StringUtils.isEmpty(scope) || scope.equals("approve")){
+				Long count = jdbcSQLExecutor.queryWorkflowAll(user.getUserId(),tbId,params,null);
 		        Page<Map<String,Object>> page = new Page<Map<String,Object>>(count,pageNumber);
-		        page.setPageList(jdbcSQLExecutor.queryWorkflowPage(user.getUserId(),pageNumber,pageSize));
+		        page.setPageList(jdbcSQLExecutor.queryWorkflowPage(user.getUserId(),tbId,params,orders,pageNumber,pageSize));
 		        listModel.setPage(page);
-			}else if(StringUtils.isEmpty(selectedScope) || selectedScope.equals("approved")){
-				Long count = jdbcSQLExecutor.queryWorkedflowAll(user.getUserId());
+			}else if(StringUtils.isEmpty(scope) || scope.equals("approved")){				
+				Long count = jdbcSQLExecutor.queryWorkedflowAll(user.getUserId(),tbId,params,null);
 		        Page<Map<String,Object>> page = new Page<Map<String,Object>>(count,pageNumber);
-		        page.setPageList(jdbcSQLExecutor.queryWorkedflowPage(user.getUserId(),pageNumber,pageSize));
-		        listModel.setPage(page);
-			}else if(StringUtils.isEmpty(selectedScope) || selectedScope.equals("monitor")){
-				Long count = jdbcSQLExecutor.queryWorkedflowAll();
+		        page.setPageList(jdbcSQLExecutor.queryWorkedflowPage(user.getUserId(),tbId,params,orders,pageNumber,pageSize));
+		        listModel.setPage(page);		        
+			}else if(StringUtils.isEmpty(scope) || scope.equals("monitor")){				
+				Long count = jdbcSQLExecutor.queryWorkedflowAll(params,null);
 		        Page<Map<String,Object>> page = new Page<Map<String,Object>>(count,pageNumber);
-		        page.setPageList(jdbcSQLExecutor.queryWorkedflowPage(pageNumber,pageSize));
-		        listModel.setPage(page);
+		        page.setPageList(jdbcSQLExecutor.queryWorkedflowPage(params,orders,pageNumber,pageSize));
+		        listModel.setPage(page);		        
 			}
 		}catch(Exception e){	
 			e.printStackTrace();
@@ -178,22 +186,24 @@ public class BusinessProcessor {
 		
 		//和流程相关		
 		if(wfId != null){
-			pageModel.setNodeName(wfProcessor.findNodeName(wfId,bizId,user));
-			if(pageModel.getNodeName() != null) {
-				pageModel.setNextNodes(workflowNodeService.findNextNodes(pageModel.getNodeName(), wfId));	
-				if(bizId != null){
-					WorkflowBrief wfbf = wfBriefService.find(bizId, wfId);
-					if(wfbf != null && wfbf.getFinishedDate() == null){
-						pageModel.setButtons(workflowNodeService.findButtonsByNodeName(wfbf.getNodeName(), wfId));
+			Map<String,String> curNode = wfProcessor.findCurrentNode(wfId,bizId,user);
+			if(curNode.size() > 0){
+				pageModel.setCurNode(curNode);
+				if(pageModel.getCurNode().get("nodeName") != null) {
+					pageModel.setNextNodes(workflowNodeService.findNextNodes(pageModel.getCurNode().get("nodeName"), wfId,bizId));	
+					if(bizId != null){
+						WorkflowBrief wfbf = wfBriefService.find(bizId, wfId);
+						if(wfbf != null && wfbf.getFinishedDate() == null){
+							pageModel.setButtons(workflowNodeService.findButtonsByNodeName(wfbf.getNodeName(), wfId));
+						}
 					}
-				}
-			}			
-						
+				}			
+			}	
 			//流程图		
 			pageModel.setFlowChat(flowChatService.draw(wfId,bizId).toString());	
 		}
 		//表单
-		pageModel.setTable(plattenTableService.draw(tbId,wfId,wfts.getDefId(),bizId).toString());		
+		pageModel.setTable(plattenTableService.draw(tbId,wfId,wfts.getDefId(),bizId,user).toString());		
 		pageModel.setMenu(wfTableService.findAllBlindTable());
 		
 		return pageModel;
@@ -221,16 +231,20 @@ public class BusinessProcessor {
 		
 		//和流程相关
 		if(wfId != null){
-			pageModel.setNodeName(wfProcessor.findNodeName(wfId,null,user));
-			if(pageModel.getNodeName() != null) {
-				pageModel.setNextNodes(workflowNodeService.findNextNodes(pageModel.getNodeName(), wfId));				
+			pageModel.setCurNode(wfProcessor.findCurrentNode(wfId,null,user));
+			if(pageModel.getCurNode().get("nodeName") != null) {
+				pageModel.setNextNodes(workflowNodeService.findNextNodes(pageModel.getCurNode().get("nodeName"), wfId,null));				
 			}			
 			pageModel.setNodes(workflowNodeService.findAll(wfId));	
 			//流程图		
 			pageModel.setFlowChat(flowChatService.draw(wfId,null).toString());	
+			
 		}
 		//表单
-		pageModel.setTable(plattenTableService.draw(tbId,wfId,defId,null).toString());		
+		String table = plattenTableService.draw(tbId,wfId,defId,null,user).toString();
+		//初始化和表单相关的默认值
+		table = table.replaceAll("\\$user\\.unitName", user.getUnitName()).replaceAll("\\$user\\.userName", user.getUserName());
+		pageModel.setTable(table);			
 		pageModel.setMenu(wfTableService.findAllBlindTable());
 		
 		return pageModel;
@@ -278,13 +292,13 @@ public class BusinessProcessor {
 	public Long update(HttpServletRequest request,Long tbId,Long bizId){
 		try{
 			WorkflowTableSummary wfts = wfTableService.findTableSummary(tbId,bizId);
-			Storage storage = storageAnalyzer.dataAnalyze(request, wfts.getTbId(),wfts.getWfId());		
+			Storage storage = storageAnalyzer.dataAnalyze(request, wfts.getTbId(),wfts.getWfId(),null);		
 			//获取运行系统的当前登录用户
 			storage.setUser(platformService.getWorkflowUser(request));			
 			storage.setBizId(wfts.getBizId());
 			Map<String,Object> obj = wfTableService.updateDataValueForTable(storage);
 			
-			if(obj.get("ID") != null) {
+			if(obj != null && obj.get("ID") != null) {
 				if(obj.get("ID") instanceof Long) return (Long)obj.get("ID");
 				if(obj.get("ID") instanceof BigDecimal) return Long.parseLong(obj.get("ID").toString());
 				if(obj.get("ID") instanceof Integer) return Long.parseLong(obj.get("ID").toString());
@@ -304,7 +318,7 @@ public class BusinessProcessor {
 	 */
 	public Long save(HttpServletRequest request,Long tbId,Long wfId){
 		try{
-			Storage storage = storageAnalyzer.dataAnalyze(request, tbId,wfId);
+			Storage storage = storageAnalyzer.dataAnalyze(request, tbId, wfId, null);
 			//获取运行系统的当前登录用户
 			storage.setUser(platformService.getWorkflowUser(request));				
 			Map<String,Object> obj = wfTableService.saveDataValueForTable(storage);
@@ -328,6 +342,23 @@ public class BusinessProcessor {
 		return wfTableService.findAllSortedTable();
 	}
 	
+	/**
+	 * 获得业务分类带办理量
+	 * @return
+	 */
+	public List<Map<String,Object>> findAllSortedTableWithBizCountByCreatedUser(Long userId){
+		return wfTableService.findAllSortedTableWithBizCountByCreatedUser(userId);
+	}
+	
+	/**
+	 * 获得流程记录
+	 * @param bizId
+	 * @param wfId
+	 * @return
+	 */
+	public List<WorkflowFlow> getFlowRecords(Long bizId, Long wfId){		
+		return wfFlowService.findAllWithSteps(bizId, wfId);
+	}
 	/**
 	 * 创建用户自定义流程
 	 * @param request
@@ -538,5 +569,54 @@ public class BusinessProcessor {
 			fieldsLst.add(lst);
 		}
 		return fieldsLst;
+	}
+	
+	//为移动提供的特殊接口
+	/**
+	 * 移动端的页面展示目前采用最简单html控件，不支持组件和子表的表现形式
+	 * @param tbId
+	 * @return
+	 */
+	public List<List<Map<String,Object>>> getMobileFields(Long tbId,Long bizId,Long wfId, String nodeName)throws Exception {
+		return wfTableService.findTableSimpleElementsForMobile(tbId,bizId,wfId,nodeName);		
+	}
+	
+	/**
+	 * 获取字段名称+字段标签信息，供列表下载
+	 * @param tbId
+	 * @return
+	 */
+	public Map<String,String> getFields(Long tbId){
+		List<WorkflowTableElement> wftes = wfTableService.findTableAllElements(tbId, null);
+		Map<String,String> fields = new LinkedHashMap<String,String>();
+		for(WorkflowTableElement em : wftes){
+			switch(em.getNewFieldType()){
+			case "标签":
+				break;
+			case "子表":
+				break;
+			case "图片":
+				break;
+			case "审批意见":
+				break;
+			default:
+				fields.put(em.getNewFieldName(), em.getNewLabelName());
+			}
+		}
+		fields.put("createdUserName", "申请人");
+		fields.put("createdOrgName", "申请人单位");
+		return fields;
+	}
+	
+	/**
+	 * 打印表单
+	 * @param tbId
+	 * @param wfId
+	 * @param defId
+	 * @param bizId
+	 * @return
+	 */
+	public String getPrintTable(Long tbId,Long bizId){
+		return this.printTableService.draw(tbId, null, null, bizId, null).toString();
 	}
 }

@@ -19,8 +19,8 @@
     <button type="button" class="btn btn-sm btn-outline-secondary">生成Excel</button>&nbsp;
     <select id="selOperation" onchange="findList();">
     	<option>办理列表</option>
-    	<option value="approve">申请列表</option>
-    	<option value="workflow">流转列表</option>
+    	<option value="apply">申请列表</option>
+    	<option value="approve">流转列表</option>
     </select>       
   </div>   
 </div>
@@ -43,12 +43,12 @@
       <c:forEach items="${model.page.pageList}"  var="item" >
       	<tr>
       		<td><a href="${path}/app/showtable/${model.wftb.tbId}/${item['Id']}">#${item['Id']}</a></td>
-	      	<c:forEach items="${item}" var="map" > 	      	    		     	
-	   			<c:forEach items="${model.tableList}"  var="tableElement" >	   				   			
-	       		<c:if test="${tableElement.fieldName eq map.key || fn:toLowerCase(tableElement.fieldName) eq map.key  || fn:toUpperCase(tableElement.fieldName) eq map.key}">		       		       	
-	       			<td>${map.value }</td>
-	       		</c:if>	       		
-	        	</c:forEach>     		
+	      	<c:forEach items="${model.tableList}"  var="tableElement" >	
+   				<c:forEach items="${item}" var="map" >   				   			
+		       		<c:if test="${tableElement.newFieldName eq map.key || fn:toLowerCase(tableElement.newFieldName) eq map.key  || fn:toUpperCase(tableElement.newFieldName) eq map.key}">		       		       	
+		       			<td>${map.value }</td>
+		       		</c:if>	       		
+        		</c:forEach>     		
 	     	</c:forEach>
      	</tr>
        </c:forEach> 

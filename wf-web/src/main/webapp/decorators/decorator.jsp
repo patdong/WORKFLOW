@@ -8,6 +8,7 @@
 <title>Work Flow Configuration</title>
 <script type="text/javascript" src="${path}/js/jquery-3.3.1.min.js"></script>
 <script type="text/javascript" src="${path}/js/jquery.validate.min.js"></script>
+<script type="text/javascript" src="${path}/js/validate-methods.js"></script>
 <script type="text/javascript" src="${path}/js/jquery-ui.js"></script>
 <script type="text/javascript" src="${path}/js/bootstrap.min.js"></script>
 <!-- <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script> -->

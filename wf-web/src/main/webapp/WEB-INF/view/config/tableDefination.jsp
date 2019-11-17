@@ -1,6 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"  pageEncoding="UTF-8"  trimDirectiveWhitespaces="true" %>
 <%@ include file="/WEB-INF/view/include.jsp"%>
-<script>
+<script>  
   //页面设置全局变量
   var gscope = "${scope}";
   var gfieldsetting = "${fieldsetting}";
@@ -12,7 +12,7 @@
 	  $('#ems-body').hide();
 	  $('#ems-foot').hide();	  
 	  $('#ems-dialog').show();
-	  $('#ems-div').css('height','84%');
+	  $('#ems-div').css('height','80%');
 	  $('#btn-open').hide(); 
 	  $('#btn-close').show();
 	  $("#element-div").draggable();
@@ -22,6 +22,7 @@
 	  $("#tbname-dialog").draggable();
 	  $("#confirm-dialog").dialog();
 	  $('#confirm-dialog').dialog('close');
+	  $("#formula-div").draggable();
 	  //设置表单位置的radiobox值
 	  var $scope = $('input:radio[name=scope]');	 
 	  $scope.filter('[value=${scope}]').prop('checked', true);
@@ -44,7 +45,7 @@
 	  redraw();
   });
   
-  //保存元素设置
+  //保存多个元素设置
   function saveElements(){	 
 	  var checkedIds = [];
 	  if($("#ems-body").is(":visible")){
@@ -66,6 +67,15 @@
 		});
 	  }
   }
+  
+  //保存单个元素的设置
+  function saveElement(){
+	  $('#myForm').valid();
+	  $.validator.messages.required = "此项为必输项！";
+	  $.validator.messages.number = "请输入数字！";	  
+	  $('#myForm').attr('action','${path}/tb/saveElement/${tbId}');
+	  $('#myForm').submit();
+  } 
   
   //元素上移一位
   function moveUp(id){
@@ -118,8 +128,9 @@
 	});
   }
   
-   //弹出操作菜单
+   //弹出元素信息操作菜单
   function showPos(event,id) {
+	  $('#ems-div').hide();
 	  var el, x, y;
 	  el = document.getElementById('element-div');	  
 	  
@@ -135,8 +146,9 @@
 	  
 	  if(y>200) y = 60;
 	  
-	  el.style.left = x + "px";
-	  el.style.top = y + "px";
+	  //el.style.left = //x + "px";
+	  el.style.right = "5px";
+	  el.style.top = "14%";//y + "px";
 	  el.style.display = "block";
 	  
 	  if(id != "") {
@@ -157,11 +169,17 @@
   }
   
    //内部方法，完成字段赋值功能
-  function setElement(element){	   
+  var newFieldDataType = "String";
+  function setElement(element){
+	  //清空校验的异常信息
+	  var validator = $("#myForm").validate();
+	  validator.resetForm();
 	  $("#id").val(element.id); 
-	  $("#element-name").text(element.newLabelName);
-	  $("#newLabelName").val(element.newLabelName);
-	  $("#newFieldName").val(element.newFieldName);	  
+	  $("#element-name").text(element.newLabelName);	  
+	  $("#newLabelName").val(element.newLabelName);	  
+	  $("#position").val(element.position);
+	  $("#newFieldName").val(element.newFieldName);
+	  $("#newUnit").val(element.newUnit);	  
 	  $("#newFieldDataType").val(element.newFieldDataType);
 	  $("#newFieldType").val(element.newFieldType);
 	  $("#rowes").val(element.rowes);
@@ -175,6 +193,7 @@
 	  $("#formula").val(element.formula);
 	  $("#defaultValue").val(element.defaultValue);
 	  $("#defaultValueFrom").val(element.defaultValueFrom);
+	  newFieldDataType = element.newFieldDataType;	  
 	  changeNewFieldType();
    }
    
@@ -189,7 +208,11 @@
 	      		  url: "${path}/tb/setTableName/"+tbId,
 	      		  data: {tableName:tableName},			  
 	      		  dataType: 'json',
-	      		  success: function(data){	      			  		 
+	      		  success: function(data){
+	      			  if(!data){
+	      				  alert("设置不成功!");
+	      			      $("#tableName").val("${brief.tableName}");
+	      			  }
 	      		  },
 	      		  error: function(XMLHttpRequest, textStatus, errorThrown){
 	      			  console.warn(XMLHttpRequest.responseText);			  
@@ -201,17 +224,20 @@
   
   //表单列数设置，默认必须是2列。
   function saveLayout(){	  		  
-	  var headCols=$("#headCols").val();		  
+	  var headCols=$("#headCols").val();
+	  var headBorder = $("#headBorder").val();
 	  if (!/^[1-9][0-9]*$/.test(headCols)) {
 		  headCols="";
 	  }		
 	  $("#headCols").val(headCols);
-	  var bodyCols=$("#bodyCols").val();		  
+	  var bodyCols=$("#bodyCols").val();
+	  var bodyBorder = $("#bodyBorder").val();
 	  if (!/^[1-9][0-9]*$/.test(bodyCols)) {
 		  bodyCols="2";
 	  }		
 	  $("#bodyCols").val(bodyCols);
-	  var footCols=$("#footCols").val();		  
+	  var footCols=$("#footCols").val();
+	  var footBorder = $("#footBorder").val();
 	  if (!/^[1-9][0-9]*$/.test(footCols)) {
 		  footCols="";
 	  }		
@@ -220,7 +246,13 @@
 	  $.ajax({
 		  type: 'GET',
 		  url: "${path}/tb/savelayout/${tbId}",
-		  data:{headCols:headCols,bodyCols:bodyCols,footCols:footCols},
+		  data:{headCols:headCols,
+			    bodyCols:bodyCols,
+			    footCols:footCols,
+			    headBorder:headBorder,
+			    bodyBorder:bodyBorder,
+			    footBorder:footBorder
+			   },
 		  dataType: 'json',
 		  success: function(data){
 			  location.href="${path}/tb/tabledefination/${tbId}?scope="+gscope+"&fieldsetting="+gfieldsetting;
@@ -264,9 +296,11 @@
   
   //生成库表数据
   function createTable(){
+	  //表单验证
+	  $("#myForm1").valid();
 	  var tbName = $("#tbName").val();	  
 	  if("${brief.name}" == "" && tbName == ""){		  
-		  $('#tbname-dialog').show();
+		  $('#tbname-dialog').show();		  
 	  }else{		  
 		  $.ajax({
 			  type: 'GET',
@@ -327,6 +361,23 @@
 		  url: "${path}/tb/getTableScheme/${tbId}",		  			 
 		  dataType: 'json',
 		  success: function(data){
+			  //判重
+			  var duplicateEle = [];
+			  for(var i=0;i<data.length;i++){
+				  var count=0;
+				  var exist = false
+				  for(var j=0;j<data.length;j++){
+					  if(data[i].newFieldName == data[j].newFieldName) {
+						  count++;						  
+						  for(var k=0;k<duplicateEle.length;k++){
+							  if(duplicateEle[k] == data[i].newFieldName) exist = true;
+						  }
+					  }
+				  }
+				  if(count > 1){					  
+					  if(!exist) duplicateEle.push(data[i].newFieldName);
+				  }
+			  }			  
 			  var li;
 			  var alarm = false;
 			  $("#scheme-lst").empty();
@@ -336,7 +387,16 @@
 			      	li += "<td><span style='color:red;font-weight:bold;'>❗<span></td>"; 	
 			      	alarm = true;
 			      }else{
-			    	  li += "<td>"+element.newFieldName+"</td>"
+			    	  //判重
+			    	  var duplicate = false;			    	  
+			    	  for(var i=0;i<duplicateEle.length;i++){			    		  
+			    		  if(element.newFieldName == duplicateEle[i]) duplicate = true;
+			    	  }
+			    	  if(duplicate) {
+			    		  li += "<td><span style='color:red;font-weight:bold;'>❗<span>"+element.newFieldName+"</td>";
+			    		  alarm = true;
+			    	  }
+			    	  else li += "<td>"+element.newFieldName+"</td>"
 			      }
 			      if(element.newLabelName==null){
 			      	li += "<td><span style='color:red;'>❗<span></td>"; 
@@ -459,6 +519,11 @@
   //元素类型切换
   function changeNewFieldType(){
 	  var newFieldType = $("#newFieldType").val();
+	  if(newFieldType == '组件' || newFieldType == '子表' || newFieldType == '标签'){
+		  $("#newFieldName").removeAttr("required");
+	  }else{
+		  $("#newFieldName").attr("required","true");
+	  }
 	  if(newFieldType == '组件' || newFieldType == '子表'){
 		  $.ajax({
     		  type: 'GET',
@@ -466,11 +531,10 @@
     		  data: {newFieldType:newFieldType},			  
     		  dataType: 'json',
     		  success: function(data){	 
-    			  $("#newFieldDataType").empty();
-    			  var newFieldDataType =  $("#newFieldDataType").val();
+    			  $("#newFieldDataType").empty();    			  
     			  $.each(data,function (index, brief) {
     				  var selected = "";
-    				  if(newFieldDataType == brief.stbId+","+brief.newFieldDataType) selected = "selected";
+    				  if(newFieldDataType == brief.tableName) selected = "selected";
     				  $("#newFieldDataType").append("<option "+selected+" value='"+brief.tbId+","+brief.tableName+"'>"+brief.tableName+"</option>");
     			  })    			  
     		  },
@@ -479,11 +543,58 @@
     		  }
     	});
 		  
-	  }else{
+	  }else{		   
 		  $("#newFieldDataType").empty();
 		  $("#newFieldDataType").append("<option value='String'>字符串</option>");
 		  $("#newFieldDataType").append("<option value='Date'>日期</option>");
+		  $("#newFieldDataType").append("<option value='DateTime'>时间日期</option>");
+		  $("#newFieldDataType").append("<option value='Number'>数字</option>");
+		  $("#newFieldDataType").append("<option value='Money'>金额</option>");		  
+		  $("#newFieldDataType").val(newFieldDataType);
 	  }
+  }
+  //设置计算公式 
+  var exprs = [,,];
+  function setFormula(item,position){
+	  //重置及初始化	 
+	  const formuladata = $("#formuladata").val();
+	  if(formuladata == "") exprs = [,,];
+	  else{
+		  const regular = /(\S+)([*|/|+|-])(\S+)/;		
+		  const matchObj = regular.exec(formuladata);
+		  if(matchObj != null){
+			  exprs[0] = matchObj[1];
+			  exprs[1] = matchObj[2];
+			  exprs[2] = matchObj[3];
+		  }
+	  }
+	  
+	  switch(position){
+	  case 1:
+		  if(exprs[0] == null) exprs[0] = item.value;
+		  if(exprs[1] == null && exprs[2] == null){			  
+			  exprs[0] = item.value;
+		  }
+		  if(exprs[1] != null && exprs[2] == null){			  
+			  exprs[2] = item.value;
+		  }			
+		break;
+	  case 2:
+		  if(exprs[0] != null && exprs[1] == null) exprs[1] = item.value;
+		break;
+	  case 3:		  
+		  if(exprs[0] != null && (exprs[1] == null || exprs[2] == null)) {
+			  exprs[1] = item.value.substring(0,1);
+			  exprs[2] = item.value.substring(1);
+		  }
+		break;
+	  }
+	  var express = "";
+	  for(var i=0;i<exprs.length;i++){
+		  if(exprs[i] == null) exprs[i] = "";
+		  express += elem[i];
+	  }
+	  $("#formuladata").val(express);	  	  
   }
 </script>
 <c:set var="cols" value="${style}"/>
@@ -514,6 +625,9 @@
   			<span style="cursor:pointer;" onclick="$('#brief-div').show();"><span style="font-weight:bold;color:RED">➿</span> |</span> 				  		
 	  		<span style="cursor:pointer;" onclick="review();"><span style="font-weight:bold;color:#152505;">⇱</span>预览 |</span>		  		
 	  		<span style="cursor:pointer;" onclick="$('#lst-div').show();"><span style="font-weight:bold;color:#152505;">✋</span>列表</span>	  		
+  		</div>
+  		<div style="float: right; margin-right: -24%;margin-top: 8px;" >
+  			<span id="emstool" style="cursor:pointer;" onclick="$('#ems-div').show();"><span style="font-size:18px;font-weight:bold;">😎</span>元素</span>
   		</div>  		  		   		   
   	</div>
   	<div class="line-bottom" ></div>
@@ -525,10 +639,10 @@
 	<!-- 表单标题 -->	
 	<div style="text-align:center;margin-left:10%;margin-right:10%">
 		<label for="tableName" class="sr-only">表单名称</label>				
-       	<input type="text" name="tableName" id="tableName" class="form-control" placeholder="表单名称"  style="text-align:center;font-weight:bold;font-size:2.2rem;" value="${brief.tableName }" onkeypress="setTableName(event);" />
+       	<input type="text" name="tableName" id="tableName" class="form-control" placeholder="表单名称"  style="text-align:center;font-weight:bold;font-size:1.5rem;" value="${brief.tableName }" onkeypress="setTableName(event);" />
 	</div>
 	<!-- 展示表单选中范围信息 -->
-	<div style="text-align:center;margin-top:7%;margin-left:2%;margin-right:2%">
+	<div style="text-align:center;margin-top:3%;margin-left:2%;margin-right:2%">
 		<div class="table-container" style="margin-left:0px" id="table-container">
 			${table}			 		
 		</div>		
@@ -536,26 +650,26 @@
 </div>
 </div>
 <input type="hidden" id="tbId" name="tbId" value="${tbId}"/>
-<div id="ems-div" class="ems-mask opacity" style="background-color: #f8f9fa;box-shadow: 1px 6px 4px #d6720f;top:10%;bottom: 1%" >
+<div id="ems-div" class="ems-mask opacity" style="background-color: #f8f9fa;box-shadow: 1px 6px 4px #d6720f;height:80%;top:14%;" >
 	<header>	      
          <div class="form-inline mt-2 mt-md-0" style="padding: 6px 10px 0px;" >           
            <span class="span-highlight-btn" onclick="$('#tb-span').removeClass('span-btn').addClass('span-highlight-btn');$('#ems-span').removeClass('span-highlight-btn').addClass('span-btn');$('#tbems-body').show();$('#ems-body').hide();;$('#ems-foot').hide();" id="tb-span">表单元素</span>           
            <span class="span-btn" onclick="$('#ems-span').removeClass('span-btn').addClass('span-highlight-btn');$('#tb-span').removeClass('span-highlight-btn').addClass('span-btn');$('#ems-body').show();$('#tbems-body').hide();$('#ems-foot').show();" id="ems-span">元素集</span>           
          </div>
          <div style="position: absolute;top: 1px;right: 15px;">
-         	<span id="btn-close" class="badge badge-secondary badge-pill" style="background-color:#46a70a;cursor:pointer;display:none;" onclick="$('#btn-open').show(); $('#btn-close').hide(); $('#ems-dialog').hide();$('#ems-div').css('height','6.5%');">×</span>
+         	<span id="btn-close" class="badge badge-secondary badge-pill" style="background-color:#46a70a;cursor:pointer;display:none;" onclick="$('#btn-open').show(); $('#btn-close').hide(); $('#ems-dialog').hide();$('#ems-div').css('height','6.5%');$('#ems-div').hide();$('#emstool').show();">×</span>
          	<span id="btn-open" class="badge badge-secondary badge-pill" style="background-color:#46a70a;cursor:pointer;" onclick="$('#btn-open').hide(); $('#btn-close').show(); $('#ems-dialog').show();$('#ems-div').css('height','80%');">√</span>
          </div>	      	     
     </header>
     <hr style="margin-top: .5rem; margin-bottom: .5rem;border-top: 1px solid #0c4219;"></hr>    
-    <div id="ems-dialog" style="height:70%">
+    <div id="ems-dialog" style="height:77%">
 	    <div style="margin-left:5px;padding-left:1px;" >
 		    <input type="radio" id="scope" name="scope" value="表头" onclick="fresh('表头');">&nbsp;表头
 		    <input type="radio" id="scope" name="scope" value="表体" checked onclick="fresh('表体');">&nbsp;表体
 		    <input type="radio" id="scope" name="scope" value="表尾" onclick="fresh('表尾');">&nbsp;表尾 		    
 	    </div>
 	
-		<hr style="margin-top: .1rem; border-top: 1px solid #0c4219;"></hr> 
+		<hr style="margin-top: .1rem; border-top: 1px solid #0c4219;margin-bottom:.1px;"></hr> 
 	    <div style="padding: 0px 13px 0px;height: 100%;overflow-y: auto;" id="ems-body">
 			<form id="emsForm" class="navbar-form navbar-left" method="get" action="">			
 				<c:forEach items="${emList}" varStatus="i" var="element" >
@@ -578,9 +692,9 @@
 		   </form>
 		</div>		
 		<div id="ems-foot">	
-			<hr></hr>
-			<div style="margin-bottom:10px;margin-top:10px;margin-left:5px;">
-		    	<button class="btn btn-lg btn-primary-dialog " style="margin-right:20px;padding-left:1px;" onclick="saveElements();">保存</button>
+			<hr style="margin-top: .1rem;margin-bottom: .5rem"></hr>
+			<div style="margin-bottom:1px;margin-top:1px;margin-left:5px;">
+		    	<button class="btn btn-lg btn-primary-dialog buttom-smaller"  onclick="saveElements();">保存</button>
 		    </div>
 	    </div> 	
 	 </div>    
@@ -615,7 +729,7 @@
 
 
 <!-- 元素定义窗口 -->
-<div id="element-div" class="node-mask opacity" style="display:none;height:85%;width:32%;">
+<div id="element-div" class="node-mask opacity" style="display:none;height:80%;width:22%;">
 	<header>	      
          <div class="form-inline mt-2 mt-md-0" style="padding: 6px 10px 0px;" >
           	<label>元素-[<span id="element-name" style="font-weight:bold;"></span>]设置</label>
@@ -624,28 +738,33 @@
          	<span class="badge badge-secondary badge-pill" style="background-color:#46a70a;cursor:pointer;" onclick="$('#element-div').hide();">×</span>
          </div>	      	     
     </header>
-    <hr ></hr>
-    <div style="padding: 0px 13px 0px;">
-		<form id="myForm" class="" method="post" modelAttribute="element" action="${path}/tb/saveElement/${tbId}">
+    <hr style="margin-top: .5rem;margin-bottom: .5rem;"></hr>
+    <div style="padding: 0px 13px 0px;font-size:.8rem;">
+		<form id="myForm" class="" method="post" modelAttribute="element" action="">
 			
 			<!-- hidden项是本页面两个form公用项  不可轻易做变更！ -->
 			
 			<input type="hidden" id="id" name="id" value="">
 			<input type="hidden" id="escope" name="escope" value="${scope}">			
-	  		<div class="form-group-dialog">	  			  			       
-		        <label >元素名称：</label>
-		        <input name="newLabelName" id="newLabelName" class="form-control-one-line mx-sm-2" required autofocus style="width:25%"/>
-		        <label >字段名称：</label>
-		        <input name="newFieldName" id="newFieldName" class="form-control-one-line" style="width:25%"/>
+	  		<div class="form-group-dialog" style="margin-bottom: .2rem;">	  			  			       
+		        <label >元素名称:</label>
+		        <input name="newLabelName" id="newLabelName" class="form-control-one-line mx-sm-2 form-plugin-smaller" required autofocus style="width:40%"/>
+		        <label >位置:</label>
+		        <select name="position" id="position" class="form-control-one-line form-plugin-smaller" style="width:14%" >
+		        	<option value="左">左</option>
+		        	<option value="中">中</option>
+		        	<option value="右">右</option>		        	
+		        </select>		        		       
 		    </div>
-		  	<div class="form-group-dialog">	    		       
-		        <label>字段类型：</label>
-		        <select name="newFieldDataType" id="newFieldDataType" class="form-control-one-line mx-sm-2" style="width:25%" > 
-		        	<option value="String">字符串</option>
-			        <option value="String">日期</option>		       
-		        </select>       
-		        <label >元素模型：</label>
-			    <select name="newFieldType" id="newFieldType" class="form-control-one-line" required style="width:25%" onChange="changeNewFieldType();">
+		    <div class="form-group-dialog" style="margin-bottom: .2rem;">
+		    	<label >字段名称:</label>
+		        <input name="newFieldName" id="newFieldName" class="form-control-one-line mx-sm-2  form-plugin-smaller" required style="width:40%"/>
+		        <label >单位:</label>
+		        <input name="newUnit" id="newUnit" class="form-control-one-line form-plugin-smaller" style="width:14%" />
+		    </div>		    		  
+		    <div class="form-group-dialog" style="margin-bottom: .2rem;">      
+		        <label >元素模型:</label>
+			    <select name="newFieldType" id="newFieldType" class="form-control-one-line mx-sm-2 form-plugin-smaller" required style="width:70%" onChange="changeNewFieldType();">
 			        <option>输入框</option>
 			        <option>下拉框</option>
 			        <option>单选框</option>
@@ -660,48 +779,60 @@
 			        <option>子表</option>
 			    </select>			        		       	        		       
 		    </div>
-		 
-			<div class="form-group-dialog">				
-			    <label >数据长度： </label>
-		        <input name="newLength" id="newLength" class="form-control-one-line mx-sm-2"  style="width:25%" />	
-		        <label >元素宽度：</label>
-		        <input name="width" id="width" class="form-control-one-line" style="width:25%" />		    
+		 	<div class="form-group-dialog" style="margin-bottom: .2rem;">	    		       
+		        <label>字段类型:</label>
+		        <select name="newFieldDataType" id="newFieldDataType" class="form-control-one-line mx-sm-2 form-plugin-smaller" style="width:70%" > 
+		        	<option value="String">字符串</option>
+			        <option value="Date">日期</option>
+			        <option value="DateTime">时间日期</option>
+			        <option value="Number">数字</option>       
+		        </select> 
+		    </div>
+			<div class="form-group-dialog" style="margin-bottom: .2rem;">				
+			    <label >数据长度:</label>
+		        <input name="newLength" id="newLength" class="form-control-one-line mx-sm-2 form-plugin-smaller number"  style="width:23%" />		    
+		        <label >显示宽度:</label>
+		        <input name="width" id="width" class="form-control-one-line form-plugin-smaller number" style="width:22%" />		    
 			</div>
-		    <div class="form-group-dialog">		        
-		        <label >元素跨行：</label>
-		        <input name="rowes" id="rowes" class="form-control-one-line mx-sm-2" value="1" style="width:25%" />		    		        
-		        <label >元素跨列：</label>
-		        <input name="cols" id="cols" class="form-control-one-line" value="1" style="width:25%"/>			        		       
+		    <div class="form-group-dialog" style="margin-bottom: .2rem;">		        
+		        <label >元素跨行:</label>
+		        <input name="rowes" id="rowes" class="form-control-one-line mx-sm-2 form-plugin-smaller number" value="1" style="width:23%" />
+		    	    		        
+		        <label >元素跨列:</label>
+		        <input name="cols" id="cols" class="form-control-one-line form-plugin-smaller number" value="1" style="width:22%"/>			        		       
 		    </div>
-		    <div class="form-group-dialog">
-		    	<label >隐式字段：</label>
-		        <input name="newHiddenFieldName" id="newHiddenFieldName" class="form-control-one-line mx-sm-2" style="width:25%" />
-		        <label >字段初值：</label>
-		        <input name="defaultValue" id="defaultValue" class="form-control-one-line" style="width:25%"/>		        		        	        			        		      
+		    <div class="form-group-dialog" style="margin-bottom: .2rem;">
+		    	<label >隐式字段:</label>
+		        <input name="newHiddenFieldName" id="newHiddenFieldName" class="form-control-one-line mx-sm-2 form-plugin-smaller" style="width:70%" />
 		    </div>
-		    <div class="form-group-dialog">		        
-		        <label >初值来源：</label>
-		        <input name="defaultValueFrom" id="defaultValueFrom" class="form-control-one-line  mx-sm-2" style="width:60%"/>			        		       
+		    <div class="form-group-dialog" style="margin-bottom: .2rem;">
+		        <label >字段初值:</label>
+		        <input name="defaultValue" id="defaultValue" class="form-control-one-line mx-sm-2 form-plugin-smaller" style="width:70%"/>		        		        	        			        		      
 		    </div>
-		    <div class="form-group-dialog">	        
-		        <label >事件名称：</label>
-		        <input name="newFunctionName" id="newFunctionName" class="form-control-one-line  mx-sm-2" style="width:45%"/>	
-		        <input name="functionBelongTo" id="functionBelongTo" type="radio" value="标签">标签	
-		        <input name="functionBelongTo" id="functionBelongTo" type="radio" value="元素">元素        		       
+		    <div class="form-group-dialog" style="margin-bottom: .2rem;">		        
+		        <label >初值来源:</label>
+		        <input name="defaultValueFrom" id="defaultValueFrom" class="form-control-one-line  mx-sm-2 form-plugin-smaller" style="width:70%"/>			        		       
 		    </div>
-		    <div class="form-group-dialog">		        
-		        <label >级联信息：</label>
-		        <input name="newDataContent" id="newDataContent" class="form-control-one-line  mx-sm-2" style="width:60%"/>			        		       
+		    <div class="form-group-dialog" style="margin-bottom: .2rem;">	        
+		        <label >事件名称:</label>
+		        <input name="newFunctionName" id="newFunctionName" class="form-control-one-line  mx-sm-2 form-plugin-smaller" style="width:70%"/>	
+		        <!-- <input name="functionBelongTo" id="functionBelongTo" type="radio" value="标签">标签	-->
+		        <input type="hidden" name="functionBelongTo" id="functionBelongTo" value="元素">        		       
 		    </div>
-		    <div class="form-group-dialog">		        
-		        <label >计算公式：</label>
-		        <input name="formula" id="formula" class="form-control-one-line  mx-sm-2" style="width:60%" readOnly/>			        		       
+		    <div class="form-group-dialog" style="margin-bottom: .2rem;">		        
+		        <label >级联信息:</label>
+		        <input name="newDataContent" id="newDataContent" class="form-control-one-line  mx-sm-2 form-plugin-smaller" style="width:70%"/>			        		       
+		    </div>
+		    <div class="form-group-dialog" style="margin-bottom: .2rem;">		        
+		        <label >计算公式:</label>
+		        <input name="formula" id="formula" class="form-control-one-line  mx-sm-2 form-plugin-smaller" style="width:60%" readOnly/>
+		        <span style="cursor:pointer;" onclick="$('#formula-div').show();$('#formuladata').val($('#formula').val());">📌</span>			        		       
 		    </div>		    
-		    <hr></hr>		        		      
-	        <div style="margin-bottom:10px;margin-top:10px;">
-		   	   <button class="btn btn-lg btn-primary-dialog" style="margin-right:20px;" type="submit" id="saveEm">保存</button>
-		    </div> 	   
-	   </form>	   
+		    <hr style="margin-top: .5rem;margin-bottom: .5rem;"></hr>	         
+	   </form>
+	   <div style="margin-bottom:10px;margin-top:10px;">
+	   	   <button class="btn btn-lg btn-primary-dialog buttom-smaller"  id="saveEm" onClick="saveElement();">保存</button>
+	   </div> 	 	   
 	</div>    
 </div>
 <!-- talbe scheme检测 -->
@@ -742,7 +873,9 @@
     </header>
     <hr style="margin-top: .5rem; margin-bottom: .5rem;"></hr>
     <div style="padding: 0px 13px 0px;overflow:auto; height:80%" >
-    <input type="text" id="tbName" name="tbName" class="form-control-one-line" placeholder="表单名称录入" >     
+    <form id="myForm1">
+    <input type="text" id="tbName" name="tbName" class="form-control-one-line Text" placeholder="表单名称录入" >
+    </form>  
     <br><br>
     <nav aria-label="Page navigation example">
   	<ul class="pagination">  	    
@@ -798,12 +931,24 @@
     </header>
     <hr style="margin-top: .5rem; margin-bottom: .5rem;"></hr>
     <div style="padding: 0px 13px 0px;overflow:auto; height:50%" >
-    	<label>表头列</label>：<input id="headCols" value="${headCols}"><br>
-    	<label>表体列</label>：<input id="bodyCols" value="${bodyCols }"><br>
-    	<label>表尾列</label>：<input id="footCols" value="${footCols }"><br>
+    	<label>表头列</label>：<input id="headCols" value="${headCols}" style="width:30%"> &nbsp; 
+    	<select id="headBorder">
+    		<option value="是" <c:if test="${headBorder eq '是'}">selected</c:if>>有边框</option>
+    		<option value="无" <c:if test="${headBorder eq '无'}">selected</c:if>>无边框</option>
+    	</select><br>
+    	<label>表体列</label>：<input id="bodyCols" value="${bodyCols}" style="width:30%"> &nbsp; 
+    	<select id="bodyBorder">
+    		<option value="是" <c:if test="${bodyBorder eq '是'}">selected</c:if>>有边框</option>
+    		<option value="无" <c:if test="${bodyBorder eq '无'}">selected</c:if>>无边框</option>
+    	</select><br>
+    	<label>表尾列</label>：<input id="footCols" value="${footCols}" style="width:30%"> &nbsp; 
+    	<select id="footBorder">
+    		<option value="是" <c:if test="${footBorder eq '是'}">selected</c:if>>有边框</option>
+    		<option value="无" <c:if test="${footBorder eq '无'}">selected</c:if>>无边框</option>
+    	</select><br>
     </div>
     <hr style="margin-top: .5rem; margin-bottom: .5rem;"></hr>
-    <div class="btn-confirm-dialog" style="margin:5px;width:70px">
+    <div class="btn-confirm-dialog" >
       <a style="color: #e9eef3;" href="javascript:void();"  onclick="saveLayout();">
         <span aria-hidden="true" >确认</span>		        
       </a>
@@ -841,7 +986,7 @@
         </div>      
     </div>
     <hr style="margin-top: .5rem; margin-bottom: .5rem;"></hr>
-    <div class="btn-confirm-dialog" style="margin:5px;width:70px">
+    <div class="btn-confirm-dialog">
       <a style="color: #e9eef3;" href="javascript:void();"  onclick="setSubTable();">
         <span aria-hidden="true" >确认</span>		        
       </a>
@@ -916,4 +1061,51 @@
 	    </li>
 	</ul>
   </nav>    
+</div>
+
+<!-- 计算公式窗口 -->
+<div id="formula-div" class="mask opacity" style="display:none;height:60%;left:40%;top:33%;width:35%;background-color:#f8f9fa">
+	<header>	      
+         <div class="form-inline mt-2 mt-md-0" style="padding: 6px 10px 0px;" >
+           <span id="scheme-msg">计算公式设置[仅支持二元计算]</span>
+         </div>
+         <div style="position: absolute;top: 1px;right: 15px;">
+         	<span class="badge badge-secondary badge-pill" style="background-color:#46a70a;cursor:pointer;" onclick="$('#formula-div').hide();">×</span>
+         </div>	      	     
+    </header>
+    <hr style="margin-top: .5rem; margin-bottom: .5rem;"></hr>
+    <div style="padding: 0px 13px 0px;overflow:auto; height:60%" id="table-reviewer"> 
+    	<div style="width:40%;height:90%;float:left;font-size:.9rem; "> 
+    		<select style="width:100%;height:100%;" multiple onclick="setFormula(this,1);">
+	    		<c:forEach var="em" items="${tballems}" varStatus="status">
+		    		<option value="$${em.tableName}_${em.newFieldName}">${em.newLabelName}[${em.newFieldDataType }]</option>
+	    		</c:forEach> 
+	    	</select>
+    	</div>
+    	<div style="margin-left:10px;width:25%;height:90%;float: left; " >
+    		<select style="width:100%;height:100%;font-size:.9rem;" multiple onclick="setFormula(this,2);">
+    			<option value="+">加 +</option>
+    			<option value="-">减 -</option>
+    			<option value="*">乘 *</option>
+    			<option value="/">除 /</option>    			
+    		</select>    		
+    	</div>
+    	<div style="width:30%;height:90%;float: right; ">
+    		<select style="width:100%;height:100%;font-size:.9rem;" multiple onclick="setFormula(this,3);">
+    			<option value="/$n">求平均</option>
+    			<option value="*$n">求总数</option>    			
+    		</select>
+    	</div>    	
+    </div>  
+    <div>
+    		<hr style="margin-top: .5rem; margin-bottom: .5rem;"></hr>
+    		&nbsp;计算公式：<input id="formuladata" class="form-control-one-line  mx-sm-2" style="width:70%" readOnly>
+    		<span style="font-size:20px;weight:bold;cursor:pointer;" onclick="$('#formuladata').val('');" title="清除">🔪</span>
+    	</div>  
+    <hr style="margin-top: .5rem; margin-bottom: .5rem;"></hr>
+    <div class="btn-confirm-dialog" >
+      <a style="color: #e9eef3;" href="javascript:void();"  onclick="$('#formula').val($('#formuladata').val());$('#formula-div').hide();">
+        <span aria-hidden="true" >确认</span>		        
+      </a>
+    </div>     
 </div>

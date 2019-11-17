@@ -64,7 +64,8 @@ CREATE TABLE table_brief (
   status varchar(10) NOT NULL ,
   wfId NUMBER NULL,
   createdDate DATE NOT NULL,
-  templateName varchar2(50) NULL
+  templateName varchar2(50) NULL,
+  ALIAS varchar2(50) NULL
 );
 COMMENT ON COLUMN table_brief.tbId IS '表单编号';
 COMMENT ON COLUMN table_brief.name IS '表单外名称';
@@ -75,6 +76,7 @@ COMMENT ON COLUMN table_brief.status IS '表单状态';
 COMMENT ON COLUMN table_brief.wfId IS '流程编号';
 COMMENT ON COLUMN table_brief.createdDate IS '表单创建时间';
 COMMENT ON COLUMN table_brief.templateName IS '业务模板名称';
+COMMENT ON COLUMN table_brief.alias IS '表单别名';
 
 ALTER TABLE table_brief ADD (CONSTRAINT tbId_PK PRIMARY KEY (tbId));
 CREATE SEQUENCE sq_tbId START WITH 1 INCREMENT BY 1 MAXVALUE 1E27 MINVALUE 1 NOCYCLE NOCACHE ORDER;
@@ -84,21 +86,22 @@ CREATE TABLE table_layout (
   tbId NUMBER NOT NULL,
   scope varchar(10) NOT NULL,  
   cols NUMBER NOT NULL ,
-  stbId NUMBER DEFAULT NULL
+  stbId NUMBER DEFAULT NULL,
+  border varchar(2) DEFAULT '是' not null
 );
 COMMENT ON COLUMN table_layout.tbId IS '表单编号';
 COMMENT ON COLUMN table_layout.scope IS '表单区域';
 COMMENT ON COLUMN table_layout.stbId IS '子表单编号';
 COMMENT ON COLUMN table_layout.cols IS '表单列数';
+COMMENT ON COLUMN table_layout.border IS '表单边框';
 
 
 DROP TABLE table_element;
 DROP SEQUENCE sq_id;
 CREATE TABLE table_element (
   id NUMBER NOT NULL,
-  tbId NUMBER NOT NULL,
+  tbId NUMBER NOT NULL,  
   newLabelName varchar2(100) DEFAULT NULL ,
-  newFieldName varchar2(100) DEFAULT NULL ,
   newFunctionName varchar2(50) DEFAULT NULL ,
   functionBelongTo varchar2(10) DEFAULT NULL ,
   newHiddenFieldName varchar2(50) DEFAULT NULL ,
@@ -118,12 +121,14 @@ CREATE TABLE table_element (
   defaultValueFrom varchar2(100) DEFAULT NULL ,
   status varchar2(10) DEFAULT '有效' NOT NULL ,
   createdDate DATE NOT NULL,
-  stbId NUMBER NULL
+  stbId NUMBER NULL,
+  newFieldName varchar2(50) DEFAULT NULL,
+  newUnit varchar2(6) DEFAULT NULL,
+  position varchar2(6) DEFAULT NULL
 );
 COMMENT ON COLUMN table_element.id IS '表单元素编号';
 COMMENT ON COLUMN table_element.tbId IS '表单编号';
 COMMENT ON COLUMN table_element.newLabelName IS '字段标签名称';
-COMMENT ON COLUMN table_element.newFieldName IS '字段名称名称';
 COMMENT ON COLUMN table_element.newFunctionName IS '事件名称';
 COMMENT ON COLUMN table_element.functionBelongTo IS '事件方法所属（标签或元素）';
 COMMENT ON COLUMN table_element.newHiddenFieldName IS '隐藏项';
@@ -144,6 +149,9 @@ COMMENT ON COLUMN table_element.defaultValueFrom IS '初始值来源，目前仅
 COMMENT ON COLUMN table_element.status IS '有效';
 COMMENT ON COLUMN table_element.createdDate IS '创建时间';
 COMMENT ON COLUMN table_element.stbId IS '子表单编号';
+COMMENT ON COLUMN table_element.newFieldName IS '字段名称';
+COMMENT ON COLUMN table_element.newUnit IS '字段单位';
+COMMENT ON COLUMN table_element.position IS '标签位置';
 
 CREATE SEQUENCE sq_id START WITH 1 INCREMENT BY 1 MAXVALUE 1E27 MINVALUE 1 NOCYCLE NOCACHE ORDER;
 
@@ -159,13 +167,14 @@ CREATE TABLE table_summary (
   createdUserName varchar2(45) NOT NULL ,
   createdOrgId NUMBER NOT NULL ,
   createdOrgName varchar2(45) NOT NULL ,
-  curUserId NUMBER DEFAULT NULL ,
+  curUserId varchar2(50) DEFAULT NULL ,
   curUserName varchar2(45) DEFAULT NULL ,
   createdDate DATE NOT NULL ,
   modifiedDate DATE DEFAULT NULL ,
   finishedDate DATE DEFAULT NULL ,
   status varchar2(10) NOT NULL ,
-  action varchar2(20) DEFAULT NULL 
+  action varchar2(20) DEFAULT NULL,
+  defId NUMBER DEFAULT NULL
 );
 COMMENT ON COLUMN table_summary.summaryId IS '概述编号';
 COMMENT ON COLUMN table_summary.bizId IS '业务编号';
@@ -210,13 +219,15 @@ CREATE TABLE workflow (
   wfName varchar2(45) DEFAULT NULL,
   tbId NUMBER DEFAULT NULL ,
   status varchar2(10) NOT NULL,
-  createdDate DATE NOT NULL
+  createdDate DATE NOT NULL,
+  type varchar2(10) NOT NULL
 );
 COMMENT ON COLUMN workflow.wfId IS '流程序号';
 COMMENT ON COLUMN workflow.wfName IS '流程名称';
 COMMENT ON COLUMN workflow.tbId IS '表单编号';
 COMMENT ON COLUMN workflow.status IS '流程状态';
 COMMENT ON COLUMN workflow.createdDate IS '创建时间';
+COMMENT ON COLUMN workflow.type IS '流程类型';
 
 ALTER TABLE workflow ADD (CONSTRAINT wfId_PK PRIMARY KEY (wfId));
 CREATE SEQUENCE sq_wfId START WITH 1 INCREMENT BY 1 MAXVALUE 1E27 MINVALUE 1 NOCYCLE NOCACHE ORDER;
@@ -342,11 +353,13 @@ CREATE TABLE workflow_node_nodes (
   nodeId NUMBER NOT NULL ,
   suf_nodeId NUMBER NOT NULL ,
   type varchar2(10) DEFAULT '直接连接' NOT NULL,
+  necessary varchar2(2) DEFAULT '否' NOT NULL,
   createdDate DATE NOT NULL
 );
 COMMENT ON COLUMN workflow_node_nodes.nodeId IS '节点编号';
 COMMENT ON COLUMN workflow_node_nodes.suf_nodeId IS '后续节点编号';
 COMMENT ON COLUMN workflow_node_nodes.type IS '节点间连接的方式：直接连接、间接连接';
+COMMENT ON COLUMN workflow_node_nodes.necessary IS '必经节点';
 COMMENT ON COLUMN workflow_node_nodes.createdDate IS '创建时间';
 
 DROP TABLE workflow_node_role;
@@ -399,7 +412,8 @@ CREATE TABLE workflow_step (
   timeDiffer NUMBER DEFAULT NULL ,
   serial NUMBER DEFAULT '0' NOT NULL ,
   executeUserName varchar2(20) DEFAULT NULL ,
-  executeUserId NUMBER DEFAULT NULL 
+  executeUserId NUMBER DEFAULT NULL,
+  reason varchar2(100) DEFAULT NULL
 );
 COMMENT ON COLUMN workflow_step.stepId IS '流程操作序号';
 COMMENT ON COLUMN workflow_step.flowId IS '流程序号';
@@ -415,6 +429,7 @@ COMMENT ON COLUMN workflow_step.timeDiffer IS '办理时间差';
 COMMENT ON COLUMN workflow_step.serial IS '业务序号';
 COMMENT ON COLUMN workflow_step.executeUserName IS '执行员工姓名';
 COMMENT ON COLUMN workflow_step.executeUserId IS '执行员工号';
+COMMENT ON COLUMN workflow_step.reason IS '推进理由';
 
 ALTER TABLE workflow_step ADD (CONSTRAINT stepId_PK PRIMARY KEY (stepId));
 CREATE SEQUENCE sq_stepId START WITH 1 INCREMENT BY 1 MAXVALUE 1E27 MINVALUE 1 NOCYCLE NOCACHE ORDER;
@@ -423,7 +438,7 @@ DROP TABLE workflow_table_element;
 CREATE TABLE workflow_table_element (
   wfId NUMBER NOT NULL,
   nodeId NUMBER NOT NULL,
-  nodeName varchar2(10) NOT NULL,
+  nodeName varchar2(20) NOT NULL,
   id NUMBER NOT NULL,
   required varchar2(5) NULL
 );
@@ -460,7 +475,9 @@ CREATE TABLE table_user_defination (
   notification3 VARCHAR2(10) NULL ,
   action1 VARCHAR2(10) NULL ,
   action2 VARCHAR2(10) NULL ,
-  action3 VARCHAR2(10) NULL );
+  action3 VARCHAR2(10) NULL ,
+  type varchar2(20) null
+ );
 
 COMMENT ON COLUMN table_user_defination.defId IS '自定义编号';
 COMMENT ON COLUMN table_user_defination.tbId IS '表单编号';
@@ -474,10 +491,12 @@ COMMENT ON COLUMN table_user_defination.notification3 IS '提醒方式3';
 COMMENT ON COLUMN table_user_defination.action1 IS '协同操作1';
 COMMENT ON COLUMN table_user_defination.action2 IS '协同操作2';
 COMMENT ON COLUMN table_user_defination.action3 IS '协同操作3';
+COMMENT ON COLUMN table_user_defination.type IS '业务类型：使用默认流程,设置自定义流程,不使用流程';
 
 ALTER TABLE table_user_defination ADD (CONSTRAINT defId_PK PRIMARY KEY (defId));
 CREATE SEQUENCE sq_defId START WITH 100 INCREMENT BY 1 MAXVALUE 1E27 MINVALUE 1 NOCYCLE NOCACHE ORDER;
 
+DROP TABLE table_authority;
 CREATE TABLE table_authority (
   tbId INT NOT NULL,
   userId INT NOT NULL ,
@@ -487,42 +506,63 @@ COMMENT ON COLUMN table_authority.tbId IS '业务表单授权';
 COMMENT ON COLUMN table_authority.userId is '业务表单编号';
 COMMENT ON COLUMN table_authority.createdDate is '用户编号';
 
+--分发
+DROP TABLE workflow_dispenser;
+create table workflow_dispenser
+(
+  DISPENSEID       NUMBER not null,
+  TYPEID           NUMBER not null,
+  TBID             NUMBER not null,
+  BIZID            NUMBER NOT NULL,
+  WFID             NUMBER NOT NULL,
+  DISPENSEUSERID   NUMBER not null,
+  DISPENSEUSERNAME VARCHAR2(20) not null,
+  RECEIVEUSERIDS   VARCHAR2(200) not null,
+  RECEIVEUSERNAMES VARCHAR2(200) not null,
+  TYPE             VARCHAR2(6) not null,
+  CONTENT          VARCHAR2(100) null,
+  CREATEDDATE      DATE not null
+);
+
+comment on column workflow_dispenser.DISPENSEID is '分发编号';
+comment on column workflow_dispenser.TYPEID is '流程中传阅记录流程id，传阅中传阅记录传阅id';
+comment on column workflow_dispenser.TBID is '表单编号';
+comment on column workflow_dispenser.BIZID is '业务编号';
+comment on column workflow_dispenser.WFID is '流程编号';
+comment on column workflow_dispenser.DISPENSEUSERID is '分发者';
+comment on column workflow_dispenser.RECEIVEUSERIDS is '接收者';
+comment on column workflow_dispenser.TYPE  is '分发类型：流程中，传阅中';
+comment on column workflow_dispenser.CONTENT is '留言';
+comment on column workflow_dispenser.CREATEDDATE is '分发时间';
+comment on column workflow_dispenser.DISPENSEUSERNAME is '分发者名称';
+comment on column workflow_dispenser.RECEIVEUSERNAMES is '接收者名称';
+
+ALTER TABLE workflow_dispenser ADD (CONSTRAINT dispenseId_PK PRIMARY KEY (dispenseId));
+CREATE SEQUENCE sq_dispenseId START WITH 100 INCREMENT BY 1 MAXVALUE 1E27 MINVALUE 1 NOCYCLE NOCACHE ORDER;
+
+--传阅的接收人
+DROP TABLE workflow_receiver;
+create table workflow_receiver
+(
+  DISPENSEID      NUMBER not null,    
+  RECEIVEUSERID   NUMBER not null,
+  RECEIVEUSERNAME VARCHAR2(20) not null,
+  CONTENT         VARCHAR2(100) null,
+  CREATEDDATE     DATE not null
+);
+
+comment on column workflow_receiver.DISPENSEID is '分发编号';
+comment on column workflow_receiver.RECEIVEUSERID is '接收者编号';
+comment on column workflow_receiver.CONTENT is '留言';
+comment on column workflow_receiver.CREATEDDATE is '接收时间';
+comment on column workflow_receiver.RECEIVEUSERNAME is '接收者名称';
+
 INSERT INTO element_library VALUES 
-(1,'文件上传','fileName','h_fileId','openFile()','有效',sysdate,'系统级','输入框','String','',100,NULL);
+(1,'办理状态','action',NULL,NULL,'有效',sysdate,'列表级','列表','String',NULL,NULL,NULL);
 INSERT INTO element_library VALUES 
-(2,'标题','title','','','有效',sysdate,'系统级','输入框','String',NULL,100,NULL);
+(2,'办理人','curusername',NULL,NULL,'有效',sysdate,'列表级','列表','String',NULL,NULL,NULL);
 INSERT INTO element_library VALUES 
-(3,'组织机构','orgName','orgId','openOrg()','有效',sysdate,'系统级','输入框','String',NULL,100,NULL);
-INSERT INTO element_library VALUES 
-(4,'申请人','owner','','','有效',sysdate,'系统级','输入框','String',NULL,100,NULL);
-INSERT INTO element_library VALUES 
-(5,'申请时间','sqsj','','','有效',sysdate,'系统级','输入框','String',NULL,100,NULL);
-INSERT INTO element_library VALUES 
-(6,'申请理由','reason','','','有效',sysdate,'系统级','输入框','String',NULL,100,NULL);
-INSERT INTO element_library VALUES 
-(7,'申请类型','applyType','','','有效',sysdate,'系统级','下拉框','String','委托,指派',100,NULL);
-INSERT INTO element_library VALUES 
-(8,'项目名称','projectName','','','有效',sysdate,'系统级','输入框','String',NULL,100,NULL);
-INSERT INTO element_library VALUES 
-(9,'项目类型','projectType','','','有效',sysdate,'系统级','下拉框','String','政府,集团,个人',100,NULL);
-INSERT INTO element_library VALUES 
-(10,'项目所在地','projectPlace','','','有效',sysdate,'系统级','输入框','String','',100,NULL);
-INSERT INTO element_library VALUES 
-(11,'项目级别','projectLevel','','','有效',sysdate,'系统级','下拉框','String','大规模,中规模,小规模',100,NULL);
-INSERT INTO element_library VALUES 
-(12,'总投资','projectAmount','','','有效',sysdate,'系统级','输入框','String',NULL,100,NULL);
-INSERT INTO element_library VALUES 
-(13,'资金来源','projectAmountFrom','','','有效',sysdate,'系统级','单选框','String','政府下发,当地募捐',100,NULL);
-INSERT INTO element_library VALUES 
-(14,'批复建设起止年限','projectDateFrom','','','有效',sysdate,'系统级','输入框','String',NULL,100,NULL);
-INSERT INTO element_library VALUES 
-(15,'办理状态','action',NULL,NULL,'有效',sysdate,'列表级','列表'','String',NULL,NULL,NULL);
-INSERT INTO element_library VALUES 
-(16,'姓名','name','','','有效',sysdate,'自定义','输入框','String','',100,NULL);
-INSERT INTO element_library VALUES 
-(17,'项目所在地','projectPlace','','','有效',sysdate,'自定义','下拉框','String','',100,NULL);
-INSERT INTO element_library VALUES 
-(18,'项目所在地','projectPlace','','','有效',sysdate,'自定义','下拉框','String','',100,NULL);
+(3,'办理时间','modifieddate',NULL,NULL,'有效',sysdate,'列表级','列表','String',NULL,NULL,NULL);
 
 INSERT INTO workflow_action VALUES 
 (1,'流程推进','PassAction','流程','有效',sysdate);
@@ -531,7 +571,7 @@ INSERT INTO workflow_action VALUES
 INSERT INTO workflow_action VALUES 
 (3,'流程暂缓','PostPhoneAction','行为','有效',sysdate);
 INSERT INTO workflow_action VALUES 
-(4,'退回发起人','ReturnAction','行为','有效',sysdate);
+(4,'退回发起人','ReturnAction','行为消息','有效',sysdate);
 INSERT INTO workflow_action VALUES 
 (5,'流程终止','TerminateAction','行为','有效',sysdate);
 INSERT INTO workflow_action VALUES 
@@ -539,8 +579,11 @@ INSERT INTO workflow_action VALUES
 INSERT INTO workflow_action VALUES 
 (7,'流程收回','CallbackAction','行为','有效',sysdate);
 INSERT INTO workflow_action VALUES 
-(8,'退回到创建人','ReturnToCreatorAction','行为','有效',sysdate);
-
+(8,'退回到创建人','ReturnToCreatorAction','行为消息','有效',sysdate);
+INSERT INTO workflow_action VALUES 
+(9,'传阅','DispenseAction','应答','有效',sysdate);
+INSERT INTO workflow_action VALUES 
+(10,'返回发起人','AutoBackAction','流程','有效',sysdate);
 
 INSERT INTO table_biz_template VALUES(1,'财务类',null);
 INSERT INTO table_biz_template VALUES(2,'车辆类',null);

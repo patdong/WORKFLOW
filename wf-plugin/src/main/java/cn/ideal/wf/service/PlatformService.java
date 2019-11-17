@@ -21,7 +21,7 @@ public interface PlatformService {
 	 * @param orgId
 	 * @return
 	 */
-	List<WorkflowUser> findUsersByRoleIdAndOrgId(Long roleId, Long orgId,Long senderId);
+	List<WorkflowUser> getUsersByRoleIdAndOrgId(Long roleId, Long orgId,Long creatorId);
 	
 	
 	/**
@@ -30,5 +30,7 @@ public interface PlatformService {
 	 * @return
 	 */
 	WorkflowUser getWorkflowUser(HttpServletRequest request);
+	
+	List<WorkflowUser> getWorkflowUsers(String userIds);
 		
 }

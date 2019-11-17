@@ -33,19 +33,19 @@ public interface SQLExecutor {
 	
 	void migrateComments(Long bizId, Long tbId, String tableName,WorkflowUser user);
 	
-	Long queryAll(Long userId);
+	Long queryAll(Long userId,Long tbId,Map<String,String> params,Map<String,String> orders);
 	
-	List<Map<String, Object>> queryPage(Long userId,Long pageNumber,Long pageSize);
+	List<Map<String, Object>> queryPage(Long userId,Long tbId,Map<String,String> params,Map<String,String> orders, Long pageNumber,Long pageSize);
 	
-	Long queryWorkflowAll(Long userId);
+	Long queryWorkflowAll(Long userId,Long tbId,Map<String,String> params,Map<String,String> orders);
 	
-	List<Map<String, Object>> queryWorkflowPage(Long userId,Long pageNumber,Long pageSize);
+	List<Map<String, Object>> queryWorkflowPage(Long userId,Long tbId, Map<String,String> params,Map<String,String> orders,Long pageNumber,Long pageSize);
 	
-	Long queryWorkedflowAll(Long userId);
+	Long queryWorkedflowAll(Long userId,Long tbId, Map<String,String> params,Map<String,String> orders);
 	
-	List<Map<String, Object>> queryWorkedflowPage(Long userId,Long pageNumber,Long pageSize);
+	List<Map<String, Object>> queryWorkedflowPage(Long userId,Long tbId,Map<String,String> params,Map<String,String> orders,Long pageNumber,Long pageSize);
 	
-	Long queryWorkedflowAll();
+	Long queryWorkedflowAll(Map<String,String> params,Map<String,String> orders);
 	
-	List<Map<String, Object>> queryWorkedflowPage(Long pageNumber,Long pageSize);
+	List<Map<String, Object>> queryWorkedflowPage(Map<String,String> params,Map<String,String> orders,Long pageNumber,Long pageSize);
 }

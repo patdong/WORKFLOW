@@ -78,6 +78,8 @@ public interface WorkflowTableMapper {
 	 */
 	List<WorkflowTableBrief> findAllSortedTable();
 	
+	List<Map<String,Object>> findAllSortedTableWithBizCountByCreatedUser(Long userId);
+	
 	int saveTableUserDefination(WorkflowTableUserDefination def);
 	
 	int updateTableUserDefination(WorkflowTableUserDefination def);
@@ -115,4 +117,8 @@ public interface WorkflowTableMapper {
 	List<Map<String,Object>> findAuthorities();
 	
 	Map<String,Object> findAuthority(Long userId);
+	
+	List<Map<String,Object>> findTableSimpleElementsForMobile(@Param("tbId") Long tbId,@Param("wfId") Long wfId, @Param("nodeName") String nodeName);
+	
+	List<Map<String,Object>> findTableSimpleElementsWithValueForMobile(@Param("tbId") Long tbId, @Param("bizId") Long bizId);
 }

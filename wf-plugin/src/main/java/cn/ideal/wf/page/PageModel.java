@@ -16,11 +16,11 @@ import cn.ideal.wf.model.WorkflowTableSummary;
 
 public class PageModel extends Model{
 	private Long bizId;                            //当前业务编号，初始为空		
-	private String nodeName;                       //当前办理节点	
+	private Map<String,String> curNode;            //当前办理节点	
 	private List<Map<String,Object>> nextNodes;    //当前办理节点的续办节点
 	private int nextNodeSize;                      //当前办理节点的续办节点个数	
 	private WorkflowBrief wfBrief;                 //流程概述
-	private List<Map<String,String>> buttons;      //节点按钮
+	private List<Map<String,String>> buttons = new ArrayList<Map<String,String>>();      //节点按钮
 	
 	private String table;                          //表单绘制
 	private String flowChat;                       //流程图
@@ -37,12 +37,12 @@ public class PageModel extends Model{
 		this.bizId = bizId;
 	}
 
-	public String getNodeName() {
-		return nodeName;
+	public Map<String, String> getCurNode() {
+		return curNode;
 	}
 
-	public void setNodeName(String nodeName) {
-		this.nodeName = nodeName;
+	public void setCurNode(Map<String, String> curNode) {
+		this.curNode = curNode;
 	}
 
 	public String getFlowChat() {
@@ -65,12 +65,12 @@ public class PageModel extends Model{
 		return buttons;
 	}
 
-	public void setButtons(List<WorkflowAction> buttons) {
-		this.buttons = new ArrayList<Map<String,String>>();
+	public void setButtons(List<WorkflowAction> buttons) {		
 		for(WorkflowAction wfa : buttons){
 			Map<String,String> button = new HashMap<String,String>();
 			button.put("actionCodeName", wfa.getActionCodeName());
 			button.put("actionName", wfa.getActionName());
+			button.put("type", wfa.getType());
 			this.buttons.add(button);
 		}
 	}
@@ -81,11 +81,16 @@ public class PageModel extends Model{
 
 	public void setNextNodes(List<WorkflowNode> nextNodes) {
 		this.nextNodes = new ArrayList<Map<String,Object>>();
+		String flowPush = this.curNode.get("flowpush");
 		if(nextNodes != null){
 			for(WorkflowNode wfn : nextNodes){
 				Map<String,Object> node = new HashMap<String,Object>();
 				node.put("nodeId", wfn.getNodeId());
 				node.put("nodeName", wfn.getNodeName());
+				node.put("single", wfn.getnType());
+				//流程自动办理不需要后续节点提供人员选择操作
+				if(flowPush != null && flowPush.equals("auto")) node.put("backup",false);
+				else node.put("backup", wfn.isBackup());
 				this.nextNodes.add(node);
 			}
 			this.nextNodeSize = nextNodes.size();

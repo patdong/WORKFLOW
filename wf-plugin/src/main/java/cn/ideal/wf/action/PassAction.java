@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import cn.ideal.wf.common.WFConstants;
-import cn.ideal.wf.model.WorkflowFlow;
 import cn.ideal.wf.model.WorkflowNode;
 import cn.ideal.wf.model.WorkflowTableSummary;
 import cn.ideal.wf.model.WorkflowUser;
@@ -38,23 +37,15 @@ public class PassAction extends Utils implements Action{
 			return true;
 		}
 			
-		if(users == null || users.length == 0) {
-			WorkflowFlow wff = workflowFlowService.findSenderFlow(bizId, wfId);
-			Long senderId = null;
-			if(wff != null) {
-				if(wff.getWorkflowSteps() != null && wff.getWorkflowSteps().size() > 0) senderId = wff.getWorkflowSteps().get(0).getDispatchUserId();
-			}
-			List<WorkflowUser> wfuLst =  this.findUsersForNode(nextNode,senderId);
+		if(users == null || users.length == 0) {			
+			List<WorkflowUser> wfuLst =  this.findUsersForNode(nextNode,bizId,wfId);
 			users = wfuLst.toArray(new WorkflowUser[wfuLst.size()]);
 		}
 			
 		res = workflowFlowService.endAndAddFlow(bizId,wfId,nextNode.getNodeName(),WFConstants.WF_ACTION_DOING,user,users);
 		if(res){
-			String curUserName = "";
-			for(WorkflowUser item : users) curUserName += item.getUserName() + ",";	
-			WorkflowTableSummary wfts = new WorkflowTableSummary();	
-			if(users.length > 0) wfts.setCurUserId(users[0].getUserId());
-			wfts.setCurUserName(curUserName);
+			WorkflowTableSummary wfts = new WorkflowTableSummary();			
+			wfts = this.setCurrentUserForTableSummary(wfts, nextNode, users);
 			wfts.setModifiedDate(new Date());
 			//任何动作都反应在action字段上
 			wfts.setAction(nextNode.getNodeName());	
@@ -78,24 +69,15 @@ public class PassAction extends Utils implements Action{
 			return true;
 		}
 			
-		if(users == null || users.length == 0) {	
-			WorkflowFlow wff = workflowFlowService.findSenderFlow(bizId, wfId);
-			Long senderId = null;
-			if(wff != null) {
-				if(wff.getWorkflowSteps() != null && wff.getWorkflowSteps().size() > 0) senderId = wff.getWorkflowSteps().get(0).getDispatchUserId();
-			}
-			List<WorkflowUser> wfuLst =  this.findUsersForNode(nextNode,senderId);
+		if(users == null || users.length == 0) {				
+			List<WorkflowUser> wfuLst =  this.findUsersForNode(nextNode,bizId,wfId);
 			users = wfuLst.toArray(new WorkflowUser[wfuLst.size()]);
 		}
 			
 		res = workflowFlowService.endAndAddFlow(bizId,wfId,nextNode.getNodeName(),WFConstants.WF_ACTION_DOING,user,users);
 		if(res){
-			String curUserName = "";
-			
-			for(WorkflowUser item : users) curUserName += item.getUserName() + ",";	
 			WorkflowTableSummary wfts = new WorkflowTableSummary();
-			if(users.length > 0) wfts.setCurUserId(users[0].getUserId());
-			wfts.setCurUserName(curUserName);
+			wfts = this.setCurrentUserForTableSummary(wfts, nextNode, users);					
 			wfts.setModifiedDate(new Date());
 			//任何动作都反应在action字段上
 			wfts.setAction(nextNode.getNodeName());	
@@ -112,5 +94,7 @@ public class PassAction extends Utils implements Action{
 		// TODO Auto-generated method stub
 		return false;
 	}
+	
+	
 
 }

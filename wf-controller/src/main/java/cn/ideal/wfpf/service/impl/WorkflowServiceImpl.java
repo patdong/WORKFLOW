@@ -30,6 +30,11 @@ public class WorkflowServiceImpl implements WorkflowService{
 
 	@Override
 	public WFPFWorkflow update(WFPFWorkflow obj) {
+		//重名判断
+		if(obj.getWfName() != null){
+			List<WFPFWorkflow> wfpfs = workflowMapper.findByWFName(obj.getWfId(),obj.getWfName());
+			if(wfpfs.size() > 0) return null;	
+		}
 		int idx = workflowMapper.update(obj);
 		if(idx > 0) return obj;
 		return null;

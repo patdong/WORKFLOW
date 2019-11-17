@@ -76,7 +76,7 @@
 		select wfs.* from workflow_step wfs
 		inner join workflow_flow wf on wf.flowId = wfs.flowId
 		where wf.bizId = #{bizId,jdbcType=DECIMAL}
-		  and wf.wfId = #{wfId,jdbcTyp=DECIMAL}
+		  and wf.wfId = #{wfId,jdbcType=DECIMAL}
 		  <if test="nodeName != null">
 		  and wf.nodeName = #{nodeName,jdbcType=VARCHAR}
 		  </if>
@@ -86,8 +86,9 @@
 		  <if test="unitId != null">
 		  and wfs.unitId = #{unitId,jdbcType=DECIMAL}
 		  </if>
-		order by createdDate desc
-		limit 1
+		  and rownum =1
+		order by wfs.createdDate desc
+		
 	</select>
 	
 	<!-- 获取未完成的流程 -->
@@ -97,7 +98,49 @@
 		where wf.bizId = #{bizId,jdbcType=DECIMAL}
 		  and wf.wfId = #{wfId,jdbcType=DECIMAL}
 		  and wfs.finishedDate is null
-		order by wfs.createdDate desc
+		order by wfs.serial
 		
 	</select>
+	
+	<!-- 获取在办的流程 -->
+	<select id="findDoingflowSteps" resultMap="workflowstep" parameterType="java.util.Map">
+		select wfs.*,wf.nodeName from workflow_step wfs
+		inner join workflow_flow wf on wf.flowId = wfs.flowId
+		where wf.bizId = #{bizId,jdbcType=DECIMAL}
+		  and wf.wfId = #{wfId,jdbcType=DECIMAL}
+		  <if test="userId != null">
+		  and wfs.dispatchUserId = #{userId,jdbcType=DECIMAL}
+		  </if>
+		  and wfs.finishedDate is null
+		  and wfs.status = '办理'
+		order by wfs.serial
+		
+	</select>	
+	
+	<!-- 获取在办的流程 -->
+	<select id="findDoingflowStep" resultMap="workflowstep" parameterType="java.util.Map">
+		select wfs.* from workflow_step wfs		
+		where wfs.flowId = #{flowId,jdbcType=DECIMAL}		 
+		  and wfs.dispatchUserId = #{userId,jdbcType=DECIMAL}		
+		  and wfs.finishedDate is null
+		  and wfs.status = '办理'		
+	</select>
+	
+	<!-- 唤醒办理人员 流程-->	
+	<update id="wakeFlowStep" parameterType="java.lang.Long">
+		update workflow_step set 
+			status = '办理'
+		<where>						
+			stepId=#{stepId,jdbcType=DECIMAL}			
+		</where>				
+	</update>
+	
+	<!-- 插入推进者消息 -->	
+	<update id="pushMsg" parameterType="java.util.Map">
+		update workflow_step set 
+			reason = #{reason}
+		<where>						
+			stepId=#{stepId,jdbcType=DECIMAL}			
+		</where>				
+	</update>
 </mapper>

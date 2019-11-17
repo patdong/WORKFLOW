@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 
 import cn.ideal.wf.common.WFConstants;
 import cn.ideal.wf.model.WorkflowFlow;
-import cn.ideal.wf.model.WorkflowNode;
 import cn.ideal.wf.model.WorkflowTableSummary;
 import cn.ideal.wf.model.WorkflowUser;
 import cn.ideal.wf.service.WorkflowFlowService;
@@ -32,20 +31,19 @@ public class ReturnToCreatorAction extends Utils implements Action {
 	@Override
 	public boolean action(Long bizId, Long wfId,  WorkflowUser user, WorkflowUser ...users) throws Exception {
 		boolean res = true;
-		WorkflowFlow wff = workflowFlowService.findSenderFlow(bizId, wfId);
+		WorkflowFlow wff = workflowFlowService.findCreatorFlow(bizId, wfId);
 		
-		if(users == null){
+		if(users == null ||users.length == 0){
 			List<WorkflowUser> wfuLst = workflowFlowService.findWorkflowUsers(wff.getFlowId());
 			users = wfuLst.toArray(new WorkflowUser[wfuLst.size()]);
-		}
-		WorkflowNode nextNode = workflowNodeService.findFirstNode(wfId);
-		res = workflowFlowService.endAndAddFlow(bizId,wfId,nextNode.getNodeName(),WFConstants.WF_ACTION_RETURN,user,users);
+		}		
+		res = workflowFlowService.endAndAddFlow(bizId,wfId,WFConstants.WF_NODE_START,WFConstants.WF_ACTION_RETURN,user,users);
 		if(res){
 			String curUserName = "";
 			for(WorkflowUser item : users) curUserName += item.getUserName() + ",";	
 			WorkflowTableSummary wfts = new WorkflowTableSummary();	
-			if(users.length > 0) wfts.setCurUserId(users[0].getUserId());
-			wfts.setCurUserName(curUserName);
+			if(users.length > 0) wfts.setCurUserId(","+users[0].getUserId()+",");
+			wfts.setCurUserName(","+curUserName);
 			wfts.setModifiedDate(new Date());
 			//任何动作都反应在action字段上
 			wfts.setAction("退回"+wff.getNodeName());	

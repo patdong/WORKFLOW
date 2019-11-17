@@ -19,7 +19,11 @@
 	</resultMap>			
 	
 	<select id="findAll" resultMap="workflownode" parameterType="java.lang.Long">
-		select * from workflow_node where wfId=#{wfId} order by nodeId
+		select n.*,case when  b.userid = 9999 then 1 when c.unitid=9999 then 1 else 0 end backup 
+		  from workflow_node n 		
+		left join workflow_node_user b on b.nodeId = n.nodeId and b.userId = 9999
+		left join workflow_node_role c on c.nodeId = n.nodeId and c.unitId = 9999
+		where n.wfId=#{wfId} order by n.nodeId
 	</select>
 	
 	<select id="findAllForFlowChat" resultMap="flowchatnode" parameterType="java.lang.Long">
@@ -84,7 +88,10 @@
 	
 	<!-- 获取前置节点 -->
 	<select id="findPreNode" resultType="cn.ideal.wf.model.WorkflowNode" parameterType="java.lang.Long">
-		select n.* from workflow_node n
+		select n.*,a.type,case when  b.userid = 9999 then 1 when c.unitid=9999 then 1 else 0 end backup 
+		  from workflow_node n 		
+		left join workflow_node_user b on b.nodeId = n.nodeId and b.userId = 9999
+		left join workflow_node_role c on c.nodeId = n.nodeId and c.unitId = 9999
 		inner join workflow_node_nodes a on n.nodeId = a.nodeId 
 		 where a.suf_nodeId = #{nodeId}
 		   and n.status != '无效'
@@ -92,7 +99,10 @@
 	
 	<!-- 获取后置节点 -->
 	<select id="findSufNode" resultType="cn.ideal.wf.model.WorkflowNode" parameterType="java.lang.Long">
-		select n.* from workflow_node n
+		select n.*,a.type,case when  b.userid = 9999 then 1 when c.unitid=9999 then 1 else 0 end backup 
+		  from workflow_node n 		
+		left join workflow_node_user b on b.nodeId = n.nodeId and b.userId = 9999
+		left join workflow_node_role c on c.nodeId = n.nodeId and c.unitId = 9999
 		inner join workflow_node_nodes a on a.suf_nodeId = n.nodeId 
 		 where a.nodeId = #{nodeId}
 		   and n.status != '无效'
@@ -101,7 +111,7 @@
 	<!-- 获取流程图前置节点 -->
 	<select id="findFlowChatPreNode" resultType="cn.ideal.wf.model.FlowChatNode" parameterType="java.lang.Long">
 		select n.* from workflow_node n
-		inner join workflow_node_nodes a on n.nodeId = a.nodeId and a.type='直接连接'
+		inner join workflow_node_nodes a on n.nodeId = a.nodeId
 		 where a.suf_nodeId = #{nodeId}
 		   and n.status != '无效'
 	</select>
@@ -109,7 +119,7 @@
 	<!-- 获取流程图后置节点 -->
 	<select id="findFlowChatSufNode" resultType="cn.ideal.wf.model.FlowChatNode" parameterType="java.lang.Long">
 		select n.* from workflow_node n
-		inner join workflow_node_nodes a on a.suf_nodeId = n.nodeId and a.type='直接连接'
+		inner join workflow_node_nodes a on a.suf_nodeId = n.nodeId
 		 where a.nodeId = #{nodeId}
 		   and n.status != '无效'
 	</select>
@@ -127,7 +137,7 @@
 		select a.* from workflow_action a
 		inner join workflow_node_action b on a.actionCodeName = b.actionCodeName
 		 where b.nodeId = #{nodeId}
-		   and b.type= '行为'
+		   and b.type in ('行为','行为消息','应答')
 	</select>
 	
 	<select id="findButtonsByNodeName" resultType="cn.ideal.wf.model.WorkflowAction" parameterType="java.util.Map">
@@ -136,7 +146,7 @@
 		inner join workflow_node c on c.nodeId = b.nodeId
 		 where c.nodeName = #{nodeName}
 		   and c.wfId = #{wfId}
-		   and b.type= '行为'
+		   and b.type in ('行为','行为消息','应答')
 	</select>
 	
 	<insert id="save" useGeneratedKeys="true" keyProperty="nodeId" parameterType="cn.ideal.wf.model.WorkflowNode">		

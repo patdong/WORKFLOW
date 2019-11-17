@@ -54,7 +54,7 @@
 			   )a
 			   WHERE rownum <![CDATA[ <= ]]>  #{recordLastNumber}
 			)
-			WHERE  rn <![CDATA[ >= ]]>  #{recordNumber}
+			WHERE  rn <![CDATA[ > ]]>  #{recordNumber}
 		</if>		
 	</select>
 	
@@ -63,7 +63,7 @@
 	</select>
 	
 	<select id="findAll" resultType="cn.ideal.wfpf.model.WFPFWorkflow">
-		select * from workflow where wfName is not null	and type = '系统级'	
+		select * from workflow where type = '系统级'	
 	</select>
 		
 	<select id="findAllBlindTable" resultType="cn.ideal.wfpf.model.WFPFWorkflow">
@@ -80,4 +80,8 @@
 	<delete id="deleteTableElementOnNode" parameterType="java.lang.Long">
 		delete from workflow_table_element where wfId = #{wfId}			
 	</delete>
+	
+	<select id="findByWFName" resultMap="wfpfworkflow" parameterType="java.util.Map">
+		select * from workflow where wfName=#{wfName} and wfId != #{wfId}
+	</select>
 </mapper>

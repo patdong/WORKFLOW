@@ -1,15 +1,16 @@
 package cn.ideal.wf.service.impl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import com.alibaba.druid.util.StringUtils;
 
 import cn.ideal.wf.dao.WorkflowTableMapper;
 import cn.ideal.wf.data.analyzer.Storage;
@@ -21,6 +22,8 @@ import cn.ideal.wf.model.WorkflowTableSummary;
 import cn.ideal.wf.model.WorkflowTableUserDefination;
 import cn.ideal.wf.service.WorkflowTableService;
 import cn.ideal.wf.service.WorkflowWFService;
+
+import com.alibaba.druid.util.StringUtils;
 
 @Service
 public class WorkflowTableServiceImpl implements WorkflowTableService {
@@ -216,5 +219,84 @@ public class WorkflowTableServiceImpl implements WorkflowTableService {
 	@Override
 	public Map<String, Object> findAuthority(Long userId) {
 		return wfTableMapper.findAuthority(userId);
+	}
+
+	@Override
+	public List<List<Map<String,Object>>> findTableSimpleElementsForMobile(Long tbId,Long bizId,Long wfId,String nodeName) throws Exception{				
+		if(bizId == null) return Arrays.asList(match(wfTableMapper.findTableSimpleElementsForMobile(tbId,wfId,nodeName)));
+		else {
+			List<List<Map<String,Object>>> fieldWithValues = new LinkedList<List<Map<String,Object>>>();
+			WorkflowTableBrief tb = this.find(tbId);
+			List<Map<String,Object>> res = SQLConnector.getSQLExecutor().query("select * from "+tb.getName()+" where id = "+bizId);
+			List<Map<String,Object>> fields = match(wfTableMapper.findTableSimpleElementsForMobile(tbId,wfId,nodeName));
+			if(res.size() > 0){
+				for(Map<String,Object> field : fields){					
+					if(field.get("NEWFIELDNAME") != null ) {
+						//处理审批意见数据
+						if(field.get("NEWFIELDTYPE").equals("审批意见")){
+							List<Map<String,Object>> comments = SQLConnector.getSQLExecutor().query("select * from workflow_comment where bizId = "+bizId+" and tbId="+tbId+" and upper(fieldname)='"+field.get("NEWFIELDNAME").toString().toUpperCase()+"' order by remarkdate");
+							field.put("VALUE",comments);
+						}else{
+							field.put("VALUE", res.get(0).get(((String)field.get("NEWFIELDNAME")).toUpperCase()));
+						}
+						
+						if(field.get("VALUE") == null) field.put("VALUE","");
+					}
+					if(field.get("NEWHIDDENFIELDNAME") != null ) {	
+						field.put("HIDDENVALUE", res.get(0).get(((String)field.get("NEWHIDDENFIELDNAME")).toUpperCase()));
+						if(field.get("HIDDENVALUE") == null) field.put("HIDDENVALUE","");
+					}
+				}
+			}
+			fieldWithValues.add(fields);
+			List<WorkflowTableBrief> tbs = this.findAllSubTables(tbId);
+			for(WorkflowTableBrief item : tbs){				
+				res = SQLConnector.getSQLExecutor().query("select * from "+item.getName()+" where id in (select skey from table_keys where zkey= "+bizId+" and stablename='"+item.getName()+"') order by id");							
+				for(Map<String,Object> values : res){
+					fields = match(wfTableMapper.findTableSimpleElementsForMobile(item.getTbId(),wfId,nodeName));					
+					for(Map<String,Object> field : fields){					
+						if(field.get("NEWFIELDNAME") != null ) {						
+							field.put("VALUE", values.get(((String)field.get("NEWFIELDNAME")).toUpperCase()));
+							if(field.get("VALUE") == null) field.put("VALUE","");
+						}
+					}
+					fieldWithValues.add(fields);
+				}
+				if(res.size() == 0) fieldWithValues.add(match(wfTableMapper.findTableSimpleElementsForMobile(item.getTbId(),wfId,nodeName)));
+			}
+			return fieldWithValues;
+		}
+	}
+	
+	/**
+	 * 计算标签和控件一对一组合 ，为移动专门做的处理
+	 * @param fields
+	 * @return
+	 */
+	private List<Map<String,Object>> match(List<Map<String,Object>> fields){				
+		String item = null;
+		for(Map<String,Object> field : fields){
+			switch((String)field.get("NEWFIELDTYPE")){
+			case "标签":				
+				item = (String)field.get("NEWLABELNAME");
+				break;
+			default:
+				if(item == null) item = (String)field.get("NEWLABELNAME");
+				field.put("NEWLABELNAME", item);				
+				break;
+			}
+			item = null;
+		}  
+		Iterator<Map<String,Object>> iters =  fields.iterator();
+		while(iters.hasNext()){
+			Map<String,Object> field = iters.next();
+			if(((String)field.get("NEWFIELDTYPE")).equals("标签")) iters.remove();
+		}
+		return fields;
+	}
+
+	@Override
+	public List<Map<String, Object>> findAllSortedTableWithBizCountByCreatedUser(Long userId) {
+		return wfTableMapper.findAllSortedTableWithBizCountByCreatedUser(userId);
 	}
 }

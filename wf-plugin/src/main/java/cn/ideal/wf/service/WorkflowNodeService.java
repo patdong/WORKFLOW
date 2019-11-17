@@ -25,7 +25,7 @@ public interface WorkflowNodeService {
 	/**
 	 * 根据指定的节点名称和模块获得下一个节点集
 	 */
-	List<WorkflowNode> findNextNodes(String nodeName,Long wfId);
+	List<WorkflowNode> findNextNodes(String nodeName,Long wfId,Long bizId);
 	
 	/**
 	 * 获得指定节点的下一个操作人集
@@ -76,4 +76,6 @@ public interface WorkflowNodeService {
 	 * @return
 	 */
 	Workflow clone(Long wfId,Map<Long,List<WorkflowUser>> users, Map<Long,WorkflowRole> roles);
+	
+	WorkflowAction findButton(String actionCodeName);
 }

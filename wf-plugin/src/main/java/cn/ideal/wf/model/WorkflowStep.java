@@ -26,6 +26,7 @@ public class WorkflowStep implements Serializable{
 	private Long executeUserId;
 	private String executeUserName;
 	private String nodeName;
+	private String reason;
 	
 	public WorkflowStep(){}
 	
@@ -128,6 +129,14 @@ public class WorkflowStep implements Serializable{
 
 	public void setNodeName(String nodeName) {
 		this.nodeName = nodeName;
+	}
+
+	public String getReason() {
+		return reason;
+	}
+
+	public void setReason(String reason) {
+		this.reason = reason;
 	}
 	
 	

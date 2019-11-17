@@ -20,18 +20,20 @@ public class WorkflowNode implements Serializable{
 	private String nType;
 	private WorkflowRole role;
 	private Collection<WorkflowUser> users;	
-	private WorkflowAction action;                               //节点行为
-	private List<WorkflowAction> buttons;                                //节点按钮
+	private WorkflowAction action;                     //节点行为
+	private List<WorkflowAction> buttons;              //节点按钮
 	private String status;
 	private Date createdDate;
 	private Date modifiedDate;
 	private Long wfId;
 	private Long seq;
 	private boolean highLight;
-	private String passed;                                       //节点是否已经流转到
-	private List<WorkflowNode> preNodes;                         //前置节点
-	private List<WorkflowNode> sufNodes;                         //后置节点
-    private String type;                                         //节点关联类型
+	private String passed;                             //节点是否已经流转到
+	private List<WorkflowNode> preNodes;               //前置节点
+	private List<WorkflowNode> sufNodes;               //后置节点
+    private String type;                               //节点关联类型 
+    private String necessary;                          //路径必经节点
+    private boolean backup = false;                    //是否后备用户（即节点没有指定办理人和办理角色）
     
 	public WorkflowNode(){}
 	public WorkflowNode(Long nodeId){
@@ -156,6 +158,19 @@ public class WorkflowNode implements Serializable{
 		this.type = type;
 	}
 	
+	public boolean isBackup() {
+		return backup;
+	}
+	public void setBackup(boolean backup) {
+		this.backup = backup;
+	}
+	
+	public String getNecessary() {
+		return necessary;
+	}
+	public void setNecessary(String necessary) {
+		this.necessary = necessary;
+	}
 	public int hashCode() {
 		return nodeId.hashCode();
 	}

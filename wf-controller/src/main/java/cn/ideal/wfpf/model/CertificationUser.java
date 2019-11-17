@@ -9,8 +9,8 @@ package cn.ideal.wfpf.model;
 public class CertificationUser {
 	private Long userId;
     private String userName;
-    private String currentOrgName;     //用户隶属组织
-    private String orgName;            //用户隶属组织的组织
+    private String currentOrgName;        //用户隶属组织
+    private String orgName;         //用户隶属组织的组织
     private Long currentOrgId;
     
     
@@ -25,18 +25,12 @@ public class CertificationUser {
 	}
 	public void setUserName(String userName) {
 		this.userName = userName;
-	}
+	}	
 	public String getCurrentOrgName() {
 		return currentOrgName;
 	}
 	public void setCurrentOrgName(String currentOrgName) {
 		this.currentOrgName = currentOrgName;
-	}
-	public String getOrgName() {
-		return orgName;
-	}
-	public void setOrgName(String orgName) {
-		this.orgName = orgName;
 	}
 	public Long getCurrentOrgId() {
 		return currentOrgId;
@@ -44,6 +38,11 @@ public class CertificationUser {
 	public void setCurrentOrgId(Long currentOrgId) {
 		this.currentOrgId = currentOrgId;
 	}
-    
-    
+	public String getOrgName() {
+		return orgName;
+	}
+	public void setOrgName(String orgName) {
+		this.orgName = orgName;
+	}
+	
 }

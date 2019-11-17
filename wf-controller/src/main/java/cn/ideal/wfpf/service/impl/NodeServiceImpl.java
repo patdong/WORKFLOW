@@ -49,10 +49,10 @@ public class NodeServiceImpl implements NodeService {
 		//如果删除节点的直接后续节点对应一个父节点，则递归删除
 		if(sufNodes.size() > 1){			
 			for(Node node : sufNodes){
-				delete(node.getNodeId());
-				nodeMapper.deleteNodeNodes(nodeId);
-				nodeMapper.deleteNode(nodeId);
+				delete(node.getNodeId());				
 			}
+			nodeMapper.deleteNodeNodes(nodeId);
+			nodeMapper.deleteNode(nodeId);
 		}else if(sufNodes.size() == 1){
 			//否则只删除当前最近的关系，循环其实至多只有一条记录			
 			for(Node node : sufNodes){
@@ -197,5 +197,17 @@ public class NodeServiceImpl implements NodeService {
 	public void deleteLink(Long nodeId, Long[] linkNodeIds) {
 		//如果存在的连接个数只有一个，那么不做删除操作
 		nodeMapper.deleteNodeLinks(nodeId, linkNodeIds);
+	}
+
+	@Override
+	public List<Node> findSufNode(Long nodeId) {
+		return nodeMapper.findSufNode(nodeId);
+	}
+
+	@Override
+	public boolean setNecessaryNode(Long nodeId, Long sufNodeId) {
+		int idx = nodeMapper.setNecessaryNode(nodeId, sufNodeId);
+		if(idx > 0) return true;
+		return false;
 	}
 }

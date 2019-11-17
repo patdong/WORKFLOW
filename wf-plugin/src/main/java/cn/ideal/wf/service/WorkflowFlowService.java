@@ -59,7 +59,7 @@ public interface WorkflowFlowService {
 	
 	List<WorkflowUser> findWorkflowUsers(Long flowId);
 	
-	List<WorkflowFlow> findWorkflowWithSteps(Long bizId,Long wfId);
+	List<WorkflowFlow> findAllWithSteps(Long bizId,Long wfId);
 	
 	/**
 	 * 获取前一个流程记录
@@ -75,7 +75,15 @@ public interface WorkflowFlowService {
 	 * @param wfId
 	 * @return
 	 */
-	WorkflowFlow findSenderFlow(Long bizId, Long wfId);
+	WorkflowFlow findCreatorFlow(Long bizId, Long wfId);
 	
+	/**
+	 * 根据流程节点获取流程记录
+	 * @param bizId
+	 * @param wfId
+	 * @param nodeName
+	 * @return
+	 */
+	List<WorkflowFlow> findWorkflowWithSteps(Long bizId,Long wfId,String nodeName);
 	
 }

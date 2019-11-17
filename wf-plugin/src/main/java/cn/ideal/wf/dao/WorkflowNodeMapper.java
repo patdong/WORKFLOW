@@ -40,5 +40,9 @@ public interface WorkflowNodeMapper {
 	int saveUser(WorkflowNode wfn);
 	
 	int saveRole(WorkflowNode wfn);
+	
+	WorkflowAction findButton(@Param("actionCodeName") String actionCodeName);
+	
+	List<WorkflowNode> findSufNode(Long nodeId);
 
 }

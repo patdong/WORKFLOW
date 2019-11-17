@@ -26,10 +26,10 @@ public class ReturnAction implements Action {
     private WorkflowTableService workflowTableService;
 	
 	@Override
-	public boolean action(Long bizId, Long wfId,  WorkflowUser user, WorkflowUser ...users) throws Exception {
+	public boolean action(Long bizId, Long wfId, WorkflowUser user, WorkflowUser ...users) throws Exception {
 		boolean res = true;
 		WorkflowFlow wff = workflowFlowService.findPrevFlow(bizId, wfId);
-		
+		if(wff == null) throw new Exception("前置流程不存在，无法回退。");
 		if(users == null || users.length == 0){
 			List<WorkflowUser> wfuLst = workflowFlowService.findWorkflowUsers(wff.getFlowId());
 			users = wfuLst.toArray(new WorkflowUser[wfuLst.size()]);
@@ -39,8 +39,8 @@ public class ReturnAction implements Action {
 			String curUserName = "";
 			for(WorkflowUser item : users) curUserName += item.getUserName() + ",";	
 			WorkflowTableSummary wfts = new WorkflowTableSummary();
-			if(users.length > 0) wfts.setCurUserId(users[0].getUserId());
-			wfts.setCurUserName(curUserName);
+			if(users.length > 0) wfts.setCurUserId(","+users[0].getUserId()+",");
+			wfts.setCurUserName(","+curUserName);
 			wfts.setModifiedDate(new Date());
 			//任何动作都反应在action字段上
 			wfts.setAction("退回"+wff.getNodeName());	

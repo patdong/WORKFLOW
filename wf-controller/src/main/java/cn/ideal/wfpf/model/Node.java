@@ -27,6 +27,7 @@ public class Node {
 	private List<Node> preNodes;                         //前置节点
 	private List<Node> sufNodes;                         //后置节点
 	private String type;                                 //节点是否是可被流程可见（此字段只适用于节点关系表中）
+	private String necessary;                            //是否是必经节点
 	public Long getNodeId() {
 		return nodeId;
 	}
@@ -51,14 +52,13 @@ public class Node {
 	}
 	public void setRole(CertificationRole role) {
 		this.role = role;
-	}
+	}		
 	public CertificationOrg getOrg() {
 		return org;
 	}
 	public void setOrg(CertificationOrg org) {
 		this.org = org;
 	}
-	
 	public String getnType() {
 		return nType;
 	}
@@ -134,6 +134,12 @@ public class Node {
 	}
 	public void setType(String type) {
 		this.type = type;
+	}
+	public String getNecessary() {
+		return necessary;
+	}
+	public void setNecessary(String necessary) {
+		this.necessary = necessary;
 	}
 	
 	

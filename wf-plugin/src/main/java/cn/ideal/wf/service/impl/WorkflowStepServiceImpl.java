@@ -44,12 +44,14 @@ public class WorkflowStepServiceImpl implements WorkflowStepService{
 	}
 
 	@Override
-	public boolean endFlowStep(Long stepId) {
+	public boolean endFlowStep(Long stepId,WorkflowUser wfu) {
 		WorkflowStep wfs = new WorkflowStep();
 		wfs.setStepId(stepId);
 		wfs.setFinishedDate(new Date());
 		wfs.setStatus(WFConstants.WF_STATUS_END);
 		wfs.setActionName(WFConstants.WF_ACTION_PASS);
+		wfs.setExecuteUserId(wfu.getUserId());
+		wfs.setExecuteUserName(wfu.getUserName());
 		int idx = workflowStepMapper.endFlowStep(wfs);
 		
 		if(idx > 0) return true;
@@ -105,8 +107,8 @@ public class WorkflowStepServiceImpl implements WorkflowStepService{
 				//更新业务概述表
 				WorkflowTableSummary wfts = new WorkflowTableSummary();
 				WorkflowFlow wff = workflowFlowService.findFlow(oldWfs.getFlowId());
-				wfts.setCurUserId(user.getUserId());
-				wfts.setCurUserName(user.getUserName());
+				wfts.setCurUserId(","+user.getUserId()+",");
+				wfts.setCurUserName(","+user.getUserName()+",");
 				wfts.setOldCurUserId(oldWfs.getDispatchUserId());
 				wfts.setBizId(wff.getBizId());
 				wfts.setWfId(wff.getWfId());
@@ -150,6 +152,37 @@ public class WorkflowStepServiceImpl implements WorkflowStepService{
 	@Override
 	public List<WorkflowStep> findUNFinshedWrokflowStep(Long bizId, Long wfId) {
 		return workflowStepMapper.findUNFinshedWrokflowStep(bizId, wfId);
+	}
+
+	@Override
+	public boolean wakeFlowStep(Long stepId) {
+		int idx = workflowStepMapper.wakeFlowStep(stepId);
+		if(idx > 0) return true;
+		return false;
+	}
+
+	@Override
+	public WorkflowStep findDoingflowStep(Long bizId, Long wfId,Long userId) {
+		List<WorkflowStep> wfss = workflowStepMapper.findDoingflowSteps(bizId, wfId, userId);
+		if(wfss.size() > 0) return wfss.get(0);
+		return null;
+	}
+
+	@Override
+	public List<WorkflowStep> findDoingflowSteps(Long bizId, Long wfId) {
+		return workflowStepMapper.findDoingflowSteps(bizId, wfId, null);
+	}
+
+	@Override
+	public boolean pushMsg(Long stepId, String reason) {
+		int idx = workflowStepMapper.pushMsg(stepId, reason);
+		if(idx > 0) return true;
+		return false;
+	}
+
+	@Override
+	public WorkflowStep findDoingflowStep(Long flowId, Long userId) {
+		return workflowStepMapper.findDoingflowStep(flowId, userId);
 	}
 
 }

@@ -69,11 +69,9 @@ public class RichFlowChatServiceImpl implements FlowChatService {
 	private void decoratePosition(FlowChatNode parentNode,List<FlowChatNode> sufNodes){	
 		Long iheight = parentNode.getHeight();
 		if(parentNode.getHeight() > height) height = parentNode.getHeight().intValue();
+		if(parentNode.getDepth() > depth) depth = parentNode.getDepth().intValue();
 		
-		if(sufNodes.size() == 0) {
-			if(parentNode.getDepth() > depth) depth = parentNode.getDepth().intValue();			
-			return;
-		}
+		if(sufNodes.size() == 0) return;		
 		
 		for(FlowChatNode childNode : sufNodes){								
 			childNode = this.getNode(childNode.getNodeId());			
@@ -341,6 +339,7 @@ public class RichFlowChatServiceImpl implements FlowChatService {
 		return tree;
 	}
 
+	
 	/**
 	 * 获得最后一个position位置
 	 * @param positions
@@ -377,7 +376,7 @@ public class RichFlowChatServiceImpl implements FlowChatService {
 	@Override
 	public StringBuffer draw(Long wfId) {
 		if(wfId == null) return new StringBuffer();
-		offset=0;
+		offset=50;
 		FlowChatNode[][] tree = this.decorateNodeTree(wfId,null);
 		
 		StringBuffer buf = new StringBuffer();
@@ -395,10 +394,10 @@ public class RichFlowChatServiceImpl implements FlowChatService {
 					if(node.getUsers() != null && node.getUsers().size() > 0) buf.append("<hr class='circle-hr'></hr><span style='font-size:14px;cursor:pointer;' title='"+node.getUserstoString()+"'>用户</span>");
 					buf.append("</div>");					
 				}
-				this.setPostion(node.getrPositions(),buf);
-				this.setPostion(node.getlPositions(),buf);
-				this.setPostion(node.getdPositions(),buf);
-				this.setPostion(node.getuPositions(),buf);				
+				this.drawPostion(node.getrPositions(),buf);
+				this.drawPostion(node.getlPositions(),buf);
+				this.drawPostion(node.getdPositions(),buf);
+				this.drawPostion(node.getuPositions(),buf);				
 			}
 		}
 		buf.append("</div>");
@@ -410,7 +409,7 @@ public class RichFlowChatServiceImpl implements FlowChatService {
 	 * @param position
 	 * @param buf
 	 */
-	private void setPostion(FlowChatNode.Position[][] position,StringBuffer buf){
+	private void drawPostion(FlowChatNode.Position[][] position,StringBuffer buf){
 		if(position == null) return;
 		for(int l=0;l<position.length;l++){
 			for(int p=0;p<position[l].length;p++){
@@ -445,7 +444,7 @@ public class RichFlowChatServiceImpl implements FlowChatService {
 	@Override
 	public StringBuffer draw(Long wfId, Long bizId) {
 		if(wfId == null) return new StringBuffer();
-		if(bizId == null) return drawnosetting(wfId);
+		if(bizId == null) return drawNoSetting(wfId);
 		
 		offset=50;
 		FlowChatNode[][] tree = this.decorateNodeTree(wfId,bizId);
@@ -470,10 +469,10 @@ public class RichFlowChatServiceImpl implements FlowChatService {
 					if(node.getUsers() != null && node.getUsers().size() > 0) buf.append("<hr class='circle-hr'></hr><span style='font-size:14px;cursor:pointer;' title='"+node.getUserstoString()+"'>用户</span>");
 					buf.append("</div>");
 				}
-				this.setPostion(node.getrPositions(),buf);
-				this.setPostion(node.getlPositions(),buf);
-				this.setPostion(node.getdPositions(),buf);
-				this.setPostion(node.getuPositions(),buf);				
+				this.drawPostion(node.getrPositions(),buf);
+				this.drawPostion(node.getlPositions(),buf);
+				this.drawPostion(node.getdPositions(),buf);
+				this.drawPostion(node.getuPositions(),buf);				
 			}
 		}
 		buf.append("</div>");
@@ -485,9 +484,9 @@ public class RichFlowChatServiceImpl implements FlowChatService {
 	 * @param wfId
 	 * @return
 	 */
-	private StringBuffer drawnosetting(Long wfId) {
+	private StringBuffer drawNoSetting(Long wfId) {
 		if(wfId == null) return new StringBuffer();
-		offset=0;
+		offset=50;
 		FlowChatNode[][] tree = this.decorateNodeTree(wfId,null);
 		
 		StringBuffer buf = new StringBuffer();
@@ -505,10 +504,10 @@ public class RichFlowChatServiceImpl implements FlowChatService {
 					if(node.getUsers() != null && node.getUsers().size() > 0) buf.append("<hr class='circle-hr'></hr><span style='font-size:14px;cursor:pointer;' title='"+node.getUserstoString()+"'>用户</span>");
 					buf.append("</div>");					
 				}
-				this.setPostion(node.getrPositions(),buf);
-				this.setPostion(node.getlPositions(),buf);
-				this.setPostion(node.getdPositions(),buf);
-				this.setPostion(node.getuPositions(),buf);				
+				this.drawPostion(node.getrPositions(),buf);
+				this.drawPostion(node.getlPositions(),buf);
+				this.drawPostion(node.getdPositions(),buf);
+				this.drawPostion(node.getuPositions(),buf);				
 			}
 		}
 		buf.append("</div>");

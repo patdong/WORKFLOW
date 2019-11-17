@@ -3,9 +3,23 @@ package cn.ideal.wf.jdbc.dao;
  * 持久层采用spring jdbc方式操作MySQL数据库
  * @author 郭佟燕
  * @version 2.0
+ * 
+		 * sql生成器查询语句中必须按照这样的别名进行定义
+		 * 数据库表别名定义：
+		 * table_summary  别名： ts
+		 * 业务表                         别名：biz
+		 * workflow_flow  别名：wff
+		 * workflow_step  别名：wfs
+		 * workflow_brief 别名：wfb
+		 * workflow_node  别名：wfn
+		 * workflow_dispenser 别名：wfd
+		 * workflow_receiver  别名：wfr
+		 * 
+		
  */
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -23,9 +37,9 @@ import cn.ideal.wf.service.WorkflowWFService;
 
 
 @Service("WFORACLEExecutor")
-public class WFOracleExecutor implements SQLExecutor {
+public class WFOracleExecutor extends SQLUtils implements SQLExecutor {
 	@Autowired
-	private JdbcTemplate jdbcTemplate;
+	private JdbcTemplate wfJdbcTemplate;
 	@Autowired
 	private WorkflowWFService wfService;	
 	@Autowired
@@ -38,7 +52,7 @@ public class WFOracleExecutor implements SQLExecutor {
 		StringBuilder sufbuf = new StringBuilder();	
 		BigDecimal bizId = null;
 		try{	
-			Map<String,Object> maxId = jdbcTemplate.queryForMap("select sq_"+storage.getTableName()+".nextval  as ID from dual " );
+			Map<String,Object> maxId = wfJdbcTemplate.queryForMap("select sq_"+storage.getTableName()+".nextval  as ID from dual " );
 			if(maxId != null){
 				bizId = (BigDecimal)maxId.get("ID");
 			}
@@ -58,7 +72,7 @@ public class WFOracleExecutor implements SQLExecutor {
 			prebuf.append(")");
 			sufbuf.append(")");
 
-			int idx = jdbcTemplate.update(prebuf.toString() + sufbuf.toString());
+			int idx = wfJdbcTemplate.update(prebuf.toString() + sufbuf.toString());
 			if(idx > 0){				
 				//保存业务关联主表
 				prebuf.setLength(0);				
@@ -69,7 +83,7 @@ public class WFOracleExecutor implements SQLExecutor {
 				if(tb == null) tb = wftableService.findByIds(storage.getTbId(), storage.getWfId());	
 				 //TableBriefCache.getValue(storage.getTbId());
 				
-				maxId = jdbcTemplate.queryForMap("select sq_summaryId.nextval  as ID from dual " );
+				maxId = wfJdbcTemplate.queryForMap("select sq_summaryId.nextval  as ID from dual " );
 				BigDecimal summaryId = null;
 				if(maxId != null){
 					summaryId = (BigDecimal)maxId.get("ID");
@@ -99,11 +113,11 @@ public class WFOracleExecutor implements SQLExecutor {
 				prebuf.append(storage.getUser().getUnitId());
 				prebuf.append(",'");
 				prebuf.append(storage.getUser().getUnitName());
-				prebuf.append("',");
+				prebuf.append("',',");
 				prebuf.append(storage.getUser().getUserId());
-				prebuf.append(",'");
+				prebuf.append(",',',");
 				prebuf.append(storage.getUser().getUserName());
-				prebuf.append("',");
+				prebuf.append(",',");
 				prebuf.append("to_date('"+getDate()+"','YYYY-MM-DD HH24:MI:SS')");
 				prebuf.append(",");
 				prebuf.append("to_date('"+getDate()+"','YYYY-MM-DD HH24:MI:SS')");
@@ -112,13 +126,13 @@ public class WFOracleExecutor implements SQLExecutor {
 				prebuf.append("','");
 				prebuf.append("创建");
 				prebuf.append("')");
-				int id = jdbcTemplate.update(prebuf.toString());				
+				int id = wfJdbcTemplate.update(prebuf.toString());				
 				if(id > 0){
 					//保存子表数据
 					if(storage.getsFields() != null){ 
 						for(String stbname : storage.getsFields().keySet()){
 							for(Map<String,String> fields :storage.getsFields(stbname)){
-								maxId = jdbcTemplate.queryForMap("select sq_"+stbname+".nextval  as ID from dual " );
+								maxId = wfJdbcTemplate.queryForMap("select sq_"+stbname+".nextval  as ID from dual " );
 								fields.put("ID", maxId.get("ID").toString());
 								prebuf.setLength(0);
 								sufbuf.setLength(0);
@@ -135,13 +149,13 @@ public class WFOracleExecutor implements SQLExecutor {
 								sufbuf.setLength(sufbuf.length()-1);
 								prebuf.append(")");
 								sufbuf.append(")");
-								jdbcTemplate.update(prebuf.toString() + sufbuf.toString());
+								wfJdbcTemplate.update(prebuf.toString() + sufbuf.toString());
 								//保存主表和子表关系							
-								jdbcTemplate.update("insert into table_keys(tableName,zkey,stableName,skey) values('"+storage.getTableName()+"',"+bizId+",'"+stbname+"',"+maxId.get("ID")+")");							
+								wfJdbcTemplate.update("insert into table_keys(tableName,zkey,stableName,skey) values('"+storage.getTableName()+"',"+bizId+",'"+stbname+"',"+maxId.get("ID")+")");							
 							}
 						}	
 					}
-					return jdbcTemplate.queryForMap("select a.*,b.summaryId,b.tbId,b.wfId from " + storage.getTableName() + " a inner join table_summary b on a.id=b.bizId and b.tbId="+storage.getTbId()+" where a.id = "+ bizId);
+					return wfJdbcTemplate.queryForMap("select a.*,b.summaryId,b.tbId,b.wfId from " + storage.getTableName() + " a inner join table_summary b on a.id=b.bizId and b.tbId="+storage.getTbId()+" where a.id = "+ bizId);
 				}
 				
 			}
@@ -155,12 +169,12 @@ public class WFOracleExecutor implements SQLExecutor {
 
 	@Override
 	public int execute(String sql) {
-		return jdbcTemplate.update(sql);		
+		return wfJdbcTemplate.update(sql);		
 	}
 
 	@Override
 	public List<Map<String, Object>> query(String sql) {
-		return jdbcTemplate.queryForList(sql);
+		return wfJdbcTemplate.queryForList(sql);
 	}
 
 	@Override
@@ -182,16 +196,18 @@ public class WFOracleExecutor implements SQLExecutor {
 			prebuf.append(" where Id = ");
 			prebuf.append(storage.getBizId());
 
-			int id = jdbcTemplate.update(prebuf.toString());
+			int id = wfJdbcTemplate.update(prebuf.toString());
 			if(id > 0){
 				//保存子表数据
 				if(storage.getsFields() != null){
-					for(String stbname : storage.getsFields().keySet()){					
+					for(String stbname : storage.getsFields().keySet()){
+						//存储有效的子表序列号
+						List<String> sIds = new ArrayList<String>();
 						for(Map<String,String> fields :storage.getsFields(stbname)){						
 							prebuf.setLength(0);
 							sufbuf.setLength(0);
 							if(StringUtils.isEmpty(fields.get("ID"))){
-								Map<String,Object> maxId = jdbcTemplate.queryForMap("select sq_"+stbname+".nextval  as ID from dual " );
+								Map<String,Object> maxId = wfJdbcTemplate.queryForMap("select sq_"+stbname+".nextval  as ID from dual " );
 								fields.put("ID", maxId.get("ID").toString());
 								prebuf.append("insert into "+stbname +"(");
 								sufbuf.append(" values (");
@@ -207,8 +223,9 @@ public class WFOracleExecutor implements SQLExecutor {
 								prebuf.append(")");
 								sufbuf.append(")");
 								System.out.println(prebuf.toString() + sufbuf.toString());
-								jdbcTemplate.update(prebuf.toString() + sufbuf.toString());							
-								jdbcTemplate.update("insert into table_keys(tableName,zkey,stableName,skey) values('"+storage.getTableName()+"',"+storage.getBizId()+",'"+stbname+"',"+maxId.get("ID")+")");							
+								wfJdbcTemplate.update(prebuf.toString() + sufbuf.toString());							
+								wfJdbcTemplate.update("insert into table_keys(tableName,zkey,stableName,skey) values('"+storage.getTableName()+"',"+storage.getBizId()+",'"+stbname+"',"+maxId.get("ID")+")");							
+								sIds.add(maxId.get("ID").toString());
 							}else{
 								prebuf.append("update "+stbname );
 								prebuf.append(" set ");
@@ -224,16 +241,21 @@ public class WFOracleExecutor implements SQLExecutor {
 								prebuf.setLength(prebuf.length()-1);
 								prebuf.append(" where Id = ");
 								prebuf.append(fields.get("ID"));
-								jdbcTemplate.update(prebuf.toString() + sufbuf.toString());
+								wfJdbcTemplate.update(prebuf.toString() + sufbuf.toString());
+								sIds.add((String)fields.get("ID"));
 							}						
 						}							
-						//删除清空的子表记录
-						for(Long key : storage.getsIds(stbname)){
-							jdbcTemplate.update("delete from " + stbname + " where ID = "+ key);
+						//删除清空的子表记录	
+						if(sIds.size() > 0){
+							wfJdbcTemplate.update("delete from " + stbname + " where "
+											 +"ID in (select id from (select a.id from "+stbname+" a "
+								             +"inner join table_keys b on a.id = b.skey and b.zkey = "+storage.getBizId()+" and b.stableName = '"+stbname+"') p ) "
+								             +"and ID not in (select id from (select a.id from "+stbname+" a "
+								             +"inner join table_keys b on a.id = b.skey and b.zkey = "+storage.getBizId()+" and b.stableName = '"+stbname+"' and b.skey in ("+sIds.toString().substring(1,sIds.toString().length()-1)+")) t)");								             										
 						}
 					}
 				}
-				return jdbcTemplate.queryForMap("select a.*,b.summaryId,b.tbId,b.wfId from " + storage.getTableName() + " a inner join table_summary b on a.id=b.bizId and b.tbId="+storage.getTbId()+" where a.id = "+ storage.getBizId());
+				return wfJdbcTemplate.queryForMap("select a.*,b.summaryId,b.tbId,b.wfId from " + storage.getTableName() + " a inner join table_summary b on a.id=b.bizId and b.tbId="+storage.getTbId()+" where a.id = "+ storage.getBizId());
 			}
 			
 		}catch(Exception e){
@@ -258,13 +280,21 @@ public class WFOracleExecutor implements SQLExecutor {
 	 */
 	public Long queryAll(Storage storage){
 		if(storage == null) return null;
-		Object scope = storage.getParameters().get("scope");
-		if(scope != null && ((String)scope).equals("workflow")) return queryWorkflowAll(storage);
+		String scope = storage.getScope();
+		if(scope != null && scope.equals("approve")) return queryWorkflowAll(storage);
+		if(scope != null && scope.equals("approved")) return queryWorkedflowAll(storage);
+		if(scope != null && scope.equals("know")) return queryKnowAll(storage);
+		if(scope != null && scope.equals("node")) return queryNodeAll(storage);
+		if(scope != null && scope.equals("sendKnow")) return querySendKnowAll(storage);
 		
-		List<Map<String,Object>> rs = this.query("select count(*) as total from " + storage.getTableName() +
-				" a inner join table_summary b on b.bizId = a.Id where b.tbId = "+storage.getTbId() +" and b.createdUserId = "+storage.getUser().getUserId() +
-				" and b.tableName = '"+ storage.getTableName()+"'" +
-				" and b.status='有效'");
+		StringBuilder buf = new StringBuilder();		
+		buf.append("select count(*) as total from ");
+		buf.append(storage.getTableName());
+		buf.append(" biz inner join table_summary ts on ts.bizId = biz.Id where ts.tbId = "+storage.getTbId() );
+		buf.append(" and ts.status='有效'");
+		buf.append(this.getParams(storage,"biz"));
+		buf.append(this.getParams(storage,"ts"));
+		List<Map<String,Object>> rs = this.query(buf.toString());
 		if(rs.size() > 0) {
 			return Long.parseLong(rs.get(0).get("TOTAL").toString());
 		}
@@ -277,13 +307,63 @@ public class WFOracleExecutor implements SQLExecutor {
 	 * @return
 	 */
 	public Long queryWorkflowAll(Storage storage){
-		if(storage == null) return null;		
-		List<Map<String,Object>> rs = this.query(
-				"select count(*) as total from workflow_brief "
-				+ " where dispatchUserId like concat(concat('%,',"+storage.getUser().getUserId()+"),',%') "
-				+ " and wfId="+storage.getWfId()
-				+ " and finishedDate is null "
-				);
+		if(storage == null) return null;	
+		StringBuilder buf = new StringBuilder();
+		buf.append("select count(*) as total from ");
+		buf.append(storage.getTableName());
+		buf.append(" biz inner join table_summary ts on ts.bizId = biz.Id and ts.tbId = "+storage.getTbId() );
+		buf.append(" and ts.status='有效'");
+		buf.append(" inner join workflow_brief wfb on ts.wfId = wfb.wfId and ts.bizId = wfb.bizId");
+		buf.append(" where ts.tbId="+storage.getTbId());
+		buf.append(" and wfb.finishedDate is null ");
+		buf.append(this.getParams(storage,"biz"));
+		buf.append(this.getParams(storage,"wfb"));
+		List<Map<String,Object>> rs = this.query(buf.toString());
+		if(rs.size() > 0) {
+			return Long.parseLong(rs.get(0).get("TOTAL").toString());
+		}
+		return null;
+	}
+	
+	/**
+	 * 统计经办流程列表的总数
+	 * @param storage
+	 * @return
+	 */
+	public Long queryWorkedflowAll(Storage storage){
+		if(storage == null) return null;	
+		StringBuilder buf = new StringBuilder();		
+		buf.append("select count(*) as total from ");
+		buf.append(storage.getTableName());
+		buf.append(" biz inner join table_summary ts on ts.bizId = biz.Id and ts.tbId = "+storage.getTbId() );
+		buf.append(" and ts.status='有效'");
+		buf.append(" inner join (select distinct wff.wfId,wff.bizId from workflow_flow wff where wff.flowid in ");
+		buf.append(" (select flowid from workflow_step wfs where wfs.finishedDate is not null");
+		buf.append(this.getParams(storage,"wfs"));	
+		buf.append(" )" );
+		buf.append(" ) tmp on ts.wfid = tmp.wfid and ts.bizId=tmp.bizId and ts.status='有效'" );	
+		buf.append(" where ts.tbId = "+storage.getTbId());
+		buf.append(this.getParams(storage,"biz"));
+		List<Map<String,Object>> rs = this.query(buf.toString());
+		if(rs.size() > 0) {
+			return Long.parseLong(rs.get(0).get("TOTAL").toString());
+		}
+		return null;
+	}
+	
+	/**
+	 * 统计发送传阅列表的总数
+	 * @param storage
+	 * @return
+	 */
+	public Long querySendKnowAll(Storage storage){
+		if(storage == null) return null;	
+		StringBuilder buf = new StringBuilder();
+		buf.append("select count(*) as total from workflow_dispenser wfd ");
+		buf.append(" inner join "+storage.getTableName() +" biz on biz.Id=wfd.bizId ");
+		buf.append(" where wfd.tbId="+storage.getTbId());
+		buf.append(this.getParams(storage,"wfd"));
+		List<Map<String,Object>> rs = this.query(buf.toString());
 		if(rs.size() > 0) {
 			return Long.parseLong(rs.get(0).get("TOTAL").toString());
 		}
@@ -292,28 +372,80 @@ public class WFOracleExecutor implements SQLExecutor {
 	
 	
 	/**
+	 * 统计接收传阅列表的总数
+	 * @param storage
+	 * @return
+	 */
+	public Long queryKnowAll(Storage storage){
+		if(storage == null) return null;	
+		StringBuilder buf = new StringBuilder();
+		buf.append("select count(*) as total from workflow_dispenser wfd ");
+		buf.append(" inner join "+storage.getTableName() +" biz on biz.Id=wfd.bizId");
+		buf.append(" where wfd.tbId="+storage.getTbId());
+		buf.append(" and wfd.receiveUserIds like concat(concat('%,'," + storage.getUser().getUserId() + "),',%')");
+		List<Map<String,Object>> rs = this.query(buf.toString());
+		if(rs.size() > 0) {
+			return Long.parseLong(rs.get(0).get("TOTAL").toString());
+		}
+		return null;
+	}
+	
+	/**
+	 * 统计已过指定办理节点的列表总数
+	 * @param storage
+	 * @return
+	 */
+	public Long queryNodeAll(Storage storage){
+		if(storage == null) return null;	
+		StringBuilder buf = new StringBuilder();
+		buf.append("select count(*) as total from table_summary ts ");
+		buf.append(" inner join "+storage.getTableName() +" biz on biz.Id=ts.bizId");
+		buf.append(" where ts.tbId="+storage.getTbId());
+		buf.append(" and ts.bizId in (select wff.bizId from workflow_flow wff where wff.flowId in ( ");
+		buf.append(" select wfs.flowID from workflow_step wfs where wfs.flowid in ( ");
+		buf.append(" select wff.flowId from workflow_flow wff ");
+		buf.append(" inner join workflow_node wfn on wff.nodeName = wfn.nodeName and wfn.wfId="+storage.getWfId());
+		buf.append(" and wff.finishedDate is not null ");
+		buf.append(this.getParams(storage,"wfn") + ")");
+		buf.append(this.getParams(storage,"wfs") + "))");
+		buf.append(this.getParams(storage,"biz"));
+		List<Map<String,Object>> rs = this.query(buf.toString());
+		if(rs.size() > 0) {
+			return Long.parseLong(rs.get(0).get("TOTAL").toString());
+		}
+		return null;
+	}
+	
+	/**
 	 * 查询申请列表
 	 * 
 	 */
 	public List<Map<String,Object>> queryPage(Storage storage){
 		
-		Object scope = storage.getParameters().get("scope");
-		if(scope != null && ((String)scope).equals("workflow")) return queryWorkflowPage(storage);
+		String scope = storage.getScope();
+		if(scope != null && scope.equals("approve")) return queryWorkflowPage(storage);
+		if(scope != null && scope.equals("approved")) return queryWorkedflowPage(storage);
+		if(scope != null && scope.equals("know")) return queryKnowPage(storage);
+		if(scope != null && scope.equals("node")) return queryNodePage(storage);
+		if(scope != null && scope.equals("sendKnow")) return querySendKnowPage(storage);
 		
-		Map<String,Object> parameters = storage.getParameters();
 		StringBuilder buf = new StringBuilder();
-		buf.append("SELECT * FROM  (  SELECT x.*, rownum rn FROM (");
+		if(storage.getBeginNumber() != null){
+			buf.append("SELECT * FROM  (  SELECT x.*, rownum rn FROM (");
+		}
 		buf.append("select * from " );
 		buf.append(storage.getTableName());
-		buf.append(" a ");
-		buf.append(" inner join table_summary b on a.Id = b.bizId ");
-		buf.append(" where b.tbId = "+storage.getTbId() +" and b.tableName = '"+ storage.getTableName()+"'" );
-		buf.append(" and b.createdUserId = " + storage.getUser().getUserId() +" and b.status='有效'" );
-		buf.append(" order by b.createddate");
-		if(parameters!=null && parameters.size() > 0){
-			
-		}		
-		buf.append(") x WHERE rownum <="+(storage.getBeginNumber()+storage.getSize())+" ) WHERE  rn >=  "+storage.getBeginNumber());		
+		buf.append(" biz ");
+		buf.append(" inner join table_summary ts on biz.Id = ts.bizId ");
+		buf.append(" where ts.tbId = "+storage.getTbId() +" and ts.tableName = '"+ storage.getTableName()+"'" );
+		buf.append(" and ts.status='有效'" );
+		buf.append(this.getParams(storage,"biz"));
+		buf.append(this.getParams(storage,"ts"));
+		buf.append(" order by ");	
+		buf.append(this.getParams(storage,"order"));
+		if(storage.getBeginNumber() != null){
+			buf.append(") x WHERE rownum <="+(storage.getBeginNumber()+storage.getSize())+" ) WHERE  rn >=  "+storage.getBeginNumber());
+		}
 		return this.query(buf.toString());	
 	}
 
@@ -325,19 +457,122 @@ public class WFOracleExecutor implements SQLExecutor {
 	public List<Map<String,Object>> queryWorkflowPage(Storage storage){
 		
 		StringBuilder buf = new StringBuilder();
-		buf.append("SELECT * FROM  (  SELECT x.*, rownum rn FROM (");
-		buf.append("select a.*,c.* from " );
+		if(storage.getBeginNumber() != null){
+			buf.append("SELECT * FROM  (  SELECT x.*, rownum rn FROM (");
+		}
+		buf.append("select biz.*,ts.* from " );
 		buf.append(storage.getTableName());
-		buf.append(" a ");
-		buf.append(" inner join workflow_brief b on b.bizId = a.Id and b.wfId="+storage.getWfId());
-		buf.append(" inner join table_summary c on a.Id = c.bizId and c.wfId="+storage.getWfId() +" and c.status='有效'");
+		buf.append(" biz ");		
+		buf.append(" inner join table_summary ts on biz.Id = ts.bizId and ts.tbId="+storage.getTbId() +" and ts.status='有效'");
+		buf.append(" inner join workflow_brief wfb on wfb.bizId = ts.bizId and wfb.wfId=ts.wfId");
 		buf.append(" where ");
-		buf.append(" b.dispatchUserId like concat(concat('%,',"+storage.getUser().getUserId()+"),',%') " );
-		buf.append(" and b.finishedDate is null ");
-		buf.append(" order by c.createddate ");
+		buf.append(" wfb.finishedDate is null ");
+		buf.append(this.getParams(storage,"biz"));
+		buf.append(this.getParams(storage,"wfb"));
+		buf.append(" order by ");
+		buf.append(this.getParams(storage,"order"));
+		if(storage.getBeginNumber() != null){
+			buf.append(") x WHERE rownum <="+(storage.getBeginNumber()+storage.getSize())+" ) WHERE  rn >=  "+storage.getBeginNumber());
+		}
+		return this.query(buf.toString());	
+	}
+	
+	/**
+	 * 查询经办过的流程列表
+	 * @param storage
+	 * @return
+	 */
+	public List<Map<String,Object>> queryWorkedflowPage(Storage storage){
+		
+		StringBuilder buf = new StringBuilder();
+		buf.append("SELECT * FROM  (  SELECT x.*, rownum rn FROM (");
+		buf.append("select biz.*,ts.* from " );
+		buf.append(storage.getTableName());
+		buf.append(" biz ");		
+		buf.append(" inner join table_summary ts on biz.Id = ts.bizId and ts.tbId="+storage.getTbId() +" and ts.status='有效'");
+		buf.append(" inner join (select distinct wff.wfId,wff.bizId from workflow_flow wff where wff.flowid in ");
+		buf.append(" (select flowid from workflow_step wfs where wfs.finishedDate is not null ");
+		buf.append(this.getParams(storage,"wfs"));
+		buf.append(" )) tmp on ts.wfid = tmp.wfid and ts.bizId=tmp.bizId and ts.status='有效'" );
+		buf.append(" where ts.tbId = "+storage.getTbId());
+		buf.append(this.getParams(storage,"biz"));
+		buf.append(" order by ");
+		buf.append(this.getParams(storage,"order"));
 		buf.append(") x WHERE rownum <="+(storage.getBeginNumber()+storage.getSize())+" ) WHERE  rn >=  "+storage.getBeginNumber());	
 		return this.query(buf.toString());	
 	}
+	
+	/**
+	 * 查询发送传阅列表
+	 * @param storage
+	 * @return
+	 */
+	public List<Map<String,Object>> querySendKnowPage(Storage storage){
+		
+		StringBuilder buf = new StringBuilder();
+		buf.append("SELECT * FROM  (  SELECT x.*, rownum rn FROM (");
+		buf.append("select biz.*,ts.*,wfd.dispenseId,wfd.receiveUserNames,wfd.createdDate as dispensedDate,wfd.content from " );
+		buf.append(storage.getTableName());
+		buf.append(" biz ");
+		buf.append(" inner join table_summary ts on biz.Id = ts.bizId and ts.tbId="+storage.getTbId() +" and ts.status='有效'");
+		buf.append(" inner join workflow_dispenser wfd on wfd.bizId = ts.bizId and wfd.tbId=ts.tbId");		
+		buf.append(this.getParams(storage,"wfd"));		
+		buf.append(" order by ");
+		buf.append(this.getParams(storage,"order"));
+		buf.append(") x WHERE rownum <="+(storage.getBeginNumber()+storage.getSize())+" ) WHERE  rn >=  "+storage.getBeginNumber());	
+		return this.query(buf.toString());	
+	}
+	
+	/**
+	 * 查询收到传阅列表
+	 * @param storage
+	 * @return
+	 */
+	public List<Map<String,Object>> queryKnowPage(Storage storage){
+		
+		StringBuilder buf = new StringBuilder();
+		buf.append("SELECT * FROM  (  SELECT x.*, rownum rn FROM (");
+		buf.append("select biz.*,ts.*,wfd.dispenseId,wfd.dispenseUserName,wfd.createdDate as dispensedDate, wfr.createdDate as receivedDate from " );
+		buf.append(storage.getTableName());
+		buf.append(" biz ");
+		buf.append(" inner join table_summary ts on biz.Id = ts.bizId and ts.tbId="+storage.getTbId()+" and ts.status='有效'");
+		buf.append(" inner join workflow_dispenser wfd on wfd.bizId = ts.bizId and wfd.tbId = ts.tbId " );		
+		buf.append(" left join workflow_receiver wfr on wfd.dispenseId = wfr.dispenseId ");
+		buf.append(" where wfd.receiveUserIds like concat(concat('%,'," + storage.getUser().getUserId() + "),',%')");
+		buf.append(" order by ");
+		buf.append(this.getParams(storage,"order"));
+		buf.append(") x WHERE rownum <="+(storage.getBeginNumber()+storage.getSize())+" ) WHERE  rn >=  "+storage.getBeginNumber());	
+		return this.query(buf.toString());	
+	}
+			
+	/**
+	 * 查询已办理过的节点列表
+	 * @param storage
+	 * @return
+	 */
+	public List<Map<String,Object>> queryNodePage(Storage storage){
+		
+		StringBuilder buf = new StringBuilder();
+		buf.append("SELECT * FROM  (  SELECT x.*, rownum rn FROM (");
+		buf.append("select biz.*,ts.* from " );
+		buf.append(storage.getTableName());
+		buf.append(" biz ");
+		buf.append(" inner join table_summary ts on biz.Id = ts.bizId and ts.tbId="+storage.getTbId() +" and ts.status='有效'");
+		buf.append(" where ");
+		buf.append(" ts.bizId in (select wff.bizId from workflow_flow wff where wff.flowId in ( ");
+		buf.append(" select wfs.flowId from workflow_step wfs where wfs.flowid in ( ");
+		buf.append(" select wff.flowId from workflow_flow wff ");
+		buf.append(" inner join workflow_node wfn on wff.nodeName = wfn.nodeName and wfn.wfId="+storage.getWfId());
+		buf.append(" and wff.finishedDate is not null ");
+		buf.append(this.getParams(storage,"wfn") + ")");
+		buf.append(this.getParams(storage,"wfs") + "))");
+		buf.append(this.getParams(storage,"biz"));
+		buf.append(" order by ");
+		buf.append(this.getParams(storage,"order"));
+		buf.append(") x WHERE rownum <="+(storage.getBeginNumber()+storage.getSize())+" ) WHERE  rn >=  "+storage.getBeginNumber());	
+		return this.query(buf.toString());	
+	}
+	
 	
 	/**
 	 * 查询指定业务编号的记录，有且仅有一条
@@ -368,7 +603,7 @@ public class WFOracleExecutor implements SQLExecutor {
 	@Override
 	public void migrateComments(Long bizId, Long tbId, String tableName,WorkflowUser user) {
 		List<Map<String,Object>> fields = this.query(""
-				+ " select a.newfieldName from table_element a "
+				+ " select a.newFieldName from table_element a "				
 				+ " where a.tbId = "+tbId
 				+ " and a.newFieldType = '审批意见'");
 		if(fields != null && fields.size() > 0){
@@ -399,10 +634,12 @@ public class WFOracleExecutor implements SQLExecutor {
 	}
 
 	@Override
-	public Long queryAll(Long userId) {
+	public Long queryAll(Long userId,Long tbId,Map<String,String> params,Map<String,String> orders) {
 		if(userId == null) return 0l;
+		StringBuilder cond = this.getParams(params);
+		if(tbId != null) cond.append(" and ts.tbId=").append(tbId);
 		
-		List<Map<String,Object>> rs = this.query("select count(*) as total from table_summary a where a.createdUserId = "+ userId +" and a.status='有效'");
+		List<Map<String,Object>> rs = this.query("select count(*) as total from table_summary ts where ts.createdUserId = "+ userId +" and ts.status='有效'" + cond.toString());
 		if(rs.size() > 0) {
 			return Long.parseLong(rs.get(0).get("TOTAL").toString());
 		}
@@ -410,27 +647,35 @@ public class WFOracleExecutor implements SQLExecutor {
 	}
 
 	@Override
-	public List<Map<String, Object>> queryPage(Long userId,Long pageNumber,Long pageSize) {
-		if(pageNumber == null) pageNumber = 1l;
+	public List<Map<String, Object>> queryPage(Long userId,Long tbId,Map<String,String> params,Map<String,String> orders,Long pageNumber,Long pageSize) {
+		if(pageNumber == null) return null;
+		StringBuilder cond = this.getParams(params);
+		if(tbId != null) cond.append(" and ts.tbId=").append(tbId);		
+		StringBuilder order = this.getOrders(orders);	
+		
 		StringBuilder buf = new StringBuilder();
 		buf.append("SELECT * FROM  (  SELECT x.*, rownum rn FROM (");
-		buf.append("select a.* from " );		
-		buf.append(" table_summary a ");
+		buf.append("select ts.* from " );		
+		buf.append(" table_summary ts ");
 		buf.append(" where ");
-		buf.append(" a.createdUserId = " + userId +" and a.status='有效'");
-		buf.append(" order by a.createddate ");
+		buf.append(" ts.createdUserId = " + userId +" and ts.status='有效'"+cond.toString());
+		buf.append(order.toString());
 		buf.append(") x WHERE rownum <="+(pageNumber*pageSize)+" ) WHERE  rn >  "+(pageNumber-1)*pageSize);	
 		return this.query(buf.toString());	
 	}
 
 	@Override
-	public Long queryWorkflowAll(Long userId) {
+	public Long queryWorkflowAll(Long userId,Long tbId,Map<String,String> params,Map<String,String> orders) {
 		if(userId == null) return 0l;
+		StringBuilder cond = this.getParams(params);
+		if(tbId != null) cond.append(" and ts.tbId=").append(tbId);
+		StringBuilder buf = new StringBuilder();
+		buf.append(" select count(*) as total from table_summary ts ");
+		buf.append(" inner join workflow_brief wfb on wfb.wfId = ts.wfId and ts.bizId=wfb.bizId ");
+		buf.append(" where ts.curUserId like concat(concat('%,',"+userId+"),',%')  and ts.status='有效' "+cond.toString());
+		buf.append(" and wfb.finishedDate is null");
 		
-		List<Map<String,Object>> rs = this.query("select count(*) as total from table_summary a "
-				+ "inner join workflow_brief b on b.wfId = a.wfId and a.bizId=b.bizId "
-				+ "where a.curUserId = "+ userId +"  and a.status='有效' "
-						+ "and b.finishedDate is null");
+		List<Map<String,Object>> rs = this.query(buf.toString());
 		if(rs.size() > 0) {
 			return Long.parseLong(rs.get(0).get("TOTAL").toString());
 		}
@@ -438,31 +683,38 @@ public class WFOracleExecutor implements SQLExecutor {
 	}
 
 	@Override
-	public List<Map<String, Object>> queryWorkflowPage(Long userId,Long pageNumber, Long pageSize) {
-		if(pageNumber == null) pageNumber = 1l;
+	public List<Map<String, Object>> queryWorkflowPage(Long userId,Long tbId,Map<String,String> params,Map<String,String> orders,Long pageNumber, Long pageSize) {
+		if(pageNumber == null) return null;
+		StringBuilder cond = this.getParams(params);
+		if(tbId != null) cond.append(" and ts.tbId=").append(tbId);		
+		StringBuilder order = this.getOrders(orders);	
+		
 		StringBuilder buf = new StringBuilder();
 		buf.append("SELECT * FROM  (  SELECT x.*, rownum rn FROM (");
-		buf.append("select a.* from " );		
-		buf.append(" table_summary a ");
-		buf.append(" inner join workflow_brief b on b.wfId = a.wfId and a.bizId=b.bizId ");
+		buf.append(" select ts.* from " );		
+		buf.append(" table_summary ts ");
+		buf.append(" inner join workflow_brief wfb on wfb.wfId = ts.wfId and ts.bizId=wfb.bizId ");
 		buf.append(" where ");
-		buf.append(" a.curUserId = " + userId +" and a.status='有效' ");
-		buf.append(" and b.finishedDate is null");
-		buf.append(" order by a.createddate ");
+		buf.append(" ts.curUserId like concat(concat('%,',"+userId+"),',%') and ts.status='有效' "+cond.toString());
+		buf.append(" and wfb.finishedDate is null");
+		buf.append(order.toString());
 		buf.append(") x WHERE rownum <="+(pageNumber*pageSize)+" ) WHERE  rn >  "+(pageNumber-1)*pageSize);	
 		return this.query(buf.toString());	
 	}
 
 	@Override
-	public Long queryWorkedflowAll(Long userId) {
+	public Long queryWorkedflowAll(Long userId,Long tbId,Map<String,String> params,Map<String,String> orders) {
 		if(userId == null) return 0l;
+		StringBuilder cond = this.getParams(params);
+		if(tbId != null) cond.append(" and ts.tbId=").append(tbId);
 		
-		List<Map<String,Object>> rs = this.query(
-				  "select count(*) as total from table_summary a "
-				+ "inner join (select * from workflow_flow b where b.flowid in "
-				+ "(select flowid from workflow_step c where c.dispatchuserid = "+ userId 
-				+ " and c.finishedDate is not null ) "
-                + ") d on a.wfid = d.wfid and a.bizId=d.bizId and a.status='有效'");
+		StringBuilder buf = new StringBuilder();
+		buf.append(" select count(*) as total from table_summary ts ");
+		buf.append(" inner join (select distinct wff.wfId,wff.bizId  from workflow_flow wff where wff.flowid in ");
+		buf.append("(select flowid from workflow_step wfs where wfs.dispatchuserid = "+ userId );
+		buf.append(" and wfs.finishedDate is not null ) ");
+		buf.append(") tmp on ts.wfid = tmp.wfid and ts.bizId=tmp.bizId and ts.status='有效'"+cond.toString());
+		List<Map<String,Object>> rs = this.query(buf.toString());
 		if(rs.size() > 0) {
 			return Long.parseLong(rs.get(0).get("TOTAL").toString());
 		}
@@ -470,26 +722,34 @@ public class WFOracleExecutor implements SQLExecutor {
 	}
 
 	@Override
-	public List<Map<String, Object>> queryWorkedflowPage(Long userId,Long pageNumber, Long pageSize) {
-		if(pageNumber == null) pageNumber = 1l;
+	public List<Map<String, Object>> queryWorkedflowPage(Long userId,Long tbId,Map<String,String> params,Map<String,String> orders,Long pageNumber, Long pageSize) {
+		if(pageNumber == null) return null;
+		StringBuilder cond = this.getParams(params);
+		if(tbId != null) cond.append(" and ts.tbId=").append(tbId);		
+		StringBuilder order = this.getOrders(orders);	
+		
 		StringBuilder buf = new StringBuilder();
 		buf.append("SELECT * FROM  (  SELECT x.*, rownum rn FROM (");
-		buf.append("select a.* from " );		
-		buf.append(" table_summary a ");
-		buf.append(" inner join (select * from workflow_flow b where b.flowid in ");
-		buf.append(" (select flowid from workflow_step c where c.dispatchuserid = "+ userId);
-		buf.append("  and c.finishedDate is not null )" );
-		buf.append(" ) d on a.wfid = d.wfid and a.bizId=d.bizId and a.status='有效'");
-		buf.append(" order by a.createddate ");
+		buf.append(" select ts.* from " );		
+		buf.append(" table_summary ts ");
+		buf.append(" inner join (select distinct wff.wfId,wff.bizId from workflow_flow wff where wff.flowid in ");
+		buf.append(" (select flowid from workflow_step wfs where wfs.dispatchuserid = "+ userId);
+		buf.append("  and wfs.finishedDate is not null )" );
+		buf.append(" ) tmp on ts.wfid = tmp.wfid and ts.bizId=tmp.bizId and ts.status='有效'"+cond.toString());
+		buf.append(order.toString());
 		buf.append(") x WHERE rownum <="+(pageNumber*pageSize)+" ) WHERE  rn >  "+(pageNumber-1)*pageSize);	
 		return this.query(buf.toString());	
 	}
 
 	@Override
-	public Long queryWorkedflowAll() {
-		List<Map<String,Object>> rs = this.query("select count(*) as total from table_summary a "
-				+ "inner join (select * from workflow_flow b where b.finishedDate is null "
-                + " and b.nodename !='创建') d on a.wfid = d.wfid and a.bizId=d.bizId and a.status='有效'");
+	public Long queryWorkedflowAll(Map<String,String> params,Map<String,String> orders) {
+		StringBuilder cond = this.getParams(params);
+		
+		StringBuilder buf = new StringBuilder();
+		buf.append("select count(*) as total from table_summary ts ");
+		buf.append(" inner join (select wff.wfid,wff.bizId from workflow_flow wff where wff.finishedDate is null and wff.nodename !='创建') tmp ");
+		buf.append(" on ts.wfid = tmp.wfid and ts.bizId=tmp.bizId and ts.status='有效'" +cond.toString());
+		List<Map<String,Object>> rs = this.query(buf.toString());
 		if(rs.size() > 0) {
 			return Long.parseLong(rs.get(0).get("TOTAL").toString());
 		}
@@ -500,15 +760,17 @@ public class WFOracleExecutor implements SQLExecutor {
 	 * 用户获取流转中的业务流程，不包括创建节点
 	 */
 	@Override
-	public List<Map<String, Object>> queryWorkedflowPage(Long pageNumber,Long pageSize) {
-		if(pageNumber == null) pageNumber = 1l;
+	public List<Map<String, Object>> queryWorkedflowPage(Map<String,String> params,Map<String,String> orders,Long pageNumber,Long pageSize) {
+		if(pageNumber == null) return null;
+		StringBuilder cond = this.getParams(params);	
+		StringBuilder order = this.getOrders(orders);
 		StringBuilder buf = new StringBuilder();
 		buf.append("SELECT * FROM  (  SELECT x.*, rownum rn FROM (");
-		buf.append("select a.* from " );		
-		buf.append(" table_summary a ");
-		buf.append(" inner join (select * from workflow_flow b where b.finishedDate is null " );
-		buf.append(" and b.nodename !='创建') d on a.wfid = d.wfid and a.bizId=d.bizId and a.status='有效'");
-		buf.append(" order by a.createddate ");
+		buf.append(" select ts.* from " );		
+		buf.append(" table_summary ts ");
+		buf.append(" inner join (select wfid,bizId from workflow_flow wff where wff.finishedDate is null and wff.nodename !='创建') tmp" );
+		buf.append(" on ts.wfid = tmp.wfid and ts.bizId=tmp.bizId and ts.status='有效'"+cond.toString());
+		buf.append(order.toString());
 		buf.append(") x WHERE rownum <="+(pageNumber*pageSize)+" ) WHERE  rn >  "+(pageNumber-1)*pageSize);	
 		return this.query(buf.toString());	
 	}

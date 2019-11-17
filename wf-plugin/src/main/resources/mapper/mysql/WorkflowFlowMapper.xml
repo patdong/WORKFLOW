@@ -3,12 +3,12 @@
 <mapper namespace="cn.ideal.wf.dao.WorkflowFlowMapper">
 	<resultMap id="workflowflow" type="cn.ideal.wf.model.WorkflowFlow" />
 	<resultMap id="workflowwithstep" type="cn.ideal.wf.model.WorkflowFlow" >
-		<id column="workflowId" property="workflowId" jdbcType="NUMERIC" />
-		<association property="workflowSteps" column="workflowId" select="cn.ideal.wf.dao.WorkflowStepMapper.findAllByFlowId" />
+		<id column="flowId" property="flowId" jdbcType="NUMERIC" />
+		<association property="workflowSteps" column="flowId" select="cn.ideal.wf.dao.WorkflowStepMapper.findAllByFlowId" />
 	</resultMap>			
 	
 	<select id="findAll" resultMap="workflowflow" parameterType="java.util.Map">
-		select * from workflow_flow where bizId = #{bizId} and wfId = #{wfId}
+		select * from workflow_flow where bizId = #{bizId} and wfId = #{wfId} order by flowId
 	</select>
 		
 	<select id="find" resultMap="workflowflow" parameterType="java.lang.Long">
@@ -58,8 +58,8 @@
          where flowId = #{flowId}
 	</select>
 	
-	<select id="findWorkflowWithSteps" resultMap="workflowwithstep" parameterType="java.util.Map">
-		select * from workflow_flow where bizId=#{bizId} and wfId = #{wfId}
+	<select id="findAllWithSteps" resultMap="workflowwithstep" parameterType="java.util.Map">
+		select * from workflow_flow where bizId=#{bizId} and wfId = #{wfId}  order by flowId
 	</select>
 	
 	<!-- 获取前一个流程 -->
@@ -75,7 +75,7 @@
 	</select>
 	
 	<!-- 获取发起人流程 -->
-	<select id="findSenderFlow" resultMap="workflowflow" parameterType="java.util.Map">
+	<select id="findCreatorFlow" resultMap="workflowflow" parameterType="java.util.Map">
 		select * from workflow_flow 
 		 where flowId in (
 			select min(flowId) 
@@ -83,5 +83,9 @@
 			 where bizId = #{bizId} 
 			   and wfId = #{wfId}
 		)
+	</select>
+	
+	<select id="findWorkflowWithSteps" resultMap="workflowwithstep" parameterType="java.util.Map">
+		select * from workflow_flow where bizId=#{bizId} and wfId = #{wfId} and nodeName = #{nodeName} order by flowId
 	</select>
 </mapper>

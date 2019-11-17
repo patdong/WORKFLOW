@@ -73,6 +73,12 @@ public interface WorkflowTableService {
 	 */
 	List<WorkflowTableBrief> findAllSortedTable();
 	
+	/**
+	 * 获得被业务分类的所有表单附带办理量
+	 * @return
+	 */
+	List<Map<String,Object>> findAllSortedTableWithBizCountByCreatedUser(Long userId);
+	
 	WorkflowTableUserDefination saveTableUserDefination(WorkflowTableUserDefination def);
 	
 	WorkflowTableUserDefination updateTableUserDefination(WorkflowTableUserDefination def);
@@ -97,4 +103,5 @@ public interface WorkflowTableService {
 	
 	Map<String,Object> findAuthority(Long userId);
 
+	List<List<Map<String,Object>>> findTableSimpleElementsForMobile(Long tbId,Long bizId,Long wfId,String nodeName) throws Exception;
 }

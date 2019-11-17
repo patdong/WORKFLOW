@@ -60,35 +60,35 @@ public class JdbcSQLExecutor {
 		SQLConnector.getSQLExecutor().migrateComments(bizId, tbId, tableName, user);
 	}
 	
-	public Long queryAll(Long userId){
-		return SQLConnector.getSQLExecutor().queryAll(userId);
+	public Long queryAll(Long userId,Long tbId,Map<String,String> params,Map<String,String> orders){
+		return SQLConnector.getSQLExecutor().queryAll(userId,tbId,params,orders);
 	}
 	
-	public List<Map<String, Object>> queryPage(Long userId,Long pageNumber,Long pageSize){
-		return SQLConnector.getSQLExecutor().queryPage(userId, pageNumber,pageSize);
+	public List<Map<String, Object>> queryPage(Long userId,Long tbId,Map<String,String> params,Map<String,String> orders,Long pageNumber,Long pageSize){
+		return SQLConnector.getSQLExecutor().queryPage(userId, tbId,params,orders,pageNumber,pageSize);
 	}
 	
-	public Long queryWorkflowAll(Long userId){
-		return SQLConnector.getSQLExecutor().queryWorkflowAll(userId);
+	public Long queryWorkflowAll(Long userId,Long tbId,Map<String,String> params,Map<String,String> orders){
+		return SQLConnector.getSQLExecutor().queryWorkflowAll(userId,tbId,params,orders);
 	}
 	
-	public List<Map<String, Object>> queryWorkflowPage(Long userId,Long pageNumber,Long pageSize){
-		return SQLConnector.getSQLExecutor().queryWorkflowPage(userId, pageNumber,pageSize);
+	public List<Map<String, Object>> queryWorkflowPage(Long userId,Long tbId,Map<String,String> params,Map<String,String> orders,Long pageNumber,Long pageSize){
+		return SQLConnector.getSQLExecutor().queryWorkflowPage(userId,tbId,params,orders, pageNumber,pageSize);
 	}
 	
-	public Long queryWorkedflowAll(Long userId){
-		return SQLConnector.getSQLExecutor().queryWorkedflowAll(userId);
+	public Long queryWorkedflowAll(Long userId,Long tbId,Map<String,String> params,Map<String,String> orders){
+		return SQLConnector.getSQLExecutor().queryWorkedflowAll(userId,tbId,params,orders);
 	}
 	
-	public List<Map<String, Object>> queryWorkedflowPage(Long userId,Long pageNumber,Long pageSize){
-		return SQLConnector.getSQLExecutor().queryWorkedflowPage(userId, pageNumber,pageSize);
+	public List<Map<String, Object>> queryWorkedflowPage(Long userId,Long tbId,Map<String,String> params,Map<String,String> orders,Long pageNumber,Long pageSize){
+		return SQLConnector.getSQLExecutor().queryWorkedflowPage(userId, tbId,params,orders,pageNumber,pageSize);
 	}
 	
-	public Long queryWorkedflowAll(){
-		return SQLConnector.getSQLExecutor().queryWorkedflowAll();
+	public Long queryWorkedflowAll(Map<String,String> params,Map<String,String> orders){
+		return SQLConnector.getSQLExecutor().queryWorkedflowAll(params,orders);
 	}
 	
-	public List<Map<String, Object>> queryWorkedflowPage(Long pageNumber,Long pageSize){
-		return SQLConnector.getSQLExecutor().queryWorkedflowPage(pageNumber,pageSize);
+	public List<Map<String, Object>> queryWorkedflowPage(Map<String,String> params,Map<String,String> orders,Long pageNumber,Long pageSize){
+		return SQLConnector.getSQLExecutor().queryWorkedflowPage(params,orders,pageNumber,pageSize);
 	}
 }

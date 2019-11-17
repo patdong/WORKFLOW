@@ -8,6 +8,7 @@
 <title>Work Flow Configuration</title>
 <script type="text/javascript" src="${path}/js/jquery-3.3.1.min.js"></script>
 <script type="text/javascript" src="${path}/js/jquery.validate.min.js"></script>
+<script type="text/javascript" src="${path}/js/validate-methods.js"></script>
 <script type="text/javascript" src="${path}/js/jquery-ui.js"></script>
 <script type="text/javascript" src="${path}/js/bootstrap.min.js"></script>
 <!-- <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script> -->
@@ -36,7 +37,7 @@
           <c:forEach items="${model.menu}" varStatus="i" step="1" var="tableBrief" >
           	<li class="nav-item" style="padding-top:15px;" onclick="location.href='${path}/app/list/${tableBrief.tbId}/1'" > 
           		<span class="menu-icon" >&nbsp;✍&nbsp;</span> 
-          		<label <c:if test="${model.wftb.tbId == tableBrief.tbId}">class="menu-sel-font"</c:if> style="color: white;cursor:pointer">&nbsp;${tableBrief.tableName }</label> 
+          		<label <c:if test="${model.wftb.tbId == tableBrief.tbId}">class="menu-sel-font"</c:if> style="color: white;cursor:pointer">&nbsp;<c:out value="${tableBrief.tableName.replace(' ','') }"/></label> 
           		<hr style="margin-top: 0.5rem; margin-bottom: 0.5rem;"></hr>                            
             </li>
           </c:forEach>          

@@ -5,7 +5,7 @@
 	
 	<select id="findBtnAction" resultType="cn.ideal.wfpf.model.Action" >
 		select * from workflow_action
-		 where type='行为'
+		 where type in ('行为','行为消息','应答')
 	</select>
 			
 	<select id="findWfAction" resultType="cn.ideal.wfpf.model.Action" >

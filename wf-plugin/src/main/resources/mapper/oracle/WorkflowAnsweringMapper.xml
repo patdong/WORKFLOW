@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.ideal.wf.dao.WorkflowAnswerMapper">
+	<resultMap id="answer" type="cn.ideal.wf.model.WorkflowAnswer" />
+	
+	<insert id="dispense" parameterType="cn.ideal.wf.model.WorkflowAnswer">
+		<selectKey resultType="java.lang.Long" keyProperty="dispenseId" order="BEFORE">
+			select sq_dispenseId.nextval from dual
+		</selectKey>
+		insert into workflow_dispenser(
+			dispenseId,typeId,tbId,bizId,wfId,dispenseUserId,receiveUserIds,dispenseUserName,receiveUserNames,type,content,createdDate
+		)
+		values(
+			#{dispenseId,jdbcType=DECIMAL},
+			#{typeId,jdbcType=DECIMAL},
+			#{tbId,jdbcType=DECIMAL},
+			#{bizId,jdbcType=DECIMAL},
+			#{wfId,jdbcType=DECIMAL},
+			#{dispenseUserId,jdbcType=DECIMAL},
+			#{receiveUserIds,jdbcType=VARCHAR},
+			#{dispenseUserName,jdbcType=VARCHAR},
+			#{receiveUserNames,jdbcType=VARCHAR},
+			#{type,jdbcType=VARCHAR},
+			#{content,jdbcType=VARCHAR},
+			#{createdDate,jdbcType=TIMESTAMP}
+		)
+	</insert>
+	
+	<insert id="response" parameterType="cn.ideal.wf.model.WorkflowAnswer">		
+		insert into workflow_receiver(
+			dispenseId,receiveUserId,receiveUserName,content,createdDate
+		)
+		values(
+			#{dispenseId,jdbcType=DECIMAL},
+			#{receiveUserId,jdbcType=DECIMAL},
+			#{receiveUserName,jdbcType=VARCHAR},			
+			#{content,jdbcType=VARCHAR},
+			#{createdDate,jdbcType=TIMESTAMP}
+		)
+	</insert>
+</mapper>

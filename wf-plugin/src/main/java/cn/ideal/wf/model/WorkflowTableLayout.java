@@ -13,6 +13,7 @@ public class WorkflowTableLayout {
 	private String scope;
 	private Long cols;
 	private Long stbId;   //子表编号
+	private String border;
 	
 	
 	public Long getTbId() {
@@ -39,6 +40,12 @@ public class WorkflowTableLayout {
 	}
 	public void setStbId(Long stbId) {
 		this.stbId = stbId;
+	}
+	public String getBorder() {
+		return border;
+	}
+	public void setBorder(String border) {
+		this.border = border;
 	}
 	
 	

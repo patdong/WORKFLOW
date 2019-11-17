@@ -55,5 +55,6 @@ public interface NodeMapper {
 	void deleteNodeLinks(@Param("nodeId") Long nodeId, @Param("linkNodeIds") Long[] linkNodeIds);
 	
 	Node findOneSufNode(@Param("nodeId") Long nodeId, @Param("sufNodeId") Long sufNodeId);
-		
+	
+	int setNecessaryNode(@Param("nodeId") Long nodeId, @Param("sufNodeId") Long sufNodeId);
 }

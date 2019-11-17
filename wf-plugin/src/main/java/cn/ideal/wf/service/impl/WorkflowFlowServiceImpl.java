@@ -1,5 +1,6 @@
 package cn.ideal.wf.service.impl;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -11,6 +12,7 @@ import cn.ideal.wf.common.WFConstants;
 import cn.ideal.wf.dao.WorkflowFlowMapper;
 import cn.ideal.wf.model.WorkflowBrief;
 import cn.ideal.wf.model.WorkflowFlow;
+import cn.ideal.wf.model.WorkflowNode;
 import cn.ideal.wf.model.WorkflowStep;
 import cn.ideal.wf.model.WorkflowUser;
 import cn.ideal.wf.service.WorkflowBriefService;
@@ -149,8 +151,8 @@ public class WorkflowFlowServiceImpl implements WorkflowFlowService{
 	}
 	
 	@Override
-	public List<WorkflowFlow> findWorkflowWithSteps(Long bizId,Long wfId) {
-		return workflowMapper.findWorkflowWithSteps(bizId,wfId);
+	public List<WorkflowFlow> findAllWithSteps(Long bizId,Long wfId) {
+		return workflowMapper.findAllWithSteps(bizId,wfId);
 	}
 
 	@Override
@@ -186,6 +188,7 @@ public class WorkflowFlowServiceImpl implements WorkflowFlowService{
 		wf.setStatus(WFConstants.WF_STATUS_END);
 		wf.setActionName(actionName);
 		if(actionName == null) wf.setActionName(WFConstants.WF_ACTION_PASS);
+		else if(actionName.equals(WFConstants.WF_ACTION_DOING)) wf.setActionName(WFConstants.WF_ACTION_PASS);
 		boolean res = this.endFlow(wf,actionName,user);
 		if(res) return workflow;
 		else return null;
@@ -215,7 +218,13 @@ public class WorkflowFlowServiceImpl implements WorkflowFlowService{
 		
 		int idx = workflowMapper.endFlow(workflow);		
 		if(idx > 0) {
-			return workflowStepService.endFlowSteps(workflow.getFlowId(),actionName,user);			
+			WorkflowStep wfs = workflowStepService.findDoingflowStep(workflow.getFlowId(), user.getUserId());
+			if(wfs != null) {
+				return workflowStepService.endFlowStep(wfs.getStepId(),user);
+			}else{
+				return false;
+			}
+						
 		}
 		else return false;		
 	}
@@ -223,7 +232,19 @@ public class WorkflowFlowServiceImpl implements WorkflowFlowService{
 	private WorkflowFlow addFlow(WorkflowFlow workflow, WorkflowUser... users) throws Exception {
 		WorkflowFlow wf = this.addFlow(workflow);
 		if(users == null || users.length == 0){
-			List<WorkflowUser> wfus = workflowNodeService.findNodeUsers(workflow.getNodeName(),wf.getWfId());
+			//如果流程节点已经办理过则从直接流程办理中获取办理用户
+			WorkflowStep wfs = workflowStepService.findWrokflowStep(workflow.getBizId(), workflow.getWfId(), workflow.getNodeName());
+			//如果没有流程则直接从节点中获取用户
+			List<WorkflowUser> wfus = new ArrayList<WorkflowUser>();
+			if(wfs != null){
+				WorkflowUser wfu = new WorkflowUser();
+				wfu.setUserId(wfs.getDispatchUserId());
+				wfu.setUserName(wfs.getDispatchUserName());
+				wfu.setUnitId(wfs.getUnitId());
+				wfu.setUnitName(wfs.getUnitName());
+				wfus.add(wfu);
+			}
+			if(wfus.size() == 0) wfus = workflowNodeService.findNodeUsers(workflow.getNodeName(),wf.getWfId());
 			if(wfus == null || wfus.size() == 0) throw new Exception("没有办理人无法创建流程");
 			else users = wfus.toArray(new WorkflowUser[wfus.size()]);
 		}
@@ -232,7 +253,9 @@ public class WorkflowFlowServiceImpl implements WorkflowFlowService{
 		
 		Long i=0l;	
 		String dispatchUserId = ",";
-		Long stepId = null;
+		Long steps[] = new Long[users.length];		
+		WorkflowNode node = workflowNodeService.findNode(workflow.getNodeName(),wf.getWfId());
+		
 		for(WorkflowUser wfu : users){			
 			WorkflowStep wfs = new WorkflowStep(wf.getFlowId(),null);
 			wfs.setDispatchUserId(wfu.getUserId());
@@ -240,17 +263,42 @@ public class WorkflowFlowServiceImpl implements WorkflowFlowService{
 			wfs.setUnitId(wfu.getUnitId());
 			wfs.setUnitName(wfu.getUnitName());
 			wfs.setActionName(WFConstants.WF_ACTION_DOING);
-			wfs.setStatus(WFConstants.WF_STATUS_PASSING);
+			switch (node.getnType()){
+			case WFConstants.WF_NODE_TYPE_SINGLE:
+				wfs.setStatus(WFConstants.WF_STATUS_PASSING);
+				dispatchUserId += wfu.getUserId()+",";
+				break;
+			case WFConstants.WF_NODE_TYPE_SERIAL:
+				if(i.compareTo(0l) == 0) {
+					wfs.setStatus(WFConstants.WF_STATUS_PASSING);
+					dispatchUserId += wfu.getUserId()+",";
+				}
+				else wfs.setStatus(WFConstants.WF_STATUS_SLEEP);
+				break;
+			case WFConstants.WF_NODE_TYPE_PARALLEL:
+				wfs.setStatus(WFConstants.WF_STATUS_PASSING);
+				dispatchUserId += wfu.getUserId()+",";
+				break;
+			}
+			
 			wfs.setSerial(i++);
 			wfs.setCreatedDate(new Date());			
 			wfs.setTimeDiffer(0l);
 			wfs = workflowStepService.addFlowStep(wfs);	
-			stepId = wfs.getStepId();
-			dispatchUserId += wfu.getUserId()+",";
+			steps[i.intValue()-1] =wfs.getStepId();			
 		}
 		
 		WorkflowBrief wfb = new WorkflowBrief();
-		if(dispatchUserId.split(",",-1).length <= 3) wfb.setStepId(stepId);
+		switch (node.getnType()){
+		case WFConstants.WF_NODE_TYPE_SINGLE:
+			wfb.setStepId(steps[0]);
+			break;
+		case WFConstants.WF_NODE_TYPE_SERIAL:
+			wfb.setStepId(steps[0]);
+			break;
+		case WFConstants.WF_NODE_TYPE_PARALLEL:			
+			break;
+		}		
 		wfb.setDispatchUserId(dispatchUserId);
 		wfb.setUnitId(users[0].getUnitId());
 		wfb.setModifiedDate(new Date());
@@ -272,7 +320,12 @@ public class WorkflowFlowServiceImpl implements WorkflowFlowService{
 	}
 
 	@Override
-	public WorkflowFlow findSenderFlow(Long bizId, Long wfId) {
-		return workflowMapper.findSenderFlow(bizId, wfId);
+	public WorkflowFlow findCreatorFlow(Long bizId, Long wfId) {
+		return workflowMapper.findCreatorFlow(bizId, wfId);
+	}
+
+	@Override
+	public List<WorkflowFlow> findWorkflowWithSteps(Long bizId, Long wfId,String nodeName) {
+		return workflowMapper.findWorkflowWithSteps(bizId, wfId, nodeName);
 	}
 }

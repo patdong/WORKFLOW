@@ -14,11 +14,13 @@ public class TableElement {
 	private Long tbId;
 	private Long emId;
 	private String newLabelName;
+	private String position;
 	private String newFieldName;
-	private String NewFunctionName;
+	private String newUnit;
+	private String newFunctionName;
 	private String functionBelongTo;
-	private String NewHiddenFieldName;
-	private String NewFieldDataType;
+	private String newHiddenFieldName;
+	private String newFieldDataType;
 	private String newFieldType;
 	private String newDataContent;
 	private Long rowes = 1l;
@@ -35,6 +37,7 @@ public class TableElement {
 	private String status;
 	private Date createdDate;
 	private Long stbId;
+	private String tableName;
 	
 	private boolean readOnly = false;
 	private String required = "否";
@@ -70,22 +73,22 @@ public class TableElement {
 		this.newFieldName = newFieldName;
 	}
 	public String getNewFunctionName() {
-		return NewFunctionName;
+		return newFunctionName;
 	}
 	public void setNewFunctionName(String newFunctionName) {
-		NewFunctionName = newFunctionName;
+		this.newFunctionName = newFunctionName;
 	}
 	public String getNewHiddenFieldName() {
-		return NewHiddenFieldName;
+		return newHiddenFieldName;
 	}
 	public void setNewHiddenFieldName(String newHiddenFieldName) {
-		NewHiddenFieldName = newHiddenFieldName;
+		this.newHiddenFieldName = newHiddenFieldName;
 	}
 	public String getNewFieldDataType() {
-		return NewFieldDataType;
+		return newFieldDataType;
 	}
 	public void setNewFieldDataType(String newFieldDataType) {
-		NewFieldDataType = newFieldDataType;
+		this.newFieldDataType = newFieldDataType;
 	}
 	public String getNewFieldType() {
 		return newFieldType;
@@ -147,7 +150,6 @@ public class TableElement {
 	public void setCreatedDate(Date createdDate) {
 		this.createdDate = createdDate;
 	}
-	
 	public String getList() {
 		return list;
 	}
@@ -201,6 +203,24 @@ public class TableElement {
 	}
 	public void setRequired(String required) {
 		this.required = required;
+	}
+	public String getTableName() {
+		return tableName;
+	}
+	public void setTableName(String tableName) {
+		this.tableName = tableName;
+	}
+	public String getNewUnit() {
+		return newUnit;
+	}
+	public void setNewUnit(String newUnit) {
+		this.newUnit = newUnit;
+	}
+	public String getPosition() {
+		return position;
+	}
+	public void setPosition(String position) {
+		this.position = position;
 	}
 	
 	

@@ -153,7 +153,11 @@
             <version>2.2</version>
         </dependency>
 
-		
+		<!-- json -->
+		<dependency>
+	    	<groupId>com.google.code.gson</groupId>
+		    <artifactId>gson</artifactId>
+		</dependency>
   </dependencies>
   <modules>
   	<module>wf-plugin</module>

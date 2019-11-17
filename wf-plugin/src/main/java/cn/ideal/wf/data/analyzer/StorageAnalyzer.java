@@ -11,7 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import cn.ideal.wf.formula.DataFormulaProcessor;
 import cn.ideal.wf.model.WorkflowTableBrief;
+import cn.ideal.wf.model.WorkflowTableElement;
 import cn.ideal.wf.service.WorkflowTableService;
 import cn.ideal.wf.service.WorkflowWFService;
 
@@ -23,7 +25,7 @@ public class StorageAnalyzer implements Analyzer{
 	@Autowired
 	private WorkflowTableService tableService;
 	@Override
-	public Storage dataAnalyze(HttpServletRequest request, Long tbId,Long wfId) throws Exception{
+	public Storage dataAnalyze(HttpServletRequest request, Long tbId,Long wfId,String scope) throws Exception{
 		WorkflowTableBrief wftb = tableService.find(tbId); //TableBriefCache.getValue(tbId);		
 		Storage storage = new Storage();
 		storage.setTableName(wftb.getName());
@@ -33,10 +35,15 @@ public class StorageAnalyzer implements Analyzer{
 		
 		//获得主表单的字段并赋值
 		List<String> fields = tableService.findTableFieldNames(tbId);
+		Map<String,String> formulas = this.getFieldFormula(tableService.findTableFields(tbId));
 		Map<String,String> keyVal = new HashMap<String,String>();
 		for(String field : fields){
-			if(request.getParameter(storage.getTableName()+"_"+field) == null) keyVal.put(field,"");
-			else keyVal.put(field,request.getParameter(storage.getTableName()+"_"+field));
+			if(StringUtils.isEmpty(formulas.get(field))){
+				if(request.getParameter(storage.getTableName()+"_"+field) == null) keyVal.put(field,"");
+				else keyVal.put(field,request.getParameter(storage.getTableName()+"_"+field));
+			}else{
+				keyVal.put(field,DataFormulaProcessor.caculate(formulas.get(field),request));
+			}
 		}		
 		storage.setFields(keyVal);
 		
@@ -80,5 +87,15 @@ public class StorageAnalyzer implements Analyzer{
 			}
 		}
 		return valid;
+	}
+	
+	Map<String,String> getFieldFormula(List<WorkflowTableElement> tems){
+		Map<String,String> fieldsFormula = new HashMap<String,String>();
+		for(WorkflowTableElement item : tems){
+			if(item.getFormula() != null)
+			fieldsFormula.put(item.getNewFieldName(), item.getFormula());
+		}
+		
+		return fieldsFormula;
 	}
 }

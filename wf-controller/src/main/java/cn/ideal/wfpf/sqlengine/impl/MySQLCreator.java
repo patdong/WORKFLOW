@@ -17,7 +17,7 @@ public class MySQLCreator implements SQLCreator {
 
 	@Override
 	public String createInt(String fieldName,Boolean immutable, String comment) {
-		String sql =  fieldName + " int(11) ";
+		String sql =  "`"+fieldName + "` int(11) ";
 		if(immutable) sql += " NOT NULL ";
 		sql += " COMMENT '"+comment+"'";
 		
@@ -26,7 +26,7 @@ public class MySQLCreator implements SQLCreator {
 
 	@Override
 	public String createVarchar(String fieldName,Boolean immutable, Long length, String comment) {
-		String sql = fieldName + " varchar("+length+") CHARACTER SET "+ CHARACTER +" COLLATE "+ COLLATE;
+		String sql = "`"+fieldName + "` varchar("+length+") CHARACTER SET "+ CHARACTER +" COLLATE "+ COLLATE;
 		if(immutable) sql += " NOT NULL ";
 		sql +=" COMMENT '"+comment+"'";
 		
@@ -35,7 +35,7 @@ public class MySQLCreator implements SQLCreator {
 
 	@Override
 	public String createDateTime(String fieldName,Boolean immutable, String comment) {
-		String sql = fieldName + " datetime ";
+		String sql = "`"+fieldName + "` datetime ";
 		if(immutable) sql +=" NOT NULL ";
 		sql +=" COMMENT '"+comment+"'";
 		
@@ -67,7 +67,7 @@ public class MySQLCreator implements SQLCreator {
 
 	@Override
 	public String setPrimaryKey(String tableName, String fieldName) {
-		return fieldName + " int(11) NOT NULL AUTO_INCREMENT  COMMENT  '关键字',  PRIMARY KEY ("+fieldName+") USING BTREE";
+		return "`"+fieldName + "` int(11) NOT NULL AUTO_INCREMENT  COMMENT  '关键字',  PRIMARY KEY (`"+fieldName+"`) USING BTREE";
 	}
 
 	@Override

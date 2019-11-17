@@ -148,7 +148,7 @@ code {
 .form-control-one-line {
     /* display: block; */
     width: 100%;
-    padding: .375rem .75rem;
+    padding: .375rem .05rem;
     font-size: 1rem;
     line-height: 1.5;
     color: #495057;
@@ -332,7 +332,7 @@ code {
     box-shadow: 0 0 0 0.1rem rgba(158,159,160,1);
 }
  
-/* ������У������� */
+/* 锟斤拷锟斤拷锟斤拷校锟斤拷锟斤拷锟斤拷锟� */
 #node-error{
 	color: red;
 	font-size: 13px;
@@ -376,9 +376,10 @@ code {
 .btn-confirm-dialog {
     position: relative;
     display: block;
-    padding: .5rem 1rem;
-    margin-left: -1px;
-    margin-right: 10px;
+    padding: .3rem .3rem .3rem .3rem;
+    margin-left: 5px;
+    width: 50px;
+    text-align: center;
     line-height: .75;
     border-radius: .25rem;
     background-color: #46a70a;
@@ -603,4 +604,15 @@ code {
     margin-bottom: .2rem;
 	border-color: white;
     width: 60%;
+}
+.form-plugin-smaller{
+	font-size:.8rem;
+	line-height:1.1;
+}
+.buttom-smaller{
+	margin-right:20px;
+	padding-left:1px;
+	padding-top: 4px;
+	padding-bottom: 5px;
+	box-shadow: 2px 3px 4px #6f6c6a;
 }

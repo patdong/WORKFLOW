@@ -38,5 +38,18 @@ public interface WorkflowStepMapper {
 	int setWorkflowStepUser(WorkflowStep workflowStep);
 	
 	List<WorkflowStep> findUNFinshedWrokflowStep(@Param("bizId") Long bizId, @Param("wfId") Long wfId);
+	
+	List<WorkflowStep> findDoingflowSteps(@Param("bizId") Long bizId, @Param("wfId") Long wfId,@Param("userId") Long userId);
+		
+	WorkflowStep findDoingflowStep(@Param("flowId") Long flowId, @Param("userId") Long userId);
+	/**
+	 * 唤醒办理人员
+	 * @param stepId
+	 * @return
+	 */
+	int wakeFlowStep(Long stepId);
+	
+	
+	int pushMsg(@Param("stepId") Long stepId, @Param("reason") String reason);
 
 }

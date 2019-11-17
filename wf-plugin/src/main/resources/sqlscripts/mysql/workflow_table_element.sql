@@ -26,7 +26,9 @@ CREATE TABLE `table_element` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `tbId` int(11) NOT NULL COMMENT '表单编号',
   `newLabelName` varchar(100) DEFAULT NULL COMMENT '字段标签名称',
-  `newFieldName` varchar(100) DEFAULT NULL COMMENT '字段名称名称',
+  `position` varchar(6) NOT NULL DEFAULT '右' COMMENT '标签内容的位置：左、右、中',
+  `newFieldName` varchar(50) DEFAULT NULL COMMENT '字段名称',
+  `newUnit` varchar(6) DEFAULT NULL COMMENT '单位',
   `newFunctionName` varchar(50) DEFAULT NULL COMMENT '事件名称',
   `functionBelongTo` varchar(10) DEFAULT NULL COMMENT '事件方法所属（标签或元素）',
   `newHiddenFieldName` varchar(50) DEFAULT NULL COMMENT '隐藏项',
@@ -48,7 +50,7 @@ CREATE TABLE `table_element` (
   `createdDate` datetime NOT NULL COMMENT '创建时间',
   `stbId` int(11) DEFAULT NULL COMMENT '子表单的编号',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=340 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='表单元素';
+) ENGINE=InnoDB AUTO_INCREMENT=458 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='表单元素';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -60,4 +62,4 @@ CREATE TABLE `table_element` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-06-21 11:32:04
+-- Dump completed on 2019-10-24 16:11:05

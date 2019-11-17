@@ -38,14 +38,16 @@ function setTableName(event){
         if($.trim(tableName) != ""){
         	$.ajax({
       		  type: 'GET',
-      		  url: "${path}/tb/setTableName/"+tbId,
+      		  url: "${path}/tb/setTableAlias/"+tbId,
       		  data: {tableName:tableName},			  
       		  dataType: 'json',
       		  success: function(data){
       			  if(data){
       				$('#table-name').hide();	
       				$("#"+tbId).text(tableName);
-      			  }			  
+      			  }else{
+       				 alert("设置不成功!"); 
+       			  }				  
       		  },
       		  error: function(XMLHttpRequest, textStatus, errorThrown){
       			  console.warn(XMLHttpRequest.responseText);			  
@@ -156,7 +158,7 @@ function setTemplate(){
    				$('#template-binding').hide(); 
    				$("#tmp-"+tbId).text("已设置");
    				location.href="${path}/tb/tablecenter/"+${page.curPage};		  
-   			  }			  
+   			  }	  
    		  },
    		  error: function(XMLHttpRequest, textStatus, errorThrown){
    			  console.warn(XMLHttpRequest.responseText);			  
@@ -195,7 +197,7 @@ function removeBinding(tbId){
           <thead>
             <tr>
               <th>#序列</th>
-              <th>表单名称</th>
+              <th>表单别名</th>
               <th>模板</th>
               <th>业务分类</th>
               <th>流程绑定</th>
@@ -209,7 +211,7 @@ function removeBinding(tbId){
           	<c:forEach items="${page.pageList}" varStatus="i" var="table" >
           		<tr>
           			<td><a href="${path}/tb/tabledefination/${table.tbId}">#${table.tbId }</a></td>
-          			<td><span class="small-btn" style="background-color:#42a288;" onclick="showPos(event,${table.tbId },'table-name')" >&nbsp;✒&nbsp;</span><span id="${table.tbId }">${table.tableName }</span></td>
+          			<td><span class="small-btn" style="background-color:#42a288;" onclick="showPos(event,${table.tbId },'table-name')" >&nbsp;✒&nbsp;</span><span id="${table.tbId }">${table.alias }</span></td>
           			<td>${table.template}</td>
           			<td>
           				<c:if test="${table.template eq '表'}">

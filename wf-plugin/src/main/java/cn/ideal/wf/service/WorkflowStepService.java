@@ -21,7 +21,7 @@ public interface WorkflowStepService {
 	/**
 	 * 结束流程操作
 	 */
-	boolean endFlowStep(Long stepId);
+	boolean endFlowStep(Long stepId, WorkflowUser wfu);
 	
 	/**
 	 * 结束流程操作根据流程编号，并注入操作名称
@@ -50,5 +50,14 @@ public interface WorkflowStepService {
 	boolean setWorkflowStepUser(Long stepId, WorkflowUser user);
 	
 	List<WorkflowStep> findUNFinshedWrokflowStep(Long bizId, Long wfId);
+	
+	List<WorkflowStep> findDoingflowSteps(Long bizId, Long wfId);
+	
+	WorkflowStep findDoingflowStep(Long bizId, Long wfId, Long userId);
 
+	boolean wakeFlowStep(Long stepId);
+	
+	boolean pushMsg(Long stepId, String reason);
+	
+	WorkflowStep findDoingflowStep(Long flowId,Long userId);
 }

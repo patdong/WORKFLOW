@@ -25,6 +25,7 @@ public class TableBrief {
 	private Long wfId;
 	private WFPFWorkflow wf;
 	private String templateName;      //业务模板名称
+	private String alias;             //表单别名
 	
 	public Long getTbId() {
 		return tbId;
@@ -97,6 +98,12 @@ public class TableBrief {
 	}
 	public void setTemplateName(String templateName) {
 		this.templateName = templateName;
+	}
+	public String getAlias() {
+		return alias;
+	}
+	public void setAlias(String alias) {
+		this.alias = alias;
 	}
 	
 }

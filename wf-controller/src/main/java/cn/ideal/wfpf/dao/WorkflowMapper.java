@@ -28,4 +28,5 @@ public interface WorkflowMapper {
 	
 	void deleteTableElementOnNode(Long wfId);
 	
+	List<WFPFWorkflow> findByWFName(@Param("wfId") Long wfId,@Param("wfName") String wfName);
 }

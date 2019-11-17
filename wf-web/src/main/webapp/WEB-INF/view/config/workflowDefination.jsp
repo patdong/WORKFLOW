@@ -2,6 +2,9 @@
 <%@ include file="/WEB-INF/view/include.jsp"%>
 
 <script>
+  //后备用户/组织的默认值
+  const backupValue = 9999;
+  
   $( function() {
 	//初始化
     $("#user-div").draggable();
@@ -33,15 +36,34 @@
 	  var userName = $("#userName").val();
 	  $.ajax({
 		  type: 'GET',
-		  url: "/wf/selectUsers",
+		  url: "${path}/wf/selectUsers",
 		  data: {userName:userName},			  
 		  dataType: 'json',
 		  success: function(data){
-			  var li;
+			  $("#user-lst").empty();
+			  var li ="<li class=\"list-group-item d-flex justify-content-between lh-condensed\" style=\"padding: .4rem 1rem;background-color: #adcabc;\">"             
+              		 +"<div style='width:30%'>"
+              		 +"<h6 class=\"my-0\">&nbsp;姓名</h6>"                
+            		 +"</div>"
+            		 +"<span class=\"text-muted\">直属组织</span>"              
+            		 +"<span class=\"text-muted\">所在机构</span>"
+            		 +"</li>";
+              $("#user-lst").append(li);
+              //增加一个默认用户
+              li = "<li class=\"list-group-item d-flex justify-content-between lh-condensed\" style='font-size: 14px;padding: .3rem .4rem;font-weight:bold;color:red;'>"
+			        + "<div style='width:30%;'>"
+			        + "<h6 class=\"my-0\" style='font-size: 14px;font-weight:bold;'><input type=\"checkbox\" name=\"userChecked\" value=\"9999\">备选用户(系统自带)</h6>"
+			        + "</div>"
+			        + "<span class=\"text-muted\">不受限组织</span>"
+			        + "<span style=\"display:none\">"+backupValue+"</span>"			        
+			        + "<span class=\"text-muted\">不受限组织</span>"
+			        + "</li>";
+				        
+				  $("#user-lst").append(li);
 			  $.each(data,function (index, user) {
-			      li = "<li class=\"list-group-item d-flex justify-content-between lh-condensed\">"
-			        + "<div>"
-			        + "<h6 class=\"my-0\"><input type=\"checkbox\" name=\"userChecked\" value=\""+user.userId+"\">"+user.userName+"</h6>"
+			      li = "<li class=\"list-group-item d-flex justify-content-between lh-condensed\" style='font-size: 14px;padding: .4rem .8rem;'>"
+			        + "<div style='width:30%'>"
+			        + "<h6 class=\"my-0\" style='font-size: 14px;'><input type=\"checkbox\" name=\"userChecked\" value=\""+user.userId+"\">"+user.userName+"</h6>"
 			        + "</div>"
 			        + "<span class=\"text-muted\">"+user.currentOrgName+"</span>"
 			        + "<span style=\"display:none\">"+user.currentOrgId+"</span>"			        
@@ -86,18 +108,34 @@
   
   //选择单位
   function selectOrgs(){
-	  var orgName = $("#orgName").val();
+	  var selectedOrgName = $("#selectedOrgName").val();
 	  $.ajax({
 		  type: 'GET',
 		  url: "${path}/wf/selectOrgs",
-		  data: {orgName:orgName},			  
+		  data: {orgName:selectedOrgName},			  
 		  dataType: 'json',
 		  success: function(data){
-			  var li;
+			  $("#org-lst").empty();
+			  var li = "<li class=\"list-group-item d-flex justify-content-between lh-condensed\" style=\"padding: .4rem 1rem;background-color: #adcabc;\">"              
+			  		+ "<div style='width:50%'>"
+			  		+ "<h6 class=\"my-0\">&nbsp;单位名称</h6>"               
+			  		+ "</div>"
+			  		+ "<span class=\"text-muted\">直属机构</span>"
+			  		+ "</li>";
+			  $("#org-lst").append(li);	
+			  //增加一个默认组织
+              li = "<li class=\"list-group-item d-flex justify-content-between lh-condensed\" style='font-size: 14px;padding: .3rem .4rem;font-weight:bold;color:red;'>"
+			        + "<div style='width:50%;'>"
+			        + "<h6 class=\"my-0\" style='font-size: 14px;font-weight:bold;'><input type=\"radio\" name=\"orgChecked\" value=\"9999\">备选组织(系统自带)</h6>"
+			        + "</div>"			       
+			        + "<span style=\"display:none\">"+backupValue+"</span>"			        
+			        + "<span class=\"text-muted\">不受限组织</span>"
+			        + "</li>";
+			  $("#org-lst").append(li);	
 			  $.each(data,function (index, org) {
-			      li = "<li class=\"list-group-item d-flex justify-content-between lh-condensed\">"
-			        + "<div>"
-			        + "<h6 class=\"my-0\"><input type=\"radio\" name=\"orgChecked\" value=\""+org.orgId+"\">"+org.orgName+"</h6>"
+			      li = "<li class=\"list-group-item d-flex justify-content-between lh-condensed\" style='font-size: 14px;padding: .3rem .4rem;'>"
+			        + "<div style='width:50%'>"
+			        + "<h6 class=\"my-0\" style='font-size: 14px;'><input type=\"radio\" name=\"orgChecked\" value=\""+org.orgId+"\">"+org.orgName+"</h6>"
 			        + "</div>"
 			        + "<span class=\"text-muted\">"+org.currentOrgName+"</span>"
 			        + "</li>";
@@ -124,7 +162,7 @@
 		  checkedOrgNames = checkedOrgNames.substring(0,checkedOrgNames.length-1);
 	  }	  
 	  $("#org-div").hide();
-	  $("#org").val(checkedOrgNames);
+	  $("#orgName").val(checkedOrgNames);	  
 	  $("#orgId").val(checkedOrgIds);
   }
   //设置选中节点的编号，初始值为0 -- 尚未构建任何节点。
@@ -178,7 +216,11 @@
 			  $("#nodename").val(node.nodename);
 		      $('#nType').val(node.nType);
 		      if(node.nodeAction != null){			      	    
-			      $('#action').val(node.nodeAction.actionCodeName); 
+			      $('#action').val(node.nodeAction.actionCodeName);
+			      //返回发起人的特殊处理
+				  if($('#action').val() == 'AutoBackAction'){					  
+					  $("#cleanId").show();
+				  }				 
 		      }
 		      $("input[name=status][value="  + node.status + "]").prop('checked', true);
 		      $('#timeLimit').val(node.timeLimit);
@@ -189,6 +231,7 @@
 			      $('#roleId').val(node.role.roleId);
 			      $("input[name=noder][value=办理角色]").prop('checked', true);
 			      $('#user-sel').hide();$('#role-sel').show();$('#org-sel').show();
+			      $('#node-div').css('height','60%');
 		      }
 
 		      if(node.users != null && node.users != ""){		    	  
@@ -201,7 +244,9 @@
 		    	  $.each(node.users,function(key,user){	
 		    		  checkedUserNames += user.userName+",";
 	    			  $("#user-hidden").append("<input type='hidden' name='users["+key+"].userId' value='"+user.userId+"'>");		
-	    			  $("#user-hidden").append("<input type='hidden' name='users["+key+"].userName' value='"+user.userName+"'>");		 		  	    	  	  		    		   		    		  
+	    			  $("#user-hidden").append("<input type='hidden' name='users["+key+"].userName' value='"+user.userName+"'>");
+	    			  $("#user-hidden").append("<input type='hidden' name='users["+key+"].currentOrgName' value='"+user.currentOrgName+"'>");
+	    			  $("#user-hidden").append("<input type='hidden' name='users["+key+"].currentOrgId' value='"+user.currentOrgId+"'>");
 		    	  });
 		    	  if(checkedUserNames.length > 0){		  
 	    			  checkedUserNames = checkedUserNames.substring(0,checkedUserNames.length-1);
@@ -209,10 +254,11 @@
 		    	  $("#usersName").val(checkedUserNames);
 		    	  $("input[name=noder][value=办理人]").prop('checked', true);
 		    	  $('#user-sel').show();$('#role-sel').hide();$('#org-sel').hide();
+		    	  $('#node-div').css('height','55%');
 		      }
 		      
 		      if(node.org != null){
-		    	  $("#org").val(node.org.orgName);
+		    	  $("#orgName").val(node.org.orgName);
 		    	  $("#orgId").val(node.org.orgId);
 		      }
 		      
@@ -243,7 +289,7 @@
   function showButtons(node){
 	  var buttons = ${buttons};
 	  $("#button-lst").empty();
-      var li = "<li class=\"list-group-item d-flex justify-content-between lh-condensed\" style=\"height: 40px;background-color: #adcabc;\">"             
+      var li = "<li class=\"list-group-item d-flex justify-content-between lh-condensed\" style=\"padding: .4rem 1rem;background-color: #adcabc;\">"             
   		  +"<div>"
     	  +"<h6 class=\"my-0\">&nbsp;操作按钮名称</h6>"               
           +"</div>"
@@ -261,7 +307,7 @@
 	    		  }
 	    	  })
     	  }
-		  li = "<li class='list-group-item d-flex justify-content-between lh-condensed' style='height: 40px;'> "
+		  li = "<li class='list-group-item d-flex justify-content-between lh-condensed' style='font-size: 14px;padding: .3rem .4rem;'> "
             	  +"<span class=\"text-muted\">"+action.actionName+"</span> "
             	  +"<span class=\"text-muted\">"+action.actionCodeName+"</span> "
             	  +"<span class=\"text-muted\"><input type=\"checkbox\" name=\"buttonChecked\" "+checked+" value=\""+action.actionCodeName+"\"></span> "
@@ -274,7 +320,7 @@
   function delLinkConfirm(){
 	  $("#link-div").show();
 	  $("#link-lst").empty();
-	  var li = "<li class=\"list-group-item d-flex justify-content-between lh-condensed\" style=\"height: 40px;background-color: #adcabc;\">"             
+	  var li = "<li class=\"list-group-item d-flex justify-content-between lh-condensed\" style=\"padding: .4rem 1rem;background-color: #adcabc;\">"             
   		  +"<div>"
     	  +"<h6 class=\"my-0\">&nbsp;连接节点名称</h6>"               
           +"</div>"         
@@ -287,7 +333,7 @@
 			  var sufNodes = node.sufNodes;					
 			  if(sufNodes.length > 0){				  
 				  $.each(sufNodes,function (index, data) {	
-					  li = "<li class='list-group-item d-flex justify-content-between lh-condensed' style='height: 40px;'> "
+					  li = "<li class='list-group-item d-flex justify-content-between lh-condensed' style='font-size: 14px;padding: .3rem .4rem;'> "
 		            	  +"<span class=\"text-muted\">"+data.nodename+"</span> "
 		            	  +"<span class=\"text-muted\"><input type=\"checkbox\" name=\"linkChecked\" checked value=\""+data.nodeId+"\"></span> "
 		          		  +"</li> ";
@@ -308,6 +354,7 @@
 		  linkNodeIds = linkNodeIds.substring(0,linkNodeIds.length-1);
 	  }	
 	  var url = "";
+
 	  if(linkNodeIds == "") {
 		  url = '${path}/wfnode/delNodeLink/'+clickedNodeId;
 	  }else{
@@ -433,24 +480,37 @@
 	  if($("#action").val() == "") {
 		  $("#warn3").show();
 		  goon = false;
-	  }	
-	  if(!$("input:radio[name=noder]").is(':checked')){
-		 $("#warn4").show();
-		 goon = false; 
-	  }
-	  if($('input:radio[name=noder]:checked').val() == '办理人'){			 
-		  if($("#usersName").val() == ""){
-			  $("#warn5").show();
-			  goon = false;
-		  }			  
-	  }
-	  if($('input:radio[name=noder]:checked').val() == '办理角色'){			 
-		  if($("#roleId").val() == ""){
-			  $("#warn6").show();
-			  goon = false;
-		  }			  
+	  }		  
+	  //'返回发起人'不需要选择节点办理人
+	  if($("#action").val() != 'AutoBackAction'){	
+		  if(!$("input:radio[name=noder]").is(':checked')){
+			 $("#warn4").show();
+			 goon = false; 
+		  }
+		  
+		  if($('input:radio[name=noder]:checked').val() == '办理人'){			 
+			  if($("#usersName").val() == ""){
+				  $("#warn5").show();
+				  goon = false;
+			  }			  
+		  }
+	  
+		  if($('input:radio[name=noder]:checked').val() == '办理角色'){			 
+			  if($("#roleId").val() == ""){
+				  $("#warn6").show();
+				  goon = false;
+			  }			  
+		  }
 	  }
 	  if(!goon) return false;
+	  var noder = $('input:radio[name=noder]:checked').val();
+	  if(noder == "办理人"){
+		  $('#roleName').val("");    	
+		  $('#roleId').val("");
+	  }
+	  if(noder == "角色"){
+		  $('#user-hidden').empty();
+	  }
 	  $("#myForm").submit();
   }
   
@@ -523,13 +583,13 @@
 	  var wfId = $("#wfId").val();
 	  $("#fields-div").show();
 	  $("#fields-lst").empty();
-	  var li = "<li class=\"list-group-item d-flex justify-content-between lh-condensed\" style=\"height: 40px;background-color: #adcabc;\">"             
-  		  +"<div>"
+	  var li = "<li class=\"list-group-item d-flex justify-content-between lh-condensed\" style=\"padding: .4rem 1rem;background-color: #adcabc;\">"             
+  		  +"<div style='width:30%'>"
     	  +"<h6 class=\"my-0\">&nbsp;字段名称</h6>"               
           +"</div>"         
           +"<span class=\"text-muted\">是否可编辑</span>"
           +"<span class=\"text-muted\">是否必输项</span>"
-          +"</li>";
+          +"</li>";      
       $("#fields-lst").append(li);
 	  $.ajax({
   		  type: 'GET',
@@ -543,8 +603,10 @@
 				rqchecked = "";
   				if(table.readOnly) checked="checked";  				
   				if(table.required == '是') rqchecked = "checked";  				
-  				li = "<li class='list-group-item d-flex justify-content-between lh-condensed' style='height: 40px;'> "
-	            	  +"<span class=\"text-muted\">"+table.newLabelName+"</span>"	            	  
+  				li = "<li class='list-group-item d-flex justify-content-between lh-condensed' style='font-size: 14px;padding: .3rem .4rem;'> "
+  					  +"<div style='width:30%'>"	  
+  					  +"<span class=\"text-muted\">"+table.newLabelName+"</span>"
+  					  +"</div>"
 	            	  +"<span class=\"text-muted\"><input type=\"checkbox\" name=\"fieldChecked\" "+checked+" value=\""+table.id+"\"></span>"	            	 
 	            	  +"<span class=\"text-muted\"><input type=\"checkbox\" name=\"required\" "+rqchecked+" value=\""+table.id+"\"></span>"
 	          		  +"</li> ";
@@ -588,6 +650,81 @@
   		  }
   	  });
   }
+  
+  //清除选中的办理人员信息
+  function clean(){	
+	  var noders = document.getElementsByName("noder");
+	  for(var x=0;x<noders.length;x++){		 
+		  noders[x].checked=false;  //取消选中
+	  }
+	  $("#usersName").val("");
+	  $("#roleId").val("");
+	  $("#roleName").val("");	
+	  //删除div用户的元素
+	  var el = document.getElementById('user-hidden');
+	  while( el.hasChildNodes() ){
+	      el.removeChild(el.lastChild);
+	  }
+  }
+  
+  //获取当前节点的后置节点集
+  function getSufNodes(){	  
+	  $("#sufnodes-div").show();
+	  $("#sufnodes-lst").empty();
+	  var li = "<li class=\"list-group-item d-flex justify-content-between lh-condensed\" style=\"padding: .4rem 1rem;background-color: #adcabc;\">"             
+  		  +"<div style='width:30%'>"
+    	  +"<h6 class=\"my-0\">&nbsp;节点名称</h6>"               
+          +"</div>"         
+          +"<span class=\"text-muted\">必经节点</span>"         
+          +"</li>";      
+      $("#sufnodes-lst").append(li);
+	  $.ajax({
+  		  type: 'GET',
+  		  url: "${path}/wf/getsufnodes/"+clickedNodeId, 
+  		  dataType: 'json',
+  		  success: function(data){  			
+  			var checked="";
+  			var rqchecked = "";
+  			$.each(data,function (index,node) { 
+				rqchecked = "";  				 			
+  				if(node.necessary == '是') rqchecked = "checked";  				
+  				li = "<li class='list-group-item d-flex justify-content-between lh-condensed' style='font-size: 14px;padding: .3rem .4rem;'> "
+  					  +"<div style='width:30%'>"	  
+  					  +"<span class=\"text-muted\">"+node.nodename+"</span>"
+  					  +"</div>"	            	              	
+	            	  +"<span class=\"text-muted\"><input type=\"radio\" name=\"required\" "+rqchecked+" value=\""+node.nodeId+"\"></span>"
+	          		  +"</li> ";
+  				$("#sufnodes-lst").append(li);  				
+  			});			
+  		  },
+  		  error: function(XMLHttpRequest, textStatus, errorThrown){
+  			  console.warn(XMLHttpRequest.responseText);			  
+  		  }
+  	  }); 
+  }
+  
+  //处理选中的必经节点
+  function selectedNecessarySufNode(){
+	
+	  var id = "";
+	
+	  $("#button-hidden").empty();
+	  $('input:radio[name=required]:checked').each(function(k){		  
+		  id = $(this).val();		  
+  	  })
+  	 
+	  $.ajax({
+  		  type: 'GET',
+  		  url: "${path}/wf/setsufnode/"+clickedNodeId+"/"+id,  		 		 
+  		  dataType: 'json',
+  		  success: function(data){ 
+  			  $("#sufnodes_message").text("配置完成。");
+  		  },
+  		  error: function(XMLHttpRequest, textStatus, errorThrown){
+  			  console.warn(XMLHttpRequest.responseText);			  
+  		  }
+  	  });
+  }
 </script>
 <div class="container" style="padding-top:5%">
 	<div id="content">
@@ -606,7 +743,7 @@
 	</div>
 </div>	
 <!-- 节点定义窗口 -->
-<div id="node-div" class="node-mask opacity" style="display:none;height:76%">
+<div id="node-div" class="node-mask opacity" style="display:none;height:50%">
 	<header>	      
          <div class="form-inline mt-2 mt-md-0" style="padding: 6px 10px 0px;" >
           	<label>节点定义</label>
@@ -616,28 +753,30 @@
          </div>	      	     
     </header>
     <hr style="margin-top: .5rem; margin-bottom: .5rem;"></hr>
-    <div style="padding: 0px 13px 0px;">
-		<form id="myForm" class="navbar-form navbar-left" method="post" modelAttribute="node" action="/wfnode/savenode">
+    <div style="padding: 0px 13px 0px;font-size:.8rem;">
+		<form id="myForm" class="navbar-form navbar-left" method="post" modelAttribute="node" action="${path}/wfnode/savenode">
 			
 			<!-- hidden项是本页面两个form公用项  不可轻易做变更！ -->
 			
 			<input type="hidden" id="wfId" name="wfId" value="${wf.wfId}">
 			<input type="hidden" id="nodeId" name="nodeId" value="">
 			<input type="hidden" id="preNodeId" name="preNodeId" value="">
-	  		<div class="popup-form-group">		        
+	  		<div class="popup-form-group" style="margin-bottom: .2rem;">		        
 		        <label for="nodename" class="sr-only">节点名称</label>
-		        <input name="nodename" id="nodename" class="form-control-one-line" autofocus placeholder="节点名称" onkeydown="nodeKeydown('warn1');" style="width:75%"/>	
+		        <input name="nodename" id="nodename" class="form-control-one-line form-plugin-smaller" autofocus placeholder="节点名称" onkeydown="nodeKeydown('warn1');" style="width:75%"/>	
 		        <label style="display:none;color:red;font-weight:bold;" id="warn1">!</label>		        		       
 		    </div>
-		    <div class="popup-form-group">
-		    	<select name="nType" id="nType" class="form-control-one-line" onclick="nodeKeydown('warn2');" style="width:75%">
+		    <div class="popup-form-group" style="margin-bottom: .2rem;">
+		    	<select name="nType" id="nType" class="form-control-one-line form-plugin-smaller" onclick="nodeKeydown('warn2');" style="width:75%">
 		    		<option value="">节点属性</option>
+		    		<option value="单人">单人</option>
 		    		<option value="串行">串行</option>
+		    		<option value="并行">并行</option>
 		    	</select>
 		        <label style="display:none;color:red;font-weight:bold;" id="warn2">!</label>
 		    </div>		    
-	        <div class="popup-form-group">
-	        	<select name="nodeAction.actionCodeName" id="action" class="form-control-one-line" onclick="nodeKeydown('warn3');" style="width:75%">
+	        <div class="popup-form-group" style="margin-bottom: .2rem;">
+	        	<select name="nodeAction.actionCodeName" id="action" class="form-control-one-line form-plugin-smaller" onclick="nodeKeydown('warn3');" style="width:75%">
 		    		<option value="">节点行为</option>
 		    		<c:forEach var="item" items="${actions}" varStatus="status">
 			  			<option value="${item.actionCodeName}" >${item.actionName}</option>
@@ -645,44 +784,45 @@
 		    	</select>
 		    	<label style="display:none;color:red;font-weight:bold;" id="warn3">!</label>        			        		          			        			     
 	        </div>	
-	        <div class="popup-form-group">
+	        <div class="popup-form-group" style="margin-bottom: .2rem;">
 	        	<label for="button" class="sr-only">操作协助</label>
-		        <input id="button" name="button.actionName" class="form-control-one-line" placeholder="操作协助" style="width:75%" />			        
+		        <input id="button" name="button.actionName" class="form-control-one-line form-plugin-smaller" placeholder="操作协助" style="width:75%" />			        
 		        <span style="cursor:pointer" onclick="$('#button-div').show();">操作</span>	
 		        <div id="button-hidden"></div>	        		        	      
 		    </div>
-	        <div class="popup-form-group">	
+	        <div class="popup-form-group" style="margin-bottom: .2rem;">	
 		        <label for="timeLimit" class="sr-only">节点时效</label>
-		        <input id="timeLimit" name="timeLimit" class="form-control-one-line" placeholder="节点时效"  style="width:75%"/>&nbsp;小时        			        
+		        <input id="timeLimit" name="timeLimit" class="form-control-one-line form-plugin-smaller" placeholder="节点时效"  style="width:75%"/>&nbsp;小时        			        
 	        </div>		 
 		    <hr style="margin-top: .3rem; margin-bottom: .3rem"></hr>
-	        <div class="popup-form-group"> 
+	        <div class="popup-form-group" style="margin-bottom: .2rem;"> 
 		    	<label for="nodeStatus" class="sr-only">节点办理人</label> 
-		        <input type="radio" name="noder" value="办理人" onclick="nodeKeydown('warn2'); $('#user-sel').show();$('#role-sel').hide();$('#org-sel').hide();">&nbsp;办理人
-		        <input type="radio" name="noder" value="办理角色" onclick="nodeKeydown('warn2'); $('#role-sel').show();$('#org-sel').show();$('#user-sel').hide();">&nbsp;办理角色
+		        <input type="radio" name="noder" value="办理人" onclick="nodeKeydown('warn4'); $('#node-div').css('height','55%');$('#user-sel').show();$('#role-sel').hide();$('#org-sel').hide();">&nbsp;办理人
+		        <input type="radio" name="noder" value="办理角色" onclick="nodeKeydown('warn4');$('#node-div').css('height','60%'); $('#role-sel').show();$('#org-sel').show();$('#user-sel').hide();">&nbsp;办理角色
+		        <span id="cleanId" style="padding-left:20%;cursor:pointer;display:none" onclick="clean()">🔪</span>
 		        <label style="display:none;color:red;font-weight:bold;" id="warn4">!</label>		        
 	        </div>		        	     
-	        <div class="popup-form-group" id="user-sel" style="display:none;">
+	        <div class="popup-form-group" id="user-sel" style="display:none;margin-bottom: .2rem;">
 	        	<label for="usersName" class="sr-only">办理人</label>
-		        <input id="usersName" name="usersName" class="form-control-one-line" placeholder="办理人" style="width:75%" />			        
+		        <input id="usersName" name="usersName" class="form-control-one-line form-plugin-smaller" placeholder="办理人" style="width:75%" />			        
 		        <span style="cursor:pointer" onclick="$('#user-div').show();">用户</span>
 		        <label style="display:none;color:red;font-weight:bold;" id="warn5">!</label>
 		        <div id="user-hidden"></div>		        
 		    </div>
-		    <div class="popup-form-group" id="role-sel" style="display:none;">		    	
+		    <div class="popup-form-group" id="role-sel" style="display:none;margin-bottom: .2rem;">		    	
 		    	<div class="navbar" style=" padding: 0rem 0rem;">
 			        <div class="navbar-inner">
 			            <div class="container" style="padding-left: 0px;">	        		        			        
 		                <ul class="nav" >			                    
 		                    <li class="dropdown" id="accountmenu">
-		                        <button type="button" id="role" class="btn btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="position:overflow;font-size: 1rem;">
+		                        <button type="button" id="role" class="btn btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="position:overflow;">
 							    	&nbsp;角色选择
 							  	</button>
 							  	<input type="hidden" name="role.roleId" id="roleId"/>
 							  	<input type="hidden" name="role.roleName" id="roleName"/>
 		                        <ul class="dropdown-menu" id="role-ul">		                        	
 		                        	<c:forEach var="item" items="${roles}" varStatus="status">
-							  			<li value="${item.roleId}" onclick="nodeKeydown('warn6');"><a class="dropdown-item" href="#">${item.roleName}</a></li>
+							  			<li value="${item.roleId}" onclick="nodeKeydown('warn6');"><a class="dropdown-item" style="font-size:.8rem;" href="#">${item.roleName}</a></li>
 							  		</c:forEach>			                            
 		                        </ul>
 		                    </li>
@@ -692,21 +832,21 @@
 		            <label style="display:none;color:red;font-weight:bold;" id="warn6">!</label>
 		        </div>						       		        
 		     </div>
-		     <div class="popup-form-group" id="org-sel" style="display:none;">
+		     <div class="popup-form-group" id="org-sel" style="display:none;margin-bottom: .2rem;">
 		        <label for="org" class="sr-only">所在单位</label>
-		        <input id="org" name="org.orgName" class="form-control-one-line" placeholder="所在单位" style="width:75%" />
+		        <input id="orgName" name="org.orgName" class="form-control-one-line form-plugin-smaller" placeholder="所在单位" style="width:75%" />
 				<input type="hidden" id="orgId" name="org.orgId" />
 				<span style="cursor:pointer" onclick="$('#org-div').show();">单位</span>				        
 	        </div> 
 	        <hr style="margin-top: .3rem; margin-bottom: .3rem"></hr>  		       
-		    <div class="popup-form-group"> 
+		    <div class="popup-form-group" style="margin-bottom: .2rem;"> 
 		    	<label for="nodeStatus" class="sr-only">节点状态</label> 
 		        <input type="radio" id="status" name="status" value="有效" checked>&nbsp;有效
 		        <input type="radio" id="status" name="status" value="无效">&nbsp;无效			        
 	        </div>
-	        <hr></hr>		        		      
+	        <hr style="margin-top: .5rem; margin-bottom: .5rem;"></hr>		        		      
 	        <div style="margin-bottom:10px;margin-top:10px">
-		    	<button class="btn btn-lg btn-primary-dialog " style="margin-right:20px;" type="button" onclick="saveNode();" >保存</button>
+		    	<button class="btn btn-lg btn-primary-dialog buttom-smaller" style="margin-right:20px;" type="button" onclick="saveNode();" >保存</button>
 		   </div> 			   
 	   </form>
 	</div>
@@ -725,7 +865,7 @@
     </header>
     <hr style="margin-top: .5rem; margin-bottom: .5rem;"></hr>
     <div style="padding: 0px 13px 0px;">
-		<form id="nodesForm" class="navbar-form navbar-left" method="post" action="/wfnode/savesufnode/${wf.wfId}">
+		<form id="nodesForm" class="navbar-form navbar-left" method="post" action="${path}/wfnode/savesufnode/${wf.wfId}">
 			<input type="hidden" id="nodeNodeId" name="nodeNodeId" value="">	        
 	        <div class="popup-form-group">
 	            <select name="sufNodeId" id="sufNodeId" class="form-control-one-line" required >
@@ -754,13 +894,13 @@
     </header>
     <hr style="margin-top: .5rem; margin-bottom: .5rem;"></hr>
     <div style="padding: 0px 13px 0px;" >
-         <h5 class="d-flex justify-content-between align-items-center mb-2">
-           <span class="text-muted">返回结果</span>            
-           <span class="badge badge-secondary badge-pill" style="cursor:pointer;" onclick="selectedUsers();">√</span>
+         <h5 class="d-flex justify-content-between align-items-center mb-2" style="line-height: .9rem;">
+           <span class="text-muted" style="font-size: 25px;">☟</span>            
+           <span class="" style="cursor:pointer;" onclick="selectedUsers();">✔️</span>
          </h5>
-         <div style="height: 300px;overflow-y: auto;">
+         <div style="height: 270px;overflow-y: auto;">
           <ul class="list-group mb-3" id="user-lst">
-            <li class="list-group-item d-flex justify-content-between lh-condensed" style="height: 40px;background-color: #adcabc;">              
+            <li class="list-group-item d-flex justify-content-between lh-condensed" style="padding: .4rem 1rem;background-color: #adcabc;">              
               <div>
                 <h6 class="my-0">&nbsp;姓名</h6>                
               </div>
@@ -768,7 +908,7 @@
               <span class="text-muted">所在机构</span>
             </li>                       
           </ul>
-         </div>
+         </div>         
        </div>
 </div>
 
@@ -776,7 +916,7 @@
 <div id="org-div" class="mask opacity" style="display:none">
 	<header>	      
          <div class="form-inline mt-2 mt-md-0" style="padding: 6px 10px 0px;" >
-           <input class="form-control-green mr-sm-2 required" type="text" placeholder="角色所在单位选择" aria-label="角色所在单位选择" id="orgName">
+           <input class="form-control-green mr-sm-2 required" type="text" placeholder="角色所在单位选择" aria-label="角色所在单位选择" id="selectedOrgName">
            <button class="btn btn-outline-success my-2 my-sm-0" onclick="selectOrgs();">选择</button>
          </div>
          <div style="position: absolute;top: 1px;right: 15px;">
@@ -785,13 +925,13 @@
     </header>
     <hr style="margin-top: .5rem; margin-bottom: .5rem;"></hr>
     <div style="padding: 0px 13px 0px;" >
-         <h5 class="d-flex justify-content-between align-items-center mb-2">
-           <span class="text-muted">返回结果</span>            
-           <span class="badge badge-secondary badge-pill" style="cursor:pointer;" onclick="selectedOrgs();">√</span>
+         <h5 class="d-flex justify-content-between align-items-center mb-2" style="line-height: .9rem;">
+           <span class="text-muted" style="font-size: 25px;">☟</span>            
+           <span class="" style="cursor:pointer;" onclick="selectedOrgs();">✔️</span>
          </h5>
-         <div style="height: 300px;overflow-y: auto;">
+         <div style="height: 270px;overflow-y: auto;">
           <ul class="list-group mb-3" id="org-lst">
-            <li class="list-group-item d-flex justify-content-between lh-condensed" style="height: 40px;background-color: #adcabc;">              
+            <li class="list-group-item d-flex justify-content-between lh-condensed" style="padding: .4rem 1rem;background-color: #adcabc;">              
               <div>
                 <h6 class="my-0">&nbsp;单位名称</h6>                
               </div>
@@ -825,14 +965,16 @@
 	<SPAN style="cursor:pointer;" onclick="$('#PopUp-1').hide();unfrozenNode();" id="unfrozen">解冻</SPAN>
 	-->
 	<p style="margin-top: 0.3rem;margin-bottom: 0.3rem;"></p>
-	<SPAN style="cursor:pointer;" onclick="$('#PopUp-1').hide();delLinkConfirm();">取消关联</SPAN>	
+	<SPAN style="cursor:pointer;" onclick="$('#PopUp-1').hide();delLinkConfirm();">取消关联</SPAN>
+	<p style="margin-top: 0.3rem;margin-bottom: 0.3rem;"></p>
+	<SPAN style="cursor:pointer;" onclick="$('#PopUp-1').hide();getSufNodes();">后置节点</SPAN>	
 	<p style="margin-top: 0.3rem;margin-bottom: 0.3rem;"></p>
 	<SPAN style="cursor:pointer;" onclick="$('#PopUp-1').hide();delConfirm();">删除节点</SPAN>
 	<!-- 只有流程配置了表，才会出现字段授权功能 -->
 	<c:if test="${! empty wf.tbLst }">
 		<hr style="margin-top: 0.3rem;margin-bottom: 0.3rem;"></hr>
 		<SPAN style="cursor:pointer;" onclick="$('#PopUp-1').hide();openTableElements(${wf.tbId});">字段授权</SPAN>
-	</c:if>
+	</c:if>	
 </DIV>
 <!-- 删除弹出窗口 -->
 <div id="confirm-dialog"  title="确认窗口" >
@@ -872,11 +1014,11 @@
     </header>
     <hr style="margin-top: .5rem; margin-bottom: .5rem;"></hr>
     <div style="padding: 0px 13px 0px;" >
-         <h5 class="d-flex justify-content-between align-items-center mb-2">
-           <span class="text-muted">返回结果</span>            
-           <span class="badge badge-secondary badge-pill" style="cursor:pointer;" onclick="selectedButton();">√</span>
+         <h5 class="d-flex justify-content-between align-items-center mb-2" style="line-height: .9rem;">
+           <span class="text-muted" style="font-size: 25px;">☟</span>            
+           <span class="" style="cursor:pointer;" onclick="selectedButton();">✔️</span>
          </h5>
-         <div style="height: 300px;overflow-y: auto;">
+         <div style="height: 270px;overflow-y: auto;">
           <ul class="list-group mb-3" id="button-lst"></ul>          	
          </div>
        </div>
@@ -894,11 +1036,11 @@
     </header>
     <hr style="margin-top: .5rem; margin-bottom: .5rem;"></hr>
     <div style="padding: 0px 13px 0px;" >
-         <h5 class="d-flex justify-content-between align-items-center mb-2">
-           <span class="text-muted">返回结果</span>            
-           <span class="badge badge-secondary badge-pill" style="cursor:pointer;" onclick="delNodeLink();">确定</span>
+         <h5 class="d-flex justify-content-between align-items-center mb-2" style="line-height: .9rem;">
+           <span class="text-muted" style="font-size: 25px;">☟</span>            
+           <span class="" style="cursor:pointer;" onclick="delNodeLink();">✔️</span>
          </h5>
-         <div style="height: 300px;overflow-y: auto;">
+         <div style="height: 270px;overflow-y: auto;">
           <ul class="list-group mb-3" id="link-lst"></ul>          	
          </div>
        </div>
@@ -916,13 +1058,36 @@
     </header>
     <hr style="margin-top: .5rem; margin-bottom: .5rem;"></hr>
     <div style="padding: 0px 13px 0px;" >
-         <h5 class="d-flex justify-content-between align-items-center mb-2">
-           <span class="text-muted">字段列表</span>   
+         <h5 class="d-flex justify-content-between align-items-center mb-2" style="line-height: .9rem;">
+           <span class="text-muted" style="font-size: 25px;">☟</span>   
            <span id="fields_message"></span>         
-           <span class="badge badge-secondary badge-pill" style="cursor:pointer;" onclick="setTableElements();">确定</span>
+           <span class="" style="cursor:pointer;" onclick="setTableElements();">✔️</span>
          </h5>
          <div style="height: 270px;overflow-y: auto;">
           <ul class="list-group mb-3" id="fields-lst"></ul>          	
+         </div>
+       </div>
+</div>
+
+<!-- 本节点的后置节点窗口 -->
+<div id="sufnodes-div" class="mask opacity" style="display:none">
+	<header>	      
+         <div class="form-inline mt-2 mt-md-0" style="padding: 6px 10px 0px;" >
+           <label>后置节点必经节点选择</label>
+         </div>
+         <div style="position: absolute;top: 1px;right: 15px;">
+         	<span class="badge badge-secondary badge-pill" style="background-color:#46a70a;cursor:pointer;" onclick="$('#sufnodes-div').hide();">×</span>
+         </div>	      	     
+    </header>
+    <hr style="margin-top: .5rem; margin-bottom: .5rem;"></hr>
+    <div style="padding: 0px 13px 0px;" >
+         <h5 class="d-flex justify-content-between align-items-center mb-2" style="line-height: .9rem;">
+           <span class="text-muted" style="font-size: 25px;">☟</span> 
+            <span id="sufnodes_message"></span>            
+           <span class="" style="cursor:pointer;" onclick="selectedNecessarySufNode();">✔️</span>
+         </h5>
+         <div style="height: 270px;overflow-y: auto;">
+          <ul class="list-group mb-3" id="sufnodes-lst"></ul>          	
          </div>
        </div>
 </div>

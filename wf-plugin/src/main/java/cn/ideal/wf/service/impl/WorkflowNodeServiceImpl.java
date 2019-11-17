@@ -19,6 +19,7 @@ import cn.ideal.wf.flowchat.draw.FlowChatService;
 import cn.ideal.wf.model.FlowChatNode;
 import cn.ideal.wf.model.Workflow;
 import cn.ideal.wf.model.WorkflowAction;
+import cn.ideal.wf.model.WorkflowFlow;
 import cn.ideal.wf.model.WorkflowNode;
 import cn.ideal.wf.model.WorkflowRole;
 import cn.ideal.wf.model.WorkflowUser;
@@ -50,10 +51,9 @@ public class WorkflowNodeServiceImpl implements WorkflowNodeService{
 	 * 通过缓存获取节点信息
 	 */
 	@Override
-	public List<WorkflowNode> findNextNodes(String nodeName, Long wfId) {
+	public List<WorkflowNode> findNextNodes(String nodeName, Long wfId,Long bizId) {
 		if(nodeName == null) return new ArrayList<WorkflowNode>();
-		if(wfId == null) return new ArrayList<WorkflowNode>();
-		
+		if(wfId == null) return new ArrayList<WorkflowNode>();		
 		if(nodeName.equals(WFConstants.WF_NODE_STRAT)) {
 			List<WorkflowNode> wfns = new ArrayList<WorkflowNode>();
 			//从缓存中获取
@@ -83,26 +83,26 @@ public class WorkflowNodeServiceImpl implements WorkflowNodeService{
 			return wfns;
 		}
 		else {			
-			List<WorkflowNode> wfns = workflowNodeCacheFactory.getNextNode(nodeName, wfId);
-			if(wfns != null ) return wfns;
-			else {
-				wfns = this.findAll(wfId);
-				List<WorkflowNode> res = new ArrayList<WorkflowNode>();
-				for(WorkflowNode wfn : wfns){
-					if(wfn.getNodeName().equals(nodeName)) {
-						res = wfn.getSufNodes();
-						break;
+			List<WorkflowNode> res = workflowNodeCacheFactory.getNextNode(nodeName, wfId);
+			if(res == null ){
+				WorkflowNode wfn = workflowNodeMapper.findByNodeName(nodeName, wfId);
+				res = workflowNodeMapper.findSufNode(wfn.getNodeId());											
+			}
+			
+			//多节点时需判断是否必经节点已经办理过
+			if(res.size() > 1 && bizId != null){
+				for(WorkflowNode node : res){
+					if(node.getNecessary() != null && node.getNecessary().equals("是")){
+						List<WorkflowFlow> wffs = workflowFlowService.findWorkflowWithSteps(bizId, wfId, node.getNodeName());
+						if(wffs == null || wffs.size() == 0) {
+							res.clear();
+							res.add(node);
+							break;
+						}
 					}
 				}
-							
-				for(int i=0;i<res.size();i++){
-					for(WorkflowNode wfn : wfns){
-						if(res.get(i).getNodeId().compareTo(wfn.getNodeId()) == 0) res.set(i, wfn);
-					}					
-				}
-				
-				return res;
 			}
+			return res;
 		}
 	}
 
@@ -135,7 +135,15 @@ public class WorkflowNodeServiceImpl implements WorkflowNodeService{
 
 	@Override
 	public WorkflowNode findNode(String nodeName, Long wfId) {
-		return workflowNodeMapper.findByNodeName(nodeName, wfId);
+		//对于创建节点的处理
+		if(nodeName.equals(WFConstants.WF_NODE_START)) {
+			WorkflowNode wfn = new WorkflowNode();
+			wfn.setNodeName(WFConstants.WF_NODE_START);
+			wfn.setnType(WFConstants.WF_NODE_TYPE_SINGLE);
+			return wfn;
+		}
+		else return workflowNodeMapper.findByNodeName(nodeName, wfId);
+		
 	}
 
 	@Override
@@ -145,15 +153,18 @@ public class WorkflowNodeServiceImpl implements WorkflowNodeService{
 
 	@Override
 	public WorkflowNode findFirstNode(Long wfId) {
-		return workflowNodeCacheFactory.getFirstNode(wfId);
+		if(wfId == null) return null;
+		WorkflowNode node = workflowNodeCacheFactory.getFirstNode(wfId);
+		
+		return node;
 	}
 
 	@Override
 	public List<WorkflowNode> findRelSufNodes(Long nodeId, Long wfId) {
 		List<WorkflowNode> nodes = this.findAll(wfId);
-		for(WorkflowNode node : nodes){
-			if(node.getNodeId().compareTo(nodeId) == 0){				
-				nodes.remove(node);
+		for(int i=0;i<nodes.size();i++){
+			if(nodes.get(i).getNodeId().compareTo(nodeId) == 0){				
+				nodes.remove(i);
 				break;
 			}
 		}
@@ -242,5 +253,10 @@ public class WorkflowNodeServiceImpl implements WorkflowNodeService{
 			}
 		}
 		return wf;
+	}
+
+	@Override
+	public WorkflowAction findButton(String actionCodeName) {
+		return workflowNodeMapper.findButton(actionCodeName);
 	}
 }

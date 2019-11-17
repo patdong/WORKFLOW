@@ -18,11 +18,18 @@
 	text-align: right;
 	font-size:15px;
 }
-
+.table-label-left {
+	text-align: left;
+	font-size:15px;
+}
+.table-label-center {
+	text-align: center;
+	font-size:15px;
+}
 /*表单非标签*/
 .table-unlabel {
 	text-align: left;
-	padding-left:5px;
+	padding:0;
 	font-size:15px;
 }
 
@@ -103,6 +110,33 @@
 	float: left;
 	margin: 10px
 }
+/*图片校验*/
+.imageerror {
+    color: #FF0000;
+}
 
+/*图片下带文字的位置*/
+.imagetext{
+	position:absolute; 
+	z-index:2; 
+	left:-50px; 
+	top: 50%;
+}
 
+/*无边框*/
+.inputnoborder {
+    background-color: transparent;
+    border: 0px solid;    
+}
 
+/*打印主表单宽度*/
+.table-print-width {
+	width:600px;
+	table-layout:fixed;	
+}
+
+/*打印表单元格*/
+.table-td-print{
+	white-space:normal;
+	word-break:break-all;
+}
